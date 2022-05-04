@@ -1,3 +1,5 @@
+import random
+import time
 import discord, json, asyncio, typing, os
 from discord import app_commands
 from rocketbot_client import RocketBotClient
@@ -144,6 +146,30 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
 
     #Send message
     await interaction.response.send_message(embed=embed)
+
+
+@tree.command()
+async def battle(interaction: discord.Interaction):
+    async with interaction.channel.typing():
+        await time.sleep(1)
+    
+    event = random.choices(
+        population=[
+            "The bot dodged your attack. <:bot:971535317859442708>",
+            "You thought you hit the bot, but its health goes back up due to network lag.",
+            "You destroyed the bot!\nIt drops one coin. <:coin-1:971530033627799593>",
+            "The bot vanishes. An error pops up: `CLIENT DISCONNECTED` <:alertbad:971535447727689769>"
+        ],
+        weights=[
+            90,
+            5,
+            10,
+            1,
+        ],
+        k=1,
+    )[0]
+    await interaction.response.send_message(event)
+
 
 @tree.command(guild=discord.Object(id=962142361935314996))
 async def sync_commands(interaction: discord.Interaction):
