@@ -147,9 +147,17 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
     #Send message
     await interaction.response.send_message(embed=embed)
 
+@tree.command()
+async def bot_info(interaction: discord.Interaction):
+    '''Get info about this bot.'''
+    embed = discord.Embed()
+    embed.title = "Bot info:"
+    embed.description = "Community discord bot, being hosted on repl.it\n\nFor more info visit https://github.com/Blakiemon/Winterpixel-Community-Bot.\n\n All pull requests will be reviewed, and appreciated."
+    await interaction.response.send_message(embed=embed)
 
 @tree.command()
 async def battle(interaction: discord.Interaction):
+    '''Have a battle with a random bot!'''
     async with interaction.channel.typing():
         await asyncio.sleep(1)
     
