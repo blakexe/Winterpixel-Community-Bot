@@ -155,10 +155,10 @@ async def battle(interaction: discord.Interaction):
     
     event = random.choices(
         population=[
-            "The bot dodged your attack. <:bot:971535317859442708>",
+            "The bot dodged your attack. <:bot:917467970182189056>",
             "You thought you hit the bot, but its health goes back up due to network lag.",
-            "You destroyed the bot!\nIt drops one coin. <:coin-1:971530033627799593>",
-            "The bot vanishes. An error pops up: `CLIENT DISCONNECTED` <:alertbad:971535447727689769>"
+            "You destroyed the bot!\nIt drops one coin. <:coin:910247623787700264>",
+            "The bot vanishes. An error pops up: `CLIENT DISCONNECTED` <:alertbad:910249086299557888>"
         ],
         weights=[
             90,
