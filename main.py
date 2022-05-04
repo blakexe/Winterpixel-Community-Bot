@@ -151,7 +151,7 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
 @tree.command()
 async def battle(interaction: discord.Interaction):
     async with interaction.channel.typing():
-        await time.sleep(1)
+        await asyncio.sleep(1)
     
     event = random.choices(
         population=[
