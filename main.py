@@ -34,6 +34,48 @@ server_config = {}
 #Initialize rockebot client
 rocketbot_client = RocketBotClient(rocketbot_user, rocketbot_pass)
 
+def generate_random_name():
+    adjective = [
+        "master",
+        "crappy",
+        "professional",
+        "smelly",
+        "oily",
+        "rusty",
+        "crummy",
+        "hamstery",
+        "crunchy",
+        "slippery",
+        "watery",
+        "super",
+        "superlative"
+    ]
+
+    noun = [
+        "blaster",
+        "shagster",
+        "killer",
+        "dunker",
+        "krunker",
+        "rocketbotter",
+        "bot",
+        "turbine_engine",
+        "diesel-gusher"
+        "dumptruck"
+        "rat-driver",
+        "hamster-manueverer"
+    ]
+
+    name = random.choice(adjective) + random.choice(noun)
+
+    random_number = random.choice([True, False])
+
+    if random_number:
+        name += f"{random.randint(0, 9)}{random.randint(0, 9)}00"
+    
+    return name
+    
+
 async def refresh_config():
     '''Refresh game configuration every 10 minutes'''
     global server_config
@@ -230,6 +272,9 @@ async def battle(interaction: discord.Interaction):
     
     await interaction.followup.send(event)
 
+@tree.command()
+async def build_a_bot(interaction: discord.Interaction):
+    await interaction.response.send_message(f"Meet your lovely new bot!\n\n{generate_random_name()}")
 
 @tree.command(guild=discord.Object(id=962142361935314996))
 async def sync_commands(interaction: discord.Interaction):
