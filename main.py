@@ -161,6 +161,16 @@ async def battle(interaction: discord.Interaction):
     
     async with interaction.channel.typing():
         await asyncio.sleep(1)
+        
+        
+    curr_season = server_config['season']
+
+    #Get leaderboard info
+    response = await rocketbot_client.query_leaderboard(curr_season)
+    response = json.loads(response['payload'])['records']
+    
+    rand_player = random.choices(response)['username']
+    
     events = {
         "The bot dodged your attack. <:bot:917467970182189056>"
         : 70,
@@ -170,9 +180,17 @@ async def battle(interaction: discord.Interaction):
         : 5,
         "You thought you hit the bot, but its health returns to full due to network lag. 📶"
         : 5,
+        "You destroyed the bot! It drops a some coins and a crate. <:coin:910247623787700264> <:coin:910247623787700264> <:coin:910247623787700264> 📦. But " + rand_player + " comes out of nowhere and steals it."
+        : 3,
         "You accidentally hit a teammate and dunk them into the water. <:splash:910252276961128469>"
         : 2,
         "The bot vanishes. An error pops up: `CLIENT DISCONNECTED` <:alertbad:910249086299557888>"
+        : 1,
+        "Spearfire81 comes out of nowhere and kills you and the bot to win the game."
+        : 1,
+        "Boop comes out of nowhere and shoots a shield at the bot deflecting it back to you and you die."
+        : 1,
+        "You miss. Before you try to shoot again PepperBoi comes out of nowhere and stands next to the bot and you decide to leave out of sheer intimidation."
         : 1,
         "The missile goes off-screen. Instead of getting a kill, a beachball comes hurtling back at mach 2."
         : 0.3,
@@ -184,13 +202,7 @@ async def battle(interaction: discord.Interaction):
         : 0.1,
         "You get a quad kill, four birds one stone! It was four bots doing the same exact movement. They drop 4 coins. <:coin:910247623787700264> <:coin:910247623787700264> <:coin:910247623787700264> <:coin:910247623787700264>"
         : 0.1,
-        "🗿 Moyai God comes down from the heavens and blocks your missile. You and the bot become best friends."
-        : 0.1,
-        "Spearfire81 comes out of nowhere and kills you and the bot and leaves."
-        : 0.1,
-        "Boop comes out of nowhere and shoots a shield at the bot deflecting it back to you and you die."
-        : 0.1,
-        "You miss. Before you try to shoot again PepperBoi comes out of nowhere and stands next to the bot and you decide to leave out of sheer intimidation."
+        "🗿 Moyai God comes down from the heavens and blocks your missile. You bow down (as a tank) and repent for your sins."
         : 0.1,
         }
     event = "You fire a missile at a bot. <:rocketmint:910253491019202661>\n" + random.choices(population=events.keys(), weights=events.values(), k=1)[0]
