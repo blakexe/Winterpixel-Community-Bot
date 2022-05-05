@@ -52,6 +52,10 @@ async def on_ready():
 
     print("Winterpixel community bot is ready.")
 
+async def on_message(message):
+     if "moyai" in message.content or "🗿" in message.content:
+           await message.add_reaction(":moyai:")
+
 @tree.command()
 async def leaderboard(interaction: discord.Interaction, season: int = -1):
     '''Return the specified season leaderboard, default current'''
