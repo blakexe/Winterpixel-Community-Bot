@@ -183,6 +183,8 @@ async def battle(interaction: discord.Interaction):
         : 0.1,
         "You get a quad kill, four birds one stone! It was four bots doing the same exact movement. They drop 4 coins. <:coin:910247623787700264> <:coin:910247623787700264> <:coin:910247623787700264> <:coin:910247623787700264>"
         : 0.1,
+        "🗿 Moyai God comes down from the heavens and blocks your missile. You and the bot become best friends."
+        : 0.1,
         }
     event = "You fire a missile at a bot. <:rocketmint:910253491019202661>\n" + random.choices(population=events.keys(), weights=events.values(), k=1)[0]
 
