@@ -166,12 +166,14 @@ async def battle(interaction: discord.Interaction):
             "The bot dodged your attack. <:bot:917467970182189056>",
             "You thought you hit the bot, but its health goes back up due to network lag.",
             "You destroyed the bot!\nIt drops one coin. <:coin:910247623787700264>",
-            "The bot vanishes. An error pops up: `CLIENT DISCONNECTED` <:alertbad:910249086299557888>"
+            "The bot vanishes. An error pops up: `CLIENT DISCONNECTED` <:alertbad:910249086299557888>",
+            "You get a quad kill, four birds one stone! It was four bots doing the same exact movement. They drop 4 coins. <:coin:910247623787700264> <:coin:910247623787700264> <:coin:910247623787700264> <:coin:910247623787700264>"
         ],
         weights=[
-            90,
+            89,
             5,
             10,
+            1,
             1,
         ],
         k=1,
