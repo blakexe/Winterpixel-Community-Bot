@@ -45,6 +45,11 @@ async def refresh_config():
         await asyncio.sleep(600)
 
 @client.event
+async def on_message(message: discord.message):
+     if "moyai" in message.content or "🗿" in message.content:
+           await message.add_reaction("🗿")
+
+@client.event
 async def on_ready():
     '''Called when the discord client is ready.'''
     #Start up the 10 minute config refresher
