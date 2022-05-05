@@ -1,5 +1,4 @@
-import random
-import time
+import random, aiohttp
 import discord, json, asyncio, typing, os
 from discord import app_commands
 from rocketbot_client import RocketBotClient
@@ -91,14 +90,17 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
     await interaction.response.defer(ephemeral=False, thinking=True)
 
     #If the user specificed a friend code we need to query the server for their ID.
-    if (user_type == "Friend ID"):
-        id_response = await rocketbot_client.friend_code_to_id(id)
-        id = json.loads(id_response['payload'])['user_id']
-    
-    #Get user data
-    response = await rocketbot_client.get_user(id)
-    user_data = json.loads(response['payload'])[0]
-    metadata = user_data['metadata']
+    try:
+        if (user_type == "Friend ID"):
+            id_response = await rocketbot_client.friend_code_to_id(id)
+            id = json.loads(id_response['payload'])['user_id']
+        
+        #Get user data
+        response = await rocketbot_client.get_user(id)
+        user_data = json.loads(response['payload'])[0]
+        metadata = user_data['metadata']
+    except aiohttp.ClientResponseError:
+        await interaction.followup.send(embed=discord.Embed(color=discord.Color.red(), title="❌ Player not found ❌"))
 
     #Create embed
     embed = discord.Embed()
