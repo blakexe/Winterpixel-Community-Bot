@@ -56,6 +56,8 @@ async def on_ready():
 async def leaderboard(interaction: discord.Interaction, season: int = -1):
     '''Return the specified season leaderboard, default current'''
 
+    await interaction.response.defer(ephemeral=False, thinking=True)
+
     curr_season = server_config['season']
 
     #If season is unreasonable, default to current season
@@ -80,6 +82,8 @@ async def leaderboard(interaction: discord.Interaction, season: int = -1):
 @tree.command()
 async def get_user(interaction: discord.Interaction, user_type: typing.Literal['User ID', 'Friend ID'], id: str):
     '''Return info about a specified user'''
+
+    await interaction.response.defer(ephemeral=False, thinking=True)
 
     #If the user specificed a friend code we need to query the server for their ID.
     if (user_type == "Friend ID"):
@@ -150,6 +154,9 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
 @tree.command()
 async def bot_info(interaction: discord.Interaction):
     '''Get info about this bot.'''
+
+    await interaction.response.defer(ephemeral=False, thinking=True)
+
     embed = discord.Embed()
     embed.title = "Bot info:"
     embed.description = "Community discord bot, being hosted on repl.it\n\nFor more info visit https://github.com/Blakiemon/Winterpixel-Community-Bot.\n\n All pull requests will be reviewed, and appreciated."
@@ -158,6 +165,8 @@ async def bot_info(interaction: discord.Interaction):
 @tree.command()
 async def battle(interaction: discord.Interaction):
     '''Have a battle with a random bot!'''
+
+    await interaction.response.defer(ephemeral=False, thinking=True)
         
     curr_season = server_config['season']
 
@@ -208,8 +217,7 @@ async def battle(interaction: discord.Interaction):
         event = event.replace("<R>", rand_player)
     else:
         #Otherwise wait half a second
-        async with interaction.channel.typing():
-            await asyncio.sleep(.5)
+        await asyncio.sleep(.5)
     
     await interaction.response.send_message(event)
 
