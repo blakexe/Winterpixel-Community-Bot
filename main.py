@@ -77,7 +77,7 @@ async def leaderboard(interaction: discord.Interaction, season: int = -1):
     message += "```"
 
     #Send
-    await interaction.response.send_message(embed=discord.Embed(title=f"Season {season} Leaderboard:", description=message))
+    await interaction.followup.send(embed=discord.Embed(title=f"Season {season} Leaderboard:", description=message))
 
 @tree.command()
 async def get_user(interaction: discord.Interaction, user_type: typing.Literal['User ID', 'Friend ID'], id: str):
@@ -149,7 +149,7 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
     embed.add_field(name="🗒️ ***Stats***:", value=stat_list, inline=False)
 
     #Send message
-    await interaction.response.send_message(embed=embed)
+    await interaction.followup.send(embed=embed)
 
 @tree.command()
 async def bot_info(interaction: discord.Interaction):
@@ -160,7 +160,7 @@ async def bot_info(interaction: discord.Interaction):
     embed = discord.Embed()
     embed.title = "Bot info:"
     embed.description = "Community discord bot, being hosted on repl.it\n\nFor more info visit https://github.com/Blakiemon/Winterpixel-Community-Bot.\n\n All pull requests will be reviewed, and appreciated."
-    await interaction.response.send_message(embed=embed)
+    await interaction.followup.send(embed=embed)
 
 @tree.command()
 async def battle(interaction: discord.Interaction):
@@ -219,7 +219,7 @@ async def battle(interaction: discord.Interaction):
         #Otherwise wait half a second
         await asyncio.sleep(.5)
     
-    await interaction.response.send_message(event)
+    await interaction.followup.send(event)
 
 
 @tree.command(guild=discord.Object(id=962142361935314996))
