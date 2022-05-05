@@ -100,6 +100,7 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
         user_data = json.loads(response['payload'])[0]
         metadata = user_data['metadata']
     except aiohttp.ClientResponseError:
+        #The code is wrong, send an error response
         await interaction.followup.send(embed=discord.Embed(color=discord.Color.red(), title="❌ Player not found ❌"))
         return
 
