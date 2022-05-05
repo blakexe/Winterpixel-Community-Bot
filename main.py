@@ -158,6 +158,7 @@ async def bot_info(interaction: discord.Interaction):
 @tree.command()
 async def battle(interaction: discord.Interaction):
     '''Have a battle with a random bot!'''
+    
     async with interaction.channel.typing():
         await asyncio.sleep(1)
     events = {
@@ -184,6 +185,12 @@ async def battle(interaction: discord.Interaction):
         "You get a quad kill, four birds one stone! It was four bots doing the same exact movement. They drop 4 coins. <:coin:910247623787700264> <:coin:910247623787700264> <:coin:910247623787700264> <:coin:910247623787700264>"
         : 0.1,
         "🗿 Moyai God comes down from the heavens and blocks your missile. You and the bot become best friends."
+        : 0.1,
+        "Spearfire81 comes out of nowhere and kills you and the bot and leaves."
+        : 0.1,
+        "Boop comes out of nowhere and shoots a shield at the bot deflecting it back to you and you die."
+        : 0.1,
+        "You miss. Before you try to shoot again PepperBoi comes out of nowhere and stands next to the bot and you decide to leave out of sheer intimidation."
         : 0.1,
         }
     event = "You fire a missile at a bot. <:rocketmint:910253491019202661>\n" + random.choices(population=events.keys(), weights=events.values(), k=1)[0]
