@@ -61,7 +61,7 @@ async def leaderboard(interaction: discord.Interaction, season: int = -1):
     curr_season = server_config['season']
 
     #If season is unreasonable, default to current season
-    if season <= 0 or season > curr_season:
+    if season < 0 or season > curr_season:
         season = curr_season
 
     #Get leaderboard info
