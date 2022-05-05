@@ -66,7 +66,7 @@ def generate_random_name():
         "hamster-manueverer"
     ]
 
-    name = random.choice(adjective) + random.choice(noun)
+    name = random.choice(adjective).capitalize() + random.choice(noun).capitalize()
 
     random_number = random.choice([True, False])
 
@@ -275,7 +275,7 @@ async def battle(interaction: discord.Interaction):
 @tree.command()
 async def build_a_bot(interaction: discord.Interaction):
     '''Bear the responsibility of creating new life... I mean bot'''
-    await interaction.response.send_message(f"**Meet your lovely new bot!**\n\n`{generate_random_name()}`")
+    await interaction.response.send_message(f"***Meet your lovely new bot!***\n\n`{generate_random_name()}`")
 
 @tree.command(guild=discord.Object(id=962142361935314996))
 async def sync_commands(interaction: discord.Interaction):
