@@ -101,6 +101,7 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
         metadata = user_data['metadata']
     except aiohttp.ClientResponseError:
         await interaction.followup.send(embed=discord.Embed(color=discord.Color.red(), title="❌ Player not found ❌"))
+        return
 
     #Create embed
     embed = discord.Embed()
