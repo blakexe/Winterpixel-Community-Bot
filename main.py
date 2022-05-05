@@ -84,10 +84,6 @@ async def leaderboard(interaction: discord.Interaction, season: int = -1):
     #Send
     await interaction.followup.send(embed=discord.Embed(title=f"Season {season} Leaderboard:", description=message))
 
-@tree.command(guild=discord.Object(id=962142361935314996))
-async def update_github(interaction: discord.Interaction):
-    pass
-
 @tree.command()
 async def get_user(interaction: discord.Interaction, user_type: typing.Literal['User ID', 'Friend ID'], id: str):
     '''Return info about a specified user'''
