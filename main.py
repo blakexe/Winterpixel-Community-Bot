@@ -48,7 +48,9 @@ def generate_random_name():
         "slippery",
         "watery",
         "super",
-        "superlative"
+        "superlative",
+        "creaky",
+        "bloody"
     ]
 
     noun = [
@@ -63,7 +65,9 @@ def generate_random_name():
         "diesel-gusher",
         "dumptruck",
         "rat-driver",
-        "hamster-manueverer"
+        "hamster-manueverer",
+        "badengine",
+        "killing-machine"
     ]
 
     name = random.choice(adjective).capitalize() + random.choice(noun).capitalize()
