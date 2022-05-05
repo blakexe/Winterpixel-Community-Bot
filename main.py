@@ -229,6 +229,7 @@ async def battle(interaction: discord.Interaction):
 @tree.command(guild=discord.Object(id=962142361935314996))
 async def sync_commands(interaction: discord.Interaction):
     await tree.sync()
+    await tree.sync(guild=discord.Object(id=962142361935314996))
     await interaction.response.send_message("Commands synced.")
 
 def main():
