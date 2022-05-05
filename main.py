@@ -60,8 +60,8 @@ def generate_random_name():
         "rocketbotter",
         "bot",
         "turbine_engine",
-        "diesel-gusher"
-        "dumptruck"
+        "diesel-gusher",
+        "dumptruck",
         "rat-driver",
         "hamster-manueverer"
     ]
@@ -274,7 +274,8 @@ async def battle(interaction: discord.Interaction):
 
 @tree.command()
 async def build_a_bot(interaction: discord.Interaction):
-    await interaction.response.send_message(f"Meet your lovely new bot!\n\n{generate_random_name()}")
+    '''Bear the responsibility of creating new life... I mean bot'''
+    await interaction.response.send_message(f"**Meet your lovely new bot!**\n\n`{generate_random_name()}`")
 
 @tree.command(guild=discord.Object(id=962142361935314996))
 async def sync_commands(interaction: discord.Interaction):
