@@ -204,9 +204,9 @@ async def battle(interaction: discord.Interaction):
         : 0.1,
         "🗿 Moyai God comes down from the heavens and blocks your missile. You bow down (as a tank) and repent for your sins."
         : 0.1,
-        }
-    event = "You fire a missile at a bot. <:rocketmint:910253491019202661>\n" + random.choices(population=events.keys(), weights=events.values(), k=1)[0]
-
+    }
+    event = "You fire a missile at a bot. <:rocketmint:910253491019202661>\n" + random.choices(population=list(events.keys()), weights=events.values(), k=1)[0]
+    
     await interaction.response.send_message(event)
 
 
