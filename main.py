@@ -160,24 +160,32 @@ async def battle(interaction: discord.Interaction):
     '''Have a battle with a random bot!'''
     async with interaction.channel.typing():
         await asyncio.sleep(1)
-    
-    event = random.choices(
-        population=[
-            "The bot dodged your attack. <:bot:917467970182189056>",
-            "You thought you hit the bot, but its health goes back up due to network lag.",
-            "You destroyed the bot!\nIt drops one coin. <:coin:910247623787700264>",
-            "The bot vanishes. An error pops up: `CLIENT DISCONNECTED` <:alertbad:910249086299557888>",
-            "You get a quad kill, four birds one stone! It was four bots doing the same exact movement. They drop 4 coins. <:coin:910247623787700264> <:coin:910247623787700264> <:coin:910247623787700264> <:coin:910247623787700264>"
-        ],
-        weights=[
-            89,
-            5,
-            10,
-            1,
-            1,
-        ],
-        k=1,
-    )[0]
+    events = {
+        "The bot dodged your attack. <:bot:917467970182189056>"
+        : 70,
+        "You destroyed the bot! It drops a single coin. <:coin:910247623787700264>"
+        : 10,
+        "The bot *expertly* dodged your attack. <:bot:917467970182189056>"
+        : 5,
+        "You thought you hit the bot, but its health returns to full due to network lag. 📶"
+        : 5,
+        "You accidentally hit a teammate and dunk them into the water. <:splash:910252276961128469>"
+        : 2,
+        "The bot vanishes. An error pops up: `CLIENT DISCONNECTED` <:alertbad:910249086299557888>"
+        : 1,
+        "The missile goes off-screen. Instead of getting a kill, a beachball comes hurtling back at mach 2."
+        : 0.3,
+        "The bot vanishes. Was there ever really a bot there at all?..."
+        : 0.2,
+        "You destroyed the bot! It drops what appears to be MILLIONS of coins, filling every pixel on your screen with a different shade of gold. Your game immediately slows to a halt and crashes."
+        : 0.2,
+        "The missile vanishes off the screen, seemingly lost to the water.\nSuddenly, you hear a flurry of *ping*s! The words \"Long Shot!\" splash across your monitor, followed by \"Two Birds\", \"Double Kill\", \"Triple Kill\", and finally \"Quad Kill\". This is it. This is the moment you thought would never happen. The \"Get a quad kill\" and \"Destroy two tanks with one explosion\" goals you've had for two months are finally complete. As the flood of joy and relief washes over you, so does the rising water over your tank. You've lost the match, but you don't care. The war is already won. In a hurry you leave the match and click to the Goals tab, overcome with anticipation to see those beautiful green *Collect!* buttons. You slide your cursor over.\nBAM! The moment before you click, the screen goes black. All you can see is \"Connecting...\". The loading indicator never goes away."
+        : 0.1,
+        "You get a quad kill, four birds one stone! It was four bots doing the same exact movement. They drop 4 coins. <:coin:910247623787700264> <:coin:910247623787700264> <:coin:910247623787700264> <:coin:910247623787700264>"
+        : 0.1,
+        }
+    event = "You fire a missile at a bot. <:rocketmint:910253491019202661>\n" + random.choices(population=events.keys(), weights=events.values(), k=1)[0]
+
     await interaction.response.send_message(event)
 
 
