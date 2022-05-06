@@ -1,5 +1,4 @@
-import random
-import time
+import random, aiohttp
 import discord, json, asyncio, typing, os
 from discord import app_commands
 from rocketbot_client import RocketBotClient
@@ -35,6 +34,52 @@ server_config = {}
 #Initialize rockebot client
 rocketbot_client = RocketBotClient(rocketbot_user, rocketbot_pass)
 
+def generate_random_name():
+    adjective = [
+        "master",
+        "crappy",
+        "professional",
+        "smelly",
+        "oily",
+        "rusty",
+        "crummy",
+        "hamstery",
+        "crunchy",
+        "slippery",
+        "watery",
+        "super",
+        "superlative",
+        "creaky",
+        "bloody"
+    ]
+
+    noun = [
+        "blaster",
+        "shagster",
+        "killer",
+        "dunker",
+        "krunker",
+        "rocketbotter",
+        "bot",
+        "turbine_engine",
+        "diesel-gusher",
+        "dumptruck",
+        "rat-driver",
+        "hamster-manueverer",
+        "badengine",
+        "killing-machine"
+    ]
+
+    name = random.choice(adjective).capitalize() + random.choice(noun).capitalize()
+
+    random_number = random.choice([True, False])
+
+    if random_number:
+        name += f"{random.randint(0, 9)}{random.randint(0, 9)}00"
+    
+    return name
+    
+
 async def refresh_config():
     '''Refresh game configuration every 10 minutes'''
     global server_config
@@ -43,6 +88,11 @@ async def refresh_config():
         response = await rocketbot_client.get_config()
         server_config = json.loads(response['payload'])
         await asyncio.sleep(600)
+
+@client.event
+async def on_message(message: discord.message):
+     if "moyai" in message.content or "🗿" in message.content:
+           await message.add_reaction("🗿")
 
 @client.event
 async def on_ready():
@@ -83,10 +133,6 @@ async def leaderboard(interaction: discord.Interaction, season: int = -1):
     #Send
     await interaction.followup.send(embed=discord.Embed(title=f"Season {season} Leaderboard:", description=message))
 
-@tree.command(guild=discord.Object(id=962142361935314996))
-async def update_github(interaction: discord.Interaction):
-    pass
-
 @tree.command()
 async def get_user(interaction: discord.Interaction, user_type: typing.Literal['User ID', 'Friend ID'], id: str):
     '''Return info about a specified user'''
@@ -94,14 +140,19 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
     await interaction.response.defer(ephemeral=False, thinking=True)
 
     #If the user specificed a friend code we need to query the server for their ID.
-    if (user_type == "Friend ID"):
-        id_response = await rocketbot_client.friend_code_to_id(id)
-        id = json.loads(id_response['payload'])['user_id']
-    
-    #Get user data
-    response = await rocketbot_client.get_user(id)
-    user_data = json.loads(response['payload'])[0]
-    metadata = user_data['metadata']
+    try:
+        if (user_type == "Friend ID"):
+            id_response = await rocketbot_client.friend_code_to_id(id)
+            id = json.loads(id_response['payload'])['user_id']
+        
+        #Get user data
+        response = await rocketbot_client.get_user(id)
+        user_data = json.loads(response['payload'])[0]
+        metadata = user_data['metadata']
+    except aiohttp.ClientResponseError:
+        #The code is wrong, send an error response
+        await interaction.followup.send(embed=discord.Embed(color=discord.Color.red(), title="❌ Player not found ❌"))
+        return
 
     #Create embed
     embed = discord.Embed()
@@ -229,6 +280,10 @@ async def battle(interaction: discord.Interaction):
     
     await interaction.followup.send(event)
 
+@tree.command()
+async def build_a_bot(interaction: discord.Interaction):
+    '''Bear the responsibility of creating new life... I mean bot'''
+    await interaction.response.send_message(f"***Meet your lovely new bot!***\n\n`{generate_random_name()}`")
 
 @tree.command(guild=discord.Object(id=962142361935314996))
 async def sync_commands(interaction: discord.Interaction):
