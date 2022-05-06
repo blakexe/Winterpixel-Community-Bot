@@ -310,7 +310,6 @@ async def start_game(interaction: discord.Interaction):
     for i in players:
         response += '{} '.format(i.mention)
     await interaction.response.send_message(response)
-    print(len(players))
     while len(players) >= 2:
         player_a = random.choice(players)
         player_b = random.choice(players)
