@@ -93,7 +93,7 @@ async def refresh_config():
 
 @client.event
 async def on_message(message: discord.message):
-     if "moyai" in message.content or "🗿" in message.content or "moai" in message.content:
+     if "moyai" in message.content.lower() or "🗿" in message.content.lower() or "moai" in message.content.lower():
            await message.add_reaction("🗿")
 
 @client.event
