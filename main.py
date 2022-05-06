@@ -35,6 +35,7 @@ server_config = {}
 rocketbot_client = RocketBotClient(rocketbot_user, rocketbot_pass)
 
 players = []
+bots = []
 
 def generate_random_name():
     adjective = [
@@ -285,7 +286,9 @@ async def battle(interaction: discord.Interaction):
 @tree.command()
 async def build_a_bot(interaction: discord.Interaction):
     '''Bear the responsibility of creating new life... I mean bot'''
-    await interaction.response.send_message(f"***Meet your lovely new bot!***\n\n`{generate_random_name()}`")
+    bot_name = generate_random_name()
+    bots.append(bot_name)
+    await interaction.response.send_message(f"***Meet your lovely new bot!***\n\n`{bot_name}`")
 
 
 @tree.command()
@@ -293,7 +296,7 @@ async def join_game(interaction: discord.Interaction):
     '''Join the current game'''
     response = ""
     if interaction.user not in players:
-        players.append(interaction.user)
+        players.append(interaction.user.mention)
         response = '{} joined'.format(interaction.user.mention)
     else:
         response = '{} you cant join twice'.format(interaction.user.mention)
@@ -312,15 +315,15 @@ async def start_game(interaction: discord.Interaction):
     await interaction.response.send_message(response)
     print(len(players))
     while len(players) >= 2:
-        player_a = random.choice(players)
-        player_b = random.choice(players)
+        player_a = random.choice(players + bots)
+        player_b = random.choice(players + bots)
         if player_a != player_b:
-            await interaction.channel.send("{}".format(player_a.mention) + " killed " + "{}".format(player_b.mention) + ".")
+            await interaction.channel.send(player_a) + " killed " player_b ".")
         else:
-          await interaction.channel.send("{}".format(player_a.mention) + " fell in into the water")
+          await interaction.channel.send(player_a + " fell in into the water")
         players.remove(player_b)                                                                                        
         await asyncio.sleep(1)
-    await interaction.channel.send("{} wins!".format(players[0].mention))
+    await interaction.channel.send(players[0] + "wins!")
     players.clear()
 
 
