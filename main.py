@@ -289,7 +289,7 @@ async def build_a_bot(interaction: discord.Interaction):
 
 
 @tree.command()
-async def join(interaction: discord.Interaction):
+async def join_game(interaction: discord.Interaction):
     '''Join the current game'''
     response = ""
     if interaction.user not in players:
@@ -301,7 +301,7 @@ async def join(interaction: discord.Interaction):
     await interaction.response.send_message(response)
 
 @tree.command()
-async def start(interaction: discord.Interaction):
+async def start_game(interaction: discord.Interaction):
     '''Start a game with the people joined'''
     response = "Game Starting With: "
     if len(players) <= 1:
@@ -320,7 +320,7 @@ async def start(interaction: discord.Interaction):
           await interaction.channel.send("{}".format(player_a.mention) + " fell in into the water")
         players.remove(player_b)                                                                                        
         await asyncio.sleep(1)
-        await interaction.channel.send("{} wins!".format(players[0].mention))
+    await interaction.channel.send("{} wins!".format(players[0].mention))
     players.clear()
 
 
