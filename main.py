@@ -35,7 +35,6 @@ server_config = {}
 rocketbot_client = RocketBotClient(rocketbot_user, rocketbot_pass)
 
 players = []
-bots = []
 
 def generate_random_name():
     adjective = [
@@ -287,7 +286,7 @@ async def battle(interaction: discord.Interaction):
 async def build_a_bot(interaction: discord.Interaction):
     '''Bear the responsibility of creating new life... I mean bot'''
     bot_name = generate_random_name()
-    bots.append(bot_name)
+    players.append(bot_name)
     await interaction.response.send_message(f"***Meet your lovely new bot!***\n\n`{bot_name}`")
 
 
@@ -313,15 +312,47 @@ async def start_game(interaction: discord.Interaction):
     for i in players:
         response += '{} '.format(i.mention)
     await interaction.response.send_message(response)
-    print(len(players))
     while len(players) >= 2:
-        player_a = random.choice(players + bots)
-        player_b = random.choice(players + bots)
-        if player_a != player_b:
-            await interaction.channel.send(player_a) + " killed " player_b ".")
-        else:
-          await interaction.channel.send(player_a + " fell in into the water")
-        players.remove(player_b)                                                                                        
+        action_types = {"Kill": 100, "Self": 50, "Miss": 50, "Special": 0.1}
+        
+        match random.choices(population=list(kill_messages.keys()), weights=kill_messages.values(), k=1)[0]:
+            "Kill":
+                player_a = random.choice(players)
+                player.remove(player_a)
+                player_b = random.choice(players)
+                player.remove(player_b)
+                kill_messages = {"<A> kills <B>.": 10, "<B> hits <A> but <A> gets revenge and kills <B>": 4}
+                event = random.choices(population=list(kill_messages.keys()), weights=kill_messages.values(), k=1)[0]
+                event.replace("<A>", player_a)
+                event.replace("<B>", player_b)
+                #B-E die for quad kill, if we need a non dying player use F
+                if "<C>" in event:
+                    player_c = random.choice(players)
+                    player.remove(player_c)
+                    event.replace("<C>", player_c)
+                if "<D>" in event:
+                    player_d = random.choice(players)
+                    player.remove(player_d)
+                    event.replace("<D>", player_d)
+                if "<E>" in event:
+                    player_e = random.choice(players)
+                    player.remove(player_e)
+                    event.replace("<E>", player_e)
+                if "<F>" in event:
+                    player_f = random.choice(players)
+                    event.replace("<F>", player_f)
+                await interaction.channel.send(event)
+                players.append(player_a)
+            "Miss":
+                player_a = random.choice(players)
+                player_b = random.choice(players)
+                await interaction.channel.send(player_a + " shoots at " player_b " but misses.")
+            "Self":
+                player_a = random.choice(players)
+                interaction.channel.send(player_a + " falls into the water.")
+            "Special":
+                pass
+       
         await asyncio.sleep(1)
     await interaction.channel.send(players[0] + "wins!")
     players.clear()
