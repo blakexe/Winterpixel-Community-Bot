@@ -34,6 +34,8 @@ server_config = {}
 #Initialize rockebot client
 rocketbot_client = RocketBotClient(rocketbot_user, rocketbot_pass)
 
+players = []
+
 def generate_random_name():
     adjective = [
         "master",
