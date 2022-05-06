@@ -305,7 +305,7 @@ async def start(interaction: discord.Interaction):
     '''Start a game with the people joined'''
     response = "Game Starting With: "
     if len(players) <= 1:
-        await interaction.response.send_message("Need 1 or more players to start.")
+        await interaction.response.send_message("Need 2 or more players to start.")
         return
     for i in players:
         response += '{} '.format(i.mention)
