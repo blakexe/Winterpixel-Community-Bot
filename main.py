@@ -298,7 +298,7 @@ async def join(interaction: discord.Interaction):
     else:
         response = '{} you cant join twice'.format(interaction.user.mention)
 
-    await interaction.channel.send(response)
+    await interaction.response.send_message(response)
 
 @tree.command()
 async def start(interaction: discord.Interaction):
@@ -306,7 +306,7 @@ async def start(interaction: discord.Interaction):
     response = "Game Starting With: "
     for i in players:
         response += '{} '.format(i.mention)
-    await interaction.channel.send(response)
+    await interaction.response.send_message(response)
     print(len(players))
     while len(players) >= 2:
         player_a = random.choice(players)
