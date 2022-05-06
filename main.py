@@ -285,6 +285,40 @@ async def build_a_bot(interaction: discord.Interaction):
     '''Bear the responsibility of creating new life... I mean bot'''
     await interaction.response.send_message(f"***Meet your lovely new bot!***\n\n`{generate_random_name()}`")
 
+
+@tree.command()
+async def join(interaction):
+    '''Join the current game'''
+    response = ""
+    if interaction.message.author not in players:
+        players.append(interaction.message.author)
+        response = '{} joined'.format(interaction.message.author.mention)
+    else:
+        response = '{} you cant join twice'.format(interaction.message.author.mention)
+
+    await interaction.channel.send(response)
+
+@tree.command()
+async def start(interaction):
+    '''Start a game with the people joined'''
+    response = "Game Starting With: "
+    for i in players:
+        response += '{} '.format(i.mention)
+    await interaction.channel.send(response)
+    print(len(players))
+    while len(players) >= 2:
+        player_a = random.choice(players)
+        player_b = random.choice(players)
+        if player_a != player_b:
+            await interaction.channel.send("{}".format(player_a.mention) + " killed " + "{}".format(player_b.mention) + ".")
+        else:
+          await interaction.channel.send("{}".format(player_a.mention) + " fell in into the water")
+        players.remove(player_b)                                                                                        
+        time.sleep(1)
+        await interaction.channel.send("{} wins!".format(players[0].mention))
+    players.clear()
+
+
 @tree.command(guild=discord.Object(id=962142361935314996))
 async def sync_commands(interaction: discord.Interaction):
     await tree.sync()
