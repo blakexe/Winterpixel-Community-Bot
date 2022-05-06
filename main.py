@@ -289,19 +289,19 @@ async def build_a_bot(interaction: discord.Interaction):
 
 
 @tree.command()
-async def join(interaction):
+async def join(interaction: discord.Interaction):
     '''Join the current game'''
     response = ""
-    if interaction.message.author not in players:
-        players.append(interaction.message.author)
-        response = '{} joined'.format(interaction.message.author.mention)
+    if interaction.user not in players:
+        players.append(interaction.user)
+        response = '{} joined'.format(interaction.user.mention)
     else:
-        response = '{} you cant join twice'.format(interaction.message.author.mention)
+        response = '{} you cant join twice'.format(interaction.user.mention)
 
     await interaction.channel.send(response)
 
 @tree.command()
-async def start(interaction):
+async def start(interaction: discord.Interaction):
     '''Start a game with the people joined'''
     response = "Game Starting With: "
     for i in players:
@@ -316,7 +316,7 @@ async def start(interaction):
         else:
           await interaction.channel.send("{}".format(player_a.mention) + " fell in into the water")
         players.remove(player_b)                                                                                        
-        time.sleep(1)
+        await asyncio.sleep(1)
         await interaction.channel.send("{} wins!".format(players[0].mention))
     players.clear()
 
