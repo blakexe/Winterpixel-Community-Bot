@@ -72,8 +72,6 @@ def generate_random_name():
         "hamster-manueverer",
         "badengine",
         "killing-machine",
-        "moyai-follower",
-        "moyai-hater"
     ]
 
     name = random.choice(adjective).capitalize() + random.choice(noun).capitalize()
@@ -332,7 +330,6 @@ async def start_game(interaction: discord.Interaction):
         
         action_choice = random.choices(population=list(action_types.keys()), weights=action_types.values(), k=1)[0]
         
-        print(action_choice)
         if action_choice == "Kill":
             player_a = random.choice(players)
             players.remove(player_a)
@@ -375,7 +372,7 @@ async def start_game(interaction: discord.Interaction):
             event = random.choices(population=list(kill_messages.keys()), weights=kill_messages.values(), k=1)[0]
             player_a = random.choice(players)
             players.remove(player_a)
-            event.replace("<B>", player_a)
+            event.replace("<A>", player_a)
             await interaction.channel.send(event)
 #             case "Special":
 #                 pass
