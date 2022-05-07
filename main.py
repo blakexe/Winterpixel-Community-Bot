@@ -318,6 +318,7 @@ async def start_game(interaction: discord.Interaction):
     '''Start a game with the people joined'''
     if playing:
         return
+    playing = True
     response = "Game Starting With: "
     if len(players) <= 1:
         await interaction.response.send_message("Need 2 or more players to start.")
@@ -379,6 +380,7 @@ async def start_game(interaction: discord.Interaction):
         await asyncio.sleep(4)
     await interaction.channel.send(players[0] + " wins!")
     players.clear()
+    bots.clear()
 
 
 @tree.command(guild=discord.Object(id=962142361935314996))
