@@ -36,7 +36,7 @@ rocketbot_client = RocketBotClient(rocketbot_user, rocketbot_pass)
 
 players = []
 bots = []
-global playing = False
+playing = False
 
 def generate_random_name():
     adjective = [
@@ -318,7 +318,7 @@ async def start_game(interaction: discord.Interaction):
     '''Start a game with the people joined'''
     if playing:
         return
-    playing = True
+    global playing = True
     response = "Game Starting With: "
     if len(players) <= 1:
         await interaction.response.send_message("Need 2 or more players to start.")
