@@ -331,53 +331,53 @@ async def start_game(interaction: discord.Interaction):
         
         action_choice = random.choices(population=list(kill_messages.keys()), weights=kill_messages.values(), k=1)[0]
         
-        match action_choice:
-            case "Kill":
-                player_a = random.choice(players)
-                players.remove(player_a)
-                player_b = random.choice(players)
-                players.remove(player_b)
-                kill_messages = {
-                    "<A> kills <B>.": 100,
-                    "<B> hits <A> but they dont die, so <A> gets revenge and kills <B>": 40, 
-                    "<A> kills <B> and <C> comes on the screen and <A> kills them `DOUBLE KILL`": 10}
-                event = random.choices(population=list(kill_messages.keys()), weights=kill_messages.values(), k=1)[0]
-                event.replace("<A>", player_a)
-                event.replace("<B>", player_b)
-                #B-E die for kills, if we need a non dying player use F
-                if "<C>" in event:
-                    player_c = random.choice(players)
-                    player.remove(player_c)
-                    event.replace("<C>", player_c)
-                if "<D>" in event:
-                    player_d = random.choice(players)
-                    player.remove(player_d)
-                    event.replace("<D>", player_d)
-                if "<E>" in event:
-                    player_e = random.choice(players)
-                    player.remove(player_e)
-                    event.replace("<E>", player_e)
-                if "<F>" in event:
-                    player_f = random.choice(players)
-                    event.replace("<F>", player_f)
-                players.append(player_a)
-                await interaction.channel.send(event)
-            case "Miss":
-                choices = random.sample(set(players), 2)
-                player_a = choices[0]
-                player_b = choices[1]
-                await interaction.channel.send(player_a + " shoots at " player_b " but misses.")
-            case "Self":
-                kill_messages = {
-                    "<A> jumps into the water.": 100,
-                    "On <A>'s screen an error pops up: `CLIENT DISCONNECTED` <:alertbad:910249086299557888>": .1}
-                event = random.choices(population=list(kill_messages.keys()), weights=kill_messages.values(), k=1)[0]
-                player_a = random.choice(players)
-                players.remove(player_a)
-                event.replace("<B>", player_a)
-                await interaction.channel.send(event)
-            case "Special":
-                pass
+#         match action_choice:
+#             case "Kill":
+#                 player_a = random.choice(players)
+#                 players.remove(player_a)
+#                 player_b = random.choice(players)
+#                 players.remove(player_b)
+#                 kill_messages = {
+#                     "<A> kills <B>.": 100,
+#                     "<B> hits <A> but they dont die, so <A> gets revenge and kills <B>": 40, 
+#                     "<A> kills <B> and <C> comes on the screen and <A> kills them `DOUBLE KILL`": 10}
+#                 event = random.choices(population=list(kill_messages.keys()), weights=kill_messages.values(), k=1)[0]
+#                 event.replace("<A>", player_a)
+#                 event.replace("<B>", player_b)
+#                 #B-E die for kills, if we need a non dying player use F
+#                 if "<C>" in event:
+#                     player_c = random.choice(players)
+#                     player.remove(player_c)
+#                     event.replace("<C>", player_c)
+#                 if "<D>" in event:
+#                     player_d = random.choice(players)
+#                     player.remove(player_d)
+#                     event.replace("<D>", player_d)
+#                 if "<E>" in event:
+#                     player_e = random.choice(players)
+#                     player.remove(player_e)
+#                     event.replace("<E>", player_e)
+#                 if "<F>" in event:
+#                     player_f = random.choice(players)
+#                     event.replace("<F>", player_f)
+#                 players.append(player_a)
+#                 await interaction.channel.send(event)
+#             case "Miss":
+#                 choices = random.sample(set(players), 2)
+#                 player_a = choices[0]
+#                 player_b = choices[1]
+#                 await interaction.channel.send(player_a + " shoots at " player_b " but misses.")
+#             case "Self":
+#                 kill_messages = {
+#                     "<A> jumps into the water.": 100,
+#                     "On <A>'s screen an error pops up: `CLIENT DISCONNECTED` <:alertbad:910249086299557888>": .1}
+#                 event = random.choices(population=list(kill_messages.keys()), weights=kill_messages.values(), k=1)[0]
+#                 player_a = random.choice(players)
+#                 players.remove(player_a)
+#                 event.replace("<B>", player_a)
+#                 await interaction.channel.send(event)
+#             case "Special":
+#                 pass
         await asyncio.sleep(4)
     await interaction.channel.send(players[0] + "wins!")
     players.clear()
