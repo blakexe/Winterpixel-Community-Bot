@@ -316,10 +316,10 @@ async def join_game(interaction: discord.Interaction):
 @tree.command()
 async def start_game(interaction: discord.Interaction):
     '''Start a game with the people joined'''
-    if playing:
-        return
     global playing 
     playing = True
+    if playing:
+        return
     response = "Game Starting With: "
     if len(players) <= 1:
         await interaction.response.send_message("Need 2 or more players to start.")
