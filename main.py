@@ -36,7 +36,7 @@ rocketbot_client = RocketBotClient(rocketbot_user, rocketbot_pass)
 
 players = []
 bots = []
-playing = False
+global playing = False
 
 def generate_random_name():
     adjective = [
@@ -305,7 +305,7 @@ async def join_game(interaction: discord.Interaction):
         await interaction.response.send_message("Can't join because a game is already in progress")
         return
     response = ""
-    if interaction.user not in players:
+    if interaction.user.mention not in players:
         players.append(interaction.user.mention)
         response += '{} joined'.format(interaction.user.mention)
     else:
@@ -379,6 +379,7 @@ async def start_game(interaction: discord.Interaction):
 #                 pass
         await asyncio.sleep(4)
     await interaction.channel.send(players[0] + " wins!")
+    playing = False
     players.clear()
     bots.clear()
 
