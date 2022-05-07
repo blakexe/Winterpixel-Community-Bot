@@ -292,7 +292,7 @@ async def build_a_bot(interaction: discord.Interaction):
     bots.append(bot_name)
     response = f"***Meet your lovely new bot!***\n\n`{bot_name}`"
     if len(bots) > 5:
-        response += f"\n\n`{bot_name}` can't join because 10 bots have already joined"
+        response += f"\n\n`{bot_name}` can't join because 5 bots have already joined"
     else:
         response += f"\n\n`{bot_name}` is joining the next game"
     await interaction.response.send_message(response)
