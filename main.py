@@ -252,7 +252,7 @@ async def battle(interaction: discord.Interaction):
         : 1,
         "<R> comes out of nowhere and shoots a shield at the bot deflecting it back to you and you die."
         : 1,
-        "You miss. Before you try to shoot again PepperBoi comes out of nowhere and stands next to the bot and you decide to leave out of sheer intimidation."
+        "You miss. Before you try to shoot again <R> comes out of nowhere and stands next to the bot and you decide to leave out of sheer intimidation."
         : 1,
         "The missile goes off-screen. Instead of getting a kill, a beachball comes hurtling back at mach 2."
         : 0.3,
