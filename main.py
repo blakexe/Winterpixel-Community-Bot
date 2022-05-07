@@ -332,7 +332,7 @@ async def start_game(interaction: discord.Interaction):
         action_choice = random.choices(population=list(kill_messages.keys()), weights=kill_messages.values(), k=1)[0]
         
         match action_choice:
-            "Kill":
+            case "Kill":
                 player_a = random.choice(players)
                 players.remove(player_a)
                 player_b = random.choice(players)
@@ -362,12 +362,12 @@ async def start_game(interaction: discord.Interaction):
                     event.replace("<F>", player_f)
                 players.append(player_a)
                 await interaction.channel.send(event)
-            "Miss":
+            case "Miss":
                 choices = random.sample(set(players), 2)
                 player_a = choices[0]
                 player_b = choices[1]
                 await interaction.channel.send(player_a + " shoots at " player_b " but misses.")
-            "Self":
+            case "Self":
                 kill_messages = {
                     "<A> jumps into the water.": 100,
                     "On <A>'s screen an error pops up: `CLIENT DISCONNECTED` <:alertbad:910249086299557888>": .1}
@@ -376,7 +376,7 @@ async def start_game(interaction: discord.Interaction):
                 players.remove(player_a)
                 event.replace("<B>", player_a)
                 await interaction.channel.send(event)
-            "Special":
+            case "Special":
                 pass
         await asyncio.sleep(4)
     await interaction.channel.send(players[0] + "wins!")
