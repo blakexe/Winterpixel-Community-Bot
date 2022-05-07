@@ -331,7 +331,7 @@ async def start_game(interaction: discord.Interaction):
         
         action_choice = random.choices(population=list(kill_messages.keys()), weights=kill_messages.values(), k=1)[0]
         
-        match action_choice:
+        match action_choice.key():
             case "Kill":
                 player_a = random.choice(players)
                 players.remove(player_a)
