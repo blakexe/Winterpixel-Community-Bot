@@ -339,8 +339,11 @@ async def start_game(interaction: discord.Interaction):
             players.remove(player_b)
             kill_messages = {
                 "<A> kills <B>.": 100,
-                "<B> hits <A> but they dont die, so <A> gets revenge and kills <B>": 40, 
-                "<A> kills <B> and <C> comes on the screen and <A> kills them `DOUBLE KILL`": 10}
+                "After a long intense fight <A> kills <B>": 40, 
+                "<A> kills <B> and <C> `DOUBLE KILL`": 10,
+                "<A> kills <B> ,<C> and <D> `TRIPPLE KILL`": 5,
+                "<A> kills <B>, <C>, <D> and <E> `QUAD KILL`": 5,
+            }
             event = random.choices(population=list(kill_messages.keys()), weights=kill_messages.values(), k=1)[0]
             event = event.replace("<A>", player_a)
             event = event.replace("<B>", player_b)
