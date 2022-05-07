@@ -65,14 +65,15 @@ def generate_random_name():
         "krunker",
         "rocketbotter",
         "bot",
-        "turbine_engine",
+        "turbine-engine",
         "diesel-gusher",
         "dumptruck",
         "rat-driver",
         "hamster-manueverer",
         "badengine",
         "killing-machine",
-        "moyai-"
+        "moyai-follower",
+        "moyai-hater"
     ]
 
     name = random.choice(adjective).capitalize() + random.choice(noun).capitalize()
