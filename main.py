@@ -368,7 +368,7 @@ async def start_game(interaction: discord.Interaction):
             player_a = choices[0]
             player_b = choices[1]
             await interaction.channel.send(player_a + " shoots at " + player_b + " but misses.")
-        elif action_choice == "Self"
+        elif action_choice == "Self":
             kill_messages = {
                 "<A> jumps into the water.": 100,
                 "On <A>'s screen an error pops up: `CLIENT DISCONNECTED` <:alertbad:910249086299557888>": 1}
