@@ -35,6 +35,8 @@ server_config = {}
 rocketbot_client = RocketBotClient(rocketbot_user, rocketbot_pass)
 
 players = []
+bots = []
+playing = false
 
 def generate_random_name():
     adjective = [
@@ -69,7 +71,8 @@ def generate_random_name():
         "rat-driver",
         "hamster-manueverer",
         "badengine",
-        "killing-machine"
+        "killing-machine",
+        "moyai-"
     ]
 
     name = random.choice(adjective).capitalize() + random.choice(noun).capitalize()
@@ -287,12 +290,20 @@ async def build_a_bot(interaction: discord.Interaction):
     '''Bear the responsibility of creating new life... I mean bot'''
     bot_name = generate_random_name()
     players.append(bot_name)
+    players.append(bot_name)
     await interaction.response.send_message(f"***Meet your lovely new bot!***\n\n`{bot_name}`")
+    if len(bots) > 10:
+        await interaction.response.send_message(f"`{bot_name}` can't join because 10 bots have already joined")
+        return
+    await interaction.response.send_message(f"`{bot_name}` is joining the next game")
 
 
 @tree.command()
 async def join_game(interaction: discord.Interaction):
     '''Join the current game'''
+    if playing:
+        await interaction.response.send_message("Can't join because a game is already in progress")
+        return
     response = ""
     if interaction.user not in players:
         players.append(interaction.user.mention)
@@ -305,6 +316,8 @@ async def join_game(interaction: discord.Interaction):
 @tree.command()
 async def start_game(interaction: discord.Interaction):
     '''Start a game with the people joined'''
+    if playing == true:
+        pass
     response = "Game Starting With: "
     if len(players) <= 1:
         await interaction.response.send_message("Need 2 or more players to start.")
@@ -313,19 +326,22 @@ async def start_game(interaction: discord.Interaction):
         response += '{} '.format(i.mention)
     await interaction.response.send_message(response)
     while len(players) >= 2:
-        action_types = {"Kill": 100, "Self": 50, "Miss": 50, "Special": 0.1}
+        action_types = {"Kill": 100, "Self": 50, "Miss": 50, "Special": 0}
         
         match random.choices(population=list(kill_messages.keys()), weights=kill_messages.values(), k=1)[0]:
             "Kill":
                 player_a = random.choice(players)
-                player.remove(player_a)
+                players.remove(player_a)
                 player_b = random.choice(players)
-                player.remove(player_b)
-                kill_messages = {"<A> kills <B>.": 10, "<B> hits <A> but <A> gets revenge and kills <B>": 4}
+                players.remove(player_b)
+                kill_messages = {
+                    "<A> kills <B>.": 100,
+                    "<B> hits <A> but they dont die, so <A> gets revenge and kills <B>": 40, 
+                    "<A> kills <B> and <C> comes on the screen and <A> kills them `DOUBLE KILL`": 10}
                 event = random.choices(population=list(kill_messages.keys()), weights=kill_messages.values(), k=1)[0]
                 event.replace("<A>", player_a)
                 event.replace("<B>", player_b)
-                #B-E die for quad kill, if we need a non dying player use F
+                #B-E die for kills, if we need a non dying player use F
                 if "<C>" in event:
                     player_c = random.choice(players)
                     player.remove(player_c)
@@ -341,19 +357,25 @@ async def start_game(interaction: discord.Interaction):
                 if "<F>" in event:
                     player_f = random.choice(players)
                     event.replace("<F>", player_f)
-                await interaction.channel.send(event)
                 players.append(player_a)
+                await interaction.channel.send(event)
             "Miss":
-                player_a = random.choice(players)
-                player_b = random.choice(players)
+                choices = random.sample(set(players), 2)
+                player_a = choices[0]
+                player_b = choices[1]
                 await interaction.channel.send(player_a + " shoots at " player_b " but misses.")
             "Self":
+                kill_messages = {
+                    "<A> jumps into the water.": 100,
+                    "On <A>'s screen an error pops up: `CLIENT DISCONNECTED` <:alertbad:910249086299557888>": .1}
+                event = random.choices(population=list(kill_messages.keys()), weights=kill_messages.values(), k=1)[0]
                 player_a = random.choice(players)
-                interaction.channel.send(player_a + " falls into the water.")
+                players.remove(player_a)
+                event.replace("<B>", player_a)
+                await interaction.channel.send(event)
             "Special":
                 pass
-       
-        await asyncio.sleep(1)
+        await asyncio.sleep(4)
     await interaction.channel.send(players[0] + "wins!")
     players.clear()
 
