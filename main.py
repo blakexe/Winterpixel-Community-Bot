@@ -377,7 +377,7 @@ async def start_game(interaction: discord.Interaction):
 #             case "Special":
 #                 pass
         await asyncio.sleep(4)
-    await interaction.channel.send(players[0] + "wins!")
+    await interaction.channel.send(players[0] + " wins!")
     players.clear()
 
 
