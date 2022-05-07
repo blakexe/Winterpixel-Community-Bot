@@ -340,13 +340,13 @@ async def start_game(interaction: discord.Interaction):
                 "<B> hits <A> but they dont die, so <A> gets revenge and kills <B>": 40, 
                 "<A> kills <B> and <C> comes on the screen and <A> kills them `DOUBLE KILL`": 10}
             event = random.choices(population=list(kill_messages.keys()), weights=kill_messages.values(), k=1)[0]
-            event.replace("<A>", player_a)
-            event.replace("<B>", player_b)
+            event = event.replace("<A>", player_a)
+            event = event.replace("<B>", player_b)
             #B-E die for kills, if we need a non dying player use F
             if "<C>" in event:
                 player_c = random.choice(players)
                 player.remove(player_c)
-                event.replace("<C>", player_c)
+                event = event.replace("<C>", player_c)
             if "<D>" in event:
                 player_d = random.choice(players)
                 player.remove(player_d)
@@ -372,7 +372,7 @@ async def start_game(interaction: discord.Interaction):
             event = random.choices(population=list(kill_messages.keys()), weights=kill_messages.values(), k=1)[0]
             player_a = random.choice(players)
             players.remove(player_a)
-            event.replace("<A>", player_a)
+            event = event.replace("<A>", player_a)
             await interaction.channel.send(event)
 #             case "Special":
 #                 pass
