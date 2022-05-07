@@ -325,7 +325,7 @@ async def start_game(interaction: discord.Interaction):
         await interaction.response.send_message("Need 2 or more players to start.")
         return
     for i in players:
-        response += '{} '.format(i.mention)
+        response += i + " "
     await interaction.response.send_message(response)
     while len(players) >= 2:
         action_types = {"Kill": 100, "Self": 50, "Miss": 50, "Special": 0}
