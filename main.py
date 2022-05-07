@@ -291,12 +291,13 @@ async def build_a_bot(interaction: discord.Interaction):
     '''Bear the responsibility of creating new life... I mean bot'''
     bot_name = generate_random_name()
     players.append(bot_name)
-    players.append(bot_name)
-    await interaction.response.send_message(f"***Meet your lovely new bot!***\n\n`{bot_name}`")
+    bots.append(bot_name)
+    response = f"***Meet your lovely new bot!***\n\n`{bot_name}`"
     if len(bots) > 10:
-        await interaction.response.send_message(f"`{bot_name}` can't join because 10 bots have already joined")
-        return
-    await interaction.response.send_message(f"`{bot_name}` is joining the next game")
+        await response += f"\n\n`{bot_name}` can't join because 10 bots have already joined"
+    else:
+        await response += f"\n\n`{bot_name}` is joining the next game"
+    await interaction.response.send_message(response)
 
 
 @tree.command()
@@ -308,9 +309,9 @@ async def join_game(interaction: discord.Interaction):
     response = ""
     if interaction.user not in players:
         players.append(interaction.user.mention)
-        response = '{} joined'.format(interaction.user.mention)
+        response += '{} joined'.format(interaction.user.mention)
     else:
-        response = '{} you cant join twice'.format(interaction.user.mention)
+        response += '{} you cant join twice'.format(interaction.user.mention)
 
     await interaction.response.send_message(response)
 
