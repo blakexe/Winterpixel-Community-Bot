@@ -335,6 +335,7 @@ async def start_game(interaction: discord.Interaction):
     playing = True
     response = "Game Starting With: "
     if len(players) <= 1:
+        playing = False
         await interaction.response.send_message("Need 2 or more players to start.")
         return
     for i in players:
@@ -408,6 +409,13 @@ async def start_game(interaction: discord.Interaction):
     playing = False
     players.clear()
     bots.clear()
+
+
+@tree.command()
+async def start_game(interaction: discord.Interaction):
+    ''' End a game (only for debugging'''
+    
+    
 
 # @tree.command()
 # async def get_money(interaction: discord.Interaction):
