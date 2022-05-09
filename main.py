@@ -366,6 +366,8 @@ async def start_game(interaction: discord.Interaction):
             #B-E die for kills, if we need a non dying player use F
             event += "\n\n" + player_a + " got " + str(coin_num) + " <:coin:910247623787700264>"
             event += " and " + player_b + " lost " + str(coin_num) + " <:coin:910247623787700264>"
+            add_player_coin(player_a,coin_num)
+            add_player_coin(player_b,-coin_num)
             if "<C>" in event:
 #                 cur_num = random.choice(range(1,100)
                 player_c = random.choice(players)
