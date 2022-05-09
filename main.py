@@ -1,6 +1,5 @@
-import random, aiohttp
+import random, aiohttp, replit
 import discord, json, asyncio, typing, os
-pip import replit
 from replit import db
 from discord import app_commands
 from rocketbot_client import RocketBotClient
@@ -39,6 +38,8 @@ rocketbot_client = RocketBotClient(rocketbot_user, rocketbot_pass)
 players = []
 bots = []
 playing = False
+
+os.system('clear')
 
 def generate_random_name():
     adjective = [
