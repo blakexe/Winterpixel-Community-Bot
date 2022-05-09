@@ -40,6 +40,9 @@ players = []
 bots = []
 playing = False
 
+def clear():
+  os.system('clear')
+
 def generate_random_name():
     adjective = [
         "master",
