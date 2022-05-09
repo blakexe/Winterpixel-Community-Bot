@@ -324,7 +324,7 @@ async def join_game(interaction: discord.Interaction):
         response_hidden = True
         response += '{} you cant join twice'.format(interaction.user.mention)
 
-    await interaction.response.send_message(response, hidden = response_hidden)
+    await interaction.response.send_message(response)
 
 @tree.command()
 async def start_game(interaction: discord.Interaction):
