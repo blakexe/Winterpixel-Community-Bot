@@ -345,7 +345,7 @@ async def start_game(interaction: discord.Interaction):
         
         
         if action_choice == "Kill":
-            coin_num = random.choice(range(1,100)
+            coin_num = random.choice(range(1,100))
             player_a = random.choice(players)
             players.remove(player_a)
             player_b = random.choice(players)
