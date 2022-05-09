@@ -1,5 +1,7 @@
 import random, aiohttp
 import discord, json, asyncio, typing, os
+import replit
+from replit import db
 from discord import app_commands
 from rocketbot_client import RocketBotClient
 
@@ -83,6 +85,13 @@ def generate_random_name():
     
     return name
     
+def add_player_coin(player, coins):
+    player_coins = db.get(player)
+    if player_coins == None:
+        db[player] = 500
+    dp[player] = db[player] + coins
+    return dp[player]
+
 
 async def refresh_config():
     '''Refresh game configuration every 10 minutes'''
@@ -301,6 +310,7 @@ async def build_a_bot(interaction: discord.Interaction):
 @tree.command()
 async def join_game(interaction: discord.Interaction):
     '''Join the current game'''
+    response_hidden = False
     if playing:
         await interaction.response.send_message("Can't join because a game is already in progress")
         return
@@ -309,9 +319,10 @@ async def join_game(interaction: discord.Interaction):
         players.append(interaction.user.mention)
         response += '{} joined'.format(interaction.user.mention)
     else:
+        response_hidden = True
         response += '{} you cant join twice'.format(interaction.user.mention)
 
-    await interaction.response.send_message(response)
+    await interaction.response.send_message(response, hidden = response_hidden)
 
 @tree.command()
 async def start_game(interaction: discord.Interaction):
@@ -332,7 +343,9 @@ async def start_game(interaction: discord.Interaction):
         
         action_choice = random.choices(population=list(action_types.keys()), weights=action_types.values(), k=1)[0]
         
+        
         if action_choice == "Kill":
+            coin_num = random.choice(range(1,100)
             player_a = random.choice(players)
             players.remove(player_a)
             player_b = random.choice(players)
@@ -349,15 +362,21 @@ async def start_game(interaction: discord.Interaction):
             event = event.replace("<A>", player_a)
             event = event.replace("<B>", player_b)
             #B-E die for kills, if we need a non dying player use F
+            event += "\n\n" + player_a + " got " + str(coin_num) + " <:coin:910247623787700264>"
+            event += " and " + player_b + " lost " + str(coin_num) + " <:coin:910247623787700264>"
             if "<C>" in event:
+#                 cur_num = random.choice(range(1,100)
                 player_c = random.choice(players)
+                db[player_c] = db[player_c] - cur_num
                 player.remove(player_c)
                 event = event.replace("<C>", player_c)
             if "<D>" in event:
+#                 coin_num += random.choice(range(1,100)
                 player_d = random.choice(players)
                 player.remove(player_d)
                 event.replace("<D>", player_d)
             if "<E>" in event:
+#                 coin_num += random.choice(range(1,100)
                 player_e = random.choice(players)
                 player.remove(player_e)
                 event.replace("<E>", player_e)
@@ -382,12 +401,15 @@ async def start_game(interaction: discord.Interaction):
             await interaction.channel.send(event)
 #             case "Special":
 #                 pass
-        await asyncio.sleep(4)
+        await asyncio.sleep(5)
     await interaction.channel.send(players[0] + " wins!")
     playing = False
     players.clear()
     bots.clear()
 
+@tree.command()
+async def get_money(interaction: discord.Interaction):
+    await interaction.channel.send(add_player_coin(0))
 
 @tree.command(guild=discord.Object(id=962142361935314996))
 async def sync_commands(interaction: discord.Interaction):
