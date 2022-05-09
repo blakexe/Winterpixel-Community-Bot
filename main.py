@@ -409,11 +409,6 @@ async def start_game(interaction: discord.Interaction):
     playing = False
     players.clear()
     bots.clear()
-
-
-@tree.command()
-async def start_game(interaction: discord.Interaction):
-    ''' End a game (only for debugging'''
     
     
 
