@@ -90,8 +90,8 @@ def add_player_coin(player, coins):
     player_coins = db.get(player)
     if player_coins == None:
         db[player] = 500
-    dp[player] = db[player] + coins
-    return dp[player]
+    db[player] = db[player] + coins
+    return db[player]
 
 
 async def refresh_config():
