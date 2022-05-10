@@ -298,13 +298,13 @@ async def battle(interaction: discord.Interaction):
 async def build_a_bot(interaction: discord.Interaction):
     '''Bear the responsibility of creating new life... I mean bot'''
     bot_name = generate_random_name()
-    players.append(bot_name)
-    bots.append(bot_name)
     response = f"***Meet your lovely new bot!***\n\n`{bot_name}`"
     if len(bots) > 5:
         response += f"\n\n`{bot_name}` can't join because 5 bots have already joined"
     else:
         response += f"\n\n`{bot_name}` is joining the next game"
+        players.append(bot_name)
+        bots.append(bot_name)
     await interaction.response.send_message(response)
 
 
