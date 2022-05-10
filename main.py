@@ -416,7 +416,7 @@ async def start_game(interaction: discord.Interaction):
 @tree.command()
 async def get_money(interaction: discord.Interaction):
     '''Find out how much money you have'''
-    await interaction.channel.send(interaction.user.mention + " has " + str(add_player_coin(interaction.user.mention,0)) + " <:coin:910247623787700264>")
+    await interaction.response.send_message(interaction.user.mention + " has " + str(add_player_coin(interaction.user.mention,0)) + " <:coin:910247623787700264>")
 
 @tree.command(guild=discord.Object(id=962142361935314996))
 async def sync_commands(interaction: discord.Interaction):
