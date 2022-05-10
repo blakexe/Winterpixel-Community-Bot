@@ -349,7 +349,7 @@ async def start_game(interaction: discord.Interaction):
     while len(players) >= 1:
         if len(players) <= 1:
             embed.add_field(name="Players: ", value=players[0], inline=False)
-            embed.add_field(name="Game:", value=player[0] + " wins!", inline=False)
+            embed.add_field(name="Game:", value=players[0] + " wins!", inline=False)
             for i in moneys.keys():
                 money_txt += i + " " + str(moneys[i]) + "<:coin:910247623787700264>\n"
             if money_txt != "":
@@ -397,7 +397,7 @@ async def start_game(interaction: discord.Interaction):
             else:
                 moneys[player_a] = moneys[player_a] + coin_num
             if moneys.get(player_b) == None:
-                moneys[player_b] = coin_num
+                moneys[player_b] = -coin_num
             else:
                 moneys[player_b] = moneys[player_b] - coin_num
             if "<C>" in event:
