@@ -419,7 +419,7 @@ async def start_game(interaction: discord.Interaction):
             action = event
 #             case "Special":
 #                 pass
-        embed.add_field(name="Game:", action, inline=False)
+        embed.add_field(name="Game:", value=action, inline=False)
         money_txt = ""
         for i in moneys.keys():
             money_txt += i + " " + str(moneys[i]) + "<:coin:910247623787700264>"
