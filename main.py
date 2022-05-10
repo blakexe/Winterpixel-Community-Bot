@@ -339,7 +339,7 @@ async def start_game(interaction: discord.Interaction):
         await interaction.response.send_message("Need 2 or more players to start.")
         return
     for i in players:
-        response += i + " "
+        response += i + "\n"
     embed1=discord.Embed(color=0xa80022)
     embed1.add_field(name="Players: ", value=response, inline=False)
     await interaction.response.send_message(response)
@@ -351,10 +351,8 @@ async def start_game(interaction: discord.Interaction):
         if len(players) <= 1:
             embed.add_field(name="Players: ", value=players[0], inline=False)
             embed.add_field(name="Game:", value=players[0] + " wins!", inline=False)
-            for i in moneys.keys():
-                money_txt += i + " " + str(moneys[i]) + "<:coin:910247623787700264>\n"
-            if money_txt != "":
-                embed.add_field(name="Money:", value=money_txt, inline=False)
+            money_txt = ""
+            money_txt += i + " " + str(moneys[i]) + "<:coin:910247623787700264>\n"
             await msg.edit(embed=embed)
             playing = False
             players.clear()
