@@ -348,7 +348,8 @@ async def start_game(interaction: discord.Interaction):
     while len(players) >= 2:
         embed=discord.Embed(color=0xa80022)
         player_text = ""
-        for i in players.sort():
+        players.sort()
+        for i in players:
             player_text += i + " "
         embed.add_field(name="Players: ", value=player_text, inline=False)
         action_types = {"Kill": 100, "Self": 50, "Miss": 50, "Special": 0}
