@@ -346,7 +346,19 @@ async def start_game(interaction: discord.Interaction):
     msg = await interaction.channel.send("Starting game")
 #     await asyncio.sleep(0)
     moneys = OrderedDict()
-    while len(players) >= 2:
+    while len(players) >= 1:
+        if len(players) <= 1:
+            embed.add_field(name="Players: ", value=players[0], inline=False)
+            embed.add_field(name="Game:", value=player[0] + " wins!", inline=False)
+            for i in moneys.keys():
+                money_txt += i + " " + str(moneys[i]) + "<:coin:910247623787700264>\n"
+            if money_txt != "":
+                embed.add_field(name="Money:", value=money_txt, inline=False)
+            await msg.edit(embed=embed)
+            playing = False
+            players.clear()
+            bots.clear()
+            break
         embed=discord.Embed(color=0xa80022)
         player_text = ""
         players.sort()
@@ -433,9 +445,6 @@ async def start_game(interaction: discord.Interaction):
             embed.add_field(name="Money:", value=money_txt, inline=False)
         await msg.edit(embed=embed)
         await asyncio.sleep(5)
-    playing = False
-    players.clear()
-    bots.clear()
     
     
 
