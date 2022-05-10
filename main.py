@@ -347,6 +347,7 @@ async def start_game(interaction: discord.Interaction):
 #     await asyncio.sleep(0)
     moneys = OrderedDict()
     while len(players) >= 1:
+        embed=discord.Embed(color=0xa80022)
         if len(players) <= 1:
             embed.add_field(name="Players: ", value=players[0], inline=False)
             embed.add_field(name="Game:", value=players[0] + " wins!", inline=False)
@@ -359,7 +360,6 @@ async def start_game(interaction: discord.Interaction):
             players.clear()
             bots.clear()
             break
-        embed=discord.Embed(color=0xa80022)
         player_text = ""
         players.sort()
         for i in players:
@@ -434,6 +434,8 @@ async def start_game(interaction: discord.Interaction):
             player_a = random.choice(players)
             players.remove(player_a)
             event = event.replace("<A>", player_a)
+            if moneys.get(player_a) == None:
+                moneys[player_a] = 0
             action = event
 #             case "Special":
 #                 pass
