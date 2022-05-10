@@ -342,8 +342,9 @@ async def start_game(interaction: discord.Interaction):
         response += i + " "
     embed1=discord.Embed(color=0xa80022)
     embed1.add_field(name="Players: ", value=response, inline=False)
-    msg = await interaction.response.send_message(embed1)
-    await asyncio.sleep(2)
+    await interaction.response.send_message(response)
+    msg = await interaction.send("Starting game")
+#     await asyncio.sleep(0)
     moneys = OrderedDict()
     while len(players) >= 2:
         embed=discord.Embed(color=0xa80022)
