@@ -392,11 +392,11 @@ async def start_game(interaction: discord.Interaction):
             event += " and " + player_b + " lost " + str(coin_num) + " <:coin:910247623787700264>"
             add_player_coin(player_a,coin_num)
             add_player_coin(player_b,-coin_num)
-            if moneys[player_a] == None:
+            if moneys.get(player_a) == None:
                 moneys[player_a] = coin_num
             else:
                 moneys[player_a] = moneys[player_a] + coin_num
-            if moneys[player_b] == None:
+            if moneys.get(player_b) == None:
                 moneys[player_b] = coin_num
             else:
                 moneys[player_b] = moneys[player_b] - coin_num
