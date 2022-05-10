@@ -1,5 +1,6 @@
 import random, aiohttp, replit
 import discord, json, asyncio, typing, os
+from collections import OrderedDict
 from replit import db
 from discord import app_commands
 from rocketbot_client import RocketBotClient
@@ -339,13 +340,22 @@ async def start_game(interaction: discord.Interaction):
         return
     for i in players:
         response += i + " "
-    await interaction.response.send_message(response)
+    embed1=discord.Embed(color=0xa80022)
+    embed1.add_field(name="Players: ", value=player_text, inline=False)
+    msg = await interaction.response.send_message(embed1)
+    await asyncio.sleep(2)
+    moneys = OrderedDict()
     while len(players) >= 2:
+        embed=discord.Embed(color=0xa80022)
+        player_text = ""
+        for i in players.sort():
+            player_text += i + " "
+        embed.add_field(name="Players: ", value=player_text, inline=False)
         action_types = {"Kill": 100, "Self": 50, "Miss": 50, "Special": 0}
         
         action_choice = random.choices(population=list(action_types.keys()), weights=action_types.values(), k=1)[0]
         
-        
+        action = ""
         if action_choice == "Kill":
             coin_num = random.choice(range(1,100))
             player_a = random.choice(players)
@@ -368,6 +378,7 @@ async def start_game(interaction: discord.Interaction):
             event += " and " + player_b + " lost " + str(coin_num) + " <:coin:910247623787700264>"
             add_player_coin(player_a,coin_num)
             add_player_coin(player_b,-coin_num)
+            moneys[player_a]
             if "<C>" in event:
 #                 cur_num = random.choice(range(1,100)
                 player_c = random.choice(players)
@@ -388,12 +399,12 @@ async def start_game(interaction: discord.Interaction):
                 player_f = random.choice(players)
                 event.replace("<F>", player_f)
             players.append(player_a)
-            await interaction.channel.send(event)
+            action = event
         elif action_choice == "Miss":        
             choices = random.sample(set(players), 2)
             player_a = choices[0]
             player_b = choices[1]
-            await interaction.channel.send(player_a + " shoots at " + player_b + " but misses.")
+            action = player_a + " shoots at " + player_b + " but misses."
         elif action_choice == "Self":
             kill_messages = {
                 "<A> jumps into the water.": 100,
@@ -402,11 +413,16 @@ async def start_game(interaction: discord.Interaction):
             player_a = random.choice(players)
             players.remove(player_a)
             event = event.replace("<A>", player_a)
-            await interaction.channel.send(event)
+            action = event
 #             case "Special":
 #                 pass
+        embed.add_field(name="Game:", value="Player 1 kills Player 5", inline=False)
+        money_txt = ""
+        for i in moneys:
+            money_txt.append(i.key() + " " + i.value() + "<:coin:910247623787700264>")
+        embed.set_footer(text=money_txt)
+        msg.edit(embed)
         await asyncio.sleep(5)
-    await interaction.channel.send(players[0] + " wins!")
     playing = False
     players.clear()
     bots.clear()
