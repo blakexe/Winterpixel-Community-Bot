@@ -424,7 +424,7 @@ async def start_game(interaction: discord.Interaction):
         for i in moneys.keys():
             money_txt += i + " " + moneys[i] + "<:coin:910247623787700264>"
         embed.set_footer(text=money_txt)
-        msg.edit(embed)
+        await msg.edit(embed)
         await asyncio.sleep(5)
     playing = False
     players.clear()
