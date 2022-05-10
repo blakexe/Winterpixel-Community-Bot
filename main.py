@@ -380,8 +380,14 @@ async def start_game(interaction: discord.Interaction):
             event += " and " + player_b + " lost " + str(coin_num) + " <:coin:910247623787700264>"
             add_player_coin(player_a,coin_num)
             add_player_coin(player_b,-coin_num)
-            moneys[player_a] = coin_num
-            moneys[player_a] = -coin_num
+            if moneys[player_a] == None:
+                moneys[player_a] = coin_num
+            else:
+                moneys[player_a] = moneys[player_a] + coin_num
+            if moneys[player_b] == None:
+                moneys[player_b] = coin_num
+            else:
+                moneys[player_b] = moneys[player_b] - coin_num
             if "<C>" in event:
 #                 cur_num = random.choice(range(1,100)
                 player_c = random.choice(players)
@@ -422,7 +428,7 @@ async def start_game(interaction: discord.Interaction):
         embed.add_field(name="Game:", value=action, inline=False)
         money_txt = ""
         for i in moneys.keys():
-            money_txt += i + " " + str(moneys[i]) + "<:coin:910247623787700264>"
+            money_txt += i + " " + str(moneys[i]) + "<:coin:910247623787700264>\n"
         if money_txt != "":
             embed.add_field(name="Money:", value=money_txt, inline=False)
         await msg.edit(embed=embed)
