@@ -354,6 +354,8 @@ async def start_game(interaction: discord.Interaction):
             money_txt = ""
             for i in moneys.keys():
                 money_txt += i + " " + str(moneys[i]) + "<:coin:910247623787700264>\n"
+            if money_txt != "":
+                embed.add_field(name="Money:", value=money_txt, inline=False)
             await msg.edit(embed=embed)
             playing = False
             players.clear()
