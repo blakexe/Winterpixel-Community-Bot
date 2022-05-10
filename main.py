@@ -423,8 +423,8 @@ async def start_game(interaction: discord.Interaction):
         money_txt = ""
         for i in moneys.keys():
             money_txt += i + " " + str(moneys[i]) + "<:coin:910247623787700264>"
-        print(money_txt)
-        embed.add_field(name="Money:", value=money_txt, inline=False)
+        if money_txt != "":
+            embed.add_field(name="Money:", value=money_txt, inline=False)
         await msg.edit(embed=embed)
         await asyncio.sleep(5)
     playing = False
