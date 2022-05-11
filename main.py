@@ -444,9 +444,9 @@ async def start_game(interaction: discord.Interaction):
             choices = random.sample(set(players), 2)
             player_a = choices[0]
             player_b = choices[1]
-            if "<F>" in event:
-                player_f = random.choice(players)
-                event.replace("<F>", player_f)
+#             if "<F>" in event:
+#                 player_f = random.choice(players)
+#                 event.replace("<F>", player_f)
             action = player_a + " shoots at " + player_b + " but misses."
         elif action_choice == "Self":
             kill_messages = {
