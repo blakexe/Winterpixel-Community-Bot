@@ -366,7 +366,7 @@ async def start_game(interaction: discord.Interaction):
         for i in players:
             player_text += i + " "
         embed.add_field(name="Players: ", value=player_text, inline=False)
-        action_types = {"Kill": 100, "Self": 50, "Miss": 50, "Special": 0}
+        action_types = {"Kill": 100, "Miss": 50, "Self": 20, "Special": 0}
         
         action_choice = random.choices(population=list(action_types.keys()), weights=action_types.values(), k=1)[0]
         
@@ -379,12 +379,30 @@ async def start_game(interaction: discord.Interaction):
             players.remove(player_b)
             kill_messages = {
                 "<A> kills <B>.": 100,
-                "After a long intense fight <A> kills <B>": 40, 
+                "After a long intense fight <A> kills <B>": 40,
+                "<A> kills <B> with <U>": 40,
+                "<A> hits <B> into the water": 20,
+                "<B> shoots it at <A> but <A> blocks it with a shield reflects it back to <B> who dies": 7,
+                "<A> pretends to friend <B> but then kills them": 5,
+                "<A> intimidates <B> into jumping into the water": 20,
             }
-#                 "<A> kills <B> and <C> `DOUBLE KILL`": 10
-#             ,
-#                 "<A> kills <B> ,<C> and <D> `TRIPPLE KILL`": 5,
-#                 "<A> kills <B>, <C>, <D> and <E> `QUAD KILL`": 5,
+            if len(players) > 2:
+                kill_messages["<A> kills <B> and <C> `DOUBLE KILL`"] = 10
+            if len(players) > 3:
+                kill_messages["<A> kills <B> ,<C> and <D> `TRIPPLE KILL`"] = 5
+            if len(players) > 4:
+                kill_messages["<A> kills <B>, <C>, <D> and <E> `QUAD KILL`"] = 2
+            weopons = {
+                "A FAT BOI (nuke)": 100,
+                "Rapidfire missiles": 100,
+                "Grenades": 100,
+                "A Homing Missile": 100,
+                "A Flak": 100,
+                "A Drill": 100,
+                "THE POWER OF MOYAI 🗿": 0.1
+            }
+            if "<U>" in event:
+                event = event.replace("<U>", player_c)
             event = random.choices(population=list(kill_messages.keys()), weights=kill_messages.values(), k=1)[0]
             event = event.replace("<A>", player_a)
             event = event.replace("<B>", player_b)
@@ -426,10 +444,14 @@ async def start_game(interaction: discord.Interaction):
             choices = random.sample(set(players), 2)
             player_a = choices[0]
             player_b = choices[1]
+            if "<F>" in event:
+                player_f = random.choice(players)
+                event.replace("<F>", player_f)
             action = player_a + " shoots at " + player_b + " but misses."
         elif action_choice == "Self":
             kill_messages = {
-                "<A> jumps into the water.": 100,
+                "<A> jumps into the water.": 50,
+                "<A> jumps into the water.": 50,
                 "On <A>'s screen an error pops up: `CLIENT DISCONNECTED` <:alertbad:910249086299557888>": 1}
             event = random.choices(population=list(kill_messages.keys()), weights=kill_messages.values(), k=1)[0]
             player_a = random.choice(players)
