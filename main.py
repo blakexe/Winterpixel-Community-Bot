@@ -1,5 +1,5 @@
 import random, aiohttp, replit
-import discord, json, asyncio, typing, os
+import discord, json, asyncio, typing, os, io
 from collections import OrderedDict
 from replit import db
 from discord import app_commands
@@ -325,6 +325,11 @@ async def join_game(interaction: discord.Interaction):
         response += '{} you cant join twice'.format(interaction.user.mention)
 
     await interaction.response.send_message(response)
+
+@tree.command(guild=discord.Object(id=962142361935314996))
+async def get_config(interaction: discord.Interaction):
+    file = io.StringIO(json.dumps(server_config))
+    await interaction.response.send_message(file=discord.File(fp=file, filename="server_config.json"))
 
 @tree.command()
 async def start_game(interaction: discord.Interaction):
