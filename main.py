@@ -401,11 +401,11 @@ async def start_game(interaction: discord.Interaction):
                 "A Drill": 100,
                 "THE POWER OF MOYAI 🗿": 0.1
             }
-            if "<U>" in event:
-                event = event.replace("<U>", player_c)
             event = random.choices(population=list(kill_messages.keys()), weights=kill_messages.values(), k=1)[0]
             event = event.replace("<A>", player_a)
             event = event.replace("<B>", player_b)
+            if "<U>" in event:
+                event = event.replace("<U>", player_c)
             #B-E die for kills, if we need a non dying player use F
             event += "\n\n" + player_a + " got " + str(coin_num) + " <:coin:910247623787700264>"
             event += " and " + player_b + " lost " + str(coin_num) + " <:coin:910247623787700264>"
@@ -468,6 +468,7 @@ async def start_game(interaction: discord.Interaction):
             money_txt += i + " " + str(moneys[i]) + "<:coin:910247623787700264>\n"
         if money_txt != "":
             embed.add_field(name="Money:", value=money_txt, inline=False)
+        await msg.edit("")
         await msg.edit(embed=embed)
         await asyncio.sleep(5)
     
