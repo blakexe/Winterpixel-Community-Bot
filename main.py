@@ -405,7 +405,7 @@ async def start_game(interaction: discord.Interaction):
             event = event.replace("<A>", player_a)
             event = event.replace("<B>", player_b)
             if "<U>" in event:
-                event = event.replace("<U>", player_c)
+                event = event.replace("<U>", random.choices(population=list(weopons.keys()), weights=weopons.values(), k=1)[0])
             #B-E die for kills, if we need a non dying player use F
             event += "\n\n" + player_a + " got " + str(coin_num) + " <:coin:910247623787700264>"
             event += " and " + player_b + " lost " + str(coin_num) + " <:coin:910247623787700264>"
