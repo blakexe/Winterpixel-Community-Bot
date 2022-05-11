@@ -384,7 +384,7 @@ async def start_game(interaction: discord.Interaction):
                 "<A> hits <B> into the water": 20,
                 "<B> shoots it at <A> but <A> blocks it with a shield reflects it back to <B> who dies": 7,
                 "<A> pretends to friend <B> but then kills them": 5,
-                "<A> intimidates <B> into jumping into the water": 20,
+                "<A> intimidates <B> into jumping into the water": 0.5,
             }
             if len(players) > 2:
                 kill_messages["<A> kills <B> and <C> `DOUBLE KILL`"] = 10
