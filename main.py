@@ -386,12 +386,12 @@ async def start_game(interaction: discord.Interaction):
                 "<A> pretends to friend <B> but then kills them": 5,
                 "<A> intimidates <B> into jumping into the water": 0.5,
             }
-            if len(players) > 2:
-                kill_messages["<A> kills <B> and <C> `DOUBLE KILL`"] = 10
-            if len(players) > 3:
-                kill_messages["<A> kills <B> ,<C> and <D> `TRIPPLE KILL`"] = 5
-            if len(players) > 4:
-                kill_messages["<A> kills <B>, <C>, <D> and <E> `QUAD KILL`"] = 2
+#             if len(players) > 2:
+#                 kill_messages["<A> kills <B> and <C> `DOUBLE KILL`"] = 10
+#             if len(players) > 3:
+#                 kill_messages["<A> kills <B> ,<C> and <D> `TRIPPLE KILL`"] = 5
+#             if len(players) > 4:
+#                 kill_messages["<A> kills <B>, <C>, <D> and <E> `QUAD KILL`"] = 2
             weopons = {
                 "A FAT BOI (nuke)": 100,
                 "Rapidfire missiles": 100,
