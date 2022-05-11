@@ -451,7 +451,6 @@ async def start_game(interaction: discord.Interaction):
         elif action_choice == "Self":
             kill_messages = {
                 "<A> jumps into the water.": 50,
-                "<A> jumps into the water.": 50,
                 "On <A>'s screen an error pops up: `CLIENT DISCONNECTED` <:alertbad:910249086299557888>": 1}
             event = random.choices(population=list(kill_messages.keys()), weights=kill_messages.values(), k=1)[0]
             player_a = random.choice(players)
