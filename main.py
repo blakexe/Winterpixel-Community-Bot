@@ -493,6 +493,11 @@ async def sync_commands(interaction: discord.Interaction):
     await tree.sync(guild=discord.Object(id=962142361935314996))
     await interaction.response.send_message("Commands synced.")
 
+@tree.command()
+async def command_name(interaction: discord.Interaction):
+    '''Command Information'''
+    await interaction.response.defer(ephemeral=False, thinking=True)
+
 def main():
     client.run(discord_token)
 
