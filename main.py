@@ -78,7 +78,10 @@ def generate_random_name():
         "killing-machine",
     ]
 
-    name = random.choice(adjective).capitalize() + random.choice(noun).capitalize()
+    name = 
+    
+    
+    (adjective).capitalize() + random.choice(noun).capitalize()
 
     random_number = random.choice([True, False])
 
@@ -487,16 +490,37 @@ async def get_money(interaction: discord.Interaction):
     '''Find out how much money you have'''
     await interaction.response.send_message(interaction.user.mention + " has " + str(add_player_coin(interaction.user.mention,0)) + " <:coin:910247623787700264>")
 
+@tree.command()
+async def random(interaction: discord.Interaction):
+    '''Get a random tank'''
+    tanks = [
+        "<:betatank:989949271547723796>", "<:bladetank:989949828417060864>",
+        "<:buggytank:989951288232013866>", "<:cannontank:989949877079375943>",
+        "<:catapultevolvedtank:989951212126359652>",
+        "<:catapulttank:989951161152991262>", "<:concavetank:989951111773429841>",
+        "<:crabevolvedtank:989951034132693044>", "<:crabtank:989949776927817738>",
+        "<:crawlertank:989949727858630726>", "<:cyclopstank:989950970429595688>",
+        "<:diamondtank:989950859561566328>",
+        "<:dozerevolvedtank:989950801663369226>",
+        "<:dozertank:989950741433163806>", "<:forklifttank:989950685288222720>",
+        "<:gearstank:989950531772493844>", "<:haytank:989950495181393922>",
+        "<:hollowtank:989949132934361259>", "<:longtank:989950441477513247>",
+        "<:medictank:989950400796950538>", "<:mixertank:989950349764878376>",
+        "<:pagliaccitank:989950280487567370>", "<:pailtank:989951621314256987>",
+        "<:pistonstank:989949672372174888>", "<:reactortank:989949207244853319>",
+        "<:spiketank:989949916614889494>", "<:squaretank:989950023750017064>",
+        "<:traptank:989950224187412510>", "<:treadtank:989949317404061717>",
+        "<:tubdowntank:989950141370892368>", "<:tubtank:989950185159401513>",
+        "<:wavetank:989950102414180442>", "<:zigtank:989950065101639720>"
+    ]
+    random_tank = random.choice(tanks)
+    await interaction.response.send_message(random_tank)
+
 @tree.command(guild=discord.Object(id=962142361935314996))
 async def sync_commands(interaction: discord.Interaction):
     await tree.sync()
     await tree.sync(guild=discord.Object(id=962142361935314996))
     await interaction.response.send_message("Commands synced.")
-
-@tree.command()
-async def command_name(interaction: discord.Interaction):
-    '''Command Information'''
-    await interaction.response.defer(ephemeral=False, thinking=True)
 
 def main():
     client.run(discord_token)
