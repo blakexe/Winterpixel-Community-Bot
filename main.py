@@ -488,7 +488,7 @@ async def get_money(interaction: discord.Interaction):
     await interaction.response.send_message(interaction.user.mention + " has " + str(add_player_coin(interaction.user.mention,0)) + " <:coin:910247623787700264>")
 
 @tree.command()
-async def random(interaction: discord.Interaction):
+async def random_tank(interaction: discord.Interaction):
     '''Get a random tank'''
     tanks = [
         "<:betatank:989949271547723796>", "<:bladetank:989949828417060864>",
