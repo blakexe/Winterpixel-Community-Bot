@@ -609,7 +609,7 @@ async def random_tank(interaction: discord.Interaction):
     await interaction.response.send_message(random.choice(tanks))
 
 @tree.command()
-async def get_crate_stats(interaction: discord.Interaction, one_star: int = 1, two_star: int = 0):
+async def get_crate_stats(interaction: discord.Interaction, one_star: int, two_star: int):
     '''Optimize the use of in game crates and Estimate the amount of coins'''
     await interaction.response.defer(ephemeral=False, thinking=True)
     await interaction.followup.send(all(one_star, two_star, 0))
