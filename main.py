@@ -602,6 +602,7 @@ async def discord_coins_leaderboard(interaction: discord.Interaction):
    for i in sorted_rankdict:
         message += f"{'#' + str(sorted_rankdict.index(i) + 1):<5} {i[0]:<20} {i[1]:>5,d} 🪙\n"
    message += "```"
+   await interaction.channel.send(message)
    await interaction.response.send_message(message)
 #    embed=discord.Embed(color=0xffd700, title="Discord Coins Leaderboard", description=message)
 #    await interaction.response.send_message()
@@ -675,14 +676,14 @@ async def random_tank(interaction: discord.Interaction):
     ]
     await interaction.response.send_message(random.choice(tanks))
 
-@tree.command()
-async def remove_bots(interaction: discord.Interaction):
-    '''Remove all bots from leaderboard'''
-    for key in db:
-        if not "<" in key:
-            db.pop(key)
-    print(db.keys())
-    await interaction.response.send_message("DONE =)")
+# @tree.command()
+# async def remove_bots(interaction: discord.Interaction):
+#     '''Remove all bots from leaderboard'''
+#     for key in db:
+#         if not "<" in key:
+#             db.pop(key)
+#     print(db.keys())
+#     await interaction.response.send_message("DONE =)")
 
 @tree.command()
 async def get_crate_stats(interaction: discord.Interaction, one_star: int, two_star: int):
