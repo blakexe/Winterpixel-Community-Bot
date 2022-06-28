@@ -588,25 +588,19 @@ async def get_money(interaction: discord.Interaction):
 @tree.command()
 async def discord_coins_leaderboard(interaction: discord.Interaction):
     '''Return the discord coins leaderboard'''
-#     rankdict = {}
-    temp_list = []
-#     xyz = db.keys()
-    print(db.keys())
-    for i in db.keys():
-        print(i)
-        temp_list.append(i)
-#     for key in db.keys():
-#         temp_list.append(key)
-#     for key in db.keys():
-#         rankdict[key] = db[key]
+    rankdict = {}
+  
+    for key in db.keys():
+        rankdict[key] = db[key]
 
-#     sorted_rankdict = sorted(rankdict.items(), key=itemgetter(1), reverse=True)
-#     message = f"```\n{'Rank:':<5} {'Name:':<20} {'Coins:'}\n{'‾' * 35}\n"
-#     for i in sorted_rankdict:
-#         message += f"{'#' + str(sorted_rankdict.index(i) + 1):<5} {i[0]:<20} {i[1]:>5,d} 🪙\n"
-#     message += "```"
-    await interaction.response.send_message(temp_list)
-#     await interaction.response.send_message(embed=discord.Embed(color=0xffd700, title="Discord Coins Leaderboard", description=message))
+    sorted_rankdict = sorted(rankdict.items(), key=itemgetter(1), reverse=True)
+    message = f"```\n{'Rank:':<5} {'Name:':<20} {'Coins:'}\n{'‾' * 35}\n"
+    sorted_rankdict = sorted_rankdict[:10]
+    for i in sorted_rankdict:
+        message += f"{'#' + str(sorted_rankdict.index(i) + 1):<5} {i[0]:<20} {i[1]:>5,d} 🪙\n"
+    message += "```"
+    
+    await interaction.followup.send(embed=discord.Embed(color=0xffd700, title="Discord Coins Leaderboard", description=message))
 
 @tree.command()
 async def slot(interaction: discord.Interaction, bet: int):
