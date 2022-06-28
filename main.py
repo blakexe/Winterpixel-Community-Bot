@@ -591,7 +591,7 @@ async def discord_coins_leaderboard(interaction: discord.Interaction):
     
     await interaction.response.defer(ephemeral=False, thinking=True)
     
-    rankdict = []
+    rankdict = {}
   
     for key in db.keys():
         rankdict[key] = db[key]
