@@ -589,7 +589,7 @@ async def get_money(interaction: discord.Interaction):
 async def discord_coins_leaderboard(interaction: discord.Interaction):
     '''Return the discord coins leaderboard'''
     
-    await interaction.response.defer(ephemeral=False, thinking=True)
+#    await interaction.response.defer(ephemeral=False, thinking=True)
     
     rankdict = {}
   
