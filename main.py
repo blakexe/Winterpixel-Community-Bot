@@ -588,6 +588,9 @@ async def get_money(interaction: discord.Interaction):
 @tree.command()
 async def discord_coins_leaderboard(interaction: discord.Interaction):
     '''Return the discord coins leaderboard'''
+    
+    await interaction.response.defer(ephemeral=False, thinking=True)
+    
     rankdict = {}
   
     for key in db.keys():
