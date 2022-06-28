@@ -684,7 +684,7 @@ async def update_players_database(interaction: discord.Interaction):
     '''Change from user mention to dict'''
     for key in db.keys():
         user_id = convert_mention_to_id(key)
-        db[user_id] = {"name":username:client.get_user(user_id),"money":db[key], "inventory":{}}
+        db[user_id] = {"name":client.get_user(user_id),"money":db[key], "inventory":{}}
         db.pop(key)
     print(db.keys())
     await interaction.response.send_message("DONE =)")
