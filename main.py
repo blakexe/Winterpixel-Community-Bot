@@ -646,7 +646,7 @@ async def slot(interaction: discord.Interaction, bet: int):
         if (slots[3] == slots[4] == slots[5]):
             p = list(events_2).index(slots[3])
             res_2 = f"Congratulations! :tada:\nYou won **{bet * multiplier[p]}** <:coin:910247623787700264>! ({multiplier[p]}x)"
-#             add_player_coin(interaction.user.mention, bet * multiplier[p])
+            add_player_coin(interaction.user.mention, bet * multiplier[p])
         else:
             res_2 = "Try again?"
             add_player_coin(interaction.user.mention, -bet)
