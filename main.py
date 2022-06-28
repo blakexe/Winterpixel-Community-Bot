@@ -619,10 +619,10 @@ async def slot(interaction: discord.Interaction, bet: int):
 #         None
         
     if tempp <= 0:
-        await interaction.response.send_message(embed=discord.Embed(color=discord.Color.red(),title="SLOT MACHINE :slot_machine:", description="You don't have enough <:coin:910247623787700264>"))
+        await interaction.response.send_message(embed=discord.Embed(color=discord.Color.red(),title="SLOT MACHINE :slot_machine:", description="You don't have enough <:coin1:910247623787700264>"))
 
     elif bet <= 0:
-        await interaction.response.send_message(embed=discord.Embed(color=discord.Color.red(),title="SLOT MACHINE :slot_machine:", description="The minimum bet is 1 <:coin:910247623787700264>"))
+        await interaction.response.send_message(embed=discord.Embed(color=discord.Color.red(),title="SLOT MACHINE :slot_machine:", description="The minimum bet is 1 <:coin1:910247623787700264>"))
     
 #     else:
 #         await interaction.response.send_message('test')
@@ -645,16 +645,16 @@ async def slot(interaction: discord.Interaction, bet: int):
 
         if (slots[3] == slots[4] == slots[5]):
             p = list(events_2).index(slots[3])
-            res_2 = f"Congratulations! :tada:\nYou won **{bet * multiplier[p]}** <:coin:910247623787700264>! ({multiplier[p]}x)"
+            res_2 = f"Congratulations! :tada:\nYou won **{bet * multiplier[p]}** <:coin1:910247623787700264>! ({multiplier[p]}x)"
             add_player_coin(interaction.user.mention, bet * multiplier[p])
         else:
             res_2 = "Try again?"
             add_player_coin(interaction.user.mention, -bet)
         
-#         new_player_coin = add_player_coin(interaction.user.mention, 0)
-#         res_3 = f"You now have {new_player_coin} <:coin:910247623787700264>"
-        await interaction.response.send_message(embed=discord.Embed(color=0xffd700, title="SLOT MACHINE :slot_machine:", description=f"{res_1}\n\n{res_2}"))
-#         await interaction.response.send_message(embed=discord.Embed(color=0xffd700, title="SLOT MACHINE :slot_machine:", description=f"{res_1}\n\n{res_2}\n\n{res_3}"))
+        new_player_coin = db.get(interaction.user.mention)
+        res_3 = f"You now have {new_player_coin} <:coin1:910247623787700264>"
+#         await interaction.response.send_message(embed=discord.Embed(color=0xffd700, title="SLOT MACHINE :slot_machine:", description=f"{res_1}\n\n{res_2}"))
+        await interaction.response.send_message(embed=discord.Embed(color=0xffd700, title="SLOT MACHINE :slot_machine:", description=f"{res_1}\n\n{res_2}\n\n{res_3}"))
 
 @tree.command()
 async def random_tank(interaction: discord.Interaction):
