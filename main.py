@@ -690,7 +690,7 @@ async def remove_bots(interaction: discord.Interaction):
     '''Remove all bots from leaderboard'''
     for key in db:
         if not "<" in key:
-            delete db[key]
+            db.pop(key)
     await interaction.response.send_message("DONE =)")
 
 @tree.command()
