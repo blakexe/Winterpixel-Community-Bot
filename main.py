@@ -665,7 +665,7 @@ async def random_tank(interaction: discord.Interaction):
         "<:catapultevolvedtank:989951212126359652>",
         "<:catapulttank:989951161152991262>", "<:concavetank:989951111773429841>",
         "<:crabevolvedtank:989951034132693044>", "<:crabtank:989949776927817738>",
-        "<:crawlertank:989949727858630726>", "<:cyclopstank:989950970429595688>",
+        "<:crawlertank:990837535666212884>", "<:cyclopstank:989950970429595688>",
         "<:diamondtank:989950859561566328>",
         "<:dozerevolvedtank:989950801663369226>",
         "<:dozertank:989950741433163806>", "<:forklifttank:989950685288222720>",
@@ -679,9 +679,9 @@ async def random_tank(interaction: discord.Interaction):
         "<:tubdowntank:989950141370892368>", "<:tubtank:989950185159401513>",
         "<:wavetank:989950102414180442>", "<:zigtank:989950065101639720>",
         "<:blackdefaulttank:990837213556244490>", "<:blacklongtank:990837173970411600>",
-        "<:blacktreadtank:990837309446455356>", "<:browncrawlertank:990837535666212884>",
-        "<:goldcanontank:990837078340300820>", "<:goldbladetank:990837027136241694>",
-        "<:goldcyclopstank:990837123919781898>", "<:whitedefaulttank:990837258359799838>"
+        "<:blacktreadtank:990837309446455356>", "<:goldcanontank:990837078340300820>",
+        "<:goldbladetank:990837027136241694>", "<:goldcyclopstank:990837123919781898>",
+        "<:whitedefaulttank:990837258359799838>"
     ]
     await interaction.response.send_message(random.choice(tanks))
 
