@@ -610,22 +610,13 @@ async def discord_coins_leaderboard(interaction: discord.Interaction):
 async def slot(interaction: discord.Interaction, bet: int):
     '''Play the slot machine game!'''
     
-    tempp = db.get(interaction.user.mention)
+    current_player_coin = db.get(interaction.user.mention)
     
-#     if tempp > 0:
-# #     await interaction.response.send_message("test")
-#         await interaction.response.send_message(embed=discord.Embed(color=discord.Color.red(),title="SLOT MACHINE :slot_machine:", description="You don't have enough <:coin:910247623787700264>"))
-#     else:
-#         None
-        
-    if tempp <= 0:
+    if current_player_coin <= 0:
         await interaction.response.send_message(embed=discord.Embed(color=discord.Color.red(),title="SLOT MACHINE :slot_machine:", description="You don't have enough <:coin1:910247623787700264>"))
 
     elif bet <= 0:
         await interaction.response.send_message(embed=discord.Embed(color=discord.Color.red(),title="SLOT MACHINE :slot_machine:", description="The minimum bet is 1 <:coin1:910247623787700264>"))
-    
-#     else:
-#         await interaction.response.send_message('test')
 
     else:
         events_2 = {
@@ -653,7 +644,6 @@ async def slot(interaction: discord.Interaction, bet: int):
         
         new_player_coin = db.get(interaction.user.mention)
         res_3 = f"You now have {new_player_coin} <:coin1:910247623787700264>"
-#         await interaction.response.send_message(embed=discord.Embed(color=0xffd700, title="SLOT MACHINE :slot_machine:", description=f"{res_1}\n\n{res_2}"))
         await interaction.response.send_message(embed=discord.Embed(color=0xffd700, title="SLOT MACHINE :slot_machine:", description=f"{res_1}\n\n{res_2}\n\n{res_3}"))
 
 @tree.command()
