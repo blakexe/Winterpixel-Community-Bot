@@ -595,7 +595,7 @@ async def discord_coins_leaderboard(interaction: discord.Interaction):
   
     for key in db.keys():
         rankdict[key] = db[key]
-    global sorted_rankdict = {}
+    global sorted_rankdict
     sorted_rankdict = sorted(rankdict.items(), key=itemgetter(1), reverse=True)
     message = f"```\n{'Rank:':<5} {'Name:':<20} {'Coins:'}\n{'‾' * 35}\n"
     sorted_rankdict = sorted_rankdict[:10]
