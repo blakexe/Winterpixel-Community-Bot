@@ -604,9 +604,8 @@ async def discord_coins_leaderboard(interaction: discord.Interaction):
         message += f"{'#' + str(sorted_rankdict.index(i) + 1):<5} {i[0]:<20} {i[1]:>5,d} 🪙\n"
    message += "```"
    await interaction.channel.send(message)
-   await interaction.response.send_message(message)
-#    embed=discord.Embed(color=0xffd700, title="Discord Coins Leaderboard", description=message)
-#    await interaction.response.send_message()
+   embed=discord.Embed(color=0xffd700, title="Discord Coins Leaderboard", description=message)
+   await interaction.followup.send(embed=embed)
 
 @tree.command()
 async def slot(interaction: discord.Interaction, bet: int):
