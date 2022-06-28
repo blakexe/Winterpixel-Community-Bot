@@ -112,8 +112,8 @@ def add_player_coin(player, coins):
     if type(player) is int:
         player_coins = db.get(player)
         if player_coins == None:
-            db[player] = {"name":client.get_user(user_id),"money":500, "inventory":{}}
-        db[player][money] = db[player][money] + coins
+            db[player] = {"name":client.get_user(player),"money":500, "inventory":{}}
+        db[player]["money"] = db[player]["money"] + coins
         return db[player]
     return 0
 
