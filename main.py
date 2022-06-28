@@ -109,11 +109,12 @@ def generate_random_name():
     return name
     
 def add_player_coin(player, coins):
-    player_coins = db.get(player)
-    if player_coins == None:
-        db[player] = 500
-    db[player] = db[player] + coins
-    return db[player]
+    if "<" in player:
+        player_coins = db.get(player)
+        if player_coins == None:
+            db[player] = 500
+        db[player] = db[player] + coins
+        return db[player]
 
 def basic_or_elite(a, b, c):
     time = 1 / (1 - one_star_prob * a - two_star_prob * b -
