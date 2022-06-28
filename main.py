@@ -610,7 +610,7 @@ async def discord_coins_leaderboard(interaction: discord.Interaction):
 async def slot(interaction: discord.Interaction, bet: int):
     '''Play the slot machine game!'''
     
-    tempp = add_player_coin(interaction.user.mention,0)
+    tempp = db.get(interaction.user.mention)
     
     if tempp > 0:
 #     await interaction.response.send_message("test")
