@@ -584,24 +584,24 @@ async def start_game(interaction: discord.Interaction):
 async def get_money(interaction: discord.Interaction):
     '''Find out how much money you have in discord'''
     await interaction.response.send_message(interaction.user.mention + " has " + str(add_player_coin(interaction.user.mention,0)) + " <:coin:910247623787700264>")
-
 @tree.command()
 async def discord_coins_leaderboard(interaction: discord.Interaction):
     '''Return the discord coins leaderboard'''
     
 #    await interaction.response.defer(ephemeral=False, thinking=True)
     
-#    rankdict = {}
-  
-#    for key in db.keys():
-#        rankdict[key] = db[key]
-#    global sorted_rankdict
-#    sorted_rankdict = sorted(rankdict.items(), key=itemgetter(1), reverse=True)
-#    message = f"```\n{'Rank:':<5} {'Name:':<20} {'Coins:'}\n{'‾' * 35}\n"
-#    sorted_rankdict = sorted_rankdict[:10]
-#    for i in sorted_rankdict:
-#         message += f"{'#' + str(sorted_rankdict.index(i) + 1):<5} {i[0]:<20} {i[1]:>5,d} 🪙\n"
-#    message += "```"
+   test_keys = {"BOB":512,"Timmy":319}
+   rankdict = {}
+   
+   for key in test_keys.keys():
+       rankdict[key] = test_keys[key]
+   global sorted_rankdict
+   sorted_rankdict = sorted(rankdict.items(), key=itemgetter(1), reverse=True)
+   message = f"```\n{'Rank:':<5} {'Name:':<20} {'Coins:'}\n{'‾' * 35}\n"
+   sorted_rankdict = sorted_rankdict[:10]
+   for i in sorted_rankdict:
+        message += f"{'#' + str(sorted_rankdict.index(i) + 1):<5} {i[0]:<20} {i[1]:>5,d} 🪙\n"
+   message += "```"
     await interaction.response.send_message("test")
 #    embed=discord.Embed(color=0xffd700, title="Discord Coins Leaderboard", description=message)
 #    await interaction.response.send_message()
