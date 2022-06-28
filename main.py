@@ -588,7 +588,7 @@ async def start_game(interaction: discord.Interaction):
 @tree.command()
 async def get_money(interaction: discord.Interaction):
     '''Find out how much money you have in discord'''
-    await interaction.response.send_message(interaction.user.id + " has " + str(add_player_coin(interaction.user.mention,0)) + " <:coin:910247623787700264>")
+    await interaction.response.send_message(str(interaction.user.mention + " has " + str(add_player_coin(interaction.user.id,0)) + " <:coin:910247623787700264>")
 
 @tree.command()
 async def discord_coins_leaderboard(interaction: discord.Interaction):
