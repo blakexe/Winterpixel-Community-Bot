@@ -612,7 +612,7 @@ async def slot(interaction: discord.Interaction, bet: int):
     
 #     if add_player_coin(interaction.user.mention, 0) > 0:
 #     await interaction.response.send_message("test")
-    await interaction.response.send_message(embed=discord.Embed(color=discord.Color.red(),title="SLOT MACHINE :slot_machine:", description="You don't have enough <:coin:910247623787700264>"))
+    await interaction.followup.send(embed=discord.Embed(color=discord.Color.red(),title="SLOT MACHINE :slot_machine:", description="You don't have enough <:coin:910247623787700264>"))
         
 #     if add_player_coin(interaction.user.mention, 0) <= 0:
 #         await interaction.followup.send(embed=discord.Embed(color=discord.Color.red(),title="SLOT MACHINE :slot_machine:", description="You don't have enough <:coin:910247623787700264>"))
