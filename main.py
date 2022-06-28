@@ -109,7 +109,7 @@ def generate_random_name():
     return name
     
 def add_player_coin(player, coins):
-    if "<" in player:
+    if type(player) is int:
         player_coins = db.get(player)
         if player_coins == None:
             db[player] = {"name":client.get_user(user_id),"money":500, "inventory":{}}
