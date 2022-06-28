@@ -628,7 +628,7 @@ async def slot(interaction: discord.Interaction, bet: int):
 #         await interaction.response.send_message('test')
 
     else:
-        events = {
+        events_2 = {
         "<:coin:910247623787700264>": 50,
         "<:coins2:991267848875950210>": 25,
         "<:coins2:976289335844434000>": 12.5,
@@ -639,22 +639,22 @@ async def slot(interaction: discord.Interaction, bet: int):
     
         slots = []  
         for i in range(9):
-            slots.append(random.choices(population=list(events.keys()), weights=events.values())[0])
+            slots.append(random.choices(population=list(events_2.keys()), weights=events_2.values())[0])
         
         res_1 = f":black_large_square: {slots[0]} {slots[1]} {slots[2]} :black_large_square:\n:arrow_forward:~~ {slots[3]} {slots[4]} {slots[5]} ~~:arrow_backward: :joystick:\n:black_large_square: {slots[6]} {slots[7]} {slots[8]} :black_large_square:"
 
-        if (slots[3] == slots[4] == slots[5]):
-            p = list(events).index(slots[3])
-            res_2 = f"Congratulations! :tada:\nYou won **{bet * multiplier[p]}** <:coin:910247623787700264>! ({multiplier[p]}x)"
+#         if (slots[3] == slots[4] == slots[5]):
+#             p = list(events_2).index(slots[3])
+#             res_2 = f"Congratulations! :tada:\nYou won **{bet * multiplier[p]}** <:coin:910247623787700264>! ({multiplier[p]}x)"
 #             add_player_coin(interaction.user.mention, bet * multiplier[p])
-        else:
-            res_2 = "Try again?"
+#         else:
+#             res_2 = "Try again?"
 #             add_player_coin(interaction.user.mention, -bet)
         
 #         new_player_coin = add_player_coin(interaction.user.mention, 0)
 #         res_3 = f"You now have {new_player_coin} <:coin:910247623787700264>"
-
-        await interaction.response.send_message(embed=discord.Embed(color=0xffd700, title="SLOT MACHINE :slot_machine:", description=f"{res_1}\n\n{res_2}\n\n{res_3}"))
+        await interaction.response.send_message(embed=discord.Embed(color=0xffd700, title="SLOT MACHINE :slot_machine:", description=f"{res_1}"))
+#         await interaction.response.send_message(embed=discord.Embed(color=0xffd700, title="SLOT MACHINE :slot_machine:", description=f"{res_1}\n\n{res_2}\n\n{res_3}"))
 
 @tree.command()
 async def random_tank(interaction: discord.Interaction):
