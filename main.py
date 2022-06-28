@@ -591,7 +591,9 @@ async def discord_coins_leaderboard(interaction: discord.Interaction):
 #     rankdict = {}
     temp_list = []
 #     xyz = db.keys()
-    for i in db:
+    print(db.keys())
+    for i in db.keys():
+        print(i)
         temp_list.append(i)
 #     for key in db.keys():
 #         temp_list.append(key)
