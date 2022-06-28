@@ -197,6 +197,9 @@ def all(a, b, c):
     else:
         return ":x: **INVALID** data has been entered. Please try again. :x:"
 
+def convert_mention_to_id(mention):
+    return int(mention[1:][:len(mention)-2].replace("@","").replace("!",""))
+
 async def refresh_config():
     '''Refresh game configuration every 10 minutes'''
     global server_config
@@ -676,14 +679,15 @@ async def random_tank(interaction: discord.Interaction):
     ]
     await interaction.response.send_message(random.choice(tanks))
 
-# @tree.command()
-# async def remove_bots(interaction: discord.Interaction):
-#     '''Remove all bots from leaderboard'''
-#     for key in db:
-#         if not "<" in key:
-#             db.pop(key)
-#     print(db.keys())
-#     await interaction.response.send_message("DONE =)")
+@tree.command()
+async def update_players_database(interaction: discord.Interaction):
+    '''Change from user mention to dict'''
+    for key in db.keys():
+        user_id = convert_mention_to_id(key)
+        db[user_id] = {"name":username = client.get_user(user_id),"money":db[key], "inventory":{}}
+        db.pop(key)
+    print(db.keys())
+    await interaction.response.send_message("DONE =)")
 
 @tree.command()
 async def get_crate_stats(interaction: discord.Interaction, one_star: int, two_star: int):
