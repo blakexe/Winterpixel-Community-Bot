@@ -112,9 +112,10 @@ def add_player_coin(player, coins):
     if "<" in player:
         player_coins = db.get(player)
         if player_coins == None:
-            db[player] = 500
-        db[player] = db[player] + coins
+            db[player] = {"name":client.get_user(user_id),"money":500, "inventory":{}}
+        db[player][money] = db[player][money] + coins
         return db[player]
+    return 0
 
 def basic_or_elite(a, b, c):
     time = 1 / (1 - one_star_prob * a - two_star_prob * b -
@@ -427,8 +428,8 @@ async def join_game(interaction: discord.Interaction):
         return
     response = ""
     if interaction.user.mention not in players:
-        players.append(interaction.user.mention)
-        response += '{} joined'.format(interaction.user.mention)
+        players.append(interaction.user.id)
+        response += '{} joined'.format(interaction.user.id)
     else:
         response_hidden = True
         response += '{} you cant join twice'.format(interaction.user.mention)
@@ -587,7 +588,8 @@ async def start_game(interaction: discord.Interaction):
 @tree.command()
 async def get_money(interaction: discord.Interaction):
     '''Find out how much money you have in discord'''
-    await interaction.response.send_message(interaction.user.mention + " has " + str(add_player_coin(interaction.user.mention,0)) + " <:coin:910247623787700264>")
+    await interaction.response.send_message(interaction.user.id + " has " + str(add_player_coin(interaction.user.mention,0)) + " <:coin:910247623787700264>")
+
 @tree.command()
 async def discord_coins_leaderboard(interaction: discord.Interaction):
    '''Return the discord coins leaderboard'''
@@ -679,15 +681,15 @@ async def random_tank(interaction: discord.Interaction):
     ]
     await interaction.response.send_message(random.choice(tanks))
 
-@tree.command()
-async def update_players_database(interaction: discord.Interaction):
-    '''Change from user mention to dict'''
-    for key in db.keys():
-        user_id = convert_mention_to_id(key)
-        db[user_id] = {"name":client.get_user(user_id),"money":db[key], "inventory":{}}
-        db.pop(key)
-    print(db.keys())
-    await interaction.response.send_message("DONE =)")
+# @tree.command()
+# async def update_players_database(interaction: discord.Interaction):
+#     '''Change from user mention to dict'''
+#     for key in db.keys():
+#         user_id = convert_mention_to_id(key)
+#         db[user_id] = {"name":client.get_user(user_id),"money":db[key], "inventory":{}}
+#         db.pop(key)
+#     print(db.keys())
+#     await interaction.response.send_message("DONE =)")
 
 @tree.command()
 async def get_crate_stats(interaction: discord.Interaction, one_star: int, two_star: int):
