@@ -586,7 +586,7 @@ async def get_money(interaction: discord.Interaction):
     await interaction.response.send_message(interaction.user.mention + " has " + str(add_player_coin(interaction.user.mention,0)) + " <:coin:910247623787700264>")
 @tree.command()
 async def discord_coins_leaderboard(interaction: discord.Interaction):
-    '''Return the discord coins leaderboard'''
+   '''Return the discord coins leaderboard'''
     
 #    await interaction.response.defer(ephemeral=False, thinking=True)
     
