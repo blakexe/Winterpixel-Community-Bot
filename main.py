@@ -649,7 +649,7 @@ async def slot(interaction: discord.Interaction, bet: int):
 #             add_player_coin(interaction.user.mention, bet * multiplier[p])
         else:
             res_2 = "Try again?"
-#             add_player_coin(interaction.user.mention, -bet)
+            add_player_coin(interaction.user.mention, -bet)
         
 #         new_player_coin = add_player_coin(interaction.user.mention, 0)
 #         res_3 = f"You now have {new_player_coin} <:coin:910247623787700264>"
