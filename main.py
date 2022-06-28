@@ -691,6 +691,7 @@ async def remove_bots(interaction: discord.Interaction):
     for key in db:
         if not "<" in key:
             db.pop(key)
+    print(db)
     await interaction.response.send_message("DONE =)")
 
 @tree.command()
