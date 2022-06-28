@@ -1,6 +1,7 @@
 import random, aiohttp, replit
 import discord, json, asyncio, typing, os, io
 from collections import OrderedDict
+from operator import itemgetter
 from statistics import mean
 from replit import db
 from discord import app_commands
@@ -251,6 +252,7 @@ async def leaderboard(interaction: discord.Interaction, season: int = -1):
 
     #Send
     await interaction.followup.send(embed=discord.Embed(title=f"Season {season} Leaderboard:", description=message))
+
 
 @tree.command()
 async def get_user(interaction: discord.Interaction, user_type: typing.Literal['User ID', 'Friend ID'], id: str):
@@ -580,8 +582,24 @@ async def start_game(interaction: discord.Interaction):
 
 @tree.command()
 async def get_money(interaction: discord.Interaction):
-    '''Find out how much money you have'''
+    '''Find out how much money you have in discord'''
     await interaction.response.send_message(interaction.user.mention + " has " + str(add_player_coin(interaction.user.mention,0)) + " <:coin:910247623787700264>")
+
+@tree.command()
+async def discord_coins_leaderboard(interaction: discord.Interaction):
+    '''Return the discord coins leaderboard'''
+    rankdict = {}
+  
+    for key in db.keys():
+        rankdict[key] = db[key]
+
+    sorted_rankdict = sorted(rankdict.items(), key=itemgetter(1), reverse=True)
+    message = f"```\n{'Rank:':<5} {'Name:':<20} {'Coins:'}\n{'‾' * 35}\n"
+    for i in sorted_rankdict:
+        message += f"{'#' + str(sorted_rankdict.index(i) + 1):<5} {i[0]:<20} {i[1]:>5,d} 🪙\n"
+    message += "```"
+    
+    await interaction.followup.send(embed=discord.Embed(color=0xffd700, title="Discord Coins Leaderboard", description=message))
 
 @tree.command()
 async def random_tank(interaction: discord.Interaction):
