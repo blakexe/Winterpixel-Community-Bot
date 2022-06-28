@@ -590,11 +590,9 @@ async def discord_coins_leaderboard(interaction: discord.Interaction):
     '''Return the discord coins leaderboard'''
 #     rankdict = {}
     temp_list = []
-    xyz = db.keys()
-    for i in xyz:
+#     xyz = db.keys()
+    for i in db:
         temp_list.append(i)
-        
-    
 #     for key in db.keys():
 #         temp_list.append(key)
 #     for key in db.keys():
