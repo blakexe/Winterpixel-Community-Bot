@@ -226,7 +226,8 @@ async def on_ready():
     asyncio.create_task(refresh_config())
 
     for key in db.keys():
-        print(db[key])
+        
+        print(db[key]["money"])
     print("Winterpixel community bot is ready.")
 
 async def on_message(message):
