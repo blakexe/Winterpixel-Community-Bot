@@ -606,7 +606,7 @@ async def discord_coins_leaderboard(interaction: discord.Interaction):
    message = f"```\n{'Rank:':<5} {'Name:':<20} {'Coins:'}\n{'‾' * 35}\n"
    sorted_rankdict = sorted_rankdict[:10]
    for i in sorted_rankdict:
-        message += f"{'#' + str(sorted_rankdict.index(i) + 1):<5} {i[0]["name"]:<20} {i[1]["money"]:>5,d} 🪙\n"
+        message += f"{'#' + str(sorted_rankdict.index(i) + 1):<5} {i[0]:<20} {i[1]:>5,d} 🪙\n"
    message += "```"
    await interaction.channel.send(message)
    embed=discord.Embed(color=0xffd700, title="Discord Coins Leaderboard", description=message)
@@ -709,3 +709,4 @@ def main():
 if (__name__ == "__main__"):
     main()
 ""
+
