@@ -201,6 +201,10 @@ def all(a, b, c):
 def convert_mention_to_id(mention):
     return int(mention[1:][:len(mention)-2].replace("@","").replace("!",""))
 
+def get_name_from_id(user_id):
+    guild = discord.Object(id=962142361935314996)
+    return guild.fetch_member(user_id)
+
 async def refresh_config():
     '''Refresh game configuration every 10 minutes'''
     global server_config
@@ -226,9 +230,9 @@ async def on_ready():
     asyncio.create_task(refresh_config())
 
     for key in db.keys():
-        user = client.get_user(int(key)).name
-        db[key]["name"] = user
-        print(user.name)
+#         user = client.get_user(int(key)).name
+#         db[key]["name"] = user
+        print(get_name_from_id(key))
     print("Winterpixel community bot is ready.")
 
 async def on_message(message):
