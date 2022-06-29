@@ -43,7 +43,7 @@ bots = []
 playing = False
 
 #Initialize crate bot related variables
-one_star_total, two_star_total, three_star_total = 30, 14, 0
+one_star_total, two_star_total, three_star_total = 30, 15, 0
 total = one_star_total + two_star_total + three_star_total
 one_star_weight, two_star_weight, three_star_weight = 30, 10, 1
 total_weight = one_star_total * one_star_weight + two_star_total * two_star_weight + three_star_total * three_star_weight
