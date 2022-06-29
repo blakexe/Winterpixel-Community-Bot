@@ -226,7 +226,7 @@ async def on_ready():
     asyncio.create_task(refresh_config())
 
     for key in db.keys():
-        user = client.get_user(id_).name
+        user = client.get_user(int(key)).name
         db[key]["name"] = user
         print(user.name)
     print("Winterpixel community bot is ready.")
