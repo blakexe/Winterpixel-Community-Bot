@@ -428,8 +428,8 @@ async def join_game(interaction: discord.Interaction):
         return
     response = ""
     if interaction.user.mention not in players:
-        players.append(interaction.user.id)
-        response += '{} joined'.format(interaction.user.id)
+        players.append(interaction.user.mention)
+        response += '{} joined'.format(interaction.user.mention)
     else:
         response_hidden = True
         response += '{} you cant join twice'.format(interaction.user.mention)
@@ -524,8 +524,8 @@ async def start_game(interaction: discord.Interaction):
             #B-E die for kills, if we need a non dying player use F
             event += "\n\n" + player_a + " got " + str(coin_num) + " <:coin:910247623787700264>"
             event += " and " + player_b + " lost " + str(coin_num) + " <:coin:910247623787700264>"
-            add_player_coin(player_a,coin_num)
-            add_player_coin(player_b,-coin_num)
+            add_player_coin(convert_mention_to_id(player_a),coin_num)
+            add_player_coin(convert_mention_to_id(player_b),-coin_num)
             if moneys.get(player_a) == None:
                 moneys[player_a] = coin_num
             else:
@@ -606,7 +606,7 @@ async def discord_coins_leaderboard(interaction: discord.Interaction):
    message = f"```\n{'Rank:':<5} {'Name:':<20} {'Coins:'}\n{'‾' * 35}\n"
    sorted_rankdict = sorted_rankdict[:10]
    for i in sorted_rankdict:
-        message += f"{'#' + str(sorted_rankdict.index(i) + 1):<5} {i[0]:<20} {i[1]:>5,d} 🪙\n"
+        message += f"{'#' + str(sorted_rankdict.index(i) + 1):<5} {i[0]["name"]:<20} {i[1]["money"]:>5,d} 🪙\n"
    message += "```"
    await interaction.channel.send(message)
    embed=discord.Embed(color=0xffd700, title="Discord Coins Leaderboard", description=message)
@@ -643,12 +643,12 @@ async def slot(interaction: discord.Interaction, bet: int):
         if (slots[3] == slots[4] == slots[5]):
             p = list(events_2).index(slots[3])
             res_2 = f"Congratulations! :tada:\nYou won **{bet * multiplier[p]}** <:coin1:910247623787700264>! ({multiplier[p]}x)"
-            add_player_coin(interaction.user.mention, bet * multiplier[p])
+            add_player_coin(interaction.user.id, bet * multiplier[p])
         else:
             res_2 = "Try again?"
-            add_player_coin(interaction.user.mention, -bet)
+            add_player_coin(interaction.user.id, -bet)
         
-        new_player_coin = db.get(interaction.user.mention)
+        new_player_coin = db.get(interaction.user.id)["money"]
         res_3 = f"You now have {new_player_coin} <:coin1:910247623787700264>"
         await interaction.response.send_message(embed=discord.Embed(color=0xffd700, title="SLOT MACHINE :slot_machine:", description=f"{res_1}\n\n{res_2}\n\n{res_3}"))
 
