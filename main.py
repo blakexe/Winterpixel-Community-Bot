@@ -677,7 +677,7 @@ async def random_tank(interaction: discord.Interaction):
         "<:blackdefaulttank:990837213556244490>", "<:blacklongtank:990837173970411600>",
         "<:blacktreadtank:990837309446455356>", "<:goldcanontank:990837078340300820>",
         "<:goldbladetank:990837027136241694>", "<:goldcyclopstank:990837123919781898>",
-        "<:whitedefaulttank:990837258359799838>"
+        "<:whitedefaulttank:990837258359799838>", "<:bugtank:991755134193377361>"
     ]
     await interaction.response.send_message(random.choice(tanks))
 
