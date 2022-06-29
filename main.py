@@ -692,8 +692,8 @@ async def random_tank(interaction: discord.Interaction):
 @tree.command()
 async def long(interaction: discord.Interaction, length: int):
     '''Build your supercalifragilisticexpialidocious long tank!'''
-    if (length < 0 or length > 27):
-        await interaction.response.send_message("The acceptable range of length is between 0 and 27 (inclusive)")
+    if (length < 0 or length > 26):
+        await interaction.response.send_message("The acceptable range of length is between 0 and 26 (inclusive)")
     else:
         long_emoji = ["<:longtank_part1:991838180699541504>", "<:longtank_part2:991838184910626916>", "<:longtank_part3:991838189591470130>", "<:longtank_part4:991838192145793125>"]
         long_tank = f"{long_emoji[0]}{long_emoji[1] * length}{long_emoji[2]}{long_emoji[1] * length}{long_emoji[3]}"
