@@ -225,6 +225,8 @@ async def on_ready():
     #Start up the 10 minute config refresher
     asyncio.create_task(refresh_config())
 
+    for key in db.keys():
+        print(db[key])
     print("Winterpixel community bot is ready.")
 
 async def on_message(message):
