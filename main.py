@@ -85,7 +85,9 @@ tanks = [
     "<:blackdefaulttank:990837213556244490>", "<:blacklongtank:990837173970411600>",
     "<:blacktreadtank:990837309446455356>", "<:goldcanontank:990837078340300820>",
     "<:goldbladetank:990837027136241694>", "<:goldcyclopstank:990837123919781898>",
-    "<:whitedefaulttank:990837258359799838>", "<:bugtank:991755134193377361>"
+    "<:whitedefaulttank:990837258359799838>", "<:bugtank:991755134193377361>",
+    "<:logtank:992858914741825626>", "<:spidertank:992858923306598492>",
+    "<:spiderevolvedtank:992858919141646397>"
 ]
 
 os.system('clear')
