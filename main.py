@@ -823,7 +823,9 @@ async def memory(interaction: discord.Interaction):
                 await message.edit(embed=embed)
                 break
             if ((str(msg.content.lower()) == "s") or (str(msg.content.lower()) == "q")) == False:
-                await interaction.followup.send(":x: Invalid input has been entered :x:", delete_after=5)
+                warn = await interaction.followup.send(":x: Invalid input has been entered :x:")
+                await asyncio.sleep(5)
+                await warn.delete()
 #                 await interaction.response.send_message(":x: Invalid input has been entered :x:")
 #                 , delete_after=5)
             if str(msg.content.lower()) == "s":
