@@ -782,21 +782,11 @@ async def slot(interaction: discord.Interaction, bet: int):
         # new_player_coin = db["player_coin"]
 
         embed = discord.Embed(color=0xffd700, title="SLOT MACHINE :slot_machine:", description=f"{slot_results_str}\n{'-' * 18}**\n{res_2}")
-#         embed.add_field(name="Bet", value=f"{bet} {coin[0]}", inline=True)
-#         embed.add_field(name="Profit/Loss",
-#                         value=f"{profit} {coin[0]}" +
-#                         (f" ({multiplier}x)" if win else ""),
-#                         inline=True)
-#         embed.add_field(name="Balance",
-#                         value=f"N.A. {coin[0]}",
-#                         # value=f"{new_player_coin} {coin[0]}",
-#                         inline=True)
-#         embed.add_field(
-#             name="Pay Table",
-#             value=
-#             f"{'{}'.format(coin[4]) * 3} - 32x\n{'{}'.format(coin[3]) * 3} - 16x\n{'{}'.format(coin[2]) * 3} - 12x\n{'{}'.format(coin[1]) * 3} - 8x\n{'{}'.format(coin[4]) * 2}:grey_question: - 8x\n{'{}'.format(coin[0]) * 3} - 4x\n{'{}'.format(coin[3]) * 2}:grey_question: - 4x\n{'{}'.format(coin[2]) * 2}:grey_question: - 3x\n{'{}'.format(coin[1]) * 2}:grey_question: - 2x\n{'{}'.format(coin[0]) * 2}:grey_question: - 1x",
-#             inline=False)
-#         await sent_embed.edit(embed=embed)
+        embed.add_field(name="Bet", value=f"{bet} {coin[0]}", inline=True)
+        embed.add_field(name="Profit/Loss", value=f"{profit} {coin[0]}" + (f" ({multiplier}x)" if win else ""), inline=True)
+        embed.add_field(name="Balance", value=f"N.A. {coin[0]}", inline=True)
+        embed.add_field(name="Pay Table", value=f"{'{}'.format(coin[4]) * 3} - 32x\n{'{}'.format(coin[3]) * 3} - 16x\n{'{}'.format(coin[2]) * 3} - 12x\n{'{}'.format(coin[1]) * 3} - 8x\n{'{}'.format(coin[4]) * 2}:grey_question: - 8x\n{'{}'.format(coin[0]) * 3} - 4x\n{'{}'.format(coin[3]) * 2}:grey_question: - 4x\n{'{}'.format(coin[2]) * 2}:grey_question: - 3x\n{'{}'.format(coin[1]) * 2}:grey_question: - 2x\n{'{}'.format(coin[0]) * 2}:grey_question: - 1x", inline=False)
+        await sent_embed.edit(embed=embed)
 
 # @tree.command()
 # async def update_players_database(interaction: discord.Interaction):
