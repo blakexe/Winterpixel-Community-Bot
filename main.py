@@ -752,17 +752,14 @@ async def slot(interaction: discord.Interaction, bet: int):
 
         sent_embed = await interaction.followup.send(embed=slot_embed)
         current_slot_pics = [coins_loop] * 3
-#         for i in range(len(slots)):
-#             await asyncio.sleep(1.5)
-#             current_slot_pics[i] = slots[i]
-#             slot_results_str = f"**{'-' * 18}\n|"
-#             for thisSlot in current_slot_pics:
-#                 slot_results_str += f" {thisSlot} |"
-#             new_slot_embed = discord.Embed(
-#                 color=0xffd700,
-#                 title="SLOT MACHINE :slot_machine:",
-#                 description=f"{slot_results_str}\n{'-' * 18}**")
-#             await sent_embed.edit(embed=new_slot_embed)
+        for i in range(len(slots)):
+            await asyncio.sleep(1.5)
+            current_slot_pics[i] = slots[i]
+            slot_results_str = f"**{'-' * 18}\n|"
+            for thisSlot in current_slot_pics:
+                slot_results_str += f" {thisSlot} |"
+            new_slot_embed = discord.Embed(color=0xffd700, title="SLOT MACHINE :slot_machine:", description=f"{slot_results_str}\n{'-' * 18}**")
+            await sent_embed.edit(embed=new_slot_embed)
 
 #         if slots[0] == slots[1]:
 #             if slots[1] == slots[2]:
@@ -803,6 +800,7 @@ async def slot(interaction: discord.Interaction, bet: int):
 #             f"{'{}'.format(coin[4]) * 3} - 32x\n{'{}'.format(coin[3]) * 3} - 16x\n{'{}'.format(coin[2]) * 3} - 12x\n{'{}'.format(coin[1]) * 3} - 8x\n{'{}'.format(coin[4]) * 2}:grey_question: - 8x\n{'{}'.format(coin[0]) * 3} - 4x\n{'{}'.format(coin[3]) * 2}:grey_question: - 4x\n{'{}'.format(coin[2]) * 2}:grey_question: - 3x\n{'{}'.format(coin[1]) * 2}:grey_question: - 2x\n{'{}'.format(coin[0]) * 2}:grey_question: - 1x",
 #             inline=False)
 #         await sent_embed.edit(embed=embed)
+
 # @tree.command()
 # async def update_players_database(interaction: discord.Interaction):
 #     '''Change from user mention to dict'''
