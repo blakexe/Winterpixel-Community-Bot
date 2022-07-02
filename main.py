@@ -622,6 +622,7 @@ async def discord_coins_leaderboard(interaction: discord.Interaction):
 
 @tree.command()
 async def slot(interaction: discord.Interaction, bet: int):
+    '''Play the slot machine game!'''
     coin = ["<:coin1:910247623787700264>", "<:coin2:991444836869754950>", "<:coin3:976289335844434000>", "<:coin4:976289358200049704>", "<:coin5:976288324266373130>"]
 
     # if bet > db["player_coin"]:
@@ -637,83 +638,83 @@ async def slot(interaction: discord.Interaction, bet: int):
             title="SLOT MACHINE :slot_machine:",
             description=f"The minimum bet is 1 {coin[0]}"))
 
-    else:
-        coins_loop = "<a:coin_loop:992273503288037408>"
-        multiplier2 = [1, 2, 3, 4, 8]
-        multiplier3 = [4, 8, 12, 16, 32]
-        events = {
-            coin[0]: 12.5 / 26.25,
-            coin[1]: 8 / 26.26,
-            coin[2]: 3 / 26.26,
-            coin[3]: 1.5 / 26.26,
-            coin[4]: 1.25 / 26.25,
-        }
+#     else:
+#         coins_loop = "<a:coin_loop:992273503288037408>"
+#         multiplier2 = [1, 2, 3, 4, 8]
+#         multiplier3 = [4, 8, 12, 16, 32]
+#         events = {
+#             coin[0]: 12.5 / 26.25,
+#             coin[1]: 8 / 26.26,
+#             coin[2]: 3 / 26.26,
+#             coin[3]: 1.5 / 26.26,
+#             coin[4]: 1.25 / 26.25,
+#         }
 
-        slots = []
-        for i in range(3):
-            slots.append(
-                random.choices(population=list(events.keys()),
-                               weights=events.values())[0])
+#         slots = []
+#         for i in range(3):
+#             slots.append(
+#                 random.choices(population=list(events.keys()),
+#                                weights=events.values())[0])
 
-        slot_embed = discord.Embed(
-            color=0xffd700,
-            title="SLOT MACHINE :slot_machine:",
-            description=
-            f"**{'-' * 18}\n|{' {} |'.format(coins_loop) * 3}\n{'-' * 18}**")
+#         slot_embed = discord.Embed(
+#             color=0xffd700,
+#             title="SLOT MACHINE :slot_machine:",
+#             description=
+#             f"**{'-' * 18}\n|{' {} |'.format(coins_loop) * 3}\n{'-' * 18}**")
 
-        sent_embed = await interaction.followup.send(embed=slot_embed)
-        current_slot_pics = [coins_loop] * 3
-        for i in range(len(slots)):
-            await asyncio.sleep(1.5)
-            current_slot_pics[i] = slots[i]
-            slot_results_str = f"**{'-' * 18}\n|"
-            for thisSlot in current_slot_pics:
-                slot_results_str += f" {thisSlot} |"
-            new_slot_embed = discord.Embed(
-                color=0xffd700,
-                title="SLOT MACHINE :slot_machine:",
-                description=f"{slot_results_str}\n{'-' * 18}**")
-            await sent_embed.edit(embed=new_slot_embed)
+#         sent_embed = await interaction.followup.send(embed=slot_embed)
+#         current_slot_pics = [coins_loop] * 3
+#         for i in range(len(slots)):
+#             await asyncio.sleep(1.5)
+#             current_slot_pics[i] = slots[i]
+#             slot_results_str = f"**{'-' * 18}\n|"
+#             for thisSlot in current_slot_pics:
+#                 slot_results_str += f" {thisSlot} |"
+#             new_slot_embed = discord.Embed(
+#                 color=0xffd700,
+#                 title="SLOT MACHINE :slot_machine:",
+#                 description=f"{slot_results_str}\n{'-' * 18}**")
+#             await sent_embed.edit(embed=new_slot_embed)
 
-        if slots[0] == slots[1]:
-            if slots[1] == slots[2]:
-                multiplier = multiplier3[coin.index(slots[0])]
-            else:
-                multiplier = multiplier2[coin.index(slots[0])]
-            win = True
-        else:
-          win = False
+#         if slots[0] == slots[1]:
+#             if slots[1] == slots[2]:
+#                 multiplier = multiplier3[coin.index(slots[0])]
+#             else:
+#                 multiplier = multiplier2[coin.index(slots[0])]
+#             win = True
+#         else:
+#           win = False
         
-        if win == True:
-            res_2 = "-- **YOU WON** --"
-            profit = bet * multiplier
-            # db["player_coin"] += profit
-        else:
-            res_2 = "-- **YOU LOST** --"
-            profit = -bet
-            # db["player_coin"] -= bet
+#         if win == True:
+#             res_2 = "-- **YOU WON** --"
+#             profit = bet * multiplier
+#             # db["player_coin"] += profit
+#         else:
+#             res_2 = "-- **YOU LOST** --"
+#             profit = -bet
+#             # db["player_coin"] -= bet
 
-        # new_player_coin = db["player_coin"]
+#         # new_player_coin = db["player_coin"]
 
-        embed = discord.Embed(
-            color=0xffd700,
-            title="SLOT MACHINE :slot_machine:",
-            description=f"{slot_results_str}\n{'-' * 18}**\n{res_2}")
-        embed.add_field(name="Bet", value=f"{bet} {coin[0]}", inline=True)
-        embed.add_field(name="Profit/Loss",
-                        value=f"{profit} {coin[0]}" +
-                        (f" ({multiplier}x)" if win else ""),
-                        inline=True)
-        embed.add_field(name="Balance",
-                        value=f"N.A. {coin[0]}",
-                        # value=f"{new_player_coin} {coin[0]}",
-                        inline=True)
-        embed.add_field(
-            name="Pay Table",
-            value=
-            f"{'{}'.format(coin[4]) * 3} - 32x\n{'{}'.format(coin[3]) * 3} - 16x\n{'{}'.format(coin[2]) * 3} - 12x\n{'{}'.format(coin[1]) * 3} - 8x\n{'{}'.format(coin[4]) * 2}:grey_question: - 8x\n{'{}'.format(coin[0]) * 3} - 4x\n{'{}'.format(coin[3]) * 2}:grey_question: - 4x\n{'{}'.format(coin[2]) * 2}:grey_question: - 3x\n{'{}'.format(coin[1]) * 2}:grey_question: - 2x\n{'{}'.format(coin[0]) * 2}:grey_question: - 1x",
-            inline=False)
-        await sent_embed.edit(embed=embed)
+#         embed = discord.Embed(
+#             color=0xffd700,
+#             title="SLOT MACHINE :slot_machine:",
+#             description=f"{slot_results_str}\n{'-' * 18}**\n{res_2}")
+#         embed.add_field(name="Bet", value=f"{bet} {coin[0]}", inline=True)
+#         embed.add_field(name="Profit/Loss",
+#                         value=f"{profit} {coin[0]}" +
+#                         (f" ({multiplier}x)" if win else ""),
+#                         inline=True)
+#         embed.add_field(name="Balance",
+#                         value=f"N.A. {coin[0]}",
+#                         # value=f"{new_player_coin} {coin[0]}",
+#                         inline=True)
+#         embed.add_field(
+#             name="Pay Table",
+#             value=
+#             f"{'{}'.format(coin[4]) * 3} - 32x\n{'{}'.format(coin[3]) * 3} - 16x\n{'{}'.format(coin[2]) * 3} - 12x\n{'{}'.format(coin[1]) * 3} - 8x\n{'{}'.format(coin[4]) * 2}:grey_question: - 8x\n{'{}'.format(coin[0]) * 3} - 4x\n{'{}'.format(coin[3]) * 2}:grey_question: - 4x\n{'{}'.format(coin[2]) * 2}:grey_question: - 3x\n{'{}'.format(coin[1]) * 2}:grey_question: - 2x\n{'{}'.format(coin[0]) * 2}:grey_question: - 1x",
+#             inline=False)
+#         await sent_embed.edit(embed=embed)
 
 
 @tree.command()
