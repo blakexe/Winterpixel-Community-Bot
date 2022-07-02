@@ -719,8 +719,8 @@ async def long(interaction: discord.Interaction, length: int, barrel: int = 1):
 @tree.command()
 async def slot(interaction: discord.Interaction, bet: int):
     '''Play the slot machine game!'''
-#     coin = ["<:coin1:910247623787700264>", "<:coin2:991444836869754950>", "<:coin3:976289335844434000>", "<:coin4:976289358200049704>", "<:coin5:976288324266373130>"]
-    await interaction.response.send_message('test')
+    coin = ["<:coin1:910247623787700264>", "<:coin2:991444836869754950>", "<:coin3:976289335844434000>", "<:coin4:976289358200049704>", "<:coin5:976288324266373130>"]
+#     await interaction.response.send_message('test')
     # if bet > db["player_coin"]:
     #     await interaction.followup.send(embed=discord.Embed(
     #         color=discord.Color.red(),
@@ -729,10 +729,10 @@ async def slot(interaction: discord.Interaction, bet: int):
 
 #     if bet <= 0:
     # elif bet <= 0:
-#         await interaction.followup.send(embed=discord.Embed(
-#             color=discord.Color.red(),
-#             title="SLOT MACHINE :slot_machine:",
-#             description=f"The minimum bet is 1 {coin[0]}"))
+    await interaction.followup.send(embed=discord.Embed(
+        color=discord.Color.red(),
+        title="SLOT MACHINE :slot_machine:",
+        description=f"The minimum bet is 1 {coin[0]}"))
 
 #     else:
 #         coins_loop = "<a:coin_loop:992273503288037408>"
