@@ -624,19 +624,19 @@ async def discord_coins_leaderboard(interaction: discord.Interaction):
 async def slot(interaction: discord.Interaction, bet: int):
     '''Play the slot machine game!'''
     coin = ["<:coin1:910247623787700264>", "<:coin2:991444836869754950>", "<:coin3:976289335844434000>", "<:coin4:976289358200049704>", "<:coin5:976288324266373130>"]
-
+    await interaction.followup.send('test')
     # if bet > db["player_coin"]:
     #     await interaction.followup.send(embed=discord.Embed(
     #         color=discord.Color.red(),
     #         title="SLOT MACHINE :slot_machine:",
     #         description=f"You don't have enough {coin[0]}"))
 
-    if bet <= 0:
+#     if bet <= 0:
     # elif bet <= 0:
-        await interaction.followup.send(embed=discord.Embed(
-            color=discord.Color.red(),
-            title="SLOT MACHINE :slot_machine:",
-            description=f"The minimum bet is 1 {coin[0]}"))
+#         await interaction.followup.send(embed=discord.Embed(
+#             color=discord.Color.red(),
+#             title="SLOT MACHINE :slot_machine:",
+#             description=f"The minimum bet is 1 {coin[0]}"))
 
 #     else:
 #         coins_loop = "<a:coin_loop:992273503288037408>"
