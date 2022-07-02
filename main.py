@@ -43,6 +43,25 @@ players = []
 bots = []
 playing = False
 
+#Initialize get_crate_stats related variables
+one_star_total, two_star_total, three_star_total = 30, 15, 0
+total = one_star_total + two_star_total + three_star_total
+one_star_weight, two_star_weight, three_star_weight = 30, 10, 1
+total_weight = one_star_total * one_star_weight + two_star_total * two_star_weight + three_star_total * three_star_weight
+one_star_prob, two_star_prob, three_star_prob = one_star_weight / total_weight, two_star_weight / total_weight, three_star_weight / total_weight
+
+basic_crate_price = 1000
+elite_crate_price = 20000
+
+population_crate = list(range(1, total + 1))
+weights_crate = []
+for i in range(1, one_star_total + 1):
+    weights_crate.append(one_star_prob)
+for j in range(1, two_star_total + 1):
+    weights_crate.append(two_star_prob)
+for k in range(1, three_star_total + 1):
+    weights_crate.append(three_star_prob)
+
 #List contains all tank emojis for random_tank and memory command
 tanks = [
     "<:betatank:989949271547723796>", "<:bladetank:989949828417060864>",
@@ -820,36 +839,18 @@ async def memory(interaction: discord.Interaction):
 @tree.command()
 async def get_crate_stats(interaction: discord.Interaction, one_star: int, two_star: int):
     '''Optimize the use of in game crates and Estimate the amount of coins'''
-    one_star_total, two_star_total, three_star_total = 30, 15, 0
-    total = one_star_total + two_star_total + three_star_total
-    one_star_weight, two_star_weight, three_star_weight = 30, 10, 1
-    total_weight = one_star_total * one_star_weight + two_star_total * two_star_weight + three_star_total * three_star_weight
-    one_star_prob, two_star_prob, three_star_prob = one_star_weight / total_weight, two_star_weight / total_weight, three_star_weight / total_weight
-
-    basic_crate_price = 1000
-    elite_crate_price = 20000
-
-    population_crate = list(range(1, total + 1))
-    weights_crate = []
-    for i in range(1, one_star_total + 1):
-        weights_crate.append(one_star_prob)
-    for j in range(1, two_star_total + 1):
-        weights_crate.append(two_star_prob)
-    for k in range(1, three_star_total + 1):
-        weights_crate.append(three_star_prob)
-    
     def basic_or_elite(a, b, c):
-    time = 1 / (1 - one_star_prob * a - two_star_prob * b -
-                three_star_prob * c)
-    expected_basic_crate_coin = basic_crate_price * time
-    if expected_basic_crate_coin < elite_crate_price:
-        return f":one: The **OPTIMAL** way to unlock **A NEW UNIQUE SKIN** is **EXPECTED** by using **{time:.2f} BASIC CRATE" + (
-            "S" if time > 1 else ""
-        ) + f" <:crate:988520294132088892>**, which " + (
-            "are" if time > 1 else "is"
-        ) + f" worth a **TOTAL** of **{expected_basic_crate_coin:,.0f} COINS <:coin:910247623787700264>**\n"
-    else:
-        return f":one: The **OPTIMAL** way to unlock **A NEW UNIQUE SKIN** is **EXPECTED** by using **1.00 ELITE CRATE <:elitecrate:989954419846184970>**, which is worth a **TOTAL** of **{elite_crate_price:,.0f} COINS <:coin:910247623787700264>**\n"
+        time = 1 / (1 - one_star_prob * a - two_star_prob * b -
+                    three_star_prob * c)
+        expected_basic_crate_coin = basic_crate_price * time
+        if expected_basic_crate_coin < elite_crate_price:
+            return f":one: The **OPTIMAL** way to unlock **A NEW UNIQUE SKIN** is **EXPECTED** by using **{time:.2f} BASIC CRATE" + (
+                "S" if time > 1 else ""
+            ) + f" <:crate:988520294132088892>**, which " + (
+                "are" if time > 1 else "is"
+            ) + f" worth a **TOTAL** of **{expected_basic_crate_coin:,.0f} COINS <:coin:910247623787700264>**\n"
+        else:
+            return f":one: The **OPTIMAL** way to unlock **A NEW UNIQUE SKIN** is **EXPECTED** by using **1.00 ELITE CRATE <:elitecrate:989954419846184970>**, which is worth a **TOTAL** of **{elite_crate_price:,.0f} COINS <:coin:910247623787700264>**\n"
 
     def basic_and_elite_simulate(a, b, c):
         expected_basic_crate = []
