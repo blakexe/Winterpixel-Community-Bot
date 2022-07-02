@@ -61,6 +61,32 @@ for j in range(1, two_star_total + 1):
 for k in range(1, three_star_total + 1):
     weights_crate.append(three_star_prob)
 
+#List contains all tank emojis for random_tank and memory command
+tanks = [
+    "<:betatank:989949271547723796>", "<:bladetank:989949828417060864>",
+    "<:buggytank:989951288232013866>", "<:cannontank:989949877079375943>",
+    "<:catapultevolvedtank:989951212126359652>",
+    "<:catapulttank:989951161152991262>", "<:concavetank:989951111773429841>",
+    "<:crabevolvedtank:989951034132693044>", "<:crabtank:989949776927817738>",
+    "<:crawlertank:990837535666212884>", "<:cyclopstank:989950970429595688>",
+    "<:diamondtank:989950859561566328>",
+    "<:dozerevolvedtank:989950801663369226>",
+    "<:dozertank:989950741433163806>", "<:forklifttank:989950685288222720>",
+    "<:gearstank:989950531772493844>", "<:haytank:989950495181393922>",
+    "<:hollowtank:989949132934361259>", "<:longtank:989950441477513247>",
+    "<:medictank:989950400796950538>", "<:mixertank:989950349764878376>",
+    "<:pagliaccitank:989950280487567370>", "<:pailtank:989951621314256987>",
+    "<:pistonstank:989949672372174888>", "<:reactortank:989949207244853319>",
+    "<:spiketank:989949916614889494>", "<:squaretank:989950023750017064>",
+    "<:traptank:989950224187412510>", "<:treadtank:989949317404061717>",
+    "<:tubdowntank:989950141370892368>", "<:tubtank:989950185159401513>",
+    "<:wavetank:989950102414180442>", "<:zigtank:989950065101639720>",
+    "<:blackdefaulttank:990837213556244490>", "<:blacklongtank:990837173970411600>",
+    "<:blacktreadtank:990837309446455356>", "<:goldcanontank:990837078340300820>",
+    "<:goldbladetank:990837027136241694>", "<:goldcyclopstank:990837123919781898>",
+    "<:whitedefaulttank:990837258359799838>", "<:bugtank:991755134193377361>"
+]
+
 os.system('clear')
 
 def generate_random_name():
@@ -624,30 +650,6 @@ async def discord_coins_leaderboard(interaction: discord.Interaction):
 @tree.command()
 async def random_tank(interaction: discord.Interaction):
     '''Get a random tank'''
-    tanks = [
-        "<:betatank:989949271547723796>", "<:bladetank:989949828417060864>",
-        "<:buggytank:989951288232013866>", "<:cannontank:989949877079375943>",
-        "<:catapultevolvedtank:989951212126359652>",
-        "<:catapulttank:989951161152991262>", "<:concavetank:989951111773429841>",
-        "<:crabevolvedtank:989951034132693044>", "<:crabtank:989949776927817738>",
-        "<:crawlertank:990837535666212884>", "<:cyclopstank:989950970429595688>",
-        "<:diamondtank:989950859561566328>",
-        "<:dozerevolvedtank:989950801663369226>",
-        "<:dozertank:989950741433163806>", "<:forklifttank:989950685288222720>",
-        "<:gearstank:989950531772493844>", "<:haytank:989950495181393922>",
-        "<:hollowtank:989949132934361259>", "<:longtank:989950441477513247>",
-        "<:medictank:989950400796950538>", "<:mixertank:989950349764878376>",
-        "<:pagliaccitank:989950280487567370>", "<:pailtank:989951621314256987>",
-        "<:pistonstank:989949672372174888>", "<:reactortank:989949207244853319>",
-        "<:spiketank:989949916614889494>", "<:squaretank:989950023750017064>",
-        "<:traptank:989950224187412510>", "<:treadtank:989949317404061717>",
-        "<:tubdowntank:989950141370892368>", "<:tubtank:989950185159401513>",
-        "<:wavetank:989950102414180442>", "<:zigtank:989950065101639720>",
-        "<:blackdefaulttank:990837213556244490>", "<:blacklongtank:990837173970411600>",
-        "<:blacktreadtank:990837309446455356>", "<:goldcanontank:990837078340300820>",
-        "<:goldbladetank:990837027136241694>", "<:goldcyclopstank:990837123919781898>",
-        "<:whitedefaulttank:990837258359799838>", "<:bugtank:991755134193377361>"
-    ]
     await interaction.response.send_message(random.choice(tanks))
 
 @tree.command()
@@ -721,7 +723,7 @@ async def slot(interaction: discord.Interaction, bet: int):
     '''Play the slot machine game!'''
     await interaction.response.defer(ephemeral=False, thinking=True)
     coin = ["<:coin1:910247623787700264>", "<:coin2:991444836869754950>", "<:coin3:976289335844434000>", "<:coin4:976289358200049704>", "<:coin5:976288324266373130>"]
-#     await interaction.response.send_message('test')
+    
     # if bet > db["player_coin"]:
     #     await interaction.followup.send(embed=discord.Embed(
     #         color=discord.Color.red(),
