@@ -3,6 +3,7 @@ import discord, json, asyncio, typing, os, io
 from collections import defaultdict, OrderedDict
 from operator import itemgetter
 from statistics import mean
+from timeit import default_timer as timer
 from replit import db
 from discord import app_commands
 from rocketbot_client import RocketBotClient
@@ -810,29 +811,29 @@ async def memory(interaction: discord.Interaction):
     embed.add_field(name="Controls", value="Type `s` to start the game\nType `q` to quit the game", inline=False)
     message = await interaction.followup.send(embed=embed)
 
-#     global gamestart
-#     gamestart = False
+    global gamestart
+    gamestart = False
 
-#     while gamestart == False:
-#         try:
-#             msg = await client.wait_for("message", check=check, timeout=15)
-#             if str(msg.content.lower()) == "q":
-#                 embed = discord.Embed(color=discord.Color.red(), title="MEMORY GAME :brain:", description="You have quit the game")
-#                 await message.edit(embed=embed)
-#                 break
-#             if ((str(msg.content.lower()) == "s")
-#                     or (str(msg.content.lower()) == "q")) == False:
-#                 await interaction.response.send_message(":x: Invalid input has been entered :x:", delete_after=5)
-#             if str(msg.content.lower()) == "s":
-#                 gamestart = True
-#                 embed = discord.Embed(color=0xffd700, title="MEMORY GAME :brain:", description=board)
-#                 embed.add_field(name="Controls", value="Type `a1` / `A1` to flip the card\nType `q` to quit the game", inline=False)
-#                 await message.edit(embed=embed)
-#                 start = timer()
-#         except asyncio.TimeoutError:
-#             embed = discord.Embed(color=discord.Color.red(), title="MEMORY GAME :brain:", description="You did not start the game")
-#             await message.edit(embed=embed)
-#             break
+    while gamestart == False:
+        try:
+            msg = await client.wait_for("message", check=check, timeout=15)
+            if str(msg.content.lower()) == "q":
+                embed = discord.Embed(color=discord.Color.red(), title="MEMORY GAME :brain:", description="You have quit the game")
+                await message.edit(embed=embed)
+                break
+            if ((str(msg.content.lower()) == "s")
+                    or (str(msg.content.lower()) == "q")) == False:
+                await interaction.response.send_message(":x: Invalid input has been entered :x:", delete_after=5)
+            if str(msg.content.lower()) == "s":
+                gamestart = True
+                embed = discord.Embed(color=0xffd700, title="MEMORY GAME :brain:", description=board)
+                embed.add_field(name="Controls", value="Type `a1` / `A1` to flip the card\nType `q` to quit the game", inline=False)
+                await message.edit(embed=embed)
+                start = timer()
+        except asyncio.TimeoutError:
+            embed = discord.Embed(color=discord.Color.red(), title="MEMORY GAME :brain:", description="You did not start the game")
+            await message.edit(embed=embed)
+            break
 
 #         pair = 0
 #         flag = False
