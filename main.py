@@ -806,7 +806,7 @@ async def memory(interaction: discord.Interaction):
 
     embed = discord.Embed(color=0xffd700, title="MEMORY GAME :brain:", description="Test your memory by matching 2 tanks!")
     embed.add_field(name="Time", value="<80s\n<100s\n≥100s", inline=True)
-    embed.add_field(name="Reward", value="20 <:coins1:991267398709694534>\n10 <:coins1:991267398709694534>\n5 <:coins1:991267398709694534>", inline=True)
+    embed.add_field(name="Reward", value="20 <:coin1:910247623787700264>\n10 <:coin1:910247623787700264>\n5 <:coin1:910247623787700264>", inline=True)
     embed.add_field(name="Controls", value="Type `s` to start the game\nType `q` to quit the game", inline=False)
     message = await interaction.followup.send(embed=embed)
 
@@ -888,8 +888,8 @@ async def memory(interaction: discord.Interaction):
 #                         # new_player_coin = db["player_coin"]
 #                         embed = discord.Embed(color=0xffd700, title="MEMORY GAME :brain:", description=f"{board}\n:tada: **YOU WON** :tada:")
 #                         embed.add_field(name="Time", value=f"{time_diff:.2f}s", inline=True)
-#                         embed.add_field(name="Reward", value=f"{reward} <:coins1:991267398709694534>", inline=True)
-#                         embed.add_field(name="Balance", value=f"N.A. <:coins1:991267398709694534>", inline=True)
+#                         embed.add_field(name="Reward", value=f"{reward} <:coin1:910247623787700264>", inline=True)
+#                         embed.add_field(name="Balance", value=f"N.A. <:coin1:910247623787700264>", inline=True)
 #                         await message.edit(embed=embed)
 #                         break
 #                     await message.edit(embed=embed)
