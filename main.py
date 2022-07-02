@@ -710,9 +710,7 @@ async def long(interaction: discord.Interaction, length: int, barrel: int = 1):
             b = list(OrderedDict.fromkeys(a))
             global x, y
             x, y = b[0], b[1] if len(b) > 1 else ''
-            for i in range(len(a)):
-                if a[i] == b[0]: a[i] = 'x'
-                else: a[i] = 'y'
+            for i in range(len(a)): a[i] = 'x' if a[i] == b[0] else 'y'
             s = ''.join(str(i) for i in a)
             return s
         
@@ -721,8 +719,7 @@ async def long(interaction: discord.Interaction, length: int, barrel: int = 1):
         
         def palindrome_rearrange(str):   
             hmap = defaultdict(int)
-            for i in range(len(str)):
-                hmap[str[i]] += 1
+            for i in range(len(str)): hmap[str[i]] += 1
         
             odd_count = 0
         
@@ -739,22 +736,15 @@ async def long(interaction: discord.Interaction, length: int, barrel: int = 1):
                 first_half = first_half + s
                 second_half = s + second_half
         
-            if (odd_count == 1):
-                return (first_half + odd_char + second_half)
-            else:
-                return (first_half + second_half)
+            return (first_half + odd_char + second_half) if (odd_count == 1) else (first_half + second_half)
 
         even_space_encode = even_space(length - barrel, barrel + 1)
-        if palindrome_check(even_space_encode) == True:
-            even_space_encode_palindrome = palindrome_rearrange(even_space_encode)
-        else:
-            even_space_encode_palindrome = even_space_encode
+        even_space_encode_palindrome = palindrome_rearrange(even_space_encode) if palindrome_check(even_space_encode) else even_space_encode
         
         even_space_encode_palindrome_decode = []
         for i in even_space_encode_palindrome: even_space_encode_palindrome_decode.append(i)
         for i in range(len(even_space_encode_palindrome_decode)):
-            if even_space_encode_palindrome_decode[i] == 'x': even_space_encode_palindrome_decode[i] = x
-            else: even_space_encode_palindrome_decode[i] = y
+            even_space_encode_palindrome_decode[i] = x if even_space_encode_palindrome_decode[i] == 'x' else y
         
         output_middle = ""
         for i in range(len(even_space_encode_palindrome_decode) - 1):
