@@ -803,7 +803,8 @@ async def memory(interaction: discord.Interaction):
     answer = f":black_large_square: :regional_indicator_a: :regional_indicator_b: :regional_indicator_c: :regional_indicator_d:\n:one: {a[0]} {a[1]} {a[2]} {a[3]}\n:two: {a[4]} {a[5]} {a[6]} {a[7]}\n:three: {a[8]} {a[9]} {a[10]} {a[11]}\n:four: {a[12]} {a[13]} {a[14]} {a[15]}\n"
 
     def check(m):
-        return (m.channel.id == interaction.channel.id and m.author.id == interaction.author.id)
+        return True
+#         return (m.channel.id == interaction.channel.id and m.author.id == interaction.author.id)
 
     embed = discord.Embed(color=0xffd700, title="MEMORY GAME :brain:", description="Test your memory by matching 2 tanks!")
     embed.add_field(name="Time", value="<80s\n<100s\n≥100s", inline=True)
