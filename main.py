@@ -822,8 +822,7 @@ async def memory(interaction: discord.Interaction):
                 embed = discord.Embed(color=discord.Color.red(), title="MEMORY GAME :brain:", description="You have quit the game")
                 await message.edit(embed=embed)
                 break
-            if ((str(msg.content.lower()) == "s")
-                    or (str(msg.content.lower()) == "q")) == False:
+            if ((str(msg.content.lower()) == "s") or (str(msg.content.lower()) == "q")) == False:
                 await interaction.response.send_message(":x: Invalid input has been entered :x:")
 #                 , delete_after=5)
             if str(msg.content.lower()) == "s":
