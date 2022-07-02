@@ -840,73 +840,76 @@ async def memory(interaction: discord.Interaction):
             await message.edit(embed=embed)
             break
 
-#         pair = 0
-#         flag = False
-#         while gamestart == True:
-#             try:
-#                 msg = await client.wait_for("message", check=check, timeout=15)
-#                 if str(msg.content.lower()) == "q":
-#                     board = answer
-#                     embed = discord.Embed(color=discord.Color.red(), title="MEMORY GAME :brain:", description=f"{board}\nYou have quit the game")
-#                     await message.edit(embed=embed)
-#                     break
-#                 if (str(msg.content.lower()) in c) == False:
-#                     await interaction.response.send_message(":x: Invalid coordinate has been entered :x:", delete_after=5)
-#                 elif b[c.index(str(
-#                         msg.content.lower()))] == ":white_large_square:":
-#                     if flag == False:
-#                         x = c.index(str(msg.content.lower()))
-#                         b[x] = a[x]
-#                         flag = not flag
-#                         board = f":black_large_square: :regional_indicator_a: :regional_indicator_b: :regional_indicator_c: :regional_indicator_d:\n:one: {b[0]} {b[1]} {b[2]} {b[3]}\n:two: {b[4]} {b[5]} {b[6]} {b[7]}\n:three: {b[8]} {b[9]} {b[10]} {b[11]}\n:four: {b[12]} {b[13]} {b[14]} {b[15]}\n"
-#                         embed = discord.Embed(color=0xffd700, title="MEMORY GAME :brain:", description=board)
-#                         embed.add_field(name="Controls", value="Type `a1` / `A1` to flip the card\nType `q` to quit the game", inline=False)
-#                         await message.edit(embed=embed)
-#                     else:
-#                         y = c.index(str(msg.content.lower()))
-#                         b[y] = a[y]
-#                         flag = not flag
-#                         board = f":black_large_square: :regional_indicator_a: :regional_indicator_b: :regional_indicator_c: :regional_indicator_d:\n:one: {b[0]} {b[1]} {b[2]} {b[3]}\n:two: {b[4]} {b[5]} {b[6]} {b[7]}\n:three: {b[8]} {b[9]} {b[10]} {b[11]}\n:four: {b[12]} {b[13]} {b[14]} {b[15]}\n"
-#                         embed = discord.Embed(color=0xffd700, title="MEMORY GAME :brain:", description=board)
-#                         embed.add_field(name="Controls", value="Type `a1` / `A1` to flip the card\nType `q` to quit the game", inline=False)
-#                         await message.edit(embed=embed)
-#                         await asyncio.sleep(1)
-#                         if a[x] == a[y]:
-#                             pair += 1
-#                         else:
-#                             b[x] = ":white_large_square:"
-#                             b[y] = ":white_large_square:"
-#                             board = f":black_large_square: :regional_indicator_a: :regional_indicator_b: :regional_indicator_c: :regional_indicator_d:\n:one: {b[0]} {b[1]} {b[2]} {b[3]}\n:two: {b[4]} {b[5]} {b[6]} {b[7]}\n:three: {b[8]} {b[9]} {b[10]} {b[11]}\n:four: {b[12]} {b[13]} {b[14]} {b[15]}\n"
-#                             embed = discord.Embed(color=0xffd700, title="MEMORY GAME :brain:", description=board)
-#                             embed.add_field(name="Controls", value="Type `a1` / `A1` to flip the card\nType `q` to quit the game", inline=False)
-#                             await message.edit(embed=embed)
-#                     if pair == 8:
-#                         end = timer()
-#                         time_diff = end - start
-#                         if time_diff < 80:
-#                             reward = 20
-#                         elif 80 <= time_diff < 100:
-#                             reward = 10
-#                         else:
-#                             reward = 5
-#                         gamestart = False
-#                         # db["player_coin"] += reward
-#                         # new_player_coin = db["player_coin"]
-#                         embed = discord.Embed(color=0xffd700, title="MEMORY GAME :brain:", description=f"{board}\n:tada: **YOU WON** :tada:")
-#                         embed.add_field(name="Time", value=f"{time_diff:.2f}s", inline=True)
-#                         embed.add_field(name="Reward", value=f"{reward} <:coin1:910247623787700264>", inline=True)
-#                         embed.add_field(name="Balance", value=f"N.A. <:coin1:910247623787700264>", inline=True)
-#                         await message.edit(embed=embed)
-#                         break
-#                     await message.edit(embed=embed)
-#                 else:
-#                     await interaction.response.send_message(":x: The card has already been flipped :x:", delete_after=5)
-#             except asyncio.TimeoutError:
-#                 board = answer
-#                 embed = discord.Embed(color=discord.Color.red(), title="MEMORY GAME :brain:", description=f"{board}\nThe game has timed out :hourglass:")
-#                 await message.edit(embed=embed)
-#                 break
-#         break
+        pair = 0
+        flag = False
+        while gamestart == True:
+            try:
+                msg = await client.wait_for("message", check=check, timeout=15)
+                if str(msg.content.lower()) == "q":
+                    board = answer
+                    embed = discord.Embed(color=discord.Color.red(), title="MEMORY GAME :brain:", description=f"{board}\nYou have quit the game")
+                    await message.edit(embed=embed)
+                    break
+                if (str(msg.content.lower()) in c) == False:
+                    warn2 = await interaction.followup.send(":x: Invalid coordinate has been entered :x:")
+                    await asyncio.sleep(3)
+                    await warn2.delete()
+                elif b[c.index(str(msg.content.lower()))] == ":white_large_square:":
+                    if flag == False:
+                        x = c.index(str(msg.content.lower()))
+                        b[x] = a[x]
+                        flag = not flag
+                        board = f":black_large_square: :regional_indicator_a: :regional_indicator_b: :regional_indicator_c: :regional_indicator_d:\n:one: {b[0]} {b[1]} {b[2]} {b[3]}\n:two: {b[4]} {b[5]} {b[6]} {b[7]}\n:three: {b[8]} {b[9]} {b[10]} {b[11]}\n:four: {b[12]} {b[13]} {b[14]} {b[15]}\n"
+                        embed = discord.Embed(color=0xffd700, title="MEMORY GAME :brain:", description=board)
+                        embed.add_field(name="Controls", value="Type `a1` / `A1` to flip the card\nType `q` to quit the game", inline=False)
+                        await message.edit(embed=embed)
+                    else:
+                        y = c.index(str(msg.content.lower()))
+                        b[y] = a[y]
+                        flag = not flag
+                        board = f":black_large_square: :regional_indicator_a: :regional_indicator_b: :regional_indicator_c: :regional_indicator_d:\n:one: {b[0]} {b[1]} {b[2]} {b[3]}\n:two: {b[4]} {b[5]} {b[6]} {b[7]}\n:three: {b[8]} {b[9]} {b[10]} {b[11]}\n:four: {b[12]} {b[13]} {b[14]} {b[15]}\n"
+                        embed = discord.Embed(color=0xffd700, title="MEMORY GAME :brain:", description=board)
+                        embed.add_field(name="Controls", value="Type `a1` / `A1` to flip the card\nType `q` to quit the game", inline=False)
+                        await message.edit(embed=embed)
+                        await asyncio.sleep(1)
+                        if a[x] == a[y]:
+                            pair += 1
+                        else:
+                            b[x] = ":white_large_square:"
+                            b[y] = ":white_large_square:"
+                            board = f":black_large_square: :regional_indicator_a: :regional_indicator_b: :regional_indicator_c: :regional_indicator_d:\n:one: {b[0]} {b[1]} {b[2]} {b[3]}\n:two: {b[4]} {b[5]} {b[6]} {b[7]}\n:three: {b[8]} {b[9]} {b[10]} {b[11]}\n:four: {b[12]} {b[13]} {b[14]} {b[15]}\n"
+                            embed = discord.Embed(color=0xffd700, title="MEMORY GAME :brain:", description=board)
+                            embed.add_field(name="Controls", value="Type `a1` / `A1` to flip the card\nType `q` to quit the game", inline=False)
+                            await message.edit(embed=embed)
+                    if pair == 8:
+                        end = timer()
+                        time_diff = end - start
+                        if time_diff < 80:
+                            reward = 20
+                        elif 80 <= time_diff < 100:
+                            reward = 10
+                        else:
+                            reward = 5
+                        gamestart = False
+                        # db["player_coin"] += reward
+                        # new_player_coin = db["player_coin"]
+                        embed = discord.Embed(color=0xffd700, title="MEMORY GAME :brain:", description=f"{board}\n:tada: **YOU WON** :tada:")
+                        embed.add_field(name="Time", value=f"{time_diff:.2f}s", inline=True)
+                        embed.add_field(name="Reward", value=f"{reward} <:coin1:910247623787700264>", inline=True)
+                        embed.add_field(name="Balance", value=f"N.A. <:coin1:910247623787700264>", inline=True)
+                        await message.edit(embed=embed)
+                        break
+                    await message.edit(embed=embed)
+                else:
+                    warn3 = await interaction.followup.send(":x: The card has already been flipped :x:")
+                    await asyncio.sleep(3)
+                    await warn3.delete()
+            except asyncio.TimeoutError:
+                board = answer
+                embed = discord.Embed(color=discord.Color.red(), title="MEMORY GAME :brain:", description=f"{board}\nThe game has timed out :hourglass:")
+                await message.edit(embed=embed)
+                break
+        break
 
 # @tree.command()
 # async def update_players_database(interaction: discord.Interaction):
