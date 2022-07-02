@@ -728,36 +728,30 @@ async def slot(interaction: discord.Interaction, bet: int):
     #         title="SLOT MACHINE :slot_machine:",
     #         description=f"You don't have enough {coin[0]}"))
 
-#     if bet <= 0:
+    if bet <= 0:
     # elif bet <= 0:
-    await interaction.followup.send(embed=discord.Embed(color=discord.Color.red(), title="SLOT MACHINE :slot_machine:", description=f"The minimum bet is 1 {coin[0]}"))
+        await interaction.followup.send(embed=discord.Embed(color=discord.Color.red(), title="SLOT MACHINE :slot_machine:", description=f"The minimum bet is 1 {coin[0]}"))
 
-#     else:
-#         coins_loop = "<a:coin_loop:992273503288037408>"
-#         multiplier2 = [1, 2, 3, 4, 8]
-#         multiplier3 = [4, 8, 12, 16, 32]
-#         events = {
-#             coin[0]: 12.5 / 26.25,
-#             coin[1]: 8 / 26.26,
-#             coin[2]: 3 / 26.26,
-#             coin[3]: 1.5 / 26.26,
-#             coin[4]: 1.25 / 26.25,
-#         }
+    else:
+        coins_loop = "<a:coin_loop:992273503288037408>"
+        multiplier2 = [1, 2, 3, 4, 8]
+        multiplier3 = [4, 8, 12, 16, 32]
+        events = {
+            coin[0]: 12.5 / 26.25,
+            coin[1]: 8 / 26.26,
+            coin[2]: 3 / 26.26,
+            coin[3]: 1.5 / 26.26,
+            coin[4]: 1.25 / 26.25,
+        }
 
-#         slots = []
-#         for i in range(3):
-#             slots.append(
-#                 random.choices(population=list(events.keys()),
-#                                weights=events.values())[0])
+        slots = []
+        for i in range(3):
+            slots.append(random.choices(population=list(events.keys()), weights=events.values())[0])
 
-#         slot_embed = discord.Embed(
-#             color=0xffd700,
-#             title="SLOT MACHINE :slot_machine:",
-#             description=
-#             f"**{'-' * 18}\n|{' {} |'.format(coins_loop) * 3}\n{'-' * 18}**")
+        slot_embed = discord.Embed(color=0xffd700, title="SLOT MACHINE :slot_machine:", description=f"**{'-' * 18}\n|{' {} |'.format(coins_loop) * 3}\n{'-' * 18}**")
 
-#         sent_embed = await interaction.followup.send(embed=slot_embed)
-#         current_slot_pics = [coins_loop] * 3
+        sent_embed = await interaction.followup.send(embed=slot_embed)
+        current_slot_pics = [coins_loop] * 3
 #         for i in range(len(slots)):
 #             await asyncio.sleep(1.5)
 #             current_slot_pics[i] = slots[i]
