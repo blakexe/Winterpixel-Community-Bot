@@ -824,7 +824,8 @@ async def memory(interaction: discord.Interaction):
                 break
             if ((str(msg.content.lower()) == "s")
                     or (str(msg.content.lower()) == "q")) == False:
-                await interaction.response.send_message(":x: Invalid input has been entered :x:", delete_after=5)
+                await interaction.response.send_message(":x: Invalid input has been entered :x:")
+#                 , delete_after=5)
             if str(msg.content.lower()) == "s":
                 gamestart = True
                 embed = discord.Embed(color=0xffd700, title="MEMORY GAME :brain:", description=board)
