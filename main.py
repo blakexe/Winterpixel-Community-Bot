@@ -805,7 +805,7 @@ async def memory(interaction: discord.Interaction):
     def check(m):
 #         return True
 #         return (m.channel.id == interaction.channel.id and m.user.id == interaction.user.id)
-        return m.channel.id == interaction.channel.id
+        return (m.channel.id == interaction.channel.id and m.user == interaction.user)
 
     embed = discord.Embed(color=0xffd700, title="MEMORY GAME :brain:", description="Test your memory by matching 2 tanks!")
     embed.add_field(name="Time", value="<80s\n<100s\n≥100s", inline=True)
