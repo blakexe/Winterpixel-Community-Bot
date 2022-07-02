@@ -803,8 +803,6 @@ async def memory(interaction: discord.Interaction):
     answer = f":black_large_square: :regional_indicator_a: :regional_indicator_b: :regional_indicator_c: :regional_indicator_d:\n:one: {a[0]} {a[1]} {a[2]} {a[3]}\n:two: {a[4]} {a[5]} {a[6]} {a[7]}\n:three: {a[8]} {a[9]} {a[10]} {a[11]}\n:four: {a[12]} {a[13]} {a[14]} {a[15]}\n"
 
     def check(m):
-#         return True
-#         return (m.channel.id == interaction.channel.id and m.user.id == interaction.user.id)
         return (m.channel.id == interaction.channel.id and m.author == interaction.user)
 
     embed = discord.Embed(color=0xffd700, title="MEMORY GAME :brain:", description="Test your memory by matching 2 tanks!")
@@ -825,10 +823,8 @@ async def memory(interaction: discord.Interaction):
                 break
             if ((str(msg.content.lower()) == "s") or (str(msg.content.lower()) == "q")) == False:
                 warn = await interaction.followup.send(":x: Invalid input has been entered :x:")
-                await asyncio.sleep(5)
+                await asyncio.sleep(2)
                 await warn.delete()
-#                 await interaction.response.send_message(":x: Invalid input has been entered :x:")
-#                 , delete_after=5)
             if str(msg.content.lower()) == "s":
                 gamestart = True
                 embed = discord.Embed(color=0xffd700, title="MEMORY GAME :brain:", description=board)
@@ -852,7 +848,7 @@ async def memory(interaction: discord.Interaction):
                     break
                 if (str(msg.content.lower()) in c) == False:
                     warn2 = await interaction.followup.send(":x: Invalid coordinate has been entered :x:")
-                    await asyncio.sleep(3)
+                    await asyncio.sleep(2)
                     await warn2.delete()
                 elif b[c.index(str(msg.content.lower()))] == ":white_large_square:":
                     if flag == False:
@@ -902,7 +898,7 @@ async def memory(interaction: discord.Interaction):
                     await message.edit(embed=embed)
                 else:
                     warn3 = await interaction.followup.send(":x: The card has already been flipped :x:")
-                    await asyncio.sleep(3)
+                    await asyncio.sleep(2)
                     await warn3.delete()
             except asyncio.TimeoutError:
                 board = answer
