@@ -1,6 +1,6 @@
 import random, aiohttp, replit
 import discord, json, asyncio, typing, os, io
-from collections import OrderedDict
+from collections import defaultdict, OrderedDict
 from operator import itemgetter
 from statistics import mean
 from replit import db
@@ -690,8 +690,8 @@ async def random_tank(interaction: discord.Interaction):
     await interaction.response.send_message(random.choice(tanks))
 
 @tree.command()
-async def long(interaction: discord.Interaction, length: int):
-    '''Build your supercalifragilisticexpialidocious long tank!'''
+async def long(interaction: discord.Interaction, length: int, barrel: int = 1):
+    '''Build your supercalifragilisticexpialidocious long tank equipped with as many barrels as you want!'''
     try:
         long_emoji = [
             "<:longtank_part1:991838180699541504>",
@@ -699,8 +699,69 @@ async def long(interaction: discord.Interaction, length: int):
             "<:longtank_part3:991838189591470130>",
             "<:longtank_part4:991838192145793125>"
         ]
-        long_tank = f"{long_emoji[0]}{long_emoji[1] * length}{long_emoji[2]}{long_emoji[1] * length}{long_emoji[3]}"
-        await interaction.response.send_message(long_tank)
+        if length < 0: length = 0
+        if barrel < 0: barrel = 0
+        if barrel > length: barrel = length
+        
+        def even_space(n, k):
+            a = []
+            for i in range(k): a.append(n // k)
+            for i in range(n % k): a[i] += 1
+            b = list(OrderedDict.fromkeys(a))
+            global x, y
+            x, y = b[0], b[1] if len(b) > 1 else ''
+            for i in range(len(a)):
+                if a[i] == b[0]: a[i] = 'x'
+                else: a[i] = 'y'
+            s = ''.join(str(i) for i in a)
+            return s
+        
+        def palindrome_check(str):
+            return sum(map(lambda i: str.count(i) % 2, set(str))) <= 1
+        
+        def palindrome_rearrange(str):   
+            hmap = defaultdict(int)
+            for i in range(len(str)):
+                hmap[str[i]] += 1
+        
+            odd_count = 0
+        
+            for x in hmap:
+                if (hmap[x] % 2 != 0):
+                    odd_count += 1
+                    odd_char = x
+        
+            first_half = ''
+            second_half = ''
+        
+            for x in sorted(hmap.keys()):
+                s = (hmap[x] // 2) * x
+                first_half = first_half + s
+                second_half = s + second_half
+        
+            if (odd_count == 1):
+                return (first_half + odd_char + second_half)
+            else:
+                return (first_half + second_half)
+
+        even_space_encode = even_space(length - barrel, barrel + 1)
+        if palindrome_check(even_space_encode) == True:
+            even_space_encode_palindrome = palindrome_rearrange(even_space_encode)
+        else:
+            even_space_encode_palindrome = even_space_encode
+        
+        even_space_encode_palindrome_decode = []
+        for i in even_space_encode_palindrome: even_space_encode_palindrome_decode.append(i)
+        for i in range(len(even_space_encode_palindrome_decode)):
+            if even_space_encode_palindrome_decode[i] == 'x': even_space_encode_palindrome_decode[i] = x
+            else: even_space_encode_palindrome_decode[i] = y
+        
+        output_middle = ""
+        for i in range(len(even_space_encode_palindrome_decode) - 1):
+            output_middle += (long_emoji[1] * even_space_encode_palindrome_decode[i] + long_emoji[2])
+        output_middle += long_emoji[1] * even_space_encode_palindrome_decode[-1]
+        msg = f"{long_emoji[0]}{output_middle}{long_emoji[3]}"
+        await interaction.response.send_message(msg)
     except:
         await interaction.response.send_message("The tank is too long to build!")
 
