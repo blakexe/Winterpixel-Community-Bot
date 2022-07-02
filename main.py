@@ -761,30 +761,27 @@ async def slot(interaction: discord.Interaction, bet: int):
             new_slot_embed = discord.Embed(color=0xffd700, title="SLOT MACHINE :slot_machine:", description=f"{slot_results_str}\n{'-' * 18}**")
             await sent_embed.edit(embed=new_slot_embed)
 
-#         if slots[0] == slots[1]:
-#             if slots[1] == slots[2]:
-#                 multiplier = multiplier3[coin.index(slots[0])]
-#             else:
-#                 multiplier = multiplier2[coin.index(slots[0])]
-#             win = True
-#         else:
-#           win = False
+        if slots[0] == slots[1]:
+            if slots[1] == slots[2]:
+                multiplier = multiplier3[coin.index(slots[0])]
+            else:
+                multiplier = multiplier2[coin.index(slots[0])]
+            win = True
+        else:
+          win = False
         
-#         if win == True:
-#             res_2 = "-- **YOU WON** --"
-#             profit = bet * multiplier
-#             # db["player_coin"] += profit
-#         else:
-#             res_2 = "-- **YOU LOST** --"
-#             profit = -bet
-#             # db["player_coin"] -= bet
+        if win == True:
+            res_2 = "-- **YOU WON** --"
+            profit = bet * multiplier
+            # db["player_coin"] += profit
+        else:
+            res_2 = "-- **YOU LOST** --"
+            profit = -bet
+            # db["player_coin"] -= bet
 
-#         # new_player_coin = db["player_coin"]
+        # new_player_coin = db["player_coin"]
 
-#         embed = discord.Embed(
-#             color=0xffd700,
-#             title="SLOT MACHINE :slot_machine:",
-#             description=f"{slot_results_str}\n{'-' * 18}**\n{res_2}")
+        embed = discord.Embed(color=0xffd700, title="SLOT MACHINE :slot_machine:", description=f"{slot_results_str}\n{'-' * 18}**\n{res_2}")
 #         embed.add_field(name="Bet", value=f"{bet} {coin[0]}", inline=True)
 #         embed.add_field(name="Profit/Loss",
 #                         value=f"{profit} {coin[0]}" +
