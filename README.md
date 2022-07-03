@@ -20,8 +20,8 @@ Join the discord to use the bot!
 - List the leaderboard of any season, sorted by trophies.
 
 ## Commands:
-| Command | Description |
-| :--- |:---| :---|
+| **Command** | **Description** |
+| :--- |:---|
 | **`/bot_info`** | Get info about this bot |
 | **`/leaderboard`** `(season)`| Return the specified season leaderboard, default current |
 | **`/get_user`** `user_type (User ID/Friend ID)` `id`| Return info about a specified user |
