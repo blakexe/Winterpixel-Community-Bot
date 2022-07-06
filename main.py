@@ -137,11 +137,11 @@ def generate_random_name():
     
     return name
     
-def add_player_coin(player, coins):
+def add_player_coin(player, name, coins):
     if type(player) is int:
         player_coins = db.get(str(player))
         if player_coins == None:
-            db[str(player)] = {"name":client.get_user(player),"money":500, "inventory":{}}
+            db[str(player)] = {"name":name,"money":500, "inventory":{}}
         db[player]["money"] = db[player]["money"] + coins
         return db[str(player)]["money"]
     return 0
@@ -174,6 +174,14 @@ async def on_message(message: discord.message):
 @client.event
 async def on_ready():
     '''Called when the discord client is ready.'''
+    if db["archive"] == None:
+        archive_db = {}
+        for i in db.keys():
+            archive_db[i] = db[i]
+            db[i] = None
+        db["archive"] = archive_db
+        
+    
     #Start up the 10 minute config refresher
     asyncio.create_task(refresh_config())
 
@@ -544,7 +552,7 @@ async def start_game(interaction: discord.Interaction):
 @tree.command()
 async def get_money(interaction: discord.Interaction):
     '''Find out how much money you have in discord'''
-    await interaction.response.send_message(str(interaction.user.mention) + " has " + str(add_player_coin(interaction.user.id,0)) + " <:coin:910247623787700264>")
+    await interaction.response.send_message(str(interaction.user.mention) + " has " + str(add_player_coin(interaction.user.id,interaction.user.username,0)) + " <:coin:910247623787700264>")
 
 @tree.command()
 async def discord_coins_leaderboard(interaction: discord.Interaction):
