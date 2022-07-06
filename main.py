@@ -174,7 +174,7 @@ async def on_message(message: discord.message):
 @client.event
 async def on_ready():
     '''Called when the discord client is ready.'''
-    if db["archive"] == None:
+    if db.get("archive") == None:
         archive_db = {}
         for i in db.keys():
             archive_db[i] = db[i]
