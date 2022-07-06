@@ -174,21 +174,12 @@ async def on_message(message: discord.message):
 @client.event
 async def on_ready():
     '''Called when the discord client is ready.'''
-    if db.get("archive") == None:
-        archive_db = {}
-        for i in db.keys():
-            archive_db[i] = db[i]
-            db[i] = None
-        db["archive"] = archive_db
-        
     
     #Start up the 10 minute config refresher
     asyncio.create_task(refresh_config())
 
     for key in db.keys():
-#         user = client.get_user(int(key)).name
-#         db[key]["name"] = user
-        print(get_name_from_id(key))
+        print(str(key) + str(db[key]))
     print("Winterpixel community bot is ready.")
 
 async def on_message(message):
