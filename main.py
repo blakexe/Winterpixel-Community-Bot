@@ -171,7 +171,6 @@ async def on_message(message: discord.message):
      if "!idea" in message.content.lower():
            await message.add_reaction("<:upvote:910250647264329728>")
            await message.add_reaction("<:downvote:910250215217459281>")
-           await message.add_reaction("⭐")
 
 @client.event
 async def on_ready():
