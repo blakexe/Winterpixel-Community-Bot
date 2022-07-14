@@ -61,11 +61,11 @@ class RocketBotClient(object):
 
         return json.loads(await self.post("https://dev-nakama.winterpixel.io/v2/rpc/winterpixel_get_config", headers=headers, data="{}"))
 
-    async def query_leaderboard(self, season: int):
+    async def query_leaderboard(self, season: int, leaderboard_id:str = "tankkings_points"):
         await self.refresh_token()
 
         data = {
-            "leaderboard":"tankkings_points",
+            "leaderboard": leaderboard_id,
             "limit": 50,
             "cursor": "",
             "owner_ids": [],

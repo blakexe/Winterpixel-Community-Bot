@@ -215,6 +215,32 @@ async def leaderboard(interaction: discord.Interaction, season: int = -1):
     #Send
     await interaction.followup.send(embed=discord.Embed(title=f"Season {season} Leaderboard:", description=message))
 
+@tree.command(guild=discord.Object(id=962142361935314996))
+async def trophies(interaction: discord.Interaction, season: int = -1):
+    '''Return the specified season leaderboard, default current'''
+
+    await interaction.response.defer(ephemeral=False, thinking=True)
+
+    curr_season = server_config['season']
+
+    #If season is unreasonable, default to current season
+    if season < 0 or season > curr_season:
+        season = curr_season
+
+    #Get leaderboard info
+    response = await rocketbot_client.query_leaderboard(season, "tankkings_trophies")
+    records = json.loads(response['payload'])['records']
+
+    #Using f-string spacing to pretty print the leaderboard labels
+    message = f"```{'Rank:':<5} {'Name:':<20} {'Points:'}\n{'‾' * 35}\n"
+    
+    #Using f-string spacing to pretty print the leaderboard.
+    for record in records:
+        message += f"{'#' + str(record['rank']):<5} {record['username']:<20} {'🏆' + '{:,}'.format(record['score'])}\n"
+    message += "```"
+
+    #Send
+    await interaction.followup.send(embed=discord.Embed(title=f"Season {season} Leaderboard:", description=message))
 
 @tree.command()
 async def get_user(interaction: discord.Interaction, user_type: typing.Literal['User ID', 'Friend ID'], id: str):
