@@ -44,7 +44,7 @@ bots = []
 playing = False
 
 #Initialize get_crate_stats related variables
-one_star_total, two_star_total, three_star_total = 30, 15, 0
+one_star_total, two_star_total, three_star_total = 30, 17, 0
 total = one_star_total + two_star_total + three_star_total
 one_star_weight, two_star_weight, three_star_weight = 30, 10, 1
 total_weight = one_star_total * one_star_weight + two_star_total * two_star_weight + three_star_total * three_star_weight
@@ -87,7 +87,9 @@ tanks = [
     "<:goldbladetank:990837027136241694>", "<:goldcyclopstank:990837123919781898>",
     "<:whitedefaulttank:990837258359799838>", "<:bugtank:991755134193377361>",
     "<:logtank:992858914741825626>", "<:spidertank:992858923306598492>",
-    "<:spiderevolvedtank:992858919141646397>"
+    "<:spiderevolvedtank:992858919141646397>", "<:burgerevolvedtank:997133766705291384>",
+    "<:burgertank:997133760044744736>", "<:friestank:997133756085325885>",
+    "<:hotdogtank:997133751727423498>"
 ]
 
 os.system('clear')
