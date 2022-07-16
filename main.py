@@ -63,34 +63,8 @@ for k in range(1, three_star_total + 1):
     weights_crate.append(three_star_prob)
 
 #List contains all tank emojis for random_tank and memory command
-tanks = [
-    "<:betatank:989949271547723796>", "<:bladetank:989949828417060864>",
-    "<:buggytank:989951288232013866>", "<:cannontank:989949877079375943>",
-    "<:catapultevolvedtank:989951212126359652>",
-    "<:catapulttank:989951161152991262>", "<:concavetank:989951111773429841>",
-    "<:crabevolvedtank:989951034132693044>", "<:crabtank:989949776927817738>",
-    "<:crawlertank:990837535666212884>", "<:cyclopstank:989950970429595688>",
-    "<:diamondtank:989950859561566328>",
-    "<:dozerevolvedtank:989950801663369226>",
-    "<:dozertank:989950741433163806>", "<:forklifttank:989950685288222720>",
-    "<:gearstank:989950531772493844>", "<:haytank:989950495181393922>",
-    "<:hollowtank:989949132934361259>", "<:longtank:989950441477513247>",
-    "<:medictank:989950400796950538>", "<:mixertank:989950349764878376>",
-    "<:pagliaccitank:989950280487567370>", "<:pailtank:989951621314256987>",
-    "<:pistonstank:989949672372174888>", "<:reactortank:989949207244853319>",
-    "<:spiketank:989949916614889494>", "<:squaretank:989950023750017064>",
-    "<:traptank:989950224187412510>", "<:treadtank:989949317404061717>",
-    "<:tubdowntank:989950141370892368>", "<:tubtank:989950185159401513>",
-    "<:wavetank:989950102414180442>", "<:zigtank:989950065101639720>",
-    "<:blackdefaulttank:990837213556244490>", "<:blacklongtank:990837173970411600>",
-    "<:blacktreadtank:990837309446455356>", "<:goldcanontank:990837078340300820>",
-    "<:goldbladetank:990837027136241694>", "<:goldcyclopstank:990837123919781898>",
-    "<:whitedefaulttank:990837258359799838>", "<:bugtank:991755134193377361>",
-    "<:logtank:992858914741825626>", "<:spidertank:992858923306598492>",
-    "<:spiderevolvedtank:992858919141646397>", "<:burgerevolvedtank:997133766705291384>",
-    "<:burgertank:997133760044744736>", "<:friestank:997133756085325885>",
-    "<:hotdogtank:997133751727423498>"
-]
+tanks = ['<:betatank:997947350943277106>', '<:bladetank:997947874715385856>', '<:bot:917467970182189056>', '<:buggytank:997948966933119016>', '<:bugtank:997948870543814726>', '<:burgerevolvedtank:997950412348989562>', '<:burgertank:997950506976694302>', '<:canontank:997951207840686162>', '<:catapultevolvedtank:997951715284365323>', '<:catapulttank:997951809282912346>', '<:concavetank:997951897749176450>', '<:crabevolvedtank:997951966548349009>', '<:crabtank:997952051940180128>', '<:crawlertank:997952124279324753>', '<:cyclopstank:997952308333793322>', '<:defaulttank:996465659812774040>', '<:diamondtank:997952379595010048>', '<:dozerevolvedtank:997952441486155906>', '<:dozertank:997952516501278760>', '<:forktank:997952581408129084>', '<:friestank:997952688656494672>',
+         '<:gearstank:997952760127434782>', '<:haytank:997952813386715148>', '<:hollowtank:997952878142562384>', '<:hotdogtank:997955038435614934>', '<:logtank:997953009910829198>', '<:longtank:997953087006330971>', '<:medictank:997953168673619978>', '<:mixertank:997953233098113054>', '<:pagliaccitank:997953348097560628>', '<:pailtank:997953413717438575>', '<:pistonstank:997953494050934864>', '<:reactortank:997953557263302666>', '<:spiderevolvedtank:997953618504335501>', '<:spidertank:997953676406702161>', '<:spiketank:997953736041308280>', '<:squaretank:997953791217377381>', '<:traptank:997953904610381834>', '<:treadtank:997953970213494905>', '<:tubdowntank:997954078535598270>', '<:tubtank:997954029902626886>', '<:wavetank:997954135951413298>', '<:zigtank:99795418071721597']
 
 os.system('clear')
 
