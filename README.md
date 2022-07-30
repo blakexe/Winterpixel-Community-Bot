@@ -23,7 +23,8 @@ Join the discord to use the bot!
 | **Command** | **Description** |
 | :--- |:---|
 | **`/bot_info`** | Get info about this bot |
-| **`/leaderboard`** `(season)`| Return the specified season leaderboard, default current |
+| **`/leaderboard`** `(season)`| Return the specified season leaderboard (by points), default current |
+| **`/trophies`** `(season)` * | Return the specified season leaderboard (by trophies), default current |
 | **`/get_user`** `user_type (User ID/Friend ID)` `id`| Return info about a specified user |
 | **`/battle`** | Have a battle with a random bot! |
 | **`/build_a_bot`** * | Bear the responsibility of creating new life... I mean bot |
@@ -36,6 +37,7 @@ Join the discord to use the bot!
 | **`/get_crate_stats`** `one_star` `two_star` | Optimize the use of in game crates and Estimate the amount of coins |
 | **`/slot`** `bet` * | Play the slot machine game |
 | **`/memory`** * | Test your memory by matching 2 tanks! |
+
 - under maintainance*
 
 Want to suggest something? Shoot a friend request to Blaki#4254. My DMs are open. You may also feel free to make a pull request if you want to implement it on your own.
