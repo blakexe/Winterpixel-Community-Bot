@@ -183,7 +183,7 @@ async def leaderboard(interaction: discord.Interaction, season: int = -1):
     
     #Using f-string spacing to pretty print the leaderboard.
     for record in records:
-        message += f"{'#' + str(record['rank']):<5} {record['username']:<20} {'<:pixel:910251746851450900>' + '{:,}'.format(record['score'])}\n"
+        message += f"{'#' + str(record['rank']):<5} {record['username']:<20} {'🏆' + '{:,}'.format(record['score'])}\n"
     message += "```"
 
     #Send
@@ -210,7 +210,7 @@ async def trophies(interaction: discord.Interaction, season: int = -1):
     
     #Using f-string spacing to pretty print the leaderboard.
     for record in records:
-        message += f"{'#' + str(record['rank']):<5} {record['username']:<20} {'<:trophy_RBR:1002277525428371547>' + '{:,}'.format(record['score'])}\n"
+        message += f"{'#' + str(record['rank']):<5} {record['username']:<20} {'🏆' + '{:,}'.format(record['score'])}\n"
     message += "```"
 
     #Send
