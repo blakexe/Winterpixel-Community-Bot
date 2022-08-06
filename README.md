@@ -37,6 +37,7 @@ Join the discord to use the bot!
 | **`/get_crate_stats`** `one_star` `two_star` | Optimize the use of in game crates and Estimate the amount of coins |
 | **`/slot`** `bet` * | Play the slot machine game |
 | **`/memory`** * | Test your memory by matching 2 tanks! |
+| **`/season`** | Return the current season and remaining time |
 
 - under maintainance*
 
