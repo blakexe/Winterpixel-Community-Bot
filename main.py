@@ -163,7 +163,7 @@ async def on_message(message):
            await message.add_reaction(":moyai:")
 
 @tree.command()
-async def leaderboard(interaction: discord.Interaction, season: int = -1):
+async def leaderboard_points(interaction: discord.Interaction, season: int = -1):
     '''Return the specified season leaderboard (by points), default current'''
 
     await interaction.response.defer(ephemeral=False, thinking=True)
@@ -190,7 +190,7 @@ async def leaderboard(interaction: discord.Interaction, season: int = -1):
     await interaction.followup.send(embed=discord.Embed(title=f"Season {season} Leaderboard:", description=message))
 
 @tree.command()
-async def trophies(interaction: discord.Interaction, season: int = -1):
+async def leaderboard_trophies(interaction: discord.Interaction, season: int = -1):
     '''Return the specified season leaderboard (by trophies), default current'''
 
     await interaction.response.defer(ephemeral=False, thinking=True)
