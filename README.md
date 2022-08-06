@@ -23,8 +23,8 @@ Join the discord to use the bot!
 | **Command** | **Description** |
 | :--- |:---|
 | **`/bot_info`** | Get info about this bot |
-| **`/leaderboard`** `(season)`| Return the specified season leaderboard (by points), default current |
-| **`/trophies`** `(season)` * | Return the specified season leaderboard (by trophies), default current |
+| **`/leaderboard_points`** `(season)`| Return the specified season leaderboard (by points), default current |
+| **`/leaderboard_trophies`** `(season)`| Return the specified season leaderboard (by trophies), default current |
 | **`/get_user`** `user_type (User ID/Friend ID)` `id`| Return info about a specified user |
 | **`/battle`** | Have a battle with a random bot! |
 | **`/build_a_bot`** * | Bear the responsibility of creating new life... I mean bot |
