@@ -1,5 +1,7 @@
 import random, aiohttp, replit
 import discord, json, asyncio, typing, os, io
+import datetime, time
+from math import ceil
 from collections import defaultdict, OrderedDict
 from operator import itemgetter
 from statistics import mean
@@ -924,6 +926,24 @@ async def get_crate_stats(interaction: discord.Interaction, one_star: int, two_s
     await interaction.response.defer(ephemeral=False, thinking=True)
     await interaction.followup.send(all(one_star, two_star, 0))
 
+@tree.command()
+async def season(interaction: discord.Interaction):
+    '''Return the current season and remaining time'''
+    current_unix_time = time.mktime(datetime.datetime.now().timetuple())
+    season_start_number = 11
+    season_start_timestamp = 1659128400
+    season_duration = 2419200
+    season_difference = (current_unix_time - season_start_timestamp) / season_duration
+    current_season = ceil((season_start_number - 1) + season_difference)
+    season_seconds_remaining = (1 - season_difference) * 60 * 60 * 24 * 28
+    day = season_seconds_remaining // (24 * 3600)
+    hour = season_seconds_remaining % (24 * 3600) // 3600
+    minute = season_seconds_remaining % (24 * 3600) % 3600 // 60
+    second = season_seconds_remaining % (24 * 3600) % 3600 % 60
+    season_percentage = round((season_difference % 1) * 100)
+    final_msg = f"Season {current_season} Ends in: {int(day)}d {int(hour)}h {int(minute)}m {int(second)}s ({season_percentage}%)"
+    await interaction.response.send_message(final_msg)
+
 @tree.command(guild=discord.Object(id=962142361935314996))
 async def sync_commands(interaction: discord.Interaction):
     await tree.sync()
@@ -936,4 +956,3 @@ def main():
 if (__name__ == "__main__"):
     main()
 ""
-
