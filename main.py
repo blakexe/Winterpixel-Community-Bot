@@ -164,7 +164,7 @@ async def on_message(message):
 
 @tree.command()
 async def leaderboard(interaction: discord.Interaction, season: int = -1):
-    '''Return the specified season leaderboard, default current'''
+    '''Return the specified season leaderboard (by points), default current'''
 
     await interaction.response.defer(ephemeral=False, thinking=True)
 
@@ -191,7 +191,7 @@ async def leaderboard(interaction: discord.Interaction, season: int = -1):
 
 @tree.command(guild=discord.Object(id=962142361935314996))
 async def trophies(interaction: discord.Interaction, season: int = -1):
-    '''Return the specified season leaderboard, default current'''
+    '''Return the specified season leaderboard (by trophies), default current'''
 
     await interaction.response.defer(ephemeral=False, thinking=True)
 
