@@ -46,7 +46,7 @@ bots = []
 playing = False
 
 #Initialize get_crate_stats related variables
-one_star_total, two_star_total, three_star_total = 30, 18, 0
+one_star_total, two_star_total, three_star_total = 30, 18, 1
 total = one_star_total + two_star_total + three_star_total
 one_star_weight, two_star_weight, three_star_weight = 30, 10, 1
 total_weight = one_star_total * one_star_weight + two_star_total * two_star_weight + three_star_total * three_star_weight
@@ -65,7 +65,7 @@ for k in range(1, three_star_total + 1):
     weights_crate.append(three_star_prob)
 
 #List contains all tank emojis for random_tank and memory command
-tanks = ['<:brain_bot_tank:1004892423144611882>', '<:mine_bot_tank:1004475961598816277>', '<:bot_tank:917467970182189056>', '<:default_tank:996465659812774040>', '<:beta_tank:997947350943277106>', '<:canon_tank:997951207840686162>', '<:hotdog_tank:997955038435614934>', '<:wave_tank:997954135951413298>', '<:zig_tank:997954180717215975>', '<:blade_tank:997947874715385856>', '<:buggy_tank:997948966933119016>', '<:burger_evolved_tank:997950412348989562>', '<:burger_tank:997950506976694302>', '<:catapult_evolved_tank:997951715284365323>', '<:catapult_tank:997951809282912346>', '<:crab_evolved_tank:997951966548349009>', '<:crab_tank:997952051940180128>', '<:cyclops_tank:997952308333793322>', '<:diamond_tank:997952379595010048>', '<:dozer_evolved_tank:997952441486155906>', '<:dozer_tank:997952516501278760>', '<:fork_tank:997952581408129084>', '<:fries_tank:997952688656494672>', '<:gears_tank:997952760127434782>', '<:hay_tank:997952813386715148>', '<:hollow_tank:997952878142562384>', '<:medic_tank:997953168673619978>', '<:mixer_tank:997953233098113054>', '<:pagliacci_tank:997953348097560628>', '<:pail_tank:997953413717438575>', '<:pistons_tank:997953494050934864>', '<:reactor_tank:997953557263302666> ', '<:spider_evolved_tank:997953618504335501>', '<:spider_tank:997953676406702161>', '<:spike_tank:997953736041308280>', '<:square_tank:997953791217377381>', '<:trap_tank:997953904610381834>', '<:tread_tank:997953970213494905>', '<:tub_tank:997954029902626886>', '<:tubdown_tank:997954078535598270>', '<:concave_tank:997951897749176450>', '<:crawler_tank:997952124279324753>', '<:log_tank:997953009910829198>', '<:long_tank:997953087006330971>', '<:UFO_evolved_tank:1003007299570376714>', '<:UFO_tank:1003007259657392210>', '<:miner_tank:1003013509006753954>', '<:rover_tank:1003014762327716042>', '<:bug_tank:997948870543814726>']
+tanks = ['<:brain_bot_tank:1004892423144611882>', '<:mine_bot_tank:1004475961598816277>', '<:bot_tank:917467970182189056>', '<:default_tank:996465659812774040>', '<:beta_tank:997947350943277106>', '<:canon_tank:997951207840686162>', '<:hotdog_tank:997955038435614934>', '<:wave_tank:997954135951413298>', '<:zig_tank:997954180717215975>', '<:blade_tank:997947874715385856>', '<:buggy_tank:997948966933119016>', '<:burger_evolved_tank:997950412348989562>', '<:burger_tank:997950506976694302>', '<:catapult_evolved_tank:997951715284365323>', '<:catapult_tank:997951809282912346>', '<:crab_evolved_tank:997951966548349009>', '<:crab_tank:997952051940180128>', '<:cyclops_tank:997952308333793322>', '<:diamond_tank:997952379595010048>', '<:dozer_evolved_tank:997952441486155906>', '<:dozer_tank:997952516501278760>', '<:fork_tank:997952581408129084>', '<:fries_tank:997952688656494672>', '<:gears_tank:997952760127434782>', '<:hay_tank:997952813386715148>', '<:hollow_tank:997952878142562384>', '<:medic_tank:997953168673619978>', '<:mixer_tank:997953233098113054>', '<:pagliacci_tank:997953348097560628>', '<:pail_tank:997953413717438575>', '<:pistons_tank:997953494050934864>', '<:reactor_tank:997953557263302666> ', '<:spider_evolved_tank:997953618504335501>', '<:spider_tank:997953676406702161>', '<:spike_tank:997953736041308280>', '<:square_tank:997953791217377381>', '<:trap_tank:997953904610381834>', '<:tread_tank:997953970213494905>', '<:tub_tank:997954029902626886>', '<:tubdown_tank:997954078535598270>', '<:concave_tank:997951897749176450>', '<:crawler_tank:997952124279324753>', '<:log_tank:997953009910829198>', '<:long_tank:997953087006330971>', '<:UFO_evolved_tank:1003007299570376714>', '<:UFO_tank:1003007259657392210>', '<:miner_tank:1003013509006753954>', '<:rover_tank:1003014762327716042>', '<:bug_tank:997948870543814726>', '<:moai_tank:1006304184037015665>']
 
 os.system('clear')
 
@@ -840,7 +840,7 @@ async def memory(interaction: discord.Interaction):
 #     await interaction.response.send_message("DONE =)")
 
 @tree.command()
-async def get_crate_stats(interaction: discord.Interaction, one_star: int, two_star: int):
+async def get_crate_stats(interaction: discord.Interaction, one_star: int, two_star: int, three_star: int):
     '''Optimize the use of in game crates and Estimate the amount of coins'''
     def basic_or_elite(a, b, c):
         time = 1 / (1 - one_star_prob * a - two_star_prob * b -
@@ -913,18 +913,17 @@ async def get_crate_stats(interaction: discord.Interaction, one_star: int, two_s
         if (1 <= a <= one_star_total) and (0 <= b <= two_star_total) and (0 <= c <=
                                                               three_star_total):
             if total_owned != total:
-                return f"**1,000 SIMULATIONS** have been done based on the number of **{a} ONE-STAR :star:** AND **{b} TWO-STAR :star::star: SKIN"+ ("S" if total_owned > 1 else "") + f"** you have already owned:\n" + basic_or_elite(a, b, c) + basic_and_elite_simulate(a, b, c)
-                # return f"**1,000 SIMULATIONS** have been done based on the number of **{a} ONE-STAR :star:**, **{b} TWO-STAR :star::star:** and **{c} THREE-STAR :star::star::star: SKIN" + (
-                #     "S" if total_owned > 1 else
-                #     "") + f"** you have already owned:\n" + basic_or_elite(
-                #         a, b, c) + basic_and_elite_simulate(a, b, c)
+                return f"**1,000 SIMULATIONS** have been done based on the number of **{a} ONE-STAR :star:**, **{b} TWO-STAR :star::star:** and **{c} THREE-STAR :star::star::star: SKIN" + (
+                    "S" if total_owned > 1 else
+                    "") + f"** you have already owned:\n" + basic_or_elite(
+                        a, b, c) + basic_and_elite_simulate(a, b, c)
             else:
                 return f"You have alredy unlocked **ALL {total} UNIQUE SKINS**! :tada:"
         else:
             return ":x: **INVALID** data has been entered. Please try again. :x:"
     
     await interaction.response.defer(ephemeral=False, thinking=True)
-    await interaction.followup.send(all(one_star, two_star, 0))
+    await interaction.followup.send(all(one_star, two_star, three_star))
 
 @tree.command()
 async def season(interaction: discord.Interaction):
