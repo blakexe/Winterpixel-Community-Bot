@@ -183,7 +183,7 @@ async def leaderboard_points(interaction: discord.Interaction, season: int = -1)
     
     #Using f-string spacing to pretty print the leaderboard.
     for record in records:
-        message += f"{'#' + str(record['rank']):<5} {record['username']:<20} {'🏆' + '{:,}'.format(record['score'])}\n"
+        message += f"{'#' + str(record['rank']):<5} {record['username']:<20} {'⬜' + '{:,}'.format(record['score'])}\n"
     message += "```"
 
     #Send
