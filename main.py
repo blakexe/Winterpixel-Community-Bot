@@ -6,8 +6,8 @@ from collections import defaultdict, OrderedDict
 from operator import itemgetter
 from statistics import mean
 from timeit import default_timer as timer
-# from mediawiki import MediaWiki
-# from fandom import set_wiki, page
+from mediawiki import MediaWiki
+from fandom import set_wiki, page
 from replit import db
 from discord import app_commands
 from rocketbot_client import RocketBotClient
