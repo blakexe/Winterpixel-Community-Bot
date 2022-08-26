@@ -67,8 +67,8 @@ for k in range(1, three_star_total + 1):
     weights_crate.append(three_star_prob)
 
 #Set targeted fandom site's api for fandom command
-# set_wiki("rocketbotroyale")
-# rocketbotroyale = MediaWiki(url='https://rocketbotroyale.fandom.com/api.php')
+set_wiki("rocketbotroyale")
+rocketbotroyale = MediaWiki(url='https://rocketbotroyale.fandom.com/api.php')
 
 #List contains all tank emojis for random_tank and memory command
 tanks = ['<:brain_bot_tank:1006531910224322630>', '<:mine_bot_tank:1006532474945417216>', '<:bot_tank:917467970182189056>', '<:default_tank:996465659812774040>', '<:beta_tank:997947350943277106>', '<:canon_tank:997951207840686162>', '<:hotdog_tank:997955038435614934>', '<:wave_tank:997954135951413298>', '<:zig_tank:997954180717215975>', '<:blade_tank:997947874715385856>', '<:buggy_tank:997948966933119016>', '<:burger_evolved_tank:997950412348989562>', '<:burger_tank:997950506976694302>', '<:catapult_evolved_tank:997951715284365323>', '<:catapult_tank:997951809282912346>', '<:crab_evolved_tank:997951966548349009>', '<:crab_tank:997952051940180128>', '<:cyclops_tank:997952308333793322>', '<:diamond_tank:997952379595010048>', '<:dozer_evolved_tank:997952441486155906>', '<:dozer_tank:997952516501278760>', '<:fork_tank:997952581408129084>', '<:fries_tank:997952688656494672>', '<:gears_tank:997952760127434782>', '<:hay_tank:997952813386715148>', '<:hollow_tank:997952878142562384>', '<:medic_tank:997953168673619978>', '<:mixer_tank:997953233098113054>', '<:pagliacci_tank:997953348097560628>', '<:pail_tank:997953413717438575>', '<:pistons_tank:997953494050934864>', '<:reactor_tank:997953557263302666> ', '<:spider_evolved_tank:997953618504335501>', '<:spider_tank:997953676406702161>', '<:spike_tank:997953736041308280>', '<:square_tank:997953791217377381>', '<:trap_tank:997953904610381834>', '<:tread_tank:997953970213494905>', '<:tub_tank:997954029902626886>', '<:tubdown_tank:997954078535598270>', '<:concave_tank:997951897749176450>', '<:crawler_tank:997952124279324753>', '<:log_tank:997953009910829198>', '<:long_tank:997953087006330971>', '<:UFO_evolved_tank:1003007299570376714>', '<:UFO_tank:1003007259657392210>', '<:miner_tank:1003013509006753954>', '<:rover_tank:1003014762327716042>', '<:bug_tank:997948870543814726>', '<:moai_tank:1006528445355917394>']
@@ -949,28 +949,28 @@ async def season(interaction: discord.Interaction):
     final_msg = f"Season {current_season} Ends in: {int(day)}d {int(hour)}h {int(minute)}m {int(second)}s ({season_percentage}%)"
     await interaction.response.send_message(final_msg)
 
-# @tree.command(guild=discord.Object(id=962142361935314996))
-# async def fandom(interaction: discord.Interaction, article: str):
-#     '''Fetch any articles from Rocket Bot Royale fandom wiki here!'''
-#     p = rocketbotroyale.page(article)
-#     try:
-#       page1 = page(title = article)
-#       sent_embed = await interaction.followup.send(embed=discord.Embed(description="Fetching page..."))
-#       output = discord.Embed(
-#               color=0xffd700,
-#               title=page1.title,
-#               description=page1.summary,
-#               url=f"https://rocketbotroyale.fandom.com/wiki/{page1.title}".replace(" ", "_"),
-#               timestamp=datetime.datetime.utcnow())
-#       list_of_images = p.images
-#       png_or_gif = [ x for x in list_of_images if ".png" in x or ".gif" in x]
-#       set_image = "https://static.wikia.nocookie.net/rocketbotroyale/images/c/c4/Slide1_mainpage.png/revision/latest?cb=20220712121433" if len(png_or_gif) == 0 else png_or_gif[0]
-#       output.set_image(url=set_image)
-#       output.set_thumbnail(url="https://static.wikia.nocookie.net/rocketbotroyale/images/e/e6/Site-logo.png")
-#       output.set_footer(text="All information is gathered through fandom.com")
-#       await sent_embed.edit(embed=output)
-#     except:
-#       await interaction.followup.send(embed=discord.Embed(color=0xff0000, description=f':x: "{article}" is not found. Make sure capitalization is correct!',timestamp=datetime.datetime.utcnow()))
+@tree.command(guild=discord.Object(id=962142361935314996))
+async def fandom(interaction: discord.Interaction, article: str):
+    '''Fetch any articles from Rocket Bot Royale fandom wiki here!'''
+    p = rocketbotroyale.page(article)
+    try:
+      page1 = page(title = article)
+      sent_embed = await interaction.followup.send(embed=discord.Embed(description="Fetching page..."))
+      output = discord.Embed(
+              color=0xffd700,
+              title=page1.title,
+              description=page1.summary,
+              url=f"https://rocketbotroyale.fandom.com/wiki/{page1.title}".replace(" ", "_"),
+              timestamp=datetime.datetime.utcnow())
+      list_of_images = p.images
+      png_or_gif = [ x for x in list_of_images if ".png" in x or ".gif" in x]
+      set_image = "https://static.wikia.nocookie.net/rocketbotroyale/images/c/c4/Slide1_mainpage.png/revision/latest?cb=20220712121433" if len(png_or_gif) == 0 else png_or_gif[0]
+      output.set_image(url=set_image)
+      output.set_thumbnail(url="https://static.wikia.nocookie.net/rocketbotroyale/images/e/e6/Site-logo.png")
+      output.set_footer(text="All information is gathered through fandom.com")
+      await sent_embed.edit(embed=output)
+    except:
+      await interaction.followup.send(embed=discord.Embed(color=0xff0000, description=f':x: "{article}" is not found. Make sure capitalization is correct!',timestamp=datetime.datetime.utcnow()))
 
 @tree.command(guild=discord.Object(id=962142361935314996))
 async def sync_commands(interaction: discord.Interaction):
