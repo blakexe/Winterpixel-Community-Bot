@@ -952,6 +952,7 @@ async def season(interaction: discord.Interaction):
 @tree.command(guild=discord.Object(id=962142361935314996))
 async def fandom(interaction: discord.Interaction, article: str):
     '''Fetch any articles from Rocket Bot Royale fandom wiki here!'''
+    await interaction.response.defer(ephemeral=False, thinking=True)
     p = rocketbotroyale.page(article)
     try:
       page1 = page(title = article)
