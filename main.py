@@ -157,7 +157,7 @@ async def on_message(message: discord.message):
         await message.add_reaction(":moyai:")
      # (caps with spaces >= 10) or (repeated character or number >=10)
      if bool(re.search(r"\w*[A-Z ]{10}", message.content)) or bool(re.search(r"(?:([a-zA-Z0-9])\1{9,})", message.content)):
-           await message.channel.send("Calm down!")
+           await message.reply("Calm down!")
 
 @client.event
 async def on_ready():
