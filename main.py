@@ -953,8 +953,6 @@ async def season(interaction: discord.Interaction):
 async def random_bot_name(interaction: discord.Interaction):
     '''Generate a random bot name.'''
 
-    await interaction.response.defer(ephemeral=False, thinking=True)
-
     adjective = [
         "gray",
         "brown",
@@ -1844,8 +1842,8 @@ async def random_bot_name(interaction: discord.Interaction):
         "curtain"
     ]
 
-    name = random.choice(noun).capitalize() + random.choice(adjective)
-    await interaction.response.send_message(name)
+    generated_random_bot_name = random.choice(noun).capitalize() + random.choice(adjective)
+    await interaction.response.send_message(generated_random_bot_name)
 
 @tree.command()
 async def fandom(interaction: discord.Interaction, article: str):
