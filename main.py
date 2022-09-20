@@ -155,7 +155,7 @@ async def on_message(message: discord.message):
            await message.add_reaction("<:downvote:910250215217459281>")
      # (caps with spaces >= 10) or (repeated character or number >=10)
      if bool(re.search(r"\w*[A-Z ]{10}", message.content)) or bool(re.search(r"(?:([a-zA-Z0-9])\1{9,})", message.content)):
-           await interaction.response.send_message("Calm down!")
+           await message.response.send_message("Calm down!")
 
 @client.event
 async def on_ready():
