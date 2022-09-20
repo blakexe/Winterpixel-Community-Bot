@@ -153,9 +153,11 @@ async def on_message(message: discord.message):
      if "!idea" in message.content.lower():
            await message.add_reaction("<:upvote:910250647264329728>")
            await message.add_reaction("<:downvote:910250215217459281>")
+     if "moyai" in message.content or "🗿" in message.content:
+        await message.add_reaction(":moyai:")
      # (caps with spaces >= 10) or (repeated character or number >=10)
      if bool(re.search(r"\w*[A-Z ]{10}", message.content)) or bool(re.search(r"(?:([a-zA-Z0-9])\1{9,})", message.content)):
-           await message.response.send_message("Calm down!")
+           await message.channel.send_message("Calm down!")
 
 @client.event
 async def on_ready():
@@ -167,10 +169,6 @@ async def on_ready():
     for key in db.keys():
         print(str(key) + str(db[key]))
     print("Winterpixel community bot is ready.")
-
-async def on_message(message):
-     if "moyai" in message.content or "🗿" in message.content:
-           await message.add_reaction(":moyai:")
 
 @tree.command()
 async def leaderboard_points(interaction: discord.Interaction, season: int = -1):
