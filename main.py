@@ -49,7 +49,7 @@ bots = []
 playing = False
 
 #Initialize get_crate_stats related variables
-one_star_total, two_star_total, three_star_total = 30, 19, 1
+one_star_total, two_star_total, three_star_total = 30, 20, 1
 total = one_star_total + two_star_total + three_star_total
 one_star_weight, two_star_weight, three_star_weight = 30, 10, 1
 total_weight = one_star_total * one_star_weight + two_star_total * two_star_weight + three_star_total * three_star_weight
