@@ -38,6 +38,8 @@ Join the discord to use the bot!
 | **`/slot`** `bet` * | Play the slot machine game |
 | **`/memory`** * | Test your memory by matching 2 tanks! |
 | **`/season`** | Return the current season and remaining time |
+| **`/random_bot_name`** | Generate a random bot name |
+| **`/fandom`** `article` | Fetch any articles from Rocket Bot Royale fandom wiki here |
 
 - under maintainance*
 
