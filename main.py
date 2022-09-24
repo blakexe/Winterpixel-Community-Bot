@@ -942,7 +942,7 @@ async def season(interaction: discord.Interaction):
     season_duration = 3369600
     season_difference = (current_unix_time - season_start_timestamp) / season_duration
     current_season = ceil((season_start_number - 1) + season_difference)
-    season_seconds_remaining = (ceil(season_difference) - season_difference) * 60 * 60 * 24 * 28
+    season_seconds_remaining = (ceil(season_difference) - season_difference) * 3369600
     day = season_seconds_remaining // (24 * 3600)
     hour = season_seconds_remaining % (24 * 3600) // 3600
     minute = season_seconds_remaining % (24 * 3600) % 3600 // 60
