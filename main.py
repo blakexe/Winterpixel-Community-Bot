@@ -230,29 +230,29 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
 
     await interaction.response.defer(ephemeral=False, thinking=True)
 
-    #If the user specificed a friend code we need to query the server for their ID.
+    # If the user specified a friend code we need to query the server for their ID.
     try:
         if (user_type == "Friend ID"):
             id_response = await rocketbot_client.friend_code_to_id(id)
             id = json.loads(id_response['payload'])['user_id']
-        
-        #Get user data
+
+        # Get user data
         response = await rocketbot_client.get_user(id)
         user_data = json.loads(response['payload'])[0]
         metadata = user_data['metadata']
     except aiohttp.ClientResponseError:
-        #The code is wrong, send an error response
+        # The code is wrong, send an error response
         await interaction.followup.send(embed=discord.Embed(color=discord.Color.red(), title="❌ Player not found ❌"))
         return
 
-    #Create embed
-    embed = discord.Embed()
+    # Create message
+    message = ""
 
-    #Get award config
+    # Get award config
     awards_config = server_config['awards']
     default_award = {'type': "Unknown", "name": "Unknown"}
 
-    #Get general player info
+    # Get general player info
     username = user_data['display_name']
     is_online = user_data['online']
     current_tank = metadata['skin'].replace("_", " ").title()
@@ -261,7 +261,7 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
     friend_code = metadata['friend_code']
     id = user_data['user_id']
 
-    #Add general player info
+    # Add general player info
     general_info = "```"
     general_info += f"Username: {username}\n"
     general_info += f"Online: {is_online}\n"
@@ -272,10 +272,10 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
     general_info += f"User ID: {id}\n"
     general_info += "```"
 
-    #Add to embed
-    embed.add_field(name="📓 ***General Info***:", value=general_info, inline=False)
+    # Add to embed
+    message += f"📓 ***General Info***:\n{general_info}\n"
 
-    #Create badge list
+    # Create badge list
     badge_list = "```"
 
     for badge in metadata['awards']:
@@ -286,24 +286,20 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
             badge_list += award['name'] + "\n"
     badge_list += "```"
 
-    #Add to embed
-    embed.add_field(name="🛡️ ***Badges***:", value=badge_list, inline=False)
+    # Add to embed
+    message += f"🛡️ ***Badges***:\n{badge_list}\n"
 
-    await interaction.followup.send(embed=embed)
-    
-    embed = discord.Embed()
-    
-    #Create stats
+    # Create stats
     stat_list = "```"
     for key, value in metadata['stats'].items():
         stat_list += f"{key.replace('_', ' ').title()}: {value}\n"
     stat_list += "```"
 
-    #Add to embed
-    embed.add_field(name="🗒️ ***Stats***:", value=stat_list, inline=False)
+    # Add to embed
+    message += f"🗒️ ***Stats***:\n{stat_list}"
 
-    #Send message
-    await interaction.followup.send(embed=embed)
+    # Send message
+    await interaction.followup.send(embed=discord.Embed(description=message))
 
 @tree.command()
 async def bot_info(interaction: discord.Interaction):
