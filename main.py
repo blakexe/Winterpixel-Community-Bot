@@ -254,8 +254,11 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
 
     # Get general player info
     username = user_data['display_name']
+    create_time = user_data['create_time']
     is_online = user_data['online']
     current_tank = metadata['skin'].replace("_", " ").title()
+    current_trail = metadata['trail'].replace("trail_", "").title()
+    current_parachute = metadata['parachute'].replace("parachute_", "").title()
     current_badge = awards_config.get(metadata['badge'], default_award)['name']
     level = metadata['progress']['level']
     friend_code = metadata['friend_code']
@@ -264,8 +267,11 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
     # Add general player info
     general_info = "```"
     general_info += f"Username: {username}\n"
+    general_info += f"Create Time: {datetime.datetime.fromtimestamp(create_time):%Y-%m-%d %H:%M:%S}\n"
     general_info += f"Online: {is_online}\n"
     general_info += f"Current Tank: {current_tank}\n"
+    general_info += f"Current Trail: {current_trail}\n"
+    general_info += f"Current Parachute: {current_parachute}\n"
     general_info += f"Current Badge: {current_badge}\n"
     general_info += f"Level: {level}\n"
     general_info += f"Friend Code: {friend_code}\n"
