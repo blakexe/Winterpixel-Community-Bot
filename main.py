@@ -289,6 +289,10 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
     #Add to embed
     embed.add_field(name="🛡️ ***Badges***:", value=badge_list, inline=False)
 
+    await interaction.followup.send(embed=embed)
+    
+    embed = discord.Embed()
+    
     #Create stats
     stat_list = "```"
     for key, value in metadata['stats'].items():
