@@ -254,8 +254,9 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
 
     # Get general player info
     username = user_data['display_name']
-    create_time = user_data['create_time']
     is_online = user_data['online']
+    create_time = user_data['create_time']
+    timed_bonus_last_collect = metadata['timed_bonus_last_collect']
     current_tank = metadata['skin'].replace("_", " ").title()
     current_trail = metadata['trail'].replace("trail_", "").title()
     current_parachute = metadata['parachute'].replace("parachute_", "").title()
@@ -267,8 +268,9 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
     # Add general player info
     general_info = "```"
     general_info += f"Username: {username}\n"
-    general_info += f"Create Time: {datetime.datetime.fromtimestamp(create_time):%Y-%m-%d %H:%M:%S}\n"
     general_info += f"Online: {is_online}\n"
+    general_info += f"Create Time: {datetime.datetime.fromtimestamp(create_time):%Y-%m-%d %H:%M:%S}\n"
+    general_info += f"Timed Bonus Last Collect: {datetime.datetime.fromtimestamp(timed_bonus_last_collect):%Y-%m-%d %H:%M:%S}\n"
     general_info += f"Current Tank: {current_tank}\n"
     general_info += f"Current Trail: {current_trail}\n"
     general_info += f"Current Parachute: {current_parachute}\n"
