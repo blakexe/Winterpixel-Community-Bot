@@ -206,7 +206,7 @@ async def leaderboard_trophies(interaction: discord.Interaction, season: int = -
     await interaction.followup.send(embed=discord.Embed(title=f"Season {season} Leaderboard:", description=message))
 
 @tree.command()
-async def get_user(interaction: discord.Interaction, id: str):
+async def get_user(interaction: discord.Interaction, user_type: typing.Literal['User ID', 'Friend ID'], id: str):
     '''Return info about a specified user'''
 
     await interaction.response.defer(ephemeral=False, thinking=True)
