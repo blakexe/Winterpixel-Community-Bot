@@ -48,25 +48,6 @@ players = []
 bots = []
 playing = False
 
-#Initialize get_crate_stats related variables
-one_star_total, two_star_total, three_star_total = 30, 20, 1
-total = one_star_total + two_star_total + three_star_total
-one_star_weight, two_star_weight, three_star_weight = 30, 10, 1
-total_weight = one_star_total * one_star_weight + two_star_total * two_star_weight + three_star_total * three_star_weight
-one_star_prob, two_star_prob, three_star_prob = one_star_weight / total_weight, two_star_weight / total_weight, three_star_weight / total_weight
-
-basic_crate_price = 1000
-elite_crate_price = 20000
-
-population_crate = list(range(1, total + 1))
-weights_crate = []
-for i in range(1, one_star_total + 1):
-    weights_crate.append(one_star_prob)
-for j in range(1, two_star_total + 1):
-    weights_crate.append(two_star_prob)
-for k in range(1, three_star_total + 1):
-    weights_crate.append(three_star_prob)
-
 #Set targeted fandom site's api for fandom command
 set_wiki("rocketbotroyale")
 rocketbotroyale = MediaWiki(url='https://rocketbotroyale.fandom.com/api.php')
@@ -1025,8 +1006,47 @@ async def memory(interaction: discord.Interaction):
 #     await interaction.response.send_message("DONE =)")
 
 @tree.command()
-async def get_crate_stats(interaction: discord.Interaction, one_star: int, two_star: int, three_star: int):
+async def crate(interaction: discord.Interaction, one_star: int, two_star: int, three_star: int):
     '''Optimize the use of in game crates and Estimate the amount of coins'''
+
+    await interaction.response.defer(ephemeral=False, thinking=True)
+
+    one_star_total = 0
+    two_star_total = 0
+    three_star_total = 0
+
+    for key, value in server_config['awards'].items():
+        try:
+            if value['rarity'] == "common":
+                one_star_total += 1
+            elif value['rarity'] == "rare":
+                two_star_total += 1
+            elif value['rarity'] == "legendary":
+                three_star_total += 1
+        except:
+            pass
+
+    total = one_star_total + two_star_total + three_star_total
+    one_star_weight, two_star_weight, three_star_weight = server_config[
+        'lootbox_rarity_odds']['common'], server_config['lootbox_rarity_odds'][
+            'rare'], server_config['lootbox_rarity_odds']['legendary']
+    total_weight = one_star_total * one_star_weight + two_star_total * \
+        two_star_weight + three_star_total * three_star_weight
+    one_star_prob, two_star_prob, three_star_prob = one_star_weight / \
+        total_weight, two_star_weight / total_weight, three_star_weight / total_weight
+
+    basic_crate_price = server_config['lootbox_coin_cost']
+    elite_crate_price = server_config['unique_lootbox_coin_cost']
+
+    population_crate = list(range(1, total + 1))
+    weights_crate = []
+    for i in range(1, one_star_total + 1):
+        weights_crate.append(one_star_prob)
+    for j in range(1, two_star_total + 1):
+        weights_crate.append(two_star_prob)
+    for k in range(1, three_star_total + 1):
+        weights_crate.append(three_star_prob)
+
     def basic_or_elite(a, b, c):
         time = 1 / (1 - one_star_prob * a - two_star_prob * b -
                     three_star_prob * c)
@@ -1053,7 +1073,8 @@ async def get_crate_stats(interaction: discord.Interaction, one_star: int, two_s
                 collected.add(i)
             for j in range(one_star_total + 1, one_star_total + 1 + b):
                 collected.add(j)
-            for k in range(one_star_total + two_star_total + 1, one_star_total + two_star_total + 1 + c):
+            for k in range(one_star_total + two_star_total + 1,
+                           one_star_total + two_star_total + 1 + c):
                 collected.add(k)
 
             while True:
@@ -1066,7 +1087,8 @@ async def get_crate_stats(interaction: discord.Interaction, one_star: int, two_s
                         collected.add(int(i))
                         if 1 <= int(i) <= one_star_total:
                             prob -= one_star_prob
-                        elif (one_star_total + 1) <= int(i) <= (one_star_total + two_star_total):
+                        elif (one_star_total + 1) <= int(i) <= (
+                                one_star_total + two_star_total):
                             prob -= two_star_prob
                         else:
                             prob -= three_star_prob
@@ -1089,25 +1111,24 @@ async def get_crate_stats(interaction: discord.Interaction, one_star: int, two_s
             "S" if expected_elite_crate_mean > 1 else ""
         ) + f" <:elitecrate:989954419846184970>**, which " + (
             "are" if
-            (expected_basic_crate_mean
-             + expected_elite_crate_mean) > 1 else "is"
+            (expected_basic_crate_mean + expected_elite_crate_mean) > 1 else
+            "is"
         ) + f" worth a **TOTAL** of **{expected_basic_crate_mean * basic_crate_price + expected_elite_crate_mean * elite_crate_price:,.0f} COINS <:coin:910247623787700264>**"
 
     def all(a, b, c):
         total_owned = a + b + c
-        if (1 <= a <= one_star_total) and (0 <= b <= two_star_total) and (0 <= c <=
-                                                              three_star_total):
+        if (1 <= a <= one_star_total) and (0 <= b <= two_star_total) and (
+                0 <= c <= three_star_total):
             if total_owned != total:
                 return f"**1,000 SIMULATIONS** have been done based on the number of **{a} ONE-STAR :star:**, **{b} TWO-STAR :star::star:** and **{c} THREE-STAR :star::star::star: SKIN" + (
                     "S" if total_owned > 1 else
                     "") + f"** you have already owned:\n" + basic_or_elite(
                         a, b, c) + basic_and_elite_simulate(a, b, c)
             else:
-                return f"You have alredy unlocked **ALL {total} UNIQUE SKINS**! :tada:"
+                return f"You have already unlocked **ALL {total} UNIQUE SKINS**! :tada:"
         else:
             return ":x: **INVALID** data has been entered. Please try again. :x:"
-    
-    await interaction.response.defer(ephemeral=False, thinking=True)
+
     await interaction.followup.send(all(one_star, two_star, three_star))
 
 @tree.command()
