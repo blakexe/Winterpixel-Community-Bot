@@ -243,6 +243,7 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
     except aiohttp.ClientResponseError:
         # The code is wrong, send an error response
         await interaction.followup.send(embed=discord.Embed(color=discord.Color.red(), title="❌ Player not found ❌"))
+
         return
 
     # Create message
@@ -257,11 +258,16 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
     is_online = user_data['online']
     create_time = user_data['create_time']
     timed_bonus_last_collect = metadata['timed_bonus_last_collect']
-    current_tank = metadata['skin'].replace("_", " ").title()
-    current_trail = metadata['trail'].replace("trail_", "").title()
-    current_parachute = metadata['parachute'].replace("parachute_", "").title()
+    current_tank = metadata['skin'].replace(
+        '_', ' ').split()[0].title() + " " + awards_config.get(
+            awards_config.get(metadata['skin'], default_award)['skin_name'],
+            default_award)['name']
+    current_trail = awards_config.get(metadata['trail'], default_award)['name']
+    current_parachute = awards_config.get(metadata['parachute'],
+                                          default_award)['name']
     current_badge = awards_config.get(metadata['badge'], default_award)['name']
     level = metadata['progress']['level']
+    XP = metadata['progress']['xp']
     friend_code = metadata['friend_code']
     id = user_data['user_id']
 
@@ -276,6 +282,7 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
     general_info += f"Current Parachute: {current_parachute}\n"
     general_info += f"Current Badge: {current_badge}\n"
     general_info += f"Level: {level}\n"
+    general_info += f"XP: {XP}\n"
     general_info += f"Friend Code: {friend_code}\n"
     general_info += f"User ID: {id}\n"
     general_info += "```"
@@ -296,6 +303,169 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
 
     # Add to embed
     message += f"🛡️ ***Badges***:\n{badge_list}\n"
+
+    # Get skins info
+    tank_common_total = 0
+    tank_rare_total = 0
+    tank_legendary_total = 0
+    parachute_common_total = 0
+    parachute_rare_total = 0
+    parachute_legendary_total = 0
+    trail_common_total = 0
+    trail_rare_total = 0
+    trail_legendary_total = 0
+
+    tank_common_owned = 0
+    tank_rare_owned = 0
+    tank_legendary_owned = 0
+    parachute_common_owned = 0
+    parachute_rare_owned = 0
+    parachute_legendary_owned = 0
+    trail_common_owned = 0
+    trail_rare_owned = 0
+    trail_legendary_owned = 0
+
+    for key, value in awards_config.items():
+        try:
+            if value['type'] == "skin_set":
+                if value['rarity'] == "common":
+                    tank_common_total += 1
+                elif value['rarity'] == "rare":
+                    tank_rare_total += 1
+                elif value['rarity'] == "legendary":
+                    tank_legendary_total += 1
+            elif value['type'] == "parachute":
+                if value['rarity'] == "common":
+                    parachute_common_total += 1
+                elif value['rarity'] == "rare":
+                    parachute_rare_total += 1
+                elif value['rarity'] == "legendary":
+                    parachute_legendary_total += 1
+            elif value['type'] == "trail":
+                if value['rarity'] == "common":
+                    trail_common_total += 1
+                elif value['rarity'] == "rare":
+                    trail_rare_total += 1
+                elif value['rarity'] == "legendary":
+                    trail_legendary_total += 1
+        except:
+            pass
+
+    tank_list_duplicated = []
+    for tank in metadata['awards']:
+        award = awards_config.get(tank, default_award)
+        type = award['type']
+
+        if type == "skin":
+            tank_list_duplicated.append(award['skin_name'])
+
+    for unique_tank in list(dict.fromkeys(tank_list_duplicated)):
+        try:
+            if awards_config.get(unique_tank)['rarity'] == "common":
+                tank_common_owned += 1
+            elif awards_config.get(unique_tank)['rarity'] == "rare":
+                tank_rare_owned += 1
+            elif awards_config.get(unique_tank)['rarity'] == "legendary":
+                tank_legendary_owned += 1
+        except:
+            pass
+
+    for award in metadata['awards']:
+        skin = awards_config.get(award, default_award)
+
+        try:
+            type = skin['type']
+            rarity = skin['rarity']
+            if type == "parachute":
+                if rarity == 'common':
+                    parachute_common_owned += 1
+                elif rarity == 'rare':
+                    parachute_rare_owned += 1
+                elif rarity == 'legendary':
+                    parachute_legendary_owned += 1
+            if type == "trail":
+                if rarity == 'common':
+                    trail_common_owned += 1
+                elif rarity == 'rare':
+                    trail_rare_owned += 1
+                elif rarity == 'legendary':
+                    trail_legendary_owned += 1
+        except:
+            pass
+
+    common_owned = tank_common_owned + parachute_common_owned + trail_common_owned
+    common_total = tank_common_total + parachute_common_total + trail_common_total
+    rare_owned = tank_rare_owned + parachute_rare_owned + trail_rare_owned
+    rare_total = tank_rare_total + parachute_rare_total + trail_rare_total
+    legendary_owned = tank_legendary_owned + \
+        parachute_legendary_owned + trail_legendary_owned
+    legendary_total = tank_legendary_total + \
+        parachute_legendary_total + trail_legendary_total
+
+    tank_owned = tank_common_owned + tank_rare_owned + tank_legendary_owned
+    tank_total = tank_common_total + tank_rare_total + tank_legendary_total
+    parachute_owned = parachute_common_owned + \
+        parachute_rare_owned + parachute_legendary_owned
+    parachute_total = parachute_common_total + \
+        parachute_rare_total + parachute_legendary_total
+    trail_owned = trail_common_owned + trail_rare_owned + trail_legendary_owned
+    trail_total = trail_common_total + trail_rare_total + trail_legendary_total
+
+    owned = tank_owned + parachute_owned + trail_owned
+    total = tank_total + parachute_total + trail_total
+
+    s = f"```\n+{'-'*53}+\n| {'':^9} | {'Tanks':^5} | {'Parachutes':^10} | {'Trails':^6} | {'Sub-total':^9} |\n+{'-'*11}+{'-'*7}+{'-'*12}+{'-'*8}+{'-'*11}+\n"
+    s += f"| {'Common':^9} | {str(tank_common_owned)+'/'+str(tank_common_total):^5} | {str(parachute_common_owned)+'/'+str(parachute_common_total):^10} | {str(trail_common_owned)+'/'+str(trail_common_total):^6} | {str(common_owned)+'/'+str(common_total):^9} |\n+{'-'*11}+{'-'*7}+{'-'*12}+{'-'*8}+{'-'*11}+\n"
+    s += f"| {'Rare':^9} | {str(tank_rare_owned)+'/'+str(tank_rare_total):^5} | {str(parachute_rare_owned)+'/'+str(parachute_rare_total):^10} | {str(trail_rare_owned)+'/'+str(trail_rare_total):^6} | {str(rare_owned)+'/'+str(rare_total):^9} |\n+{'-'*11}+{'-'*7}+{'-'*12}+{'-'*8}+{'-'*11}+\n"
+    s += f"| {'Legendary':^9} | {str(tank_legendary_owned)+'/'+str(tank_legendary_total):^5} | {str(parachute_legendary_owned)+'/'+str(parachute_legendary_total):^10} | {str(trail_legendary_owned)+'/'+str(trail_legendary_total):^6} | {str(legendary_owned)+'/'+str(legendary_total):^9} |\n+{'-'*11}+{'-'*7}+{'-'*12}+{'-'*8}+{'-'*11}+\n"
+    s += f"| {'Sub-total':^9} | {str(tank_owned)+'/'+str(tank_total):^5} | {str(parachute_owned)+'/'+str(parachute_total):^10} | {str(trail_owned)+'/'+str(trail_total):^6} | {str(owned)+'/'+str(total):^9} |\n+{'-'*11}+{'-'*7}+{'-'*12}+{'-'*8}+{'-'*11}+```"
+
+    # Add to embed
+    message += f"📦 ***Items Collected***:\n{s}\n"
+
+    # Create tank list
+    tank_list = "```"
+
+    tank_list_unique_renamed = []
+    for unique_tank in list(dict.fromkeys(tank_list_duplicated)):
+        tank_list_unique_renamed.append(
+            awards_config.get(unique_tank, default_award)['name'])
+    tank_list += tank_list_unique_renamed[
+        0] + "\n"  # first item is skipped mysteriously without thie line
+    for tank_unique_renamed in tank_list_unique_renamed:
+        tank_list += tank_unique_renamed + "\n"
+    tank_list += "```"
+
+    # Add to embed
+    message += f"🪖 ***Tanks***:\n{tank_list}\n"
+
+    # Create parachute list
+    parachute_list = "```"
+
+    for parachute in metadata['awards']:
+        award = awards_config.get(parachute, default_award)
+        type = award['type']
+
+        if type == "parachute":
+            parachute_list += award['name'] + "\n"
+    parachute_list += "```"
+
+    # Add to embed
+    message += f"🪂 ***Parachutes***:\n{parachute_list}\n"
+
+    # Create trail list
+    trail_list = "```"
+
+    for trail in metadata['awards']:
+        award = awards_config.get(trail, default_award)
+        type = award['type']
+
+        if type == "trail":
+            trail_list += award['name'] + "\n"
+    trail_list += "```"
+
+    # Add to embed
+    message += f"🌟 ***Trails***:\n{trail_list}\n"
 
     # Create stats
     stat_list = "```"
