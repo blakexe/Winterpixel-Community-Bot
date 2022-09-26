@@ -251,7 +251,7 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
 
     # Get award config
     awards_config = server_config['awards']
-    default_award = {'type': "Unknown", "name": "Unknown"}
+    default_award = {"type": "Unknown", "name": "Unknown"}
 
     # Get general player info
     username = user_data['display_name']
@@ -272,7 +272,7 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
     id = user_data['user_id']
 
     # Add general player info
-    general_info = "```"
+    general_info = "```\n"
     general_info += f"Username: {username}\n"
     general_info += f"Online: {is_online}\n"
     general_info += f"Create Time: {datetime.datetime.fromtimestamp(create_time):%Y-%m-%d %H:%M:%S}\n"
@@ -291,7 +291,7 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
     message += f"📓 ***General Info***:\n{general_info}\n"
 
     # Create badge list
-    badge_list = "```"
+    badge_list = "```\n"
 
     for badge in metadata['awards']:
         award = awards_config.get(badge, default_award)
@@ -414,24 +414,23 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
     owned = tank_owned + parachute_owned + trail_owned
     total = tank_total + parachute_total + trail_total
 
-    s = f"```\n+{'-'*53}+\n| {'':^9} | {'Tanks':^5} | {'Parachutes':^10} | {'Trails':^6} | {'Sub-total':^9} |\n+{'-'*11}+{'-'*7}+{'-'*12}+{'-'*8}+{'-'*11}+\n"
-    s += f"| {'Common':^9} | {str(tank_common_owned)+'/'+str(tank_common_total):^5} | {str(parachute_common_owned)+'/'+str(parachute_common_total):^10} | {str(trail_common_owned)+'/'+str(trail_common_total):^6} | {str(common_owned)+'/'+str(common_total):^9} |\n+{'-'*11}+{'-'*7}+{'-'*12}+{'-'*8}+{'-'*11}+\n"
-    s += f"| {'Rare':^9} | {str(tank_rare_owned)+'/'+str(tank_rare_total):^5} | {str(parachute_rare_owned)+'/'+str(parachute_rare_total):^10} | {str(trail_rare_owned)+'/'+str(trail_rare_total):^6} | {str(rare_owned)+'/'+str(rare_total):^9} |\n+{'-'*11}+{'-'*7}+{'-'*12}+{'-'*8}+{'-'*11}+\n"
-    s += f"| {'Legendary':^9} | {str(tank_legendary_owned)+'/'+str(tank_legendary_total):^5} | {str(parachute_legendary_owned)+'/'+str(parachute_legendary_total):^10} | {str(trail_legendary_owned)+'/'+str(trail_legendary_total):^6} | {str(legendary_owned)+'/'+str(legendary_total):^9} |\n+{'-'*11}+{'-'*7}+{'-'*12}+{'-'*8}+{'-'*11}+\n"
-    s += f"| {'Sub-total':^9} | {str(tank_owned)+'/'+str(tank_total):^5} | {str(parachute_owned)+'/'+str(parachute_total):^10} | {str(trail_owned)+'/'+str(trail_total):^6} | {str(owned)+'/'+str(total):^9} |\n+{'-'*11}+{'-'*7}+{'-'*12}+{'-'*8}+{'-'*11}+```"
+    items_info = f"```\n+{'-'*53}+\n| {'':^9} | {'Tanks':^5} | {'Parachutes':^10} | {'Trails':^6} | {'Sub-total':^9} |\n+{'-'*11}+{'-'*7}+{'-'*12}+{'-'*8}+{'-'*11}+\n"
+    items_info += f"| {'Common':^9} | {str(tank_common_owned)+'/'+str(tank_common_total):^5} | {str(parachute_common_owned)+'/'+str(parachute_common_total):^10} | {str(trail_common_owned)+'/'+str(trail_common_total):^6} | {str(common_owned)+'/'+str(common_total):^9} |\n+{'-'*11}+{'-'*7}+{'-'*12}+{'-'*8}+{'-'*11}+\n"
+    items_info += f"| {'Rare':^9} | {str(tank_rare_owned)+'/'+str(tank_rare_total):^5} | {str(parachute_rare_owned)+'/'+str(parachute_rare_total):^10} | {str(trail_rare_owned)+'/'+str(trail_rare_total):^6} | {str(rare_owned)+'/'+str(rare_total):^9} |\n+{'-'*11}+{'-'*7}+{'-'*12}+{'-'*8}+{'-'*11}+\n"
+    items_info += f"| {'Legendary':^9} | {str(tank_legendary_owned)+'/'+str(tank_legendary_total):^5} | {str(parachute_legendary_owned)+'/'+str(parachute_legendary_total):^10} | {str(trail_legendary_owned)+'/'+str(trail_legendary_total):^6} | {str(legendary_owned)+'/'+str(legendary_total):^9} |\n+{'-'*11}+{'-'*7}+{'-'*12}+{'-'*8}+{'-'*11}+\n"
+    items_info += f"| {'Sub-total':^9} | {str(tank_owned)+'/'+str(tank_total):^5} | {str(parachute_owned)+'/'+str(parachute_total):^10} | {str(trail_owned)+'/'+str(trail_total):^6} | {str(owned)+'/'+str(total):^9} |\n+{'-'*11}+{'-'*7}+{'-'*12}+{'-'*8}+{'-'*11}+```"
 
     # Add to embed
-    message += f"📦 ***Items Collected***:\n{s}\n"
+    message += f"📦 ***Items Collected***:\n{items_info}\n"
 
     # Create tank list
-    tank_list = "```"
+    tank_list = "```\n"
 
     tank_list_unique_renamed = []
     for unique_tank in list(dict.fromkeys(tank_list_duplicated)):
         tank_list_unique_renamed.append(
             awards_config.get(unique_tank, default_award)['name'])
-    tank_list += tank_list_unique_renamed[
-        0] + "\n"  # first item is skipped mysteriously without thie line
+
     for tank_unique_renamed in tank_list_unique_renamed:
         tank_list += tank_unique_renamed + "\n"
     tank_list += "```"
@@ -440,7 +439,7 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
     message += f"🪖 ***Tanks***:\n{tank_list}\n"
 
     # Create parachute list
-    parachute_list = "```"
+    parachute_list = "```\n"
 
     for parachute in metadata['awards']:
         award = awards_config.get(parachute, default_award)
@@ -454,7 +453,7 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
     message += f"🪂 ***Parachutes***:\n{parachute_list}\n"
 
     # Create trail list
-    trail_list = "```"
+    trail_list = "```\n"
 
     for trail in metadata['awards']:
         award = awards_config.get(trail, default_award)
@@ -468,7 +467,7 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
     message += f"🌟 ***Trails***:\n{trail_list}\n"
 
     # Create stats
-    stat_list = "```"
+    stat_list = "```\n"
     for key, value in metadata['stats'].items():
         stat_list += f"{key.replace('_', ' ').title()}: {value}\n"
     stat_list += "```"
