@@ -1006,7 +1006,7 @@ async def memory(interaction: discord.Interaction):
 #     await interaction.response.send_message("DONE =)")
 
 @tree.command()
-async def crate(interaction: discord.Interaction, one_star: int, two_star: int, three_star: int):
+async def get_crate_stats(interaction: discord.Interaction, one_star: int, two_star: int, three_star: int):
     '''Optimize the use of in game crates and Estimate the amount of coins'''
 
     await interaction.response.defer(ephemeral=False, thinking=True)
