@@ -300,9 +300,264 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
 
     if section in {"with Stats", "All"}:
         # Create stats
-        stat_list = "```\n"
+        stat_list = "```ansi\n"
+        keys_order = {
+            "best_rank": 0,
+            "crates_collected": 0,
+            "meters_driven": 0,
+            "longest_killstreak": 0,
+            "5_kills": 0,
+            "most_player_kills": 0,
+            "most_total_kills": 0,
+            "player_kills": 0,
+            "bot_kills": 0,
+            "total_kills": 0,
+            "deaths": 0,
+            "K/D Ratio": 0,
+            "assists": 0,
+            "dunk_tanks": 0,
+            "first_bloods": 0,
+            "snipers": 0,
+            "two_birdss": 0,
+            "yardsales": 0,
+            "double_kills": 0,
+            "triple_kills": 0,
+            "quad_kills": 0,
+            "games_played": 0,
+            "games_won": 0,
+            "top_5": 0,
+            "teams_played": 0,
+            "teams_won": 0,
+            "squads_played": 0,
+            "squads_won": 0,
+            "minemayhem_played": 0,
+            "minemayhem_won": 0,
+            "total_games_played": 0,
+            "missiles_fired": 0,
+            "kills_using_missiles": 0,
+            "drills_used": 0,
+            "kills_using_drill": 0,
+            "flaks_used": 0,
+            "kills_using_flak": 0,
+            "grenades_used": 0,
+            "kills_using_grenade": 0,
+            "homings_used": 0,
+            "kills_using_homing": 0,
+            "mines_used": 0,
+            "kills_using_mine": 0,
+            "nukes_used": 0,
+            "kills_using_nuke": 0,
+            "poisons_used": 0,
+            "kills_using_poison": 0,
+            "shields_used": 0,
+            "kills_using_shield": 0,
+            "triple-shots_used": 0,
+            "kills_using_triple-shot": 0,
+            "jetpacks_used": 0,
+            "whirlwinds_used": 0,
+            "blocks_using_proj": 0,
+            "blocks_using_shield": 0
+        }
         for key, value in metadata['stats'].items():
-            stat_list += f"{key.replace('_', ' ').title()}: {value}\n"
+            keys_order[key] = value
+            # stat_list += f"{key.replace('_', ' ').title()}: {value}\n"
+        try:
+            total_games_played = keys_order["games_played"] + keys_order[
+                "teams_played"] + keys_order["squads_played"] + keys_order[
+                    "minemayhem_played"]
+        except:
+            total_games_played = 0
+        try:
+            player_kills_pct = keys_order["player_kills"] / keys_order[
+                "total_kills"]
+        except:
+            player_kills_pct = 0
+        try:
+            bot_kills_pct = keys_order["bot_kills"] / keys_order["total_kills"]
+        except:
+            bot_kills_pct = 0
+        try:
+            KDR = round(keys_order["total_kills"] / keys_order["deaths"], 2)
+        except:
+            KDR = 0
+        try:
+            games_won_pct = keys_order["games_won"] / keys_order["games_played"]
+        except:
+            games_won_pct = 0
+        try:
+            top_5_pct = keys_order["top_5"] / keys_order["games_played"]
+        except:
+            top_5_pct = 0
+        try:
+            squads_won_pct = keys_order["squads_won"] / keys_order[
+                "squads_played"]
+        except:
+            squads_won_pct = 0
+        try:
+            teams_won_pct = keys_order["teams_won"] / keys_order["teams_played"]
+        except:
+            teams_won_pct = 0
+        try:
+            minemayhem_won_pct = keys_order["minemayhem_won"] / keys_order[
+                "minemayhem_played"]
+        except:
+            minemayhem_won_pct = 0
+        try:
+            kills_using_drill_pct = keys_order[
+                "kills_using_drill"] / keys_order["drills_used"]
+        except:
+            kills_using_drill_pct = 0
+        try:
+            kills_using_flak_pct = keys_order["kills_using_flak"] / keys_order[
+                "flaks_used"]
+        except:
+            kills_using_flak_pct = 0
+        try:
+            kills_using_grenade_pct = keys_order[
+                "kills_using_grenade"] / keys_order["grenades_used"]
+        except:
+            kills_using_grenade_pct = 0
+        try:
+            kills_using_homing_pct = keys_order[
+                "kills_using_homing"] / keys_order["homings_used"]
+        except:
+            kills_using_homing_pct = 0
+        try:
+            kills_using_mine_pct = keys_order["kills_using_mine"] / keys_order[
+                "mines_used"]
+        except:
+            kills_using_mine_pct = 0
+        try:
+            kills_using_nuke_pct = keys_order["kills_using_nuke"] / keys_order[
+                "nukes_used"]
+        except:
+            kills_using_nuke_pct = 0
+        try:
+            kills_using_poison_pct = keys_order[
+                "kills_using_poison"] / keys_order["poisons_used"]
+        except:
+            kills_using_poison_pct = 0
+        try:
+            kills_using_shield_pct = keys_order[
+                "kills_using_shield"] / keys_order["shields_used"]
+        except:
+            kills_using_shield_pct = 0
+        try:
+            kills_using_triple_shot_pct = keys_order[
+                "kills_using_triple-shot"] / keys_order["triple-shots_used"]
+        except:
+            kills_using_triple_shot_pct = 0
+        try:
+            kills_using_missiles = keys_order["total_kills"] - keys_order[
+                "kills_using_drill"] - keys_order[
+                    "kills_using_flak"] - keys_order[
+                        "kills_using_grenade"] - keys_order[
+                            "kills_using_homing"] - keys_order[
+                                "kills_using_mine"] - keys_order[
+                                    "kills_using_nuke"] - keys_order[
+                                        "kills_using_poison"] - keys_order[
+                                            "kills_using_shield"] - keys_order[
+                                                "kills_using_triple-shot"]
+        except:
+            kills_using_missiles = 0
+        try:
+            kills_using_missiles_pct = kills_using_missiles / keys_order[
+                "missiles_fired"]
+        except:
+            kills_using_missiles_pct = 0
+        try:
+            blocks_using_proj_pct = keys_order["blocks_using_proj"] / (
+                keys_order["blocks_using_proj"] +
+                keys_order["blocks_using_shield"])
+        except:
+            blocks_using_proj_pct = 0
+        try:
+            blocks_using_shield_pct = keys_order["blocks_using_shield"] / (
+                keys_order["blocks_using_proj"] +
+                keys_order["blocks_using_shield"])
+        except:
+            blocks_using_shield_pct = 0
+
+        keys_order["meters_driven"] = "{:.1f}".format(
+            keys_order["meters_driven"] / 1000) + " km"
+        keys_order["player_kills"] = "{:<6}".format(
+            keys_order["player_kills"]) + f"({player_kills_pct*100:.0f}%)"
+        keys_order["bot_kills"] = "{:<6}".format(
+            keys_order["bot_kills"]) + f"({bot_kills_pct*100:.0f}%)"
+        keys_order["K/D Ratio"] = KDR
+        keys_order["games_won"] = "{:<6}".format(
+            keys_order["games_won"]) + f"({games_won_pct*100:.0f}%)"
+        keys_order["top_5"] = "{:<6}".format(
+            keys_order["top_5"]) + f"({top_5_pct*100:.0f}%)"
+        keys_order["squads_won"] = "{:<6}".format(
+            keys_order["squads_won"]) + f"({squads_won_pct*100:.0f}%)"
+        keys_order["teams_won"] = "{:<6}".format(
+            keys_order["teams_won"]) + f"({teams_won_pct*100:.0f}%)"
+        keys_order["minemayhem_won"] = "{:<6}".format(
+            keys_order["minemayhem_won"]) + f"({minemayhem_won_pct*100:.0f}%)"
+        keys_order["total_games_played"] = total_games_played
+        keys_order["kills_using_drill"] = "{:<6}".format(
+            keys_order["kills_using_drill"]
+        ) + f"({kills_using_drill_pct*100:.0f}%)"
+        keys_order["kills_using_flak"] = "{:<6}".format(
+            keys_order["kills_using_flak"]
+        ) + f"({kills_using_flak_pct*100:.0f}%)"
+        keys_order["kills_using_grenade"] = "{:<6}".format(
+            keys_order["kills_using_grenade"]
+        ) + f"({kills_using_grenade_pct*100:.0f}%)"
+        keys_order["kills_using_homing"] = "{:<6}".format(
+            keys_order["kills_using_homing"]
+        ) + f"({kills_using_homing_pct*100:.0f}%)"
+        keys_order["kills_using_mine"] = "{:<6}".format(
+            keys_order["kills_using_mine"]
+        ) + f"({kills_using_mine_pct*100:.0f}%)"
+        keys_order["kills_using_nuke"] = "{:<6}".format(
+            keys_order["kills_using_nuke"]
+        ) + f"({kills_using_nuke_pct*100:.0f}%)"
+        keys_order["kills_using_poison"] = "{:<6}".format(
+            keys_order["kills_using_poison"]
+        ) + f"({kills_using_poison_pct*100:.0f}%)"
+        keys_order["kills_using_shield"] = "{:<6}".format(
+            keys_order["kills_using_shield"]
+        ) + f"({kills_using_shield_pct*100:.0f}%)"
+        keys_order["kills_using_triple-shot"] = "{:<6}".format(
+            keys_order["kills_using_triple-shot"]
+        ) + f"({kills_using_triple_shot_pct*100:.0f}%)"
+        keys_order["kills_using_missiles"] = "{:<6}".format(
+            str(kills_using_missiles)
+        ) + f"({kills_using_missiles_pct*100:.0f}%)"
+        keys_order["blocks_using_proj"] = "{:<6}".format(
+            keys_order["blocks_using_proj"]
+        ) + f"({blocks_using_proj_pct*100:.0f}%)"
+        keys_order["blocks_using_shield"] = "{:<6}".format(
+            keys_order["blocks_using_shield"]
+        ) + f"({blocks_using_shield_pct*100:.0f}%)"
+
+        counter = 0
+        first_title = "General"
+        stat_list += f"\u001b[1;2m\u001b[4;2m{first_title.center(42, ' ')}\u001b[0m\u001b[0m\n"
+        keys = [
+            "deaths", "snipers", "two_birdss", "games_played", "games_won",
+            "top_5", "teams_played", "teams_won", "triple-shots_used",
+            "kills_using_triple-shot", "blocks_using_proj"
+        ]
+        rennamed_keys = [
+            "total_deaths", "long_shot", "two_birdses", "solo_played",
+            "solo_won", "solo_top_5", "Red_VS_Blue_played", "Red_VS_Blue_won",
+            "rapidfire_used", "kills_using_rapidfire", "blocks_using_missile"
+        ]
+        for key in keys_order:
+            if key in keys:
+                renamed_key = rennamed_keys[keys.index(key)]
+            else:
+                renamed_key = key
+            stat_list += f"{renamed_key.replace('_', ' ').title():>21}: {keys_order[key]}\n"
+            counter += 1
+            remaining_titles = ["Medals", "Games Played", "Weapons"]
+            counter_cutoff = [12, 21, 31]
+            if counter in counter_cutoff:
+                stat_list += f"\n\u001b[1;2m\u001b[4;2m{remaining_titles[counter_cutoff.index(counter)].center(42, ' ')}\u001b[0m\u001b[0m\n"
+
         stat_list += "```"
 
         # Add to embed
