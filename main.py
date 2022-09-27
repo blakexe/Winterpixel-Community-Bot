@@ -211,65 +211,11 @@ async def leaderboard(interaction: discord.Interaction, mode: typing.Literal['Tr
                     "\u001b[0m " if record['metadata']['has_season_pass'] else " ")  # Name and color for players with season pass
             except:
                 message += f"{record['username']:<20} "  # Name
-            message += f"{'⬜' + '{:,}'.format(record['score'])}\n"  # Points
+            message += f"{'🧊' + '{:,}'.format(record['score'])}\n"  # Points
         message += "```"
 
     # Send
     await interaction.followup.send(embed=discord.Embed(title=f"Season {season} Leaderboard (by {mode}):", description=message))
-
-@tree.command()
-async def leaderboard_points(interaction: discord.Interaction, season: int = -1):
-    '''Return the specified season leaderboard (by points), default current'''
-
-    await interaction.response.defer(ephemeral=False, thinking=True)
-
-    curr_season = server_config['season']
-
-    #If season is unreasonable, default to current season
-    if season < 0 or season > curr_season:
-        season = curr_season
-
-    #Get leaderboard info
-    response = await rocketbot_client.query_leaderboard(season)
-    records = json.loads(response['payload'])['records']
-
-    #Using f-string spacing to pretty print the leaderboard labels
-    message = f"```{'Rank:':<5} {'Name:':<20} {'Points:'}\n{'‾' * 35}\n"
-    
-    #Using f-string spacing to pretty print the leaderboard.
-    for record in records:
-        message += f"{'#' + str(record['rank']):<5} {record['username']:<20} {'⬜' + '{:,}'.format(record['score'])}\n"
-    message += "```"
-
-    #Send
-    await interaction.followup.send(embed=discord.Embed(title=f"Season {season} Leaderboard:", description=message))
-
-@tree.command()
-async def leaderboard_trophies(interaction: discord.Interaction, season: int = -1):
-    '''Return the specified season leaderboard (by trophies), default current'''
-
-    await interaction.response.defer(ephemeral=False, thinking=True)
-
-    curr_season = server_config['season']
-
-    #If season is unreasonable, default to current season
-    if season < 0 or season > curr_season:
-        season = curr_season
-
-    #Get leaderboard info
-    response = await rocketbot_client.query_leaderboard(season, "tankkings_trophies")
-    records = json.loads(response['payload'])['records']
-
-    #Using f-string spacing to pretty print the leaderboard labels
-    message = f"```{'Rank:':<5} {'Name:':<20} {'Trophies:'}\n{'‾' * 37}\n"
-    
-    #Using f-string spacing to pretty print the leaderboard.
-    for record in records:
-        message += f"{'#' + str(record['rank']):<5} {record['username']:<20} {'🏆' + '{:,}'.format(record['score'])}\n"
-    message += "```"
-
-    #Send
-    await interaction.followup.send(embed=discord.Embed(title=f"Season {season} Leaderboard:", description=message))
 
 @tree.command()
 async def get_user(interaction: discord.Interaction, user_type: typing.Literal['User ID', 'Friend ID'], id: str, section: typing.Literal['General Info only', 'with Badges', 'with Stats', 'with Items Collected', 'with Tanks', 'with Parachutes', 'with Trails', 'with All Cosmetics', 'All']):
