@@ -310,7 +310,7 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
 
     # Send first message if contains all sections
     if section in {"All"}:
-        await interaction.followup.send(embed=discord.Embed(description=message), color=0x00C6FE)
+        await interaction.followup.send(embed=discord.Embed(description=message, color=0x00C6FE))
 
     if section in {"with Items Collected", "with Tanks", "with Parachutes", "with Trails", "with All Cosmetics", "All"}:
         # Get skins info
@@ -564,9 +564,9 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
 
     # Send message
     if section not in {"All"}:
-        await interaction.followup.send(embed=discord.Embed(description=message), color=0x00C6FE)
+        await interaction.followup.send(embed=discord.Embed(description=message, color=0x00C6FE))
     if section in {"All"}:
-        await interaction.followup.send(embed=discord.Embed(description=message_2), color=0x00C6FE)
+        await interaction.followup.send(embed=discord.Embed(description=message_2, color=0x00C6FE))
 
 @tree.command()
 async def bot_info(interaction: discord.Interaction):
