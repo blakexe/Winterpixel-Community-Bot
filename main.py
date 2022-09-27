@@ -1244,9 +1244,9 @@ async def get_crate_stats(interaction: discord.Interaction, one_star: int, two_s
 async def season(interaction: discord.Interaction):
     '''Return the current season and remaining time'''
     current_unix_time = time.mktime(datetime.datetime.now().timetuple())
-    season_start_number = 13
-    season_start_timestamp = 1663966800
-    season_duration = 3369600
+    season_start_number = server_config['season_definitions'][len(server_config['season_definitions'])-1]['season_start_number']
+    season_start_timestamp = server_config['season_definitions'][len(server_config['season_definitions'])-1]['season_start_timestamp']
+    season_duration = server_config['season_definitions'][len(server_config['season_definitions'])-1]['season_duration']
     season_difference = (current_unix_time - season_start_timestamp) / season_duration
     current_season = ceil((season_start_number - 1) + season_difference)
     season_seconds_remaining = (ceil(season_difference) - season_difference) * 3369600
