@@ -490,7 +490,7 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
         owned = tank_owned + parachute_owned + trail_owned
         total = tank_total + parachute_total + trail_total
 
-        s = f"```\n+{'-'*51}+\n|{'Type':^17}|{'Tanks':^5}|{'Parachutes':^10}|{'Trails':^6}|{'Sub-total':^9}|\n+{'-'*17}+{'-'*5}+{'-'*10}+{'-'*6}+{'-'*9}+\n"
+        s = f"```\n+{'-'*17}+{'-'*5}+{'-'*10}+{'-'*6}+{'-'*9}+\n|{'Type':^17}|{'Tanks':^5}|{'Parachutes':^10}|{'Trails':^6}|{'Sub-total':^9}|\n+{'-'*17}+{'-'*5}+{'-'*10}+{'-'*6}+{'-'*9}+\n"
         s += f"|    ⭐ {'Common':<10}|{str(tank_common_owned):>2}/{str(tank_common_total):<2}|{str(parachute_common_owned):>4}/{str(parachute_common_total):<5}|{str(trail_common_owned):>2}/{str(trail_common_total):<3}|{str(common_owned):>4}/{str(common_total):<4}|\n+{'-'*17}+{'-'*5}+{'-'*10}+{'-'*6}+{'-'*9}+\n"
         s += f"|  ⭐⭐ {'Rare':<10}|{str(tank_rare_owned):>2}/{str(tank_rare_total):<2}|{str(parachute_rare_owned):>4}/{str(parachute_rare_total):<5}|{str(trail_rare_owned):>2}/{str(trail_rare_total):<3}|{str(rare_owned):>4}/{str(rare_total):<4}|\n+{'-'*17}+{'-'*5}+{'-'*10}+{'-'*6}+{'-'*9}+\n"
         s += f"|⭐⭐⭐ {'Legendary':<10}|{str(tank_legendary_owned):>2}/{str(tank_legendary_total):<2}|{str(parachute_legendary_owned):>4}/{str(parachute_legendary_total):<5}|{str(trail_legendary_owned):>2}/{str(trail_legendary_total):<3}|{str(legendary_owned):>4}/{str(legendary_total):<4}|\n+{'-'*17}+{'-'*5}+{'-'*10}+{'-'*6}+{'-'*9}+\n"
