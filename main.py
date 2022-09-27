@@ -3,7 +3,7 @@ import discord, json, asyncio, typing, os, io
 import datetime, time
 import re
 from math import ceil, floor
-from collections import defaultdict, OrderedDict
+from collections import defaultdict, OrderedDict, Counter
 from operator import itemgetter
 from statistics import mean
 from timeit import default_timer as timer
@@ -310,7 +310,7 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
 
     # Send first message if contains all sections
     if section in {"All"}:
-        await interaction.followup.send(embed=discord.Embed(description=message))
+        await interaction.followup.send(embed=discord.Embed(description=message), color=0x00C6FE)
 
     if section in {"with Items Collected", "with Tanks", "with Parachutes", "with Trails", "with All Cosmetics", "All"}:
         # Get skins info
@@ -400,7 +400,8 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
             if type == "skin":
                 tank_list_duplicated.append(award['skin_name'])
 
-        for unique_tank in list(dict.fromkeys(tank_list_duplicated)):
+        tank_list_counter = Counter(tank_list_duplicated)
+        for unique_tank in tank_list_counter:
             try:
                 if awards_config.get(unique_tank)['rarity'] == "common":
                     tank_common_owned += 1
@@ -416,10 +417,10 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
                 pass
 
         # Create parachute list
-        parachute_list = "```\n"
+        parachute_list = f"```\n{'Rarity:':<7} {'Name:':<17}\n{'-'*25}\n"
 
         # Create trail list
-        trail_list = "```\n"
+        trail_list = f"```\n{'Rarity:':<7} {'Name:':<17}\n{'-'*25}\n"
 
         for award in metadata['awards']:
             skin = awards_config.get(award, default_award)
@@ -516,31 +517,26 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
 
         if section in {"with Tanks", "with All Cosmetics", "All"}:
             # Create tank list
-            tank_list = "```\n"
+            tank_list = f"```\n{'Rarity:':<7} {'Name:':<17} {'Colors:':}\n{'-'*33}\n"
 
             tank_list_unique_renamed = []
-            for unique_tank in list(dict.fromkeys(tank_list_duplicated)):
+            for unique_tank in tank_list_counter:
                 try:
                     if awards_config.get(unique_tank,
                                          default_award)['rarity'] == 'common':
-                        tank_list += "     ⭐ " + awards_config.get(
-                            unique_tank, default_award)['name'] + "\n"
+                        tank_list += f"     ⭐ {awards_config.get(unique_tank, default_award)['name']:<17} {str(tank_list_counter[unique_tank])}\n"
                     elif awards_config.get(unique_tank,
                                            default_award)['rarity'] == 'rare':
-                        tank_list += "   ⭐⭐ " + awards_config.get(
-                            unique_tank, default_award)['name'] + "\n"
+                        tank_list += f"   ⭐⭐ {awards_config.get(unique_tank, default_award)['name']:<17} {str(tank_list_counter[unique_tank])}\n"
                     elif awards_config.get(unique_tank,
                                            default_award)['rarity'] == 'legendary':
-                        tank_list += " ⭐⭐⭐ " + awards_config.get(
-                            unique_tank, default_award)['name'] + "\n"
+                        tank_list += f" ⭐⭐⭐ {awards_config.get(unique_tank, default_award)['name']:<17} {str(tank_list_counter[unique_tank])}\n"
                     elif awards_config.get(unique_tank,
                                            default_award)['rarity'] == 'purchased':
-                        tank_list += "     💰 " + awards_config.get(
-                            unique_tank, default_award)['name'] + "\n"
+                        tank_list += f"     💰 {awards_config.get(unique_tank, default_award)['name']:<17} {str(tank_list_counter[unique_tank])}\n"
                     elif awards_config.get(unique_tank,
                                            default_award)['rarity'] == 'earned':
-                        tank_list += "     🏅 " + awards_config.get(
-                            unique_tank, default_award)['name'] + "\n"
+                        tank_list += f"     🏅 {awards_config.get(unique_tank, default_award)['name']:<17} {str(tank_list_counter[unique_tank])}\n"
                 except:
                     pass
 
@@ -568,9 +564,9 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
 
     # Send message
     if section not in {"All"}:
-        await interaction.followup.send(embed=discord.Embed(description=message))
+        await interaction.followup.send(embed=discord.Embed(description=message), color=0x00C6FE)
     if section in {"All"}:
-        await interaction.followup.send(embed=discord.Embed(description=message_2))
+        await interaction.followup.send(embed=discord.Embed(description=message_2), color=0x00C6FE)
 
 @tree.command()
 async def bot_info(interaction: discord.Interaction):
