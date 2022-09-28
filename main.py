@@ -1249,17 +1249,17 @@ async def slot(interaction: discord.Interaction, bet: int):
         for i in range(3):
             slots.append(random.choices(population=list(events.keys()), weights=events.values())[0])
 
-        slot_embed = discord.Embed(color=0xffd700, title="SLOT MACHINE :slot_machine:", description=f"**{'—' * 18}\n|{' {} |'.format(coins_loop) * 3}\n{'—' * 18}**")
+        slot_embed = discord.Embed(color=0xffd700, title="SLOT MACHINE :slot_machine:", description=f"**{'-' * 18}\n|{' {} |'.format(coins_loop) * 3}\n{'-' * 18}**")
 
         sent_embed = await interaction.followup.send(embed=slot_embed)
         current_slot_pics = [coins_loop] * 3
         for i in range(len(slots)):
             await asyncio.sleep(1.5)
             current_slot_pics[i] = slots[i]
-            slot_results_str = f"**{'—' * 18}\n|"
+            slot_results_str = f"**{'-' * 18}\n|"
             for thisSlot in current_slot_pics:
                 slot_results_str += f" {thisSlot} |"
-            new_slot_embed = discord.Embed(color=0xffd700, title="SLOT MACHINE :slot_machine:", description=f"{slot_results_str}\n{'—' * 18}**")
+            new_slot_embed = discord.Embed(color=0xffd700, title="SLOT MACHINE :slot_machine:", description=f"{slot_results_str}\n{'-' * 18}**")
             await sent_embed.edit(embed=new_slot_embed)
 
         if slots[0] == slots[1]:
@@ -1282,7 +1282,7 @@ async def slot(interaction: discord.Interaction, bet: int):
 
         # new_player_coin = db["player_coin"]
 
-        embed = discord.Embed(color=0xffd700, title="SLOT MACHINE :slot_machine:", description=f"{slot_results_str}\n{'—' * 18}**\n{res_2}")
+        embed = discord.Embed(color=0xffd700, title="SLOT MACHINE :slot_machine:", description=f"{slot_results_str}\n{'-' * 18}**\n{res_2}")
         embed.add_field(name="Bet", value=f"{bet} {coin[0]}", inline=True)
         embed.add_field(name="Profit/Loss", value=f"{profit} {coin[0]}" + (f" ({multiplier}x)" if win else ""), inline=True)
         embed.add_field(name="Balance", value=f"N.A. {coin[0]}", inline=True)
