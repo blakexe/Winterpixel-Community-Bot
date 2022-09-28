@@ -363,7 +363,7 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
             keys_order[key] = value
             # stat_list += f"{key.replace('_', ' ').title()}: {value}\n"
 
-        # Plot Kills by Weapons pie chart
+        # Plot ] Weapons pie chart
         data_stream = io.BytesIO() # Initialize IO
         
         labels = []
@@ -377,7 +377,7 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
               sizes.append(keys_order[key])
 
         fig1, ax1 = plt.subplots(facecolor=("#2f3137"), figsize=(5, 6))
-        ax1.set_title(user_data['display_name']+'\'s\n Kills by Weapons distribution', color="#FFFFFF", fontsize=16, pad=15)
+        ax1.set_title(user_data['display_name']+'\'s\n Kills Using Weapons Distribution', color="#FFFFFF", fontsize=16, pad=15)
         ax1.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=90, textprops={'color':"#FFFFFF"}, wedgeprops={"edgecolor":"#FFFFFF",'linewidth': 1, 'antialiased': True}, pctdistance=0.85)
         ax1.axis('equal')
 
