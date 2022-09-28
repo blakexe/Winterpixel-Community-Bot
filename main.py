@@ -847,7 +847,7 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
     # Send message
     if section not in {"All"}:
         embed1 = discord.Embed(description=message, color=0x00C6FE)
-        if section in {"Stats"}:
+        if section in {"with Stats"}:
           data_stream.seek(0)
           chart = discord.File(data_stream,filename="plot.png")
           embed1.set_image(url="attachment://plot.png")
