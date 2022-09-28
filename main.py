@@ -2,6 +2,7 @@ import random, aiohttp, replit
 import discord, json, asyncio, typing, os, io
 import datetime, time
 import re
+import matplotlib.pyplot as plt
 from math import ceil, floor
 from collections import defaultdict, OrderedDict, Counter
 from operator import itemgetter
@@ -361,6 +362,29 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
         for key, value in metadata['stats'].items():
             keys_order[key] = value
             # stat_list += f"{key.replace('_', ' ').title()}: {value}\n"
+        
+        # Plot Kills by Weapons pie chart
+        kills_using_weapons = []
+        for key in keys_order:
+            if "kills_using" in key and keys_order[key] != 0:
+              kills_using_weapons.append(key)
+
+        labels = []
+        sizes = []
+        for key in kills_using_weapons:
+          labels.append(key.replace("kills_using_", "").title())
+          sizes.append(keys_order[key])
+
+        fig1, ax1 = plt.subplots(facecolor=(0, 0, 0, 0), figsize=(5, 5))
+        ax1.set_title(user_data['display_name']+'\'s\n Kills by Weapons distribution', color="#FFFFFF", fontsize=16, pad=15)
+        ax1.pie(sizes, labels=labels, autopct='%1.1f%%',
+                shadow=True, startangle=90, textprops={'color':"w"}, radius=5000, wedgeprops={"edgecolor":"#FFFFFF",'linewidth': 1, 'antialiased': True}, pctdistance=0.85)
+        ax1.axis('equal')
+      
+        plt.savefig(fname='plot')
+        await ctx.send(file=discord.File('plot.png'))
+        os.remove('plot.png')
+        
         try:
             total_games_played = keys_order["games_played"] + keys_order[
                 "teams_played"] + keys_order["squads_played"] + keys_order[
