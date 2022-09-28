@@ -366,16 +366,15 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
         # Plot Kills by Weapons pie chart
         data_stream = io.BytesIO() # Initialize IO
         
-        kills_using_weapons = []
-        for key in keys_order:
-            if "kills_using" in key and keys_order[key] != 0:
-                kills_using_weapons.append(key)
-
         labels = []
         sizes = []
-        for key in kills_using_weapons:
-            labels.append(key.replace("kills_using_", "").title())
-            sizes.append(keys_order[key])
+        for key in keys_order:
+            if "kills_using" in key and keys_order[key] != 0:
+              if "triple-shot" in key:
+                labels.append(key.replace("kills_using_", "").replace("triple-shot", "rapidfire").title())
+              else:
+                labels.append(key.replace("kills_using_", "").title())
+              sizes.append(keys_order[key])
 
         fig1, ax1 = plt.subplots(facecolor=("#2f3137"), figsize=(5, 6))
         ax1.set_title(user_data['display_name']+'\'s\n Kills by Weapons distribution', color="#FFFFFF", fontsize=16, pad=15)
