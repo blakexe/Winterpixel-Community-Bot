@@ -12,7 +12,7 @@ from mediawiki import MediaWiki
 from fandom import set_wiki, page
 from replit import db
 from discord import app_commands
-from discord.ext import commands
+# from discord.ext import commands
 from rocketbot_client import RocketBotClient
 
 #Attempt to retrieve enviroment from environment.json
@@ -1152,12 +1152,12 @@ async def random_tank(interaction: discord.Interaction):
     '''Get a random tank'''
     await interaction.response.send_message(random.choice(tanks))
 
-class LongFlags(commands.FlagConverter):
-    length: int = commands.flag(description='Length of the tank')
-    barrel: int = commands.flag(description='Number of barrels to be equipped')
+# class LongFlags(commands.FlagConverter):
+#     length: int = commands.flag(description='Length of the tank')
+#     barrel: int = commands.flag(description='Number of barrels to be equipped')
 
 @tree.command()
-async def long(interaction: discord.Interaction, *, flags: LongFlags):
+async def long(interaction: discord.Interaction, length: int, barrel: int = 1):
     '''Build your supercalifragilisticexpialidocious long tank equipped with as many barrels as you want!'''
     try:
         long_emoji = [
@@ -1218,7 +1218,7 @@ async def long(interaction: discord.Interaction, *, flags: LongFlags):
             output_middle += (long_emoji[1] * even_space_encode_palindrome_decode[i] + long_emoji[2])
         output_middle += long_emoji[1] * even_space_encode_palindrome_decode[-1]
         msg = f"{long_emoji[0]}{output_middle}{long_emoji[3]}"
-        await interaction.response.send_message(msg)
+        await interaction.response.send_message(f"```ansi\nThis is your \u001b[2;32ml\u001b[1;32m{'o'*length}\u001b[0m\u001b[2;32mng\u001b[0m tank!\n```\n{msg}")
     except:
         await interaction.response.send_message("The tank is too long to build!")
 
