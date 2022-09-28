@@ -12,6 +12,7 @@ from mediawiki import MediaWiki
 from fandom import set_wiki, page
 from replit import db
 from discord import app_commands
+from discord.ext import commands
 from rocketbot_client import RocketBotClient
 
 #Attempt to retrieve enviroment from environment.json
