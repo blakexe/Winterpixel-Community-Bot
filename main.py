@@ -382,7 +382,7 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
         ax1.axis('equal')
       
         plt.savefig(fname='plot')
-        await ctx.send(file=discord.File('plot.png'))
+        await interaction.response.send_message(file=discord.File('plot.png'))
         os.remove('plot.png')
         
         try:
