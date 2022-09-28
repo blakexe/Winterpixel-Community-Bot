@@ -565,8 +565,8 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
             keys_order["blocks_using_shield"]
         ) + f"({blocks_using_shield_pct*100:.0f}%)"
 
-        first_title = "General"
-        stat_list += f"\u001b[1;2m\u001b[4;2m{first_title.center(44, ' ')}\u001b[0m\u001b[0m\n"
+        first_title = " General "
+        stat_list += f"\u001b[1;2m{first_title.center(44, '—')}\u001b[0m\n"
         keys = [
             "deaths", "snipers", "two_birdss", "games_played", "games_won",
             "top_5", "teams_played", "teams_won", "triple-shots_used",
@@ -583,10 +583,10 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
             else:
                 renamed_key = key
             stat_list += f"{renamed_key.replace('_', ' ').title():>21}: {keys_order[key]}\n"
-            remaining_titles = ["Medals", "Games Played", "Weapons"]
+            remaining_titles = [" Medals ", " Games Played ", " Weapons "]
             key_cutoff = ["K/D Ratio", "quad_kills", "total_games_played"]
             if key in key_cutoff:
-                stat_list += f"\n\u001b[1;2m\u001b[4;2m{remaining_titles[key_cutoff.index(key)].center(44, ' ')}\u001b[0m\u001b[0m\n"
+                stat_list += f"\n\u001b[1;2m{remaining_titles[key_cutoff.index(key)].center(44, '—')}\u001b[0m\n"
 
         stat_list += "```"
 
