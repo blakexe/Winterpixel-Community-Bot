@@ -362,28 +362,28 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
         for key, value in metadata['stats'].items():
             keys_order[key] = value
             # stat_list += f"{key.replace('_', ' ').title()}: {value}\n"
-        
+
         # Plot Kills by Weapons pie chart
+        data_stream = io.BytesIO() # Initialize IO
+        
         kills_using_weapons = []
         for key in keys_order:
             if "kills_using" in key and keys_order[key] != 0:
-              kills_using_weapons.append(key)
+                kills_using_weapons.append(key)
 
         labels = []
         sizes = []
         for key in kills_using_weapons:
-          labels.append(key.replace("kills_using_", "").title())
-          sizes.append(keys_order[key])
+            labels.append(key.replace("kills_using_", "").title())
+            sizes.append(keys_order[key])
 
-        fig1, ax1 = plt.subplots(facecolor=(0, 0, 0, 0), figsize=(5, 5))
+        fig1, ax1 = plt.subplots(facecolor=("#2f3137"), figsize=(5, 6))
         ax1.set_title(user_data['display_name']+'\'s\n Kills by Weapons distribution', color="#FFFFFF", fontsize=16, pad=15)
-        ax1.pie(sizes, labels=labels, autopct='%1.1f%%',
-                shadow=True, startangle=90, textprops={'color':"w"}, radius=5000, wedgeprops={"edgecolor":"#FFFFFF",'linewidth': 1, 'antialiased': True}, pctdistance=0.85)
+        ax1.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=90, textprops={'color':"#FFFFFF"}, wedgeprops={"edgecolor":"#FFFFFF",'linewidth': 1, 'antialiased': True}, pctdistance=0.85)
         ax1.axis('equal')
-      
-        plt.savefig(fname='plot')
-        await interaction.followup.send(file=discord.File('plot.png'))
-        os.remove('plot.png')
+
+        plt.savefig(data_stream, format='png', dpi = 80)
+        plt.close()
         
         try:
             total_games_played = keys_order["games_played"] + keys_order[
@@ -405,7 +405,8 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
         except:
             KDR = 0
         try:
-            games_won_pct = keys_order["games_won"] / keys_order["games_played"]
+            games_won_pct = keys_order["games_won"] / \
+                keys_order["games_played"]
         except:
             games_won_pct = 0
         try:
@@ -418,7 +419,8 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
         except:
             squads_won_pct = 0
         try:
-            teams_won_pct = keys_order["teams_won"] / keys_order["teams_played"]
+            teams_won_pct = keys_order["teams_won"] / \
+                keys_order["teams_played"]
         except:
             teams_won_pct = 0
         try:
@@ -581,13 +583,17 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
                 stat_list += f"\n\u001b[1;2m\u001b[4;2m{remaining_titles[key_cutoff.index(key)].center(44, ' ')}\u001b[0m\u001b[0m\n"
 
         stat_list += "```"
-        
+
         # Add to embed
         message += f"🗒️ ***Stats***:\n{stat_list}"
 
     # Send first message if contains all sections
     if section in {"All"}:
-        await interaction.followup.send(embed=discord.Embed(description=message, color=0x00C6FE))
+        embed1 = discord.Embed(description=message, color=0x00C6FE)
+        data_stream.seek(0)
+        chart = discord.File(data_stream,filename="plot.png")
+        embed1.set_image(url="attachment://plot.png")
+        await interaction.followup.send(embed=embed1, file=chart)
 
     if section in {"with Items Collected", "with Tanks", "with Parachutes", "with Trails", "with All Cosmetics", "All"}:
         # Get skins info
@@ -796,7 +802,6 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
             # Create tank list
             tank_list = f"```\n{'Rarity:':<7} {'Name:':<17} {'Colors:':}\n{'-'*33}\n"
 
-            tank_list_unique_renamed = []
             for unique_tank in tank_list_counter:
                 try:
                     if awards_config.get(unique_tank,
@@ -841,9 +846,17 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
 
     # Send message
     if section not in {"All"}:
-        await interaction.followup.send(embed=discord.Embed(description=message, color=0x00C6FE))
+        embed1 = discord.Embed(description=message, color=0x00C6FE)
+        if section in {"Stats"}:
+          data_stream.seek(0)
+          chart = discord.File(data_stream,filename="plot.png")
+          embed1.set_image(url="attachment://plot.png")
+          await interaction.followup.send(embed=embed1, file=chart)
+        else:
+          await interaction.followup.send(embed=embed1)
     if section in {"All"}:
-        await interaction.followup.send(embed=discord.Embed(description=message_2, color=0x00C6FE))
+        await interaction.followup.send(
+            embed=discord.Embed(description=message_2, color=0x00C6FE))
 
 @tree.command()
 async def bot_info(interaction: discord.Interaction):
