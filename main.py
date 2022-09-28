@@ -1152,7 +1152,7 @@ async def random_tank(interaction: discord.Interaction):
     '''Get a random tank'''
     await interaction.response.send_message(random.choice(tanks))
 
-class LongFlags(tree.FlagConverter):
+class LongFlags(commands.FlagConverter):
     length: int = tree.flag(description='Length of the tank')
     barrel: int = tree.flag(description='Number of barrels to be equipped')
 
