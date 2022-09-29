@@ -1,6 +1,14 @@
-import random, aiohttp, replit
-import discord, json, asyncio, typing, os, io
-import datetime, time
+import random
+import aiohttp
+import replit
+import discord
+import json
+import asyncio
+import typing
+import os
+import io
+import datetime
+import time
 import re
 import matplotlib.pyplot as plt
 from math import ceil, floor
@@ -14,7 +22,7 @@ from replit import db
 from discord import app_commands
 from rocketbot_client import RocketBotClient
 
-#Attempt to retrieve enviroment from environment.json
+# Attempt to retrieve enviroment from environment.json
 working_directory = os.path.dirname(os.path.realpath(__file__))
 try:
     with open(os.path.join(working_directory, "environment.json"), "r") as f:
@@ -26,7 +34,7 @@ except IOError:
 else:
     print("Found environment.json. Starting bot now...")
 
-#Get sensitive info
+# Get sensitive info
 try:
     discord_token = os.environ['discord_token']
     rocketbot_user = os.environ['rocketbot_username']
@@ -35,28 +43,30 @@ except KeyError:
     print("ERROR: An environment value was not found. Please make sure your environment.json has all the right info or that you have correctly preloaded values into your environment.")
     os._exit(1)
 
-#Set up discord bot
+# Set up discord bot
 intents = discord.Intents.default()
 intents.message_content = True
 client = discord.Client(intents=intents)
 tree = app_commands.CommandTree(client)
 server_config = {}
 
-#Initialize rockebot client
+# Initialize rockebot client
 rocketbot_client = RocketBotClient(rocketbot_user, rocketbot_pass)
 
 players = []
 bots = []
 playing = False
 
-#Set targeted fandom site's api for fandom command
+# Set targeted fandom site's api for fandom command
 set_wiki("rocketbotroyale")
 rocketbotroyale = MediaWiki(url='https://rocketbotroyale.fandom.com/api.php')
 
-#List contains all tank emojis for random_tank and memory command
-tanks = ['<:pumpkin_tank:1022568065034104936>', '<:pumpkin_evolved_tank:1022568062035177542>', '<:eyeball_tank:1022568661745143908>', '<:skull_tank:1022568068213379124>', '<:snowman_tank:1012941920844132362>', '<:snowman_evolved_tank:1012941924094713917>', '<:snowmobile_tank:1012941917337698375>', '<:icy_tank:1012941914254876794>', '<:brain_bot_tank:1006531910224322630>', '<:mine_bot_tank:1006532474945417216>', '<:bot_tank:917467970182189056>', '<:default_tank:996465659812774040>', '<:beta_tank:997947350943277106>', '<:canon_tank:997951207840686162>', '<:hotdog_tank:997955038435614934>', '<:wave_tank:997954135951413298>', '<:zig_tank:997954180717215975>', '<:blade_tank:997947874715385856>', '<:buggy_tank:997948966933119016>', '<:burger_evolved_tank:997950412348989562>', '<:burger_tank:997950506976694302>', '<:catapult_evolved_tank:997951715284365323>', '<:catapult_tank:997951809282912346>', '<:crab_evolved_tank:997951966548349009>', '<:crab_tank:997952051940180128>', '<:cyclops_tank:997952308333793322>', '<:diamond_tank:997952379595010048>', '<:dozer_evolved_tank:997952441486155906>', '<:dozer_tank:997952516501278760>', '<:fork_tank:997952581408129084>', '<:fries_tank:997952688656494672>', '<:gears_tank:997952760127434782>', '<:hay_tank:997952813386715148>', '<:hollow_tank:997952878142562384>', '<:medic_tank:997953168673619978>', '<:mixer_tank:997953233098113054>', '<:pagliacci_tank:997953348097560628>', '<:pail_tank:997953413717438575>', '<:pistons_tank:997953494050934864>', '<:reactor_tank:997953557263302666> ', '<:spider_evolved_tank:997953618504335501>', '<:spider_tank:997953676406702161>', '<:spike_tank:997953736041308280>', '<:square_tank:997953791217377381>', '<:trap_tank:997953904610381834>', '<:tread_tank:997953970213494905>', '<:tub_tank:997954029902626886>', '<:tubdown_tank:997954078535598270>', '<:concave_tank:997951897749176450>', '<:crawler_tank:997952124279324753>', '<:log_tank:997953009910829198>', '<:long_tank:997953087006330971>', '<:UFO_evolved_tank:1003007299570376714>', '<:UFO_tank:1003007259657392210>', '<:miner_tank:1003013509006753954>', '<:rover_tank:1003014762327716042>', '<:bug_tank:997948870543814726>', '<:moai_tank:1006528445355917394>']
+# List contains all tank emojis for random_tank and memory command
+tanks = ['<:pumpkin_tank:1022568065034104936>', '<:pumpkin_evolved_tank:1022568062035177542>', '<:eyeball_tank:1022568661745143908>', '<:skull_tank:1022568068213379124>', '<:snowman_tank:1012941920844132362>', '<:snowman_evolved_tank:1012941924094713917>', '<:snowmobile_tank:1012941917337698375>', '<:icy_tank:1012941914254876794>', '<:brain_bot_tank:1006531910224322630>', '<:mine_bot_tank:1006532474945417216>', '<:bot_tank:917467970182189056>', '<:default_tank:996465659812774040>', '<:beta_tank:997947350943277106>', '<:canon_tank:997951207840686162>', '<:hotdog_tank:997955038435614934>', '<:wave_tank:997954135951413298>', '<:zig_tank:997954180717215975>', '<:blade_tank:997947874715385856>', '<:buggy_tank:997948966933119016>', '<:burger_evolved_tank:997950412348989562>', '<:burger_tank:997950506976694302>', '<:catapult_evolved_tank:997951715284365323>', '<:catapult_tank:997951809282912346>', '<:crab_evolved_tank:997951966548349009>', '<:crab_tank:997952051940180128>', '<:cyclops_tank:997952308333793322>', '<:diamond_tank:997952379595010048>', '<:dozer_evolved_tank:997952441486155906>',
+         '<:dozer_tank:997952516501278760>', '<:fork_tank:997952581408129084>', '<:fries_tank:997952688656494672>', '<:gears_tank:997952760127434782>', '<:hay_tank:997952813386715148>', '<:hollow_tank:997952878142562384>', '<:medic_tank:997953168673619978>', '<:mixer_tank:997953233098113054>', '<:pagliacci_tank:997953348097560628>', '<:pail_tank:997953413717438575>', '<:pistons_tank:997953494050934864>', '<:reactor_tank:997953557263302666> ', '<:spider_evolved_tank:997953618504335501>', '<:spider_tank:997953676406702161>', '<:spike_tank:997953736041308280>', '<:square_tank:997953791217377381>', '<:trap_tank:997953904610381834>', '<:tread_tank:997953970213494905>', '<:tub_tank:997954029902626886>', '<:tubdown_tank:997954078535598270>', '<:concave_tank:997951897749176450>', '<:crawler_tank:997952124279324753>', '<:log_tank:997953009910829198>', '<:long_tank:997953087006330971>', '<:UFO_evolved_tank:1003007299570376714>', '<:UFO_tank:1003007259657392210>', '<:miner_tank:1003013509006753954>', '<:rover_tank:1003014762327716042>', '<:bug_tank:997948870543814726>', '<:moai_tank:1006528445355917394>']
 
 os.system('clear')
+
 
 def generate_random_name():
     adjective = [
@@ -100,24 +110,28 @@ def generate_random_name():
 
     if random_number:
         name += f"{random.randint(0, 9)}{random.randint(0, 9)}00"
-    
+
     return name
-    
+
+
 def add_player_coin(player, name, coins):
     if type(player) is int:
         player_coins = db.get(str(player))
         if player_coins == None:
-            db[str(player)] = {"name":name,"money":500, "inventory":{}}
+            db[str(player)] = {"name": name, "money": 500, "inventory": {}}
         db[player]["money"] = db[player]["money"] + coins
         return db[str(player)]["money"]
     return 0
 
+
 def convert_mention_to_id(mention):
-    return int(mention[1:][:len(mention)-2].replace("@","").replace("!",""))
+    return int(mention[1:][:len(mention)-2].replace("@", "").replace("!", ""))
+
 
 def get_name_from_id(user_id):
     guild = discord.Object(id=962142361935314996)
     return guild.fetch_member(user_id)
+
 
 async def refresh_config():
     '''Refresh game configuration every 10 minutes'''
@@ -128,31 +142,38 @@ async def refresh_config():
         server_config = json.loads(response['payload'])
         await asyncio.sleep(600)
 
+
 @client.event
 async def on_message(message: discord.message):
-     if "moyai" in message.content.lower() or "🗿" in message.content.lower() or "moai" in message.content.lower():
-           await message.add_reaction("🗿")
-     if "!idea" in message.content.lower():
-           await message.add_reaction("<:upvote:910250647264329728>")
-           await message.add_reaction("<:downvote:910250215217459281>")
-     if "moyai" in message.content or "🗿" in message.content:
+    if "moyai" in message.content.lower() or "🗿" in message.content.lower() or "moai" in message.content.lower():
+        await message.add_reaction("🗿")
+    if "!idea" in message.content.lower():
+        await message.add_reaction("<:upvote:910250647264329728>")
+        await message.add_reaction("<:downvote:910250215217459281>")
+    if "moyai" in message.content or "🗿" in message.content:
         await message.add_reaction(":moyai:")
-     # (caps with spaces >= 10) or (repeated character or number >=10)
-     if bool(re.search(r"\w*[A-Z ]{10}", message.content)) or bool(re.search(r"(?:([a-zA-Z0-9])\1{9,})", message.content)):
-           await message.reply("Calm down!")
+    # (caps with spaces >= 10) or (repeated character or number >=10)
+    if bool(re.search(r"\w*[A-Z ]{10}", message.content)) or bool(re.search(r"(?:([a-zA-Z0-9])\1{9,})", message.content)):
+        await message.reply("Calm down!")
+
 
 @client.event
 async def on_ready():
     '''Called when the discord client is ready.'''
-    
-    #Start up the 10 minute config refresher
+
+    # Start up the 10 minute config refresher
     asyncio.create_task(refresh_config())
 
     for key in db.keys():
         print(str(key) + str(db[key]))
     print("Winterpixel community bot is ready.")
 
+
 @tree.command()
+@app_commands.describe(
+    mode='Leaderboard by trophies or points',
+    season='Trophies: Season 10 or later / Points: Season 0 or later, default current'
+)
 async def leaderboard(interaction: discord.Interaction, mode: typing.Literal['Trophies', 'Points'], season: int = -1):
     '''Return the specified season leaderboard (by trophies/points), default current'''
 
@@ -218,7 +239,13 @@ async def leaderboard(interaction: discord.Interaction, mode: typing.Literal['Tr
     # Send
     await interaction.followup.send(embed=discord.Embed(title=f"Season {season} Leaderboard (by {mode}):", description=message))
 
+
 @tree.command()
+@app_commands.describe(
+    user_type='Use either User ID or Friend ID of the user'
+    id='User ID or Friend ID of the user'
+    section='Section(s) to be shown'
+)
 async def get_user(interaction: discord.Interaction, user_type: typing.Literal['User ID', 'Friend ID'], id: str, section: typing.Literal['General Info only', 'with Badges', 'with Stats', 'with Items Collected', 'with Tanks', 'with Parachutes', 'with Trails', 'with All Cosmetics', 'All']):
     '''Return info about a specified user'''
 
@@ -869,6 +896,7 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
         await interaction.followup.send(
             embed=discord.Embed(description=message_2, color=0x00C6FE))
 
+
 @tree.command()
 async def bot_info(interaction: discord.Interaction):
     '''Get info about this bot.'''
@@ -880,64 +908,52 @@ async def bot_info(interaction: discord.Interaction):
     embed.description = "Community discord bot, being hosted on repl.it\n\nFor more info visit https://github.com/Blakiemon/Winterpixel-Community-Bot.\n\n All pull requests will be reviewed, and appreciated."
     await interaction.followup.send(embed=embed)
 
+
 @tree.command()
 async def battle(interaction: discord.Interaction):
     '''Have a battle with a random bot!'''
 
     await interaction.response.defer(ephemeral=False, thinking=True)
-        
+
     curr_season = server_config['season']
 
     events = {
-        "The bot dodged your attack. <:bot:917467970182189056>"
-        : 70,
-        "You destroyed the bot! It drops a single coin. <:coin:910247623787700264>"
-        : 10,
-        "The bot *expertly* dodged your attack. <:bot:917467970182189056>"
-        : 5,
-        "You thought you hit the bot, but its health returns to full due to network lag. 📶"
-        : 5,
-        "You destroyed the bot! It drops a some coins and a crate. <:coin:910247623787700264> <:coin:910247623787700264> <:coin:910247623787700264> 📦. But <R> comes out of nowhere and steals it."
-        : 3,
-        "You accidentally hit a teammate and dunk them into the water. <:splash:910252276961128469>"
-        : 2,
-        "The bot vanishes. An error pops up: `CLIENT DISCONNECTED` <:alertbad:910249086299557888>"
-        : 1,
-        "<R> comes out of nowhere and kills you and the bot to win the game."
-        : 1,
-        "<R> comes out of nowhere and shoots a shield at the bot deflecting it back to you and you die."
-        : 1,
-        "You miss. Before you try to shoot again <R> comes out of nowhere and stands next to the bot and you decide to leave out of sheer intimidation."
-        : 1,
-        "The missile goes off-screen. Instead of getting a kill, a beachball comes hurtling back at mach 2."
-        : 0.3,
-        "The bot vanishes. Was there ever really a bot there at all?..."
-        : 0.2,
-        "You destroyed the bot! It drops what appears to be MILLIONS of coins, filling every pixel on your screen with a different shade of gold. Your game immediately slows to a halt and crashes."
-        : 0.2,
-        "The missile vanishes off the screen, seemingly lost to the water.\nSuddenly, you hear a flurry of *ping*s! The words \"Long Shot!\" splash across your monitor, followed by \"Two Birds\", \"Double Kill\", \"Triple Kill\", and finally \"Quad Kill\". This is it. This is the moment you thought would never happen. The \"Get a quad kill\" and \"Destroy two tanks with one explosion\" goals you've had for two months are finally complete. As the flood of joy and relief washes over you, so does the rising water over your tank. You've lost the match, but you don't care. The war is already won. In a hurry you leave the match and click to the Goals tab, overcome with anticipation to see those beautiful green *Collect!* buttons. You slide your cursor over.\nBAM! The moment before you click, the screen goes black. All you can see is \"Connecting...\". The loading indicator never goes away."
-        : 0.1,
-        "You get a quad kill, four birds one stone! It was four bots doing the same exact movement. They drop 4 coins. <:coin:910247623787700264> <:coin:910247623787700264> <:coin:910247623787700264> <:coin:910247623787700264>"
-        : 0.1,
-        "🗿 Moyai God comes down from the heavens and blocks your missile. You bow down (as a tank) and repent for your sins."
-        : 0.1,
+        "The bot dodged your attack. <:bot:917467970182189056>": 70,
+        "You destroyed the bot! It drops a single coin. <:coin:910247623787700264>": 10,
+        "The bot *expertly* dodged your attack. <:bot:917467970182189056>": 5,
+        "You thought you hit the bot, but its health returns to full due to network lag. 📶": 5,
+        "You destroyed the bot! It drops a some coins and a crate. <:coin:910247623787700264> <:coin:910247623787700264> <:coin:910247623787700264> 📦. But <R> comes out of nowhere and steals it.": 3,
+        "You accidentally hit a teammate and dunk them into the water. <:splash:910252276961128469>": 2,
+        "The bot vanishes. An error pops up: `CLIENT DISCONNECTED` <:alertbad:910249086299557888>": 1,
+        "<R> comes out of nowhere and kills you and the bot to win the game.": 1,
+        "<R> comes out of nowhere and shoots a shield at the bot deflecting it back to you and you die.": 1,
+        "You miss. Before you try to shoot again <R> comes out of nowhere and stands next to the bot and you decide to leave out of sheer intimidation.": 1,
+        "The missile goes off-screen. Instead of getting a kill, a beachball comes hurtling back at mach 2.": 0.3,
+        "The bot vanishes. Was there ever really a bot there at all?...": 0.2,
+        "You destroyed the bot! It drops what appears to be MILLIONS of coins, filling every pixel on your screen with a different shade of gold. Your game immediately slows to a halt and crashes.": 0.2,
+        "The missile vanishes off the screen, seemingly lost to the water.\nSuddenly, you hear a flurry of *ping*s! The words \"Long Shot!\" splash across your monitor, followed by \"Two Birds\", \"Double Kill\", \"Triple Kill\", and finally \"Quad Kill\". This is it. This is the moment you thought would never happen. The \"Get a quad kill\" and \"Destroy two tanks with one explosion\" goals you've had for two months are finally complete. As the flood of joy and relief washes over you, so does the rising water over your tank. You've lost the match, but you don't care. The war is already won. In a hurry you leave the match and click to the Goals tab, overcome with anticipation to see those beautiful green *Collect!* buttons. You slide your cursor over.\nBAM! The moment before you click, the screen goes black. All you can see is \"Connecting...\". The loading indicator never goes away.": 0.1,
+        "You get a quad kill, four birds one stone! It was four bots doing the same exact movement. They drop 4 coins. <:coin:910247623787700264> <:coin:910247623787700264> <:coin:910247623787700264> <:coin:910247623787700264>": 0.1,
+        "🗿 Moyai God comes down from the heavens and blocks your missile. You bow down (as a tank) and repent for your sins.": 0.1,
         "Before your bullet hits the bot you were aiming at, a shiny green bot jumps up and takes the hit. Suddenly a green gem appears where it died, floating in midair. JACKPOT<:gem:910247413695016970>": .1
     }
-    event = "You fire a missile at a bot. <:rocketmint:910253491019202661>\n" + random.choices(population=list(events.keys()), weights=events.values(), k=1)[0]
-    
+    event = "You fire a missile at a bot. <:rocketmint:910253491019202661>\n" + \
+        random.choices(population=list(events.keys()),
+                       weights=events.values(), k=1)[0]
+
     if "<R>" in event:
-        #Get random name from leaderboard
+        # Get random name from leaderboard
         response = await rocketbot_client.query_leaderboard(curr_season)
         records = json.loads(response['payload'])['records']
         rand_player = random.choice(records)['username']
 
-        #Formulate response with random name
+        # Formulate response with random name
         event = event.replace("<R>", rand_player)
     else:
-        #Otherwise wait half a second
+        # Otherwise wait half a second
         await asyncio.sleep(.5)
-    
+
     await interaction.followup.send(event)
+
 
 @tree.command()
 async def build_a_bot(interaction: discord.Interaction):
@@ -951,6 +967,7 @@ async def build_a_bot(interaction: discord.Interaction):
         players.append(bot_name)
         bots.append(bot_name)
     await interaction.response.send_message(response)
+
 
 @tree.command()
 async def join_game(interaction: discord.Interaction):
@@ -969,15 +986,17 @@ async def join_game(interaction: discord.Interaction):
 
     await interaction.response.send_message(response)
 
+
 @tree.command(guild=discord.Object(id=962142361935314996))
 async def get_config(interaction: discord.Interaction):
     file = io.StringIO(json.dumps(server_config))
     await interaction.response.send_message(file=discord.File(fp=file, filename="server_config.json"))
 
+
 @tree.command()
 async def start_game(interaction: discord.Interaction):
     '''Start a game with the people joined'''
-    global playing 
+    global playing
     if playing:
         return
     playing = True
@@ -988,20 +1007,22 @@ async def start_game(interaction: discord.Interaction):
         return
     for i in players:
         response += "\n" + i
-    embed1=discord.Embed(color=0xa80022)
+    embed1 = discord.Embed(color=0xa80022)
     embed1.add_field(name="Players: ", value=response, inline=False)
     await interaction.response.send_message(response)
     msg = await interaction.channel.send("Starting game")
 #     await asyncio.sleep(0)
     moneys = OrderedDict()
     while len(players) >= 1:
-        embed=discord.Embed(color=0xa80022)
+        embed = discord.Embed(color=0xa80022)
         if len(players) <= 1:
             embed.add_field(name="Players: ", value=players[0], inline=False)
-            embed.add_field(name="Game:", value=players[0] + " wins!", inline=False)
+            embed.add_field(
+                name="Game:", value=players[0] + " wins!", inline=False)
             money_txt = ""
             for i in moneys.keys():
-                money_txt += i + " " + str(moneys[i]) + "<:coin:910247623787700264>\n"
+                money_txt += i + " " + \
+                    str(moneys[i]) + "<:coin:910247623787700264>\n"
             if money_txt != "":
                 embed.add_field(name="Money:", value=money_txt, inline=False)
             await msg.edit(embed=embed)
@@ -1015,12 +1036,13 @@ async def start_game(interaction: discord.Interaction):
             player_text += i + " "
         embed.add_field(name="Players: ", value=player_text, inline=False)
         action_types = {"Kill": 100, "Miss": 50, "Self": 20, "Special": 0}
-        
-        action_choice = random.choices(population=list(action_types.keys()), weights=action_types.values(), k=1)[0]
-        
+
+        action_choice = random.choices(population=list(
+            action_types.keys()), weights=action_types.values(), k=1)[0]
+
         action = ""
         if action_choice == "Kill":
-            coin_num = random.choice(range(1,100))
+            coin_num = random.choice(range(1, 100))
             player_a = random.choice(players)
             players.remove(player_a)
             player_b = random.choice(players)
@@ -1049,16 +1071,20 @@ async def start_game(interaction: discord.Interaction):
                 "A Drill": 100,
                 "THE POWER OF MOYAI 🗿": 0.1
             }
-            event = random.choices(population=list(kill_messages.keys()), weights=kill_messages.values(), k=1)[0]
+            event = random.choices(population=list(
+                kill_messages.keys()), weights=kill_messages.values(), k=1)[0]
             event = event.replace("<A>", player_a)
             event = event.replace("<B>", player_b)
             if "<U>" in event:
-                event = event.replace("<U>", random.choices(population=list(weopons.keys()), weights=weopons.values(), k=1)[0])
-            #B-E die for kills, if we need a non dying player use F
-            event += "\n\n" + player_a + " got " + str(coin_num) + " <:coin:910247623787700264>"
-            event += " and " + player_b + " lost " + str(coin_num) + " <:coin:910247623787700264>"
-            add_player_coin(convert_mention_to_id(player_a),coin_num)
-            add_player_coin(convert_mention_to_id(player_b),-coin_num)
+                event = event.replace("<U>", random.choices(population=list(
+                    weopons.keys()), weights=weopons.values(), k=1)[0])
+            # B-E die for kills, if we need a non dying player use F
+            event += "\n\n" + player_a + " got " + \
+                str(coin_num) + " <:coin:910247623787700264>"
+            event += " and " + player_b + " lost " + \
+                str(coin_num) + " <:coin:910247623787700264>"
+            add_player_coin(convert_mention_to_id(player_a), coin_num)
+            add_player_coin(convert_mention_to_id(player_b), -coin_num)
             if moneys.get(player_a) == None:
                 moneys[player_a] = coin_num
             else:
@@ -1068,18 +1094,18 @@ async def start_game(interaction: discord.Interaction):
             else:
                 moneys[player_b] = moneys[player_b] - coin_num
             if "<C>" in event:
-#                 cur_num = random.choice(range(1,100)
+                #                 cur_num = random.choice(range(1,100)
                 player_c = random.choice(players)
                 db[player_c] = db[player_c] - cur_num
                 player.remove(player_c)
                 event = event.replace("<C>", player_c)
             if "<D>" in event:
-#                 coin_num += random.choice(range(1,100)
+                #                 coin_num += random.choice(range(1,100)
                 player_d = random.choice(players)
                 player.remove(player_d)
                 event.replace("<D>", player_d)
             if "<E>" in event:
-#                 coin_num += random.choice(range(1,100)
+                #                 coin_num += random.choice(range(1,100)
                 player_e = random.choice(players)
                 player.remove(player_e)
                 event.replace("<E>", player_e)
@@ -1088,7 +1114,7 @@ async def start_game(interaction: discord.Interaction):
                 event.replace("<F>", player_f)
             players.append(player_a)
             action = event
-        elif action_choice == "Miss":        
+        elif action_choice == "Miss":
             choices = random.sample(set(players), 2)
             player_a = choices[0]
             player_b = choices[1]
@@ -1100,7 +1126,8 @@ async def start_game(interaction: discord.Interaction):
             kill_messages = {
                 "<A> jumps into the water.": 50,
                 "On <A>'s screen an error pops up: `CLIENT DISCONNECTED` <:alertbad:910249086299557888>": 1}
-            event = random.choices(population=list(kill_messages.keys()), weights=kill_messages.values(), k=1)[0]
+            event = random.choices(population=list(
+                kill_messages.keys()), weights=kill_messages.values(), k=1)[0]
             player_a = random.choice(players)
             players.remove(player_a)
             event = event.replace("<A>", player_a)
@@ -1112,44 +1139,49 @@ async def start_game(interaction: discord.Interaction):
         embed.add_field(name="Game:", value=action, inline=False)
         money_txt = ""
         for i in moneys.keys():
-            money_txt += i + " " + str(moneys[i]) + "<:coin:910247623787700264>\n"
+            money_txt += i + " " + \
+                str(moneys[i]) + "<:coin:910247623787700264>\n"
         if money_txt != "":
             embed.add_field(name="Money:", value=money_txt, inline=False)
         await msg.edit(embed=embed)
         await asyncio.sleep(5)
 
+
 @tree.command()
 async def get_money(interaction: discord.Interaction):
     '''Find out how much money you have in discord'''
-    await interaction.response.send_message(str(interaction.user.mention) + " has " + str(add_player_coin(interaction.user.id,interaction.user.username,0)) + " <:coin:910247623787700264>")
+    await interaction.response.send_message(str(interaction.user.mention) + " has " + str(add_player_coin(interaction.user.id, interaction.user.username, 0)) + " <:coin:910247623787700264>")
+
 
 @tree.command()
 async def discord_coins_leaderboard(interaction: discord.Interaction):
-   '''Return the discord coins leaderboard'''
-    
+    '''Return the discord coins leaderboard'''
+
 #    await interaction.response.defer(ephemeral=False, thinking=True)
-    
-   test_keys = db
-   rankdict = {}
-   
-   for key in test_keys.keys():
-       rankdict[key] = test_keys[key]
-   global sorted_rankdict
-   sorted_rankdict = sorted(rankdict.items(), key=itemgetter(1), reverse=True)
-   message = f"```\n{'Rank:':<5} {'Name:':<20} {'Coins:'}\n{'‾' * 35}\n"
-   sorted_rankdict = sorted_rankdict[:10]
-   for i in sorted_rankdict:
+
+    test_keys = db
+    rankdict = {}
+
+    for key in test_keys.keys():
+        rankdict[key] = test_keys[key]
+    global sorted_rankdict
+    sorted_rankdict = sorted(rankdict.items(), key=itemgetter(1), reverse=True)
+    message = f"```\n{'Rank:':<5} {'Name:':<20} {'Coins:'}\n{'‾' * 35}\n"
+    sorted_rankdict = sorted_rankdict[:10]
+    for i in sorted_rankdict:
         message += f"{'#' + str(sorted_rankdict.index(i) + 1):<5} {i[0]:<20} {i[1]:>5,d} 🪙\n"
-   message += "```"
-   await interaction.channel.send(message)
-   embed=discord.Embed(color=0xffd700, title="Discord Coins Leaderboard", description=message)
-   await interaction.followup.send(embed=embed)
+    message += "```"
+    await interaction.channel.send(message)
+    embed = discord.Embed(
+        color=0xffd700, title="Discord Coins Leaderboard", description=message)
+    await interaction.followup.send(embed=embed)
 
 
 @tree.command()
 async def random_tank(interaction: discord.Interaction):
     '''Get a random tank'''
     await interaction.response.send_message(random.choice(tanks))
+
 
 @tree.command()
 @app_commands.describe(
@@ -1165,68 +1197,84 @@ async def long(interaction: discord.Interaction, length: int, barrel: int = 1):
             "<:longtank_part3:991838189591470130>",
             "<:longtank_part4:991838192145793125>"
         ]
-        if length < 0: length = 0
-        if barrel < 0: barrel = 0
-        if barrel > length: barrel = length
-        
+        if length < 0:
+            length = 0
+        if barrel < 0:
+            barrel = 0
+        if barrel > length:
+            barrel = length
+
         def even_space(n, k):
             a = []
-            for i in range(k): a.append(n // k)
-            for i in range(n % k): a[i] += 1
+            for i in range(k):
+                a.append(n // k)
+            for i in range(n % k):
+                a[i] += 1
             b = list(OrderedDict.fromkeys(a))
             global x, y
             x, y = b[0], b[1] if len(b) > 1 else ''
-            for i in range(len(a)): a[i] = 'x' if a[i] == b[0] else 'y'
+            for i in range(len(a)):
+                a[i] = 'x' if a[i] == b[0] else 'y'
             s = ''.join(str(i) for i in a)
             return s
-        
+
         def palindrome_check(str):
             return sum(map(lambda i: str.count(i) % 2, set(str))) <= 1
-        
-        def palindrome_rearrange(str):   
+
+        def palindrome_rearrange(str):
             hmap = defaultdict(int)
-            for i in range(len(str)): hmap[str[i]] += 1
-        
+            for i in range(len(str)):
+                hmap[str[i]] += 1
+
             odd_count = 0
-        
+
             for x in hmap:
                 if (hmap[x] % 2 != 0):
                     odd_count += 1
                     odd_char = x
-        
+
             first_half = ''
             second_half = ''
-        
+
             for x in sorted(hmap.keys()):
                 s = (hmap[x] // 2) * x
                 first_half = first_half + s
                 second_half = s + second_half
-        
+
             return (first_half + odd_char + second_half) if (odd_count == 1) else (first_half + second_half)
 
         even_space_encode = even_space(length - barrel, barrel + 1)
-        even_space_encode_palindrome = palindrome_rearrange(even_space_encode) if palindrome_check(even_space_encode) else even_space_encode
-        
+        even_space_encode_palindrome = palindrome_rearrange(
+            even_space_encode) if palindrome_check(even_space_encode) else even_space_encode
+
         even_space_encode_palindrome_decode = []
-        for i in even_space_encode_palindrome: even_space_encode_palindrome_decode.append(i)
+        for i in even_space_encode_palindrome:
+            even_space_encode_palindrome_decode.append(i)
         for i in range(len(even_space_encode_palindrome_decode)):
             even_space_encode_palindrome_decode[i] = x if even_space_encode_palindrome_decode[i] == 'x' else y
-        
+
         output_middle = ""
         for i in range(len(even_space_encode_palindrome_decode) - 1):
-            output_middle += (long_emoji[1] * even_space_encode_palindrome_decode[i] + long_emoji[2])
-        output_middle += long_emoji[1] * even_space_encode_palindrome_decode[-1]
+            output_middle += (long_emoji[1] *
+                              even_space_encode_palindrome_decode[i] + long_emoji[2])
+        output_middle += long_emoji[1] * \
+            even_space_encode_palindrome_decode[-1]
         msg = f"{long_emoji[0]}{output_middle}{long_emoji[3]}"
         await interaction.response.send_message(f"```ansi\nThis is your \u001b[2;32ml\u001b[1;32m{'o'*length}\u001b[0m\u001b[2;32mng\u001b[0m tank!\n```\n{msg}")
     except:
         await interaction.response.send_message("The tank is too long to build!")
 
+
 @tree.command()
+@app_commands.describe(
+    bet='The minimum bet is 1 coin'
+)
 async def slot(interaction: discord.Interaction, bet: int):
     '''Play the slot machine game!'''
     await interaction.response.defer(ephemeral=False, thinking=True)
-    coin = ["<:coin1:910247623787700264>", "<:coin2:991444836869754950>", "<:coin3:976289335844434000>", "<:coin4:976289358200049704>", "<:coin5:976288324266373130>"]
-    
+    coin = ["<:coin1:910247623787700264>", "<:coin2:991444836869754950>",
+            "<:coin3:976289335844434000>", "<:coin4:976289358200049704>", "<:coin5:976288324266373130>"]
+
     # if bet > db["player_coin"]:
     #     await interaction.followup.send(embed=discord.Embed(
     #         color=discord.Color.red(),
@@ -1234,7 +1282,7 @@ async def slot(interaction: discord.Interaction, bet: int):
     #         description=f"You don't have enough {coin[0]}"))
 
     if bet <= 0:
-    # elif bet <= 0:
+        # elif bet <= 0:
         await interaction.followup.send(embed=discord.Embed(color=discord.Color.red(), title="SLOT MACHINE :slot_machine:", description=f"The minimum bet is 1 {coin[0]}"))
 
     else:
@@ -1251,9 +1299,11 @@ async def slot(interaction: discord.Interaction, bet: int):
 
         slots = []
         for i in range(3):
-            slots.append(random.choices(population=list(events.keys()), weights=events.values())[0])
+            slots.append(random.choices(population=list(
+                events.keys()), weights=events.values())[0])
 
-        slot_embed = discord.Embed(color=0xffd700, title="SLOT MACHINE :slot_machine:", description=f"**{'-' * 18}\n|{' {} |'.format(coins_loop) * 3}\n{'-' * 18}**")
+        slot_embed = discord.Embed(color=0xffd700, title="SLOT MACHINE :slot_machine:",
+                                   description=f"**{'-' * 18}\n|{' {} |'.format(coins_loop) * 3}\n{'-' * 18}**")
 
         sent_embed = await interaction.followup.send(embed=slot_embed)
         current_slot_pics = [coins_loop] * 3
@@ -1263,7 +1313,8 @@ async def slot(interaction: discord.Interaction, bet: int):
             slot_results_str = f"**{'-' * 18}\n|"
             for thisSlot in current_slot_pics:
                 slot_results_str += f" {thisSlot} |"
-            new_slot_embed = discord.Embed(color=0xffd700, title="SLOT MACHINE :slot_machine:", description=f"{slot_results_str}\n{'-' * 18}**")
+            new_slot_embed = discord.Embed(
+                color=0xffd700, title="SLOT MACHINE :slot_machine:", description=f"{slot_results_str}\n{'-' * 18}**")
             await sent_embed.edit(embed=new_slot_embed)
 
         if slots[0] == slots[1]:
@@ -1273,8 +1324,8 @@ async def slot(interaction: discord.Interaction, bet: int):
                 multiplier = multiplier2[coin.index(slots[0])]
             win = True
         else:
-          win = False
-        
+            win = False
+
         if win == True:
             res_2 = "-- **YOU WON** --"
             profit = bet * multiplier
@@ -1286,19 +1337,23 @@ async def slot(interaction: discord.Interaction, bet: int):
 
         # new_player_coin = db["player_coin"]
 
-        embed = discord.Embed(color=0xffd700, title="SLOT MACHINE :slot_machine:", description=f"{slot_results_str}\n{'-' * 18}**\n{res_2}")
+        embed = discord.Embed(color=0xffd700, title="SLOT MACHINE :slot_machine:",
+                              description=f"{slot_results_str}\n{'-' * 18}**\n{res_2}")
         embed.add_field(name="Bet", value=f"{bet} {coin[0]}", inline=True)
-        embed.add_field(name="Profit/Loss", value=f"{profit} {coin[0]}" + (f" ({multiplier}x)" if win else ""), inline=True)
+        embed.add_field(name="Profit/Loss", value=f"{profit} {coin[0]}" + (
+            f" ({multiplier}x)" if win else ""), inline=True)
         embed.add_field(name="Balance", value=f"N.A. {coin[0]}", inline=True)
         embed.add_field(name="Pay Table", value=f"{'{}'.format(coin[4]) * 3} - 32x\n{'{}'.format(coin[3]) * 3} - 16x\n{'{}'.format(coin[2]) * 3} - 12x\n{'{}'.format(coin[1]) * 3} - 8x\n{'{}'.format(coin[4]) * 2}:grey_question: - 8x\n{'{}'.format(coin[0]) * 3} - 4x\n{'{}'.format(coin[3]) * 2}:grey_question: - 4x\n{'{}'.format(coin[2]) * 2}:grey_question: - 3x\n{'{}'.format(coin[1]) * 2}:grey_question: - 2x\n{'{}'.format(coin[0]) * 2}:grey_question: - 1x", inline=False)
         await sent_embed.edit(embed=embed)
+
 
 @tree.command()
 async def memory(interaction: discord.Interaction):
     '''Test your memory by matching 2 tanks!'''
     await interaction.response.defer(ephemeral=False, thinking=True)
     b = [":white_large_square:" for i in range(16)]
-    c = ['a1', 'b1', 'c1', 'd1', 'a2', 'b2', 'c2', 'd2', 'a3', 'b3', 'c3', 'd3', 'a4', 'b4', 'c4', 'd4']
+    c = ['a1', 'b1', 'c1', 'd1', 'a2', 'b2', 'c2', 'd2',
+         'a3', 'b3', 'c3', 'd3', 'a4', 'b4', 'c4', 'd4']
     a = random.sample(tanks, 8) * 2
     random.shuffle(a)
     board = f":black_large_square: :regional_indicator_a: :regional_indicator_b: :regional_indicator_c: :regional_indicator_d:\n:one: {b[0]} {b[1]} {b[2]} {b[3]}\n:two: {b[4]} {b[5]} {b[6]} {b[7]}\n:three: {b[8]} {b[9]} {b[10]} {b[11]}\n:four: {b[12]} {b[13]} {b[14]} {b[15]}\n"
@@ -1307,10 +1362,13 @@ async def memory(interaction: discord.Interaction):
     def check(m):
         return (m.channel.id == interaction.channel.id and m.author == interaction.user)
 
-    embed = discord.Embed(color=0xffd700, title="MEMORY GAME :brain:", description="Test your memory by matching 2 tanks!")
+    embed = discord.Embed(color=0xffd700, title="MEMORY GAME :brain:",
+                          description="Test your memory by matching 2 tanks!")
     embed.add_field(name="Time", value="<80s\n<100s\n≥100s", inline=True)
-    embed.add_field(name="Reward", value="20 <:coin1:910247623787700264>\n10 <:coin1:910247623787700264>\n5 <:coin1:910247623787700264>", inline=True)
-    embed.add_field(name="Controls", value="Type `s` to start the game\nType `q` to quit the game", inline=False)
+    embed.add_field(
+        name="Reward", value="20 <:coin1:910247623787700264>\n10 <:coin1:910247623787700264>\n5 <:coin1:910247623787700264>", inline=True)
+    embed.add_field(
+        name="Controls", value="Type `s` to start the game\nType `q` to quit the game", inline=False)
     message = await interaction.followup.send(embed=embed)
 
     global gamestart
@@ -1320,7 +1378,8 @@ async def memory(interaction: discord.Interaction):
         try:
             msg = await client.wait_for("message", check=check, timeout=15)
             if str(msg.content.lower()) == "q":
-                embed = discord.Embed(color=discord.Color.red(), title="MEMORY GAME :brain:", description="You have quit the game")
+                embed = discord.Embed(color=discord.Color.red(
+                ), title="MEMORY GAME :brain:", description="You have quit the game")
                 await message.edit(embed=embed)
                 break
             if ((str(msg.content.lower()) == "s") or (str(msg.content.lower()) == "q")) == False:
@@ -1329,12 +1388,15 @@ async def memory(interaction: discord.Interaction):
                 await warn.delete()
             if str(msg.content.lower()) == "s":
                 gamestart = True
-                embed = discord.Embed(color=0xffd700, title="MEMORY GAME :brain:", description=board)
-                embed.add_field(name="Controls", value="Type `a1` / `A1` to flip the card\nType `q` to quit the game", inline=False)
+                embed = discord.Embed(
+                    color=0xffd700, title="MEMORY GAME :brain:", description=board)
+                embed.add_field(
+                    name="Controls", value="Type `a1` / `A1` to flip the card\nType `q` to quit the game", inline=False)
                 await message.edit(embed=embed)
                 start = timer()
         except asyncio.TimeoutError:
-            embed = discord.Embed(color=discord.Color.red(), title="MEMORY GAME :brain:", description="You did not start the game")
+            embed = discord.Embed(color=discord.Color.red(
+            ), title="MEMORY GAME :brain:", description="You did not start the game")
             await message.edit(embed=embed)
             break
 
@@ -1345,7 +1407,8 @@ async def memory(interaction: discord.Interaction):
                 msg = await client.wait_for("message", check=check, timeout=15)
                 if str(msg.content.lower()) == "q":
                     board = answer
-                    embed = discord.Embed(color=discord.Color.red(), title="MEMORY GAME :brain:", description=f"{board}\nYou have quit the game")
+                    embed = discord.Embed(color=discord.Color.red(
+                    ), title="MEMORY GAME :brain:", description=f"{board}\nYou have quit the game")
                     await message.edit(embed=embed)
                     break
                 if (str(msg.content.lower()) in c) == False:
@@ -1358,16 +1421,20 @@ async def memory(interaction: discord.Interaction):
                         b[x] = a[x]
                         flag = not flag
                         board = f":black_large_square: :regional_indicator_a: :regional_indicator_b: :regional_indicator_c: :regional_indicator_d:\n:one: {b[0]} {b[1]} {b[2]} {b[3]}\n:two: {b[4]} {b[5]} {b[6]} {b[7]}\n:three: {b[8]} {b[9]} {b[10]} {b[11]}\n:four: {b[12]} {b[13]} {b[14]} {b[15]}\n"
-                        embed = discord.Embed(color=0xffd700, title="MEMORY GAME :brain:", description=board)
-                        embed.add_field(name="Controls", value="Type `a1` / `A1` to flip the card\nType `q` to quit the game", inline=False)
+                        embed = discord.Embed(
+                            color=0xffd700, title="MEMORY GAME :brain:", description=board)
+                        embed.add_field(
+                            name="Controls", value="Type `a1` / `A1` to flip the card\nType `q` to quit the game", inline=False)
                         await message.edit(embed=embed)
                     else:
                         y = c.index(str(msg.content.lower()))
                         b[y] = a[y]
                         flag = not flag
                         board = f":black_large_square: :regional_indicator_a: :regional_indicator_b: :regional_indicator_c: :regional_indicator_d:\n:one: {b[0]} {b[1]} {b[2]} {b[3]}\n:two: {b[4]} {b[5]} {b[6]} {b[7]}\n:three: {b[8]} {b[9]} {b[10]} {b[11]}\n:four: {b[12]} {b[13]} {b[14]} {b[15]}\n"
-                        embed = discord.Embed(color=0xffd700, title="MEMORY GAME :brain:", description=board)
-                        embed.add_field(name="Controls", value="Type `a1` / `A1` to flip the card\nType `q` to quit the game", inline=False)
+                        embed = discord.Embed(
+                            color=0xffd700, title="MEMORY GAME :brain:", description=board)
+                        embed.add_field(
+                            name="Controls", value="Type `a1` / `A1` to flip the card\nType `q` to quit the game", inline=False)
                         await message.edit(embed=embed)
                         await asyncio.sleep(1)
                         if a[x] == a[y]:
@@ -1376,8 +1443,10 @@ async def memory(interaction: discord.Interaction):
                             b[x] = ":white_large_square:"
                             b[y] = ":white_large_square:"
                             board = f":black_large_square: :regional_indicator_a: :regional_indicator_b: :regional_indicator_c: :regional_indicator_d:\n:one: {b[0]} {b[1]} {b[2]} {b[3]}\n:two: {b[4]} {b[5]} {b[6]} {b[7]}\n:three: {b[8]} {b[9]} {b[10]} {b[11]}\n:four: {b[12]} {b[13]} {b[14]} {b[15]}\n"
-                            embed = discord.Embed(color=0xffd700, title="MEMORY GAME :brain:", description=board)
-                            embed.add_field(name="Controls", value="Type `a1` / `A1` to flip the card\nType `q` to quit the game", inline=False)
+                            embed = discord.Embed(
+                                color=0xffd700, title="MEMORY GAME :brain:", description=board)
+                            embed.add_field(
+                                name="Controls", value="Type `a1` / `A1` to flip the card\nType `q` to quit the game", inline=False)
                             await message.edit(embed=embed)
                     if pair == 8:
                         end = timer()
@@ -1391,10 +1460,14 @@ async def memory(interaction: discord.Interaction):
                         gamestart = False
                         # db["player_coin"] += reward
                         # new_player_coin = db["player_coin"]
-                        embed = discord.Embed(color=0xffd700, title="MEMORY GAME :brain:", description=f"{board}\n:tada: **YOU WON** :tada:")
-                        embed.add_field(name="Time", value=f"{time_diff:.2f}s", inline=True)
-                        embed.add_field(name="Reward", value=f"{reward} <:coin1:910247623787700264>", inline=True)
-                        embed.add_field(name="Balance", value=f"N.A. <:coin1:910247623787700264>", inline=True)
+                        embed = discord.Embed(
+                            color=0xffd700, title="MEMORY GAME :brain:", description=f"{board}\n:tada: **YOU WON** :tada:")
+                        embed.add_field(
+                            name="Time", value=f"{time_diff:.2f}s", inline=True)
+                        embed.add_field(
+                            name="Reward", value=f"{reward} <:coin1:910247623787700264>", inline=True)
+                        embed.add_field(
+                            name="Balance", value=f"N.A. <:coin1:910247623787700264>", inline=True)
                         await message.edit(embed=embed)
                         break
                     await message.edit(embed=embed)
@@ -1404,7 +1477,8 @@ async def memory(interaction: discord.Interaction):
                     await warn3.delete()
             except asyncio.TimeoutError:
                 board = answer
-                embed = discord.Embed(color=discord.Color.red(), title="MEMORY GAME :brain:", description=f"{board}\nThe game has timed out :hourglass:")
+                embed = discord.Embed(color=discord.Color.red(
+                ), title="MEMORY GAME :brain:", description=f"{board}\nThe game has timed out :hourglass:")
                 await message.edit(embed=embed)
                 break
         break
@@ -1419,7 +1493,13 @@ async def memory(interaction: discord.Interaction):
 #     print(db.keys())
 #     await interaction.response.send_message("DONE =)")
 
+
 @tree.command()
+@app_commands.describe(
+    one_star='Number of one-star skin(s) owned'
+    two_star='Number of two-star skin(s) owned'
+    three_star='Number of three-star skin(s) owned'
+)
 async def get_crate_stats(interaction: discord.Interaction, one_star: int, two_star: int, three_star: int):
     '''Optimize the use of in game crates and Estimate the amount of coins'''
 
@@ -1545,16 +1625,22 @@ async def get_crate_stats(interaction: discord.Interaction, one_star: int, two_s
 
     await interaction.followup.send(all(one_star, two_star, three_star))
 
+
 @tree.command()
 async def season(interaction: discord.Interaction):
     '''Return the current season and remaining time'''
     current_unix_time = time.mktime(datetime.datetime.now().timetuple())
-    season_start_number = server_config['season_definitions'][len(server_config['season_definitions'])-1]['season_start_number']
-    season_start_timestamp = server_config['season_definitions'][len(server_config['season_definitions'])-1]['season_start_timestamp']
-    season_duration = server_config['season_definitions'][len(server_config['season_definitions'])-1]['season_duration']
-    season_difference = (current_unix_time - season_start_timestamp) / season_duration
+    season_start_number = server_config['season_definitions'][len(
+        server_config['season_definitions'])-1]['season_start_number']
+    season_start_timestamp = server_config['season_definitions'][len(
+        server_config['season_definitions'])-1]['season_start_timestamp']
+    season_duration = server_config['season_definitions'][len(
+        server_config['season_definitions'])-1]['season_duration']
+    season_difference = (current_unix_time -
+                         season_start_timestamp) / season_duration
     current_season = ceil((season_start_number - 1) + season_difference)
-    season_seconds_remaining = (ceil(season_difference) - season_difference) * 3369600
+    season_seconds_remaining = (
+        ceil(season_difference) - season_difference) * 3369600
     day = season_seconds_remaining // (24 * 3600)
     hour = season_seconds_remaining % (24 * 3600) // 3600
     minute = season_seconds_remaining % (24 * 3600) % 3600 // 60
@@ -1562,6 +1648,7 @@ async def season(interaction: discord.Interaction):
     season_percentage = floor((season_difference % 1) * 100)
     final_msg = f"Season {current_season} Ends in: {int(day)}d {int(hour)}h {int(minute)}m {int(second)}s ({season_percentage}%)"
     await interaction.response.send_message(final_msg)
+
 
 @tree.command()
 async def random_bot_name(interaction: discord.Interaction):
@@ -2456,32 +2543,42 @@ async def random_bot_name(interaction: discord.Interaction):
         "curtain"
     ]
 
-    generated_random_bot_name = random.choice(noun).capitalize() + random.choice(adjective)
+    generated_random_bot_name = random.choice(
+        noun).capitalize() + random.choice(adjective)
     await interaction.response.send_message(generated_random_bot_name)
 
+
 @tree.command()
+@app_commands.describe(
+    article='The article you want to look up. Make sure capitalization is correct!'
+)
 async def fandom(interaction: discord.Interaction, article: str):
     '''Fetch any articles from Rocket Bot Royale fandom wiki here!'''
     await interaction.response.defer(ephemeral=False, thinking=True)
     p = rocketbotroyale.page(article)
     try:
-      page1 = page(title = article)
-      sent_embed = await interaction.followup.send(embed=discord.Embed(description="Fetching page..."))
-      output = discord.Embed(
-              color=0xffd700,
-              title=page1.title,
-              description=page1.summary,
-              url=f"https://rocketbotroyale.fandom.com/wiki/{page1.title}".replace(" ", "_"),
-              timestamp=datetime.datetime.utcnow())
-      list_of_images = p.images
-      png_or_gif = [ x for x in list_of_images if ".png" in x or ".gif" in x]
-      set_image = "https://static.wikia.nocookie.net/rocketbotroyale/images/c/c4/Slide1_mainpage.png/revision/latest?cb=20220712121433" if len(png_or_gif) == 0 else png_or_gif[0]
-      output.set_image(url=set_image)
-      output.set_thumbnail(url="https://static.wikia.nocookie.net/rocketbotroyale/images/e/e6/Site-logo.png")
-      output.set_footer(text="All information is gathered through fandom.com")
-      await sent_embed.edit(embed=output)
+        page1 = page(title=article)
+        sent_embed = await interaction.followup.send(embed=discord.Embed(description="Fetching page..."))
+        output = discord.Embed(
+            color=0xffd700,
+            title=page1.title,
+            description=page1.summary,
+            url=f"https://rocketbotroyale.fandom.com/wiki/{page1.title}".replace(
+                " ", "_"),
+            timestamp=datetime.datetime.utcnow())
+        list_of_images = p.images
+        png_or_gif = [x for x in list_of_images if ".png" in x or ".gif" in x]
+        set_image = "https://static.wikia.nocookie.net/rocketbotroyale/images/c/c4/Slide1_mainpage.png/revision/latest?cb=20220712121433" if len(
+            png_or_gif) == 0 else png_or_gif[0]
+        output.set_image(url=set_image)
+        output.set_thumbnail(
+            url="https://static.wikia.nocookie.net/rocketbotroyale/images/e/e6/Site-logo.png")
+        output.set_footer(
+            text="All information is gathered through fandom.com")
+        await sent_embed.edit(embed=output)
     except:
-      await interaction.followup.send(embed=discord.Embed(color=0xff0000, description=f':x: "{article}" is not found. Make sure capitalization is correct!',timestamp=datetime.datetime.utcnow()))
+        await interaction.followup.send(embed=discord.Embed(color=0xff0000, description=f':x: "{article}" is not found. Make sure capitalization is correct!', timestamp=datetime.datetime.utcnow()))
+
 
 @tree.command(guild=discord.Object(id=962142361935314996))
 async def sync_commands(interaction: discord.Interaction):
@@ -2489,8 +2586,10 @@ async def sync_commands(interaction: discord.Interaction):
     await tree.sync(guild=discord.Object(id=962142361935314996))
     await interaction.response.send_message("Commands synced.")
 
+
 def main():
     client.run(discord_token)
+
 
 if (__name__ == "__main__"):
     main()
