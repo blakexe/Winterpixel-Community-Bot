@@ -62,8 +62,8 @@ set_wiki("rocketbotroyale")
 rocketbotroyale = MediaWiki(url='https://rocketbotroyale.fandom.com/api.php')
 
 # List contains all tank emojis for random_tank and memory command
-tanks = ['<:pumpkin_tank:1022568065034104936>', '<:pumpkin_evolved_tank:1022568062035177542>', '<:eyeball_tank:1022568661745143908>', '<:skull_tank:1022568068213379124>', '<:snowman_tank:1012941920844132362>', '<:snowman_evolved_tank:1012941924094713917>', '<:snowmobile_tank:1012941917337698375>', '<:icy_tank:1012941914254876794>', '<:brain_bot_tank:1006531910224322630>', '<:mine_bot_tank:1006532474945417216>', '<:bot_tank:917467970182189056>', '<:default_tank:996465659812774040>', '<:beta_tank:997947350943277106>', '<:canon_tank:997951207840686162>', '<:hotdog_tank:997955038435614934>', '<:wave_tank:997954135951413298>', '<:zig_tank:997954180717215975>', '<:blade_tank:997947874715385856>', '<:buggy_tank:997948966933119016>', '<:burger_evolved_tank:997950412348989562>', '<:burger_tank:997950506976694302>', '<:catapult_evolved_tank:997951715284365323>', '<:catapult_tank:997951809282912346>', '<:crab_evolved_tank:997951966548349009>', '<:crab_tank:997952051940180128>', '<:cyclops_tank:997952308333793322>', '<:diamond_tank:997952379595010048>', '<:dozer_evolved_tank:997952441486155906>',
-         '<:dozer_tank:997952516501278760>', '<:fork_tank:997952581408129084>', '<:fries_tank:997952688656494672>', '<:gears_tank:997952760127434782>', '<:hay_tank:997952813386715148>', '<:hollow_tank:997952878142562384>', '<:medic_tank:997953168673619978>', '<:mixer_tank:997953233098113054>', '<:pagliacci_tank:997953348097560628>', '<:pail_tank:997953413717438575>', '<:pistons_tank:997953494050934864>', '<:reactor_tank:997953557263302666> ', '<:spider_evolved_tank:997953618504335501>', '<:spider_tank:997953676406702161>', '<:spike_tank:997953736041308280>', '<:square_tank:997953791217377381>', '<:trap_tank:997953904610381834>', '<:tread_tank:997953970213494905>', '<:tub_tank:997954029902626886>', '<:tubdown_tank:997954078535598270>', '<:concave_tank:997951897749176450>', '<:crawler_tank:997952124279324753>', '<:log_tank:997953009910829198>', '<:long_tank:997953087006330971>', '<:UFO_evolved_tank:1003007299570376714>', '<:UFO_tank:1003007259657392210>', '<:miner_tank:1003013509006753954>', '<:rover_tank:1003014762327716042>', '<:bug_tank:997948870543814726>', '<:moai_tank:1006528445355917394>']
+tanks = ['<:pumpkin_tank:1022568065034104936>', '<a:pumpkin_evolved_tank_a:1022572757860499486>', '<:eyeball_tank:1022568661745143908>', '<a:skull_tank_a:1022574941591306362>', '<:snowman_tank:1012941920844132362>', '<:snowman_evolved_tank:1012941924094713917>', '<:snowmobile_tank:1012941917337698375>', '<:icy_tank:1012941914254876794>', '<:brain_bot_tank:1006531910224322630>', '<:mine_bot_tank:1006532474945417216>', '<:bot_tank:917467970182189056>', '<:default_tank:996465659812774040>', '<:beta_tank:997947350943277106>', '<:canon_tank:997951207840686162>', '<:hot_dog_tank:997955038435614934>', '<a:wave_tank_a:1001203703325397033>', '<:zig_tank:997954180717215975>', '<:blade_tank:997947874715385856>', '<:buggy_tank:997948966933119016>', '<:burger_evolved_tank:997950412348989562>', '<:burger_tank:997950506976694302>', '<:catapult_evolved_tank:997951715284365323>', '<:catapult_tank:997951809282912346>', '<a:crab_evolved_tank_a:1001203931713654864>', '<a:crab_tank_a:1001203874469793822>', '<:cyclops_tank:997952308333793322>', '<:diamond_tank:997952379595010048>', '<a:dozer_evolved_tank_a:1001204001053876374>',
+         '<:dozer_tank:997952516501278760>', '<:fork_tank:997952581408129084>', '<:fries_tank:997952688656494672>', '<:gears_tank:997952760127434782>', '<:hay_tank:997952813386715148>', '<:hollow_tank:997952878142562384>', '<:medic_tank:997953168673619978>', '<:mixer_tank:997953233098113054>', '<:pagliacci_tank:997953348097560628>', '<:pail_tank:997953413717438575>', '<a:pistons_tank_a:1001208481300369608>', '<a:reactor_tank_a:1024935111461969990>', '<a:spider_evolved_tank_a:1001204256193396856>', '<a:spider_tank_a:1001204193887002704>', '<:spike_tank:997953736041308280>', '<:square_tank:997953791217377381>', '<:trap_tank:997953904610381834>', '<:tread_tank:997953970213494905>', '<:tub_tank:997954029902626886>', '<:tubdown_tank:997954078535598270>', '<:concave_tank:997951897749176450>', '<:crawler_tank:997952124279324753>', '<:log_tank:997953009910829198>', '<:long_tank:997953087006330971>', '<a:UFO_evolved_tank_a:1012268475626033174>', '<a:UFO_tank_a:1012268306482343936>', '<a:miner_tank_a:1003099245777276952>', '<:rover_tank:1003014762327716042>', '<a:bug_tank_a:1001203807893590168>', '<:moai_tank:1006528445355917394>']
 
 os.system('clear')
 
@@ -1179,7 +1179,68 @@ async def discord_coins_leaderboard(interaction: discord.Interaction):
 @tree.command()
 async def random_tank(interaction: discord.Interaction):
     '''Get a random tank'''
-    await interaction.response.send_message(random.choice(tanks))
+
+    await interaction.response.defer(ephemeral=False, thinking=True)
+
+    chosen_tank = random.choice(tanks)
+
+    # Get emoji's source url stored in Discord
+    # Png for static emojis and Gif for animated emojis
+    if 'a:' in chosen_tank:
+        emoji_code_split = chosen_tank[3:-1].split(':')
+        img_link = 'https://cdn.discordapp.com/emojis/' + \
+            emoji_code_split[1] + '.gif'
+        tank_name = emoji_code_split[0].replace('_', ' ')[:-7].title()
+    else:
+        emoji_code_split = chosen_tank[2:-1].split(':')
+        img_link = 'https://cdn.discordapp.com/emojis/' + \
+            emoji_code_split[1] + '.png'
+        tank_name = emoji_code_split[0].replace('_', ' ')[:-5].title()
+
+    # Manual rename to avoid error
+    if tank_name == "Default":
+        tank_name = "Tank"
+    elif tank_name == "Ufo Evolved":
+        tank_name = "UFO Evolved"
+    elif tank_name == "Ufo":
+        tank_name = "UFO"
+
+    # Get tank info
+    awards_config = server_config['awards']
+    for key, value in awards_config.items():
+        try:
+            if value['type'] == "skin_set":
+                if value['name'] == tank_name:
+                    description = value['description']
+                    if value['rarity'] == 'common':
+                        rarity_icon = "⭐"
+                        color = 0x49C8FF
+                    elif value['rarity'] == 'rare':
+                        rarity_icon = "⭐⭐"
+                        color = 0xCB6DFF
+                    elif value['rarity'] == 'legendary':
+                        rarity_icon = "⭐⭐⭐"
+                        color = 0xFFDC5E
+                    elif value['rarity'] == 'purchased':
+                        rarity_icon = "💰"
+                        color = 0x80FF7C
+                    elif value['rarity'] == 'earned':
+                        rarity_icon = "🏅"
+                        color = 0xF1689D
+            elif value['type'] == "skin":
+                if value['name'] == tank_name:  # 3 bot skins
+                    rarity_icon = ""
+                    description = value['description']
+                    color = 0x000000
+                    break
+        except:
+            pass
+
+    # Send
+    embed = discord.Embed(
+        title=f"{rarity_icon} {tank_name}", description=description, color=color)
+    embed.set_image(url=img_link)
+    await interaction.followup.send(embed=embed)
 
 
 @tree.command()
