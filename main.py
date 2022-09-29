@@ -12,7 +12,7 @@ from mediawiki import MediaWiki
 from fandom import set_wiki, page
 from replit import db
 from discord import app_commands
-from discord.ext import commands
+# from discord.ext import commands
 from rocketbot_client import RocketBotClient
 
 #Attempt to retrieve enviroment from environment.json
@@ -1152,16 +1152,16 @@ async def random_tank(interaction: discord.Interaction):
     '''Get a random tank'''
     await interaction.response.send_message(random.choice(tanks))
 
-class LongFlags(commands.FlagConverter):
-    length: int
-    barrel: int
+# class LongFlags(commands.FlagConverter):
+#     length: int
+#     barrel: int
 
 @tree.command()
 @app_commands.describe(
     length='Length of the tank',
     barrel='Number of barrels to be equipped'
 )
-async def long(interaction: discord.Interaction, *, flags: LongFlags):
+async def long(interaction: discord.Interaction, length: int, barrel: int = 1):
     '''Build your supercalifragilisticexpialidocious long tank equipped with as many barrels as you want!'''
     try:
         long_emoji = [
