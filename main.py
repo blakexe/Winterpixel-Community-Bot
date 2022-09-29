@@ -286,7 +286,11 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
     current_parachute = awards_config.get(metadata['parachute'],
                                           default_award)['name']
     current_badge = awards_config.get(metadata['badge'], default_award)['name']
-    has_season_pass = server_config['season'] in metadata['season_passes']
+    no_season_pass = False
+    try:
+        has_season_pass = server_config['season'] in metadata['season_passes']
+    except:
+        no_season_pass = True
     level = metadata['progress']['level']
     XP = metadata['progress']['xp']
     friend_code = metadata['friend_code']
@@ -302,7 +306,8 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
     general_info += f"Current Trail: {current_trail}\n"
     general_info += f"Current Parachute: {current_parachute}\n"
     general_info += f"Current Badge: {current_badge}\n"
-    general_info += f"Has Season Pass: {has_season_pass}\n"
+    if no_season_pass == False:
+        general_info += f"Has Season Pass: {has_season_pass}\n"
     general_info += f"Level: {level}\n"
     general_info += f"XP: {XP}\n"
     general_info += f"Friend Code: {friend_code}\n"
