@@ -12,7 +12,6 @@ from mediawiki import MediaWiki
 from fandom import set_wiki, page
 from replit import db
 from discord import app_commands
-# from discord.ext import commands
 from rocketbot_client import RocketBotClient
 
 #Attempt to retrieve enviroment from environment.json
@@ -382,7 +381,7 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
                 sizes.append(keys_order[key])
 
         fig1, ax1 = plt.subplots(facecolor=("#2f3137"), figsize=(5, 6))
-        ax1.set_title(user_data['display_name']+'\'s\n Kills by Weapons distribution',
+        ax1.set_title(user_data['display_name']+'\'s\n Kills Using Weapons distribution',
                       color="#FFFFFF", fontsize=16, pad=15)
         ax1.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=90, textprops={'color': "#FFFFFF"}, wedgeprops={
                 "edgecolor": "#FFFFFF", 'linewidth': 1, 'antialiased': True}, pctdistance=0.85)
@@ -1151,10 +1150,6 @@ async def discord_coins_leaderboard(interaction: discord.Interaction):
 async def random_tank(interaction: discord.Interaction):
     '''Get a random tank'''
     await interaction.response.send_message(random.choice(tanks))
-
-# class LongFlags(commands.FlagConverter):
-#     length: int
-#     barrel: int
 
 @tree.command()
 @app_commands.describe(
