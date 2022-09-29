@@ -195,7 +195,6 @@ async def leaderboard(interaction: discord.Interaction, mode: typing.Literal['Tr
     else:
         response = await rocketbot_client.query_leaderboard(season)
     records = json.loads(response['payload'])['records']
-    print(records)
 
     if mode == "Trophies":  # By Tropihes
         # Using f-string spacing to pretty print the leaderboard labels (bold)
