@@ -241,11 +241,11 @@ async def leaderboard(interaction: discord.Interaction, mode: typing.Literal['Tr
 
 
 @tree.command()
-@app_commands.describe(
-    user_type='Use either User ID or Friend ID of the user'
-    id='User ID or Friend ID of the user'
-    section='Section(s) to be shown'
-)
+# @app_commands.describe(
+#     user_type='Use either User ID or Friend ID of the user'
+#     id='User ID or Friend ID of the user'
+#     section='Section(s) to be shown'
+# )
 async def get_user(interaction: discord.Interaction, user_type: typing.Literal['User ID', 'Friend ID'], id: str, section: typing.Literal['General Info only', 'with Badges', 'with Stats', 'with Items Collected', 'with Tanks', 'with Parachutes', 'with Trails', 'with All Cosmetics', 'All']):
     '''Return info about a specified user'''
 
