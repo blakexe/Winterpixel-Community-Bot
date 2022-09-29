@@ -254,7 +254,7 @@ async def leaderboard_rocket_bot_royale(interaction: discord.Interaction, mode: 
 
 @tree.command()
 @app_commands.describe(
-    season='Beta Season 15 or later'
+    season='Beta Season 14 or later'
 )
 async def leaderboard_moonrock_miners(interaction: discord.Interaction, season: int = -1):
     '''Return the specified season leaderboard of Moonrock Miners, default current'''
