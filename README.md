@@ -19,11 +19,15 @@ Join the discord to use the bot!
 - Get user profile either via friend code or user id.
 - List the leaderboard of any season, sorted by trophies (season 10 or later) or points (season 0 or later).
 
+### Moonrock Miners:
+- List the leaderboard of any season, sorted by trophies (beta season 14 or later).
+
 ## Commands:
 | **Command** | **Description** |
 | :--- |:---|
 | **`/bot_info`** | Get info about this bot |
-| **`/leaderboard`** `mode (Trophies/Points)` `season`| Return the specified season leaderboard (by trophies/points), default current|
+| **`/leaderboard_rocket_bot_royale`** `mode (Trophies/Points)` `season`| Return the specified season leaderboard of Rocket Bot Royale (by trophies/points), default current |
+| **`/leaderboard_moonrock_miners`** `season`| Return the specified season leaderboard of Moonrock Miners, default current |
 | **`/get_user`** `user_type (User ID/Friend ID)` `id` `section`| Return info about a specified user |
 | **`/battle`** | Have a battle with a random bot! |
 | **`/build_a_bot`** * | Bear the responsibility of creating new life... I mean bot |
