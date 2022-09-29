@@ -21,6 +21,7 @@ from fandom import set_wiki, page
 from replit import db
 from discord import app_commands
 from rocketbot_client import RocketBotClient
+from moonrock_client import MoonRockClient
 
 # Attempt to retrieve enviroment from environment.json
 working_directory = os.path.dirname(os.path.realpath(__file__))
@@ -49,9 +50,13 @@ intents.message_content = True
 client = discord.Client(intents=intents)
 tree = app_commands.CommandTree(client)
 server_config = {}
+server_config_2 = {}
 
-# Initialize rockebot client
+# Initialize rocketbot client
 rocketbot_client = RocketBotClient(rocketbot_user, rocketbot_pass)
+
+# Initialize moonrock client
+moonrock_client = MoonRockClient(rocketbot_user, rocketbot_pass)
 
 players = []
 bots = []
@@ -142,6 +147,14 @@ async def refresh_config():
         server_config = json.loads(response['payload'])
         await asyncio.sleep(600)
 
+async def refresh_config_2():
+    '''Refresh game configuration every 10 minutes'''
+    global server_config_2
+
+    while True:
+        response = await moonrock_client.get_config()
+        server_config_2 = json.loads(response['payload'])
+        await asyncio.sleep(600)
 
 @client.event
 async def on_message(message: discord.message):
@@ -163,6 +176,7 @@ async def on_ready():
 
     # Start up the 10 minute config refresher
     asyncio.create_task(refresh_config())
+    asyncio.create_task(refresh_config_2())
 
     for key in db.keys():
         print(str(key) + str(db[key]))
@@ -174,8 +188,8 @@ async def on_ready():
     mode='Leaderboard by trophies or points',
     season='Trophies: Season 10 or later / Points: Season 0 or later, default current'
 )
-async def leaderboard(interaction: discord.Interaction, mode: typing.Literal['Trophies', 'Points'], season: int = -1):
-    '''Return the specified season leaderboard (by trophies/points), default current'''
+async def leaderboard_rocket_bot_royale(interaction: discord.Interaction, mode: typing.Literal['Trophies', 'Points'], season: int = -1):
+    '''Return the specified season leaderboard of Rocket Bot Royale (by trophies/points), default current'''
 
     await interaction.response.defer(ephemeral=False, thinking=True)
 
@@ -236,8 +250,40 @@ async def leaderboard(interaction: discord.Interaction, mode: typing.Literal['Tr
         message += "```"
 
     # Send
-    await interaction.followup.send(embed=discord.Embed(title=f"Season {season} Leaderboard (by {mode}):", description=message))
+    await interaction.followup.send(embed=discord.Embed(title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode}):", description=message))
 
+@tree.command()
+@app_commands.describe(
+    season='Beta Season 15 or later'
+)
+async def leaderboard_moonrock_miners(interaction: discord.Interaction, season: int = -1):
+    '''Return the specified season leaderboard of Moonrock Miners, default current'''
+
+    await interaction.response.defer(ephemeral=False, thinking=True)
+    
+    curr_season = server_config_2['season']
+
+    # Reassign season if unreasonable
+    if season < 14 or season > curr_season:
+        season = curr_season
+
+    # Get leaderboard info
+    response = await moonrock_client.query_leaderboard(season, "trophies")
+    records = json.loads(response['payload'])['records']
+
+    # Using f-string spacing to pretty print the leaderboard labels (bold)
+    message = f"```ansi\n\u001b[1m{'Rank:':<5} {'Name:':<20} {'Trophies:'}\u001b[0m\n{'—' * 37}\n"
+
+    # Using f-string spacing to pretty print the leaderboard.
+    for record in records:
+        message += f"\u001b[1m{'#' + str(record['rank']):<5}\u001b[0m "  # Rank (bold)
+        message += f"{record['username']:<20} "  # Name
+        message += f"{'🏆' + '{:,}'.format(record['score'])}\n"  # Points
+    message += "```"
+
+    # Send
+    await interaction.followup.send(embed=discord.Embed(
+        title=f"Moonrock Miners 🛸\nBeta Season {season} Leaderboard:", description=message))
 
 @tree.command()
 @app_commands.describe(
