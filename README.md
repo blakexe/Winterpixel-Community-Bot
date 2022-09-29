@@ -17,7 +17,7 @@ Join the discord to use the bot!
 
 ### Rocket Bot Royale:
 - Get user profile either via friend code or user id.
-- List the leaderboard of any season, sorted by trophies (season 10 onwards) or points (season 0 onwards).
+- List the leaderboard of any season, sorted by trophies (season 10 or later) or points (season 0 or later).
 
 ## Commands:
 | **Command** | **Description** |
