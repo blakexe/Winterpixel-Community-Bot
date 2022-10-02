@@ -216,7 +216,7 @@ async def leaderboard_rocket_bot_royale(interaction: discord.Interaction, mode: 
     
     # Add to replit's database for new keys
     new_key_flag = False
-    if f"tankkings_{mode}_{season}" not in db.keys():
+    if f"tankkings_{mode.lower()}_{season}" not in db.keys():
       value = dict()
       for record in records:
           value[record['owner_id']] = {'rank': record['rank'], 'score': record['score']}
