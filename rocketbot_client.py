@@ -66,7 +66,7 @@ class RocketBotClient(object):
 
         data = {
             "leaderboard": leaderboard_id,
-            "limit": 50,
+            "limit": 100,
             "cursor": "",
             "owner_ids": [],
             "season": season
