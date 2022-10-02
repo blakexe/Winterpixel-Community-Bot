@@ -186,114 +186,12 @@ async def on_ready():
     print("Winterpixel community bot is ready.")
 
 
-# @tree.command()
-# @app_commands.describe(
-#     mode='Leaderboard by trophies or points',
-#     season='Trophies: Season 10 or later / Points: Season 0 or later, default current'
-# )
-# async def leaderboard_rocket_bot_royale(interaction: discord.Interaction, mode: typing.Literal['Trophies', 'Points'], season: int = -1):
-#     '''Return the specified season leaderboard of Rocket Bot Royale (by trophies/points), default current'''
-
-#     await interaction.response.defer(ephemeral=False, thinking=True)
-
-#     curr_season = server_config['season']
-
-#     # If season is unreasonable, default to current season
-#     if mode == "Trophies":
-#         if season < 10 or season > curr_season:
-#             season = curr_season
-#     else:
-#         if season < 0 or season > curr_season:
-#             season = curr_season
-
-#     # Get leaderboard info
-#     if mode == "Trophies":
-#         response = await rocketbot_client.query_leaderboard(season, "tankkings_trophies")
-#     else:
-#         response = await rocketbot_client.query_leaderboard(season)
-#     records = json.loads(response['payload'])['records']
-
-#     if mode == "Trophies":  # By Tropihes
-#         # Using f-string spacing to pretty print the leaderboard labels (bold)
-#         message = f"```ansi\n\u001b[1m{'Rank:':<5} {'Name:':<20} {'Trophies:'}\u001b[0m\n{'─' * 37}\n"
-
-#         # Using f-string spacing to pretty print the leaderboard.
-#         split = [0, 1, 5, 10, 20, 50]
-#         tier = ["King", "Elite", "Champion", "Diamond", "Ruby"]
-#         tier_color_code = ["35", "32", "33", "34", "31"]
-#         split_init = 0
-#         for i in range(len(split) - 1):
-#             for j in range(split[split_init], split[split_init+1]):
-#                 # Rank (bold)
-#                 message += f"\u001b[1;{tier_color_code[split_init]}m{'#' + str(records[j]['rank']):<5}\u001b[0m "
-#                 message += ("\u001b[1;33m" if records[j]['metadata']['has_season_pass'] else "") + f"{records[j]['username']:<20}" + (
-#                     "\u001b[0m " if records[j]['metadata']['has_season_pass'] else " ")  # Name and color for players with season pass
-#                 # Trophies
-#                 message += f"{'🏆' + '{:,}'.format(records[j]['score'])}\n"
-#             tier_name_with_space = " "+tier[split_init]+" "
-#             # Tier seperator (bold)
-#             message += f"\u001b[1;{tier_color_code[split_init]}m{tier_name_with_space.center(37, '─')}\u001b[0m\n"
-#             split_init += 1
-#         message += "```"
-
-#     else:  # By Points
-#         # Using f-string spacing to pretty print the leaderboard labels (bold)
-#         message = f"```ansi\n\u001b[1m{'Rank:':<5} {'Name:':<20} {'Points:'}\u001b[0m\n{'─' * 37}\n"
-
-#         # Using f-string spacing to pretty print the leaderboard.
-#         for record in records:
-#             # Rank (bold)
-#             message += f"\u001b[1m{'#' + str(record['rank']):<5}\u001b[0m "
-#             try:  # For seasons without 'has season pass' key
-#                 message += ("\u001b[1;33m" if record['metadata']['has_season_pass'] else "") + f"{record['username']:<20}" + (
-#                     "\u001b[0m " if record['metadata']['has_season_pass'] else " ")  # Name and color for players with season pass
-#             except:
-#                 message += f"{record['username']:<20} "  # Name
-#             message += f"{'🧊' + '{:,}'.format(record['score'])}\n"  # Points
-#         message += "```"
-
-#     # Send
-#     await interaction.followup.send(embed=discord.Embed(title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode}):", description=message))
-
-# @tree.command()
-# @app_commands.describe(
-#     season='Beta Season 14 or later'
-# )
-# async def leaderboard_moonrock_miners(interaction: discord.Interaction, season: int = -1):
-#     '''Return the specified season leaderboard of Moonrock Miners, default current'''
-
-#     await interaction.response.defer(ephemeral=False, thinking=True)
-    
-#     curr_season = server_config_2['season']
-
-#     # Reassign season if unreasonable
-#     if season < 14 or season > curr_season:
-#         season = curr_season
-
-#     # Get leaderboard info
-#     response = await moonrock_client.query_leaderboard(season, "trophies")
-#     records = json.loads(response['payload'])['records']
-
-#     # Using f-string spacing to pretty print the leaderboard labels (bold)
-#     message = f"```ansi\n\u001b[1m{'Rank:':<5} {'Name:':<20} {'Trophies:'}\u001b[0m\n{'—' * 37}\n"
-
-#     # Using f-string spacing to pretty print the leaderboard.
-#     for record in records:
-#         message += f"\u001b[1m{'#' + str(record['rank']):<5}\u001b[0m "  # Rank (bold)
-#         message += f"{record['username']:<20} "  # Name
-#         message += f"{'🏆' + '{:,}'.format(record['score'])}\n"  # Points
-#     message += "```"
-
-#     # Send
-#     await interaction.followup.send(embed=discord.Embed(
-#         title=f"Moonrock Miners 🛸\nBeta Season {season} Leaderboard:", description=message))
-
-@tree.command(guild=discord.Object(id=962142361935314996))
+@tree.command()
 @app_commands.describe(
     mode='Leaderboard by trophies or points',
     season='Trophies: Season 10 or later / Points: Season 0 or later, default current'
 )
-async def leaderboard_rocket_bot_royale_2(interaction: discord.Interaction, mode: typing.Literal['Trophies', 'Points'], season: int = -1):
+async def leaderboard_rocket_bot_royale(interaction: discord.Interaction, mode: typing.Literal['Trophies', 'Points'], season: int = -1):
     '''Return the specified season leaderboard of Rocket Bot Royale (by trophies/points), default current'''
 
     await interaction.response.defer(ephemeral=False, thinking=True)
@@ -427,11 +325,12 @@ async def leaderboard_rocket_bot_royale_2(interaction: discord.Interaction, mode
           value[record['owner_id']] = {'rank': record['rank'], 'score': record['score']}
       db[record['leaderboard_id']] = value
 
+
 @tree.command(guild=discord.Object(id=962142361935314996))
 @app_commands.describe(
     season='Beta Season 14 or later'
 )
-async def leaderboard_moonrock_miners_2(interaction: discord.Interaction, season: int = -1):
+async def leaderboard_moonrock_miners(interaction: discord.Interaction, season: int = -1):
     '''Return the specified season leaderboard of Moonrock Miners, default current'''
 
     await interaction.response.defer(ephemeral=False, thinking=True)
@@ -507,6 +406,7 @@ async def leaderboard_moonrock_miners_2(interaction: discord.Interaction, season
             value[record['owner_id']] = {
                 'rank': record['rank'], 'score': record['score']}
         db[record['leaderboard_id']] = value
+
 
 @tree.command()
 @app_commands.describe(
