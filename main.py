@@ -326,7 +326,7 @@ async def leaderboard_rocket_bot_royale(interaction: discord.Interaction, mode: 
       db[record['leaderboard_id']] = value
 
 
-@tree.command(guild=discord.Object(id=962142361935314996))
+@tree.command()
 @app_commands.describe(
     season='Beta Season 14 or later'
 )
