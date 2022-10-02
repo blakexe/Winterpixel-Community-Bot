@@ -177,8 +177,12 @@ async def on_ready():
     asyncio.create_task(refresh_config())
     asyncio.create_task(refresh_config_2())
 
-    for key in db.keys():
-        print(str(key) + str(db[key]))
+#     for key in db.keys():
+#         print(str(key) + str(db[key]))
+    matches_rbr = db.prefix("tankkings")
+    matches_mm = db.prefix("trophies")
+    print(matches_rbr)
+    print(matches_mm)
     print("Winterpixel community bot is ready.")
 
 
