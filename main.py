@@ -1,6 +1,5 @@
 import random
 import aiohttp
-import replit
 import discord
 import json
 import asyncio
@@ -1670,7 +1669,7 @@ async def get_crate_stats(interaction: discord.Interaction, one_star: int, two_s
         expected_elite_crate = []
         expected_coins_spent = []
 
-        for i in range(0, 1001):
+        for i in range(0, 1000):
             basic_crates = 0
             prob = 1 - one_star_prob * a - two_star_prob * b - three_star_prob * c
             collected = set()
