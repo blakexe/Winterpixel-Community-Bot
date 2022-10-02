@@ -301,18 +301,18 @@ async def leaderboard_rocket_bot_royale_2(interaction: discord.Interaction, mode
     curr_season = server_config['season']
 
     #Reassign season if unreasonable
-    if mode == "trophies":
+    if mode == "Trophies":
         if season < 10 or season > curr_season:
             season = curr_season
-    elif mode == "points":
+    elif mode == "Points":
         if season < 0 or season > curr_season:
             season = curr_season
 
     #Get leaderboard info
-    if mode == "trophies":
+    if mode == "Trophies":
         response = await rocketbot_client.query_leaderboard(
             season, "tankkings_trophies")
-    elif mode == "points":
+    elif mode == "Points":
         response = await rocketbot_client.query_leaderboard(season)
     records = json.loads(response['payload'])['records']
     
@@ -325,7 +325,7 @@ async def leaderboard_rocket_bot_royale_2(interaction: discord.Interaction, mode
       db[record['leaderboard_id']] = value
       new_key_flag = True
 
-    if mode == "trophies":  # By Tropihes
+    if mode == "Trophies":  # By Tropihes
         # Using f-string spacing to pretty print the leaderboard labels (bold)
         message = ""
         label = f"```ansi\n\u001b[1m    {'Rank:':<5} {'Name:':<20} {'Trophies:'}\u001b[0m\n{'—' * 45}\n"
@@ -371,7 +371,7 @@ async def leaderboard_rocket_bot_royale_2(interaction: discord.Interaction, mode
             message += f"\u001b[1;{tier_color_code[split_init]}m{tier_name_with_space.center(45, '—')}\u001b[0m\n"
             split_init += 1
 
-    elif mode == "points":  #By Points
+    elif mode == "Points":  #By Points
         #Using f-string spacing to pretty print the leaderboard labels (bold)
         message = ""
         label = f"```ansi\n\u001b[1m    {'Rank:':<5} {'Name:':<20} {'Points:'}\u001b[0m\n{'—' * 47}\n"
@@ -411,7 +411,7 @@ async def leaderboard_rocket_bot_royale_2(interaction: discord.Interaction, mode
             message += f"{'🧊' + '{:<8,.0f}'.format(records[i]['score'])}{points_diff_2}\n"  #Points
 
     # Split message
-    split_line_number = 26 if mode == "trophies" else 24
+    split_line_number = 26 if mode == "Trophies" else 24
     message1 = label + message[:[m.start() for m in re.finditer(r"\n", message)][split_line_number]] + "```"
     message2 = "```ansi\n" + message[([m.start() for m in re.finditer(r"\n", message)][split_line_number])+1:] + "```"
     
