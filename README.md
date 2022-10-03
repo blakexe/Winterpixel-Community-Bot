@@ -37,7 +37,7 @@ Join the discord to use the bot!
 | **`/discord_coins_leaderboard`** *| Return the discord coins leaderboard |
 | **`/random_tank`** | Get a random tank |
 | **`/long`** `length` `(barrel)`  | Build your supercalifragilisticexpialidocious long tank equipped with as many barrels as you want! |
-| **`/get_crate_stats`** `one_star` `two_star` | Optimize the use of in game crates and Estimate the amount of coins |
+| **`/get_crate_stats`** `one_star` `two_star` `three_star` | Optimize the use of in game crates and Estimate the amount of coins |
 | **`/slot`** `bet` * | Play the slot machine game |
 | **`/memory`** * | Test your memory by matching 2 tanks! |
 | **`/season`** | Return the current season and remaining time |
