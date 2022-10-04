@@ -547,7 +547,7 @@ async def leaderboard_moonrock_miners(interaction: discord.Interaction, changes:
 
             while True:
                 try:
-                    reaction, user = await tree.wait_for("reaction_add", timeout=10, check=check)
+                    reaction, user = await client.wait_for("reaction_add", timeout=10, check=check)
                     # Waiting for a reaction to be added - times out after 10 seconds
 
                     if str(reaction.emoji) == "▶️" and cur_page == 1:  # Go to Page 2
