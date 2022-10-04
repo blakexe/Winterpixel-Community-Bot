@@ -423,7 +423,7 @@ async def leaderboard_rocket_bot_royale(interaction: discord.Interaction, mode: 
 
 @tree.command(guild=discord.Object(id=962142361935314996))
 @app_commands.describe(
-    changes='Only available for Top 50 records of current season, changes since last command used'
+    changes='Only available for Top 50 records of current season, changes since last command used',
     season='Beta Season 14 or later'
 )
 async def leaderboard_moonrock_miners(interaction: discord.Interaction, changes: typing.Literal['Shown', 'Hidden'], season: int = -1):
