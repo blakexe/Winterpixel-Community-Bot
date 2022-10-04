@@ -22,8 +22,7 @@ from replit import db
 from discord import app_commands
 from rocketbot_client import RocketBotClient
 from moonrock_client import MoonRockClient
-del db['tankkings_points_13']
-del db['tankkings_trophies_13']
+
 # Attempt to retrieve enviroment from environment.json
 working_directory = os.path.dirname(os.path.realpath(__file__))
 try:
