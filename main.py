@@ -265,7 +265,7 @@ async def leaderboard_rocket_bot_royale(interaction: discord.Interaction, mode: 
                   trophies_diff_2 = f"{'':<5}"
                 message += f"{'🏆' + '{:<6,.0f}'.format(records[j]['score'])}{trophies_diff_2}\n"
             tier_name_with_space = " " + tier[split_init] + " "
-            # Tier seperator (bold)
+            # Tier separator (bold)
             message += f"\u001b[1;{tier_color_code[split_init]}m{tier_name_with_space.center(45, '—')}\u001b[0m\n"
             split_init += 1
 
@@ -1048,7 +1048,7 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
             message += f"🌟 ***Trails***:\n{trail_list}\n"
 
         if section in {"All"}:
-            # Seperate message for cosmetics related info for all sections to avoid message exceeds length limit
+            # Separate message for cosmetics related info for all sections to avoid message exceeds length limit
             message_2 = ""
             message_2 += f"📦 ***Items Collected***:\n{s}\n"
             message_2 += f"🪖 ***Tanks***:\n{tank_list}\n"
