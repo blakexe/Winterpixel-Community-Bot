@@ -377,7 +377,10 @@ async def on_ready():
     season='Trophies: Season 10 or later / Points: Season 0 or later, default current'
 )
 async def leaderboard_rocket_bot_royale(interaction: discord.Interaction, mode: typing.Literal['Trophies', 'Points'], changes: typing.Literal['Shown', 'Hidden'], season: int = -1):
-
+    '''Return the specified season leaderboard of Rocket Bot Royale (by trophies/points), default current'''
+    
+    await interaction.response.defer(ephemeral=False, thinking=True)
+    
     def check(reaction, user):
         return user == interaction.user and str(reaction.emoji) in ["◀️", "▶️", "⏪", "⏹️"]
         # This makes sure nobody except the command sender can interact with the "menu"
