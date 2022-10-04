@@ -432,7 +432,7 @@ async def leaderboard_moonrock_miners(interaction: discord.Interaction, changes:
     await interaction.response.defer(ephemeral=False, thinking=True)
 
     def check(reaction, user):
-        return user == interaction.user.id and str(reaction.emoji) in ["◀️", "▶️", "⏪", "⏹️"]
+        return user == interaction.user and str(reaction.emoji) in ["◀️", "▶️", "⏪", "⏹️"]
         # This makes sure nobody except the command sender can interact with the "menu"
 
     curr_season = server_config_2['season']
