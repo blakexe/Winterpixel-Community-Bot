@@ -1,4 +1,7 @@
-import datetime, aiohttp, json, os
+import datetime
+import aiohttp
+import json
+import os
 
 
 class AuthError(BaseException):
@@ -29,7 +32,7 @@ class MoonRockClient(object):
             return await response.text()
 
     async def refresh_token(self):
-        #Only refresh token if 9 minutes have passed
+        # Only refresh token if 9 minutes have passed
         if self.token != None:
             time = datetime.datetime.now() - self.last_refresh
 
@@ -45,11 +48,11 @@ class MoonRockClient(object):
         }
 
         headers = {
-            #Secret to initially access server.
+            # Secret to initially access server.
             "authorization": os.environ['secret']
         }
 
-        #Get token
+        # Get token
         try:
             response = json.loads(await self.post(
                 "https://asteroids-production-dev-nakama.winterpixel.io/v2/account/authenticate/email?create=false",
@@ -70,22 +73,19 @@ class MoonRockClient(object):
             headers=headers,
             data="{}"))
 
-    async def query_leaderboard(self,
-                                season: int,
-                                leaderboard_id: str):
+    async def query_leaderboard(self, season: int, leaderboard_id: str, limit: int = 100, cursor: str = ""):
         await self.refresh_token()
 
         data = {
             "leaderboard": leaderboard_id,
-            "limit": 100,
-            "cursor": "",
+            "limit": limit,
+            "cursor": cursor,
             "owner_ids": [],
             "season": season
         }
 
-        headers = {"authorization": f"Bearer {self.token}"}
+        headers = {
+            "authorization": f"Bearer {self.token}"
+        }
 
-        return json.loads(await self.post(
-            "https://asteroids-production-dev-nakama.winterpixel.io/v2/rpc/query_leaderboard",
-            data=json.dumps(data),
-            headers=headers))
+        return json.loads(await self.post("https://asteroids-production-dev-nakama.winterpixel.io/v2/rpc/query_leaderboard", data=json.dumps(data), headers=headers))
