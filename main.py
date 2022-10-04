@@ -9,6 +9,7 @@ import io
 import datetime
 import time
 import re
+import numpy as np
 import matplotlib.pyplot as plt
 from math import ceil, floor
 from collections import defaultdict, OrderedDict, Counter
@@ -21,7 +22,8 @@ from replit import db
 from discord import app_commands
 from rocketbot_client import RocketBotClient
 from moonrock_client import MoonRockClient
-
+del db['tankkings_points_13']
+del db['tankkings_trophies_13']
 # Attempt to retrieve enviroment from environment.json
 working_directory = os.path.dirname(os.path.realpath(__file__))
 try:
@@ -71,6 +73,35 @@ tanks = ['<:pumpkin_tank:1022568065034104936>', '<a:pumpkin_evolved_tank_a:10225
 
 os.system('clear')
 
+def season_info(season):
+    season_durations = []
+    season_start_numbers = []
+    season_start_timestamps = []
+    for key in server_config['season_definitions']:
+        season_durations.append(key['season_duration'])
+        season_start_numbers.append(key['season_start_number'])
+        season_start_timestamps.append(key['season_start_timestamp'])
+
+    season_index = np.searchsorted(season_start_numbers, season+1)-1
+
+    season_start_timestamp = season_start_timestamps[season_index] + (
+        season - season_start_numbers[season_index]) * season_durations[season_index]
+    season_start = f"{datetime.datetime.utcfromtimestamp(season_start_timestamp):%Y-%m-%d %H:%M:%S} UTC"
+
+    season_end_timestamp = season_start_timestamp + \
+        season_durations[season_index]
+    season_end = f"{datetime.datetime.utcfromtimestamp(season_end_timestamp):%Y-%m-%d %H:%M:%S} UTC"
+
+    season_duration = season_durations[season_index]
+    season_days = f"{season_duration/(60*60*24):.0f} days"
+
+    current_timestamp = time.time()
+    if current_timestamp > season_end_timestamp:
+        status = "\u001b[2;31mEnded\u001b[0m"
+    else:
+        status = f"\u001b[2;32mIn progress\u001b[0m ({((current_timestamp - season_start_timestamp)/season_duration)*100:.0f} %)"
+    all_season_info = [season_start, season_end, season_days, status]
+    return all_season_info
 
 def generate_random_name():
     adjective = [
@@ -200,19 +231,160 @@ async def on_ready():
     print("Winterpixel community bot is ready.")
 
 
-@tree.command()
+# @tree.command()
+# @app_commands.describe(
+#     mode='Leaderboard by trophies or points',
+#     season='Trophies: Season 10 or later / Points: Season 0 or later, default current'
+# )
+# async def leaderboard_rocket_bot_royale(interaction: discord.Interaction, mode: typing.Literal['Trophies', 'Points'], season: int = -1):
+#     '''Return the specified season leaderboard of Rocket Bot Royale (by trophies/points), default current'''
+
+#     await interaction.response.defer(ephemeral=False, thinking=True)
+    
+#     curr_season = server_config['season']
+
+#     #Reassign season if unreasonable
+#     if mode == "Trophies":
+#         if season < 10 or season > curr_season:
+#             season = curr_season
+#     elif mode == "Points":
+#         if season < 0 or season > curr_season:
+#             season = curr_season
+
+#     #Get leaderboard info
+#     if mode == "Trophies":
+#         response = await rocketbot_client.query_leaderboard(
+#             season, "tankkings_trophies")
+#     elif mode == "Points":
+#         response = await rocketbot_client.query_leaderboard(season)
+#     records = json.loads(response['payload'])['records']
+    
+#     # Add to replit's database for new keys
+#     new_key_flag = False
+#     if f"tankkings_{mode.lower()}_{season}" not in db.keys():
+#       value = dict()
+#       for record in records:
+#           value[record['owner_id']] = {'rank': record['rank'], 'score': record['score']}
+#       db[record['leaderboard_id']] = value
+#       new_key_flag = True
+
+#     if mode == "Trophies":  # By Tropihes
+#         # Using f-string spacing to pretty print the leaderboard labels (bold)
+#         message = ""
+#         label = f"```ansi\n\u001b[1m    {'Rank:':<5} {'Name:':<20} {'Trophies:'}\u001b[0m\n{'—' * 45}\n"
+
+#         # Using f-string spacing to pretty print the leaderboard.
+#         split = [0, 1, 5, 10, 20, 50]
+#         tier = ["King", "Elite", "Champion", "Diamond", "Ruby"]
+#         tier_color_code = ["35", "32", "33", "34", "31"]
+#         split_init = 0
+#         for i in range(len(split) - 1):
+#             for j in range(split[split_init], split[split_init + 1]):
+#                 # Rank (bold)
+#                 # Rank difference
+#                 try:
+#                   rank_diff = records[j]['rank'] - db[records[j]['leaderboard_id']][records[j]['owner_id']]['rank']
+#                   if rank_diff < 0:
+#                     rank_diff_2 = f"\u001b[2;32m▲{abs(rank_diff):<3}\u001b[0m"
+#                   elif rank_diff > 0:
+#                     rank_diff_2 = f"\u001b[2;31m▼{abs(rank_diff):<3}\u001b[0m"
+#                   else:
+#                     rank_diff_2 = f"{'-':^4}"
+#                 except:
+#                   rank_diff_2 = f"{'':4}"
+#                 message += f"{rank_diff_2}\u001b[1;{tier_color_code[split_init]}m{'#' + str(records[j]['rank']):<5}\u001b[0m "
+#                 message += ("\u001b[1;33m" if records[j]['metadata']['has_season_pass'] else "") + f"{records[j]['username']:<20}" + (
+#                     "\u001b[0m " if records[j]['metadata']['has_season_pass'] else " ")  # Name and color for players with season pass
+
+#                 # Trophies
+#                 # Trophies difference
+#                 try:
+#                   trophies_diff = records[j]['score'] - db[records[j]['leaderboard_id']][records[j]['owner_id']]['score']
+#                   if trophies_diff < 0:
+#                     trophies_diff_2 = f"\u001b[2;31m-{abs(trophies_diff):<4}\u001b[0m"
+#                   elif trophies_diff > 0:
+#                     trophies_diff_2 = f"\u001b[2;32m+{abs(trophies_diff):<4}\u001b[0m"
+#                   else:
+#                     trophies_diff_2 = f"{'-':^5}"
+#                 except:
+#                   trophies_diff_2 = f"{'':<5}"
+#                 message += f"{'🏆' + '{:<6,.0f}'.format(records[j]['score'])}{trophies_diff_2}\n"
+#             tier_name_with_space = " " + tier[split_init] + " "
+#             # Tier separator (bold)
+#             message += f"\u001b[1;{tier_color_code[split_init]}m{tier_name_with_space.center(45, '—')}\u001b[0m\n"
+#             split_init += 1
+
+#     elif mode == "Points":  #By Points
+#         #Using f-string spacing to pretty print the leaderboard labels (bold)
+#         message = ""
+#         label = f"```ansi\n\u001b[1m    {'Rank:':<5} {'Name:':<20} {'Points:'}\u001b[0m\n{'—' * 47}\n"
+
+#         #Using f-string spacing to pretty print the leaderboard.
+#         for i in range(50):
+#             # Rank difference
+#             try:
+#               rank_diff = records[i]['rank'] - db[records[i]['leaderboard_id']][records[i]['owner_id']]['rank']
+#               if rank_diff < 0:
+#                 rank_diff_2 = f"\u001b[2;32m▲{abs(rank_diff):<3}\u001b[0m"
+#               elif rank_diff > 0:
+#                 rank_diff_2 = f"\u001b[2;31m▼{abs(rank_diff):<3}\u001b[0m"
+#               else:
+#                 rank_diff_2 = f"{'-':^4}"
+#             except:
+#               rank_diff_2 = f"{'':<4}"
+#             message += f"{rank_diff_2}\u001b[1m{'#' + str(records[i]['rank']):<5}\u001b[0m "  #Rank (bold)
+#             try:  #For seasons without 'has season pass' key
+#                 message += (
+#                     "\u001b[1;33m" if records[i]['metadata']['has_season_pass']
+#                     else "") + f"{records[i]['username']:<20}" + (
+#                         "\u001b[0m " if records[i]['metadata']['has_season_pass']
+#                         else " ")  #Name and color for players with season pass
+#             except:
+#                 message += f"{records[i]['username']:<20} "  #Name
+#             # Points
+#             # Points difference
+#             try:
+#               points_diff = records[i]['score'] - db[records[i]['leaderboard_id']][records[i]['owner_id']]['score']
+#               if points_diff > 0:
+#                 points_diff_2 = f"\u001b[2;32m+{abs(points_diff):<5}\u001b[0m"
+#               else:
+#                 points_diff_2 = f"{'-':^6}"
+#             except:
+#               points_diff_2 = f"{'':<6}"
+#             message += f"{'🧊' + '{:<8,.0f}'.format(records[i]['score'])}{points_diff_2}\n"  #Points
+
+#     # Split message
+#     split_line_number = 26 if mode == "Trophies" else 24
+#     message1 = label + message[:[m.start() for m in re.finditer(r"\n", message)][split_line_number]] + "```"
+#     message2 = "```ansi\n" + message[([m.start() for m in re.finditer(r"\n", message)][split_line_number])+1:] + "```"
+    
+#     #Send
+#     await interaction.followup.send(embed=discord.Embed(
+#         title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode}):", description=message1))
+#     await interaction.followup.send(embed=discord.Embed(description=message2))
+
+#     # Update to replit's database for old keys
+#     if (f"tankkings_{mode.lower()}_{season}" in db.keys()) and (new_key_flag == False):
+#       value = dict()
+#       for record in records:
+#           value[record['owner_id']] = {'rank': record['rank'], 'score': record['score']}
+#       db[record['leaderboard_id']] = value
+
+@tree.command(guild=discord.Object(id=962142361935314996))
 @app_commands.describe(
     mode='Leaderboard by trophies or points',
+    changes='Only available for Top 50 records of current season, changes since last command used',
     season='Trophies: Season 10 or later / Points: Season 0 or later, default current'
 )
-async def leaderboard_rocket_bot_royale(interaction: discord.Interaction, mode: typing.Literal['Trophies', 'Points'], season: int = -1):
-    '''Return the specified season leaderboard of Rocket Bot Royale (by trophies/points), default current'''
+async def leaderboard_rocket_bot_royale(interaction: discord.Interaction, mode: typing.Literal['Trophies', 'Points'], changes: typing.Literal['Shown', 'Hidden'], season: int = -1):
 
-    await interaction.response.defer(ephemeral=False, thinking=True)
-    
+    def check(reaction, user):
+        return user == interaction.user and str(reaction.emoji) in ["◀️", "▶️", "⏪", "⏹️"]
+        # This makes sure nobody except the command sender can interact with the "menu"
+
     curr_season = server_config['season']
 
-    #Reassign season if unreasonable
+    # Reassign season if unreasonable
     if mode == "Trophies":
         if season < 10 or season > curr_season:
             season = curr_season
@@ -220,125 +392,405 @@ async def leaderboard_rocket_bot_royale(interaction: discord.Interaction, mode: 
         if season < 0 or season > curr_season:
             season = curr_season
 
-    #Get leaderboard info
+    # Season Info
+    global season_info_2
+    season_info_2 = f"📓 ***Season Info***:\n```ansi\n{'Start: ':>10}{season_info(season)[0]}\n{'End: ':>10}{season_info(season)[1]}\n{'Duration: ':>10}{season_info(season)[2]}\n{'Status: ':>10}{season_info(season)[3]}\n```"
+
+    # Hide changes for past seasons
+    if season < curr_season:
+        changes = "Hidden"
+
+    # Get leaderboard info
+    if changes == "Shown":
+        limit = 100
+    elif changes == "Hidden":
+        limit = 25
+
     if mode == "Trophies":
         response = await rocketbot_client.query_leaderboard(
-            season, "tankkings_trophies")
+            season, "tankkings_trophies", limit)
     elif mode == "Points":
-        response = await rocketbot_client.query_leaderboard(season)
+        response = await rocketbot_client.query_leaderboard(
+            season, "tankkings_points", limit)
     records = json.loads(response['payload'])['records']
-    
-    # Add to replit's database for new keys
-    new_key_flag = False
-    if f"tankkings_{mode.lower()}_{season}" not in db.keys():
-      value = dict()
-      for record in records:
-          value[record['owner_id']] = {'rank': record['rank'], 'score': record['score']}
-      db[record['leaderboard_id']] = value
-      new_key_flag = True
+    start = records[0]['rank']
+    end = records[len(records)-1]['rank']
+    cursor_dict = dict()
+    cursor_dict[1] = ""
 
-    if mode == "Trophies":  # By Tropihes
-        # Using f-string spacing to pretty print the leaderboard labels (bold)
-        message = ""
-        label = f"```ansi\n\u001b[1m    {'Rank:':<5} {'Name:':<20} {'Trophies:'}\u001b[0m\n{'—' * 45}\n"
+    try:
+        cursor_dict[2] = json.loads(response['payload'])['next_cursor']
+        next_cursor = True
+    except:
+        next_cursor = False
 
-        # Using f-string spacing to pretty print the leaderboard.
-        split = [0, 1, 5, 10, 20, 50]
-        tier = ["King", "Elite", "Champion", "Diamond", "Ruby"]
-        tier_color_code = ["35", "32", "33", "34", "31"]
-        split_init = 0
-        for i in range(len(split) - 1):
-            for j in range(split[split_init], split[split_init + 1]):
-                # Rank (bold)
+    if changes == "Shown":
+        # Add to repl.it's database for new keys
+        new_key_flag = False
+        if f"tankkings_{mode.lower()}_{season}" not in db.keys():
+            value = dict()
+            for record in records:
+                value[record['owner_id']] = {
+                    'rank': record['rank'], 'score': record['score']}
+            value['last_update_time'] = f"{datetime.datetime.utcfromtimestamp(time.time()):%Y-%m-%d %H:%M:%S} UTC"
+            db[record['leaderboard_id']] = value
+            new_key_flag = True
+
+        if mode == "Trophies":  # By Tropihes
+            split = []
+            tier = []
+            for i in range(5):
+                split.append(server_config['trophy_tiers'][i]['maximum_rank'])
+                tier.append(server_config['trophy_tiers'][i]['name'].upper())
+            tier_color_code = ["35", "36", "33", "34", "31"]
+
+            # Using f-string spacing to pretty print the leaderboard labels (bold)
+            message = ""
+            label = f"{season_info_2}\n📊 ***Leaderboard***:```ansi\n\u001b[1m    {'Rank:':<5} {'Name:':<20} {'Trophies:'}\u001b[0m\n{'—' * 45}\n"
+
+            # Using f-string spacing to pretty print the leaderboard
+            if len(records) < 50:  # Prevent index out of range error
+                records_range = len(records)
+            else:
+                records_range = 50
+
+            for i in range(records_range):
+                # Determine which tier the player belongs to
+                tier_index = np.searchsorted(split, records[i]['rank'])
+
                 # Rank difference
                 try:
-                  rank_diff = records[j]['rank'] - db[records[j]['leaderboard_id']][records[j]['owner_id']]['rank']
-                  if rank_diff < 0:
-                    rank_diff_2 = f"\u001b[2;32m▲{abs(rank_diff):<3}\u001b[0m"
-                  elif rank_diff > 0:
-                    rank_diff_2 = f"\u001b[2;31m▼{abs(rank_diff):<3}\u001b[0m"
-                  else:
-                    rank_diff_2 = f"{'-':^4}"
+                    rank_diff = records[i]['rank'] - \
+                        db[records[i]['leaderboard_id']
+                           ][records[i]['owner_id']]['rank']
+                    if rank_diff < 0:
+                        rank_diff_2 = f"\u001b[2;32m▲{abs(rank_diff):<3}\u001b[0m"
+                    elif rank_diff > 0:
+                        rank_diff_2 = f"\u001b[2;31m▼{abs(rank_diff):<3}\u001b[0m"
+                    else:
+                        rank_diff_2 = f"{'-':^4}"
                 except:
-                  rank_diff_2 = f"{'':4}"
-                message += f"{rank_diff_2}\u001b[1;{tier_color_code[split_init]}m{'#' + str(records[j]['rank']):<5}\u001b[0m "
-                message += ("\u001b[1;33m" if records[j]['metadata']['has_season_pass'] else "") + f"{records[j]['username']:<20}" + (
-                    "\u001b[0m " if records[j]['metadata']['has_season_pass'] else " ")  # Name and color for players with season pass
+                    rank_diff_2 = f"{'':4}"  # Not found in repl.it's database
 
-                # Trophies
+                # Rank (bold)
+                message += f"{rank_diff_2}\u001b[1;{tier_color_code[tier_index]}m{'#' + str(records[i]['rank']):<5}\u001b[0m "
+
+                # Name and color for players with season pass
+                message += ("\u001b[1;33m" if records[i]['metadata']['has_season_pass'] else "") + f"{records[i]['username']:<20}" + (
+                    "\u001b[0m " if records[i]['metadata']['has_season_pass'] else " ")
+
                 # Trophies difference
                 try:
-                  trophies_diff = records[j]['score'] - db[records[j]['leaderboard_id']][records[j]['owner_id']]['score']
-                  if trophies_diff < 0:
-                    trophies_diff_2 = f"\u001b[2;31m-{abs(trophies_diff):<4}\u001b[0m"
-                  elif trophies_diff > 0:
-                    trophies_diff_2 = f"\u001b[2;32m+{abs(trophies_diff):<4}\u001b[0m"
-                  else:
-                    trophies_diff_2 = f"{'-':^5}"
+                    trophies_diff = records[i]['score'] - \
+                        db[records[i]['leaderboard_id']
+                           ][records[i]['owner_id']]['score']
+                    if trophies_diff < 0:
+                        trophies_diff_2 = f"\u001b[2;31m-{abs(trophies_diff):<4}\u001b[0m"
+                    elif trophies_diff > 0:
+                        trophies_diff_2 = f"\u001b[2;32m+{abs(trophies_diff):<4}\u001b[0m"
+                    else:
+                        trophies_diff_2 = f"{'-':^5}"
                 except:
-                  trophies_diff_2 = f"{'':<5}"
-                message += f"{'🏆' + '{:<6,.0f}'.format(records[j]['score'])}{trophies_diff_2}\n"
-            tier_name_with_space = " " + tier[split_init] + " "
-            # Tier separator (bold)
-            message += f"\u001b[1;{tier_color_code[split_init]}m{tier_name_with_space.center(45, '—')}\u001b[0m\n"
-            split_init += 1
+                    # Not found in repl.it's database
+                    trophies_diff_2 = f"{'':<5}"
 
-    elif mode == "Points":  #By Points
-        #Using f-string spacing to pretty print the leaderboard labels (bold)
-        message = ""
-        label = f"```ansi\n\u001b[1m    {'Rank:':<5} {'Name:':<20} {'Points:'}\u001b[0m\n{'—' * 47}\n"
+                # Trophies
+                message += f"{'🏆' + '{:<6,.0f}'.format(records[i]['score'])}{trophies_diff_2}\n"
 
-        #Using f-string spacing to pretty print the leaderboard.
-        for i in range(50):
-            # Rank difference
+                # Tier separators (bold)
+                if (records[i]['rank'] in split and records[i]['rank'] % 25 != 0):
+                    tier_name_with_space = " "+tier[tier_index]+" "
+                    message += f"\u001b[1;{tier_color_code[tier_index]}m{tier_name_with_space.center(45, '─')}\u001b[0m\n"
+
+        elif mode == "Points":  # By Points
+            # Using f-string spacing to pretty print the leaderboard labels (bold)
+            message = ""
+            label = f"{season_info_2}\n📊 ***Leaderboard***:```ansi\n\u001b[1m    {'Rank:':<5} {'Name:':<20} {'Points:'}\u001b[0m\n{'—' * 47}\n"
+
+            # Using f-string spacing to pretty print the leaderboard
+            if len(records) < 50:  # Prevent index out of range error
+                records_range = len(records)
+            else:
+                records_range = 50
+
+            for i in range(records_range):
+                # Rank difference
+                try:
+                    rank_diff = records[i]['rank'] - db[records[i]
+                                                        ['leaderboard_id']][records[i]['owner_id']]['rank']
+                    if rank_diff < 0:
+                        rank_diff_2 = f"\u001b[2;32m▲{abs(rank_diff):<3}\u001b[0m"
+                    elif rank_diff > 0:
+                        rank_diff_2 = f"\u001b[2;31m▼{abs(rank_diff):<3}\u001b[0m"
+                    else:
+                        rank_diff_2 = f"{'-':^4}"
+                except:
+                    rank_diff_2 = f"{'':<4}"  # Not found in repl.it's database
+
+                # Rank (bold)
+                message += f"{rank_diff_2}\u001b[1m{'#' + str(records[i]['rank']):<5}\u001b[0m "
+
+                # Name and color for players with season pass
+                try:  # For seasons without 'has season pass' key
+                    message += (
+                        "\u001b[1;33m" if records[i]['metadata']['has_season_pass']
+                        else "") + f"{records[i]['username']:<20}" + (
+                            "\u001b[0m " if records[i]['metadata']['has_season_pass']
+                            else " ")
+                except:
+                    message += f"{records[i]['username']:<20} "  # Name only
+
+                # Points difference
+                try:
+                    points_diff = records[i]['score'] - db[records[i]
+                                                           ['leaderboard_id']][records[i]['owner_id']]['score']
+                    if points_diff > 0:
+                        points_diff_2 = f"\u001b[2;32m+{abs(points_diff):<5}\u001b[0m"
+                    else:
+                        points_diff_2 = f"{'-':^6}"
+                except:
+                    # Not found ind repl.it's database
+                    points_diff_2 = f"{'':<6}"
+
+                # Points
+                message += f"{'🧊' + '{:<8,.0f}'.format(records[i]['score'])}{points_diff_2}\n"
+
+        # Split message
+        cannot_split = False  # Prevent index out of range error
+        split_line_number = 26 if mode == "Trophies" else 24  # Evenly split message
+        try:  # In case there are not enough records
+            message1 = message[:[m.start() for m in re.finditer(r"\n", message)]
+                               [split_line_number]]
+            message2 = message[([m.start() for m in re.finditer(r"\n", message)]
+                                [split_line_number])+1:] + ("\u001b[1;31m———————————————————— RUBY ———————————————————\u001b[0m\n" if mode == "Trophies" else "")+"```"
+        except:
+            cannot_split = True
+
+        # Send
+        if cannot_split == False:
+            cur_page = 1
+            embed_init = discord.Embed(
+                title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode}):", description=label+message1+("\n\u001b[1;31m———————————————————— RUBY ———————————————————\u001b[0m\n" if mode == "Trophies" else "")+"```")
+            embed_init.set_footer(
+                text=f"Page 1/2:  1 to 25 | Changes since {db[f'tankkings_{mode.lower()}_{season}']['last_update_time']}")
+            msg = await interaction.followup.send(embed=embed_init)
+            msg2 = await interaction.followup.send(embed=discord.Embed(description="To be edited..."))
+
+            for reaction_emoji in ["◀️", "▶️", "⏹️"]:
+                await msg.add_reaction(reaction_emoji)
+
+            while True:
+                try:
+                    reaction, user = await client.wait_for("reaction_add", timeout=10, check=check)
+                    # Waiting for a reaction to be added - times out after 10 seconds
+
+                    if str(reaction.emoji) == "▶️" and cur_page == 1:  # Go to Page 2
+                        cur_page += 1
+                        embed_first = discord.Embed(
+                            title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode}):", description="\n"+label+message2)
+                        embed_first.set_footer(
+                            text=f"Page 2/2: 26 to 50 | Changes since {db[f'tankkings_{mode.lower()}_{season}']['last_update_time']}")
+                        await msg.edit(embed=embed_first)
+                        await msg.remove_reaction(reaction, user)
+
+                    elif str(reaction.emoji) == "◀️" and cur_page == 2:  # Go to Page 1
+                        cur_page -= 1
+                        embed_second = discord.Embed(
+                            title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode}):", description="\n"+label+message1+("\n\u001b[1;31m———————————————————— RUBY ———————————————————\u001b[0m\n" if mode == "Trophies" else "")+"```")
+                        embed_second.set_footer(
+                            text=f"Page 1/2:  1 to 25 | Changes since {db[f'tankkings_{mode.lower()}_{season}']['last_update_time']}")
+                        await msg.edit(embed=embed_second)
+                        await msg.remove_reaction(reaction, user)
+
+                    elif str(reaction.emoji) == "⏹️":  # Exit page view and end the loop
+                        await msg.edit(embed=discord.Embed(
+                            title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode}):", description=label+message1+"```"))
+                        embed_second_timeout = discord.Embed(
+                            description="```ansi\n"+message2)
+                        embed_second_timeout.set_footer(
+                            text=f"Changes since {db[f'tankkings_{mode.lower()}_{season}']['last_update_time']}")
+                        await msg2.edit(embed=embed_second_timeout)
+                        await msg.clear_reactions()
+                        break
+
+                    else:
+                        await msg.remove_reaction(reaction, user)
+                        # Removes reactions if invalid
+                except asyncio.TimeoutError:
+                    await msg.edit(embed=discord.Embed(
+                        title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode}):", description=label+message1+"```"))
+                    embed_second_timeout = discord.Embed(
+                        description="```ansi\n"+message2)
+                    embed_second_timeout.set_footer(
+                        text=f"Changes since {db[f'tankkings_{mode.lower()}_{season}']['last_update_time']}")
+                    await msg2.edit(embed=embed_second_timeout)
+                    await msg.clear_reactions()
+                    break
+                    # Ending the loop if user doesn't react after 10 seconds
+        elif cannot_split == True:  # Send in 1 message if there are too little records
+            await interaction.followup.send(embed=discord.Embed(
+                title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode}):", description=label+message+"```"))
+
+        # Update to repl.it's database for old keys
+        if (f"tankkings_{mode.lower()}_{season}" in db.keys()) and (new_key_flag == False):
+            value = dict()
+            for record in records:
+                value[record['owner_id']] = {
+                    'rank': record['rank'], 'score': record['score']}
+            value['last_update_time'] = f"{datetime.datetime.utcfromtimestamp(time.time()):%Y-%m-%d %H:%M:%S} UTC"
+            db[record['leaderboard_id']] = value
+
+    elif changes == "Hidden":
+        if mode == "Trophies":  # By Tropihes
+            def trophies_hidden(last=True, fifty=False):
+                split = []
+                tier = []
+                for i in range(12):
+                    split.append(
+                        server_config['trophy_tiers'][i]['maximum_rank'])
+                    tier.append(
+                        server_config['trophy_tiers'][i]['name'].upper())
+                tier_color_code = ["35", "36", "33", "34", "31",
+                                   "32", "35", "31", "33", "30", "37", "37"]
+
+                # Using f-string spacing to pretty print the leaderboard labels (bold)
+                message = f"{season_info_2}\n📊 ***Leaderboard***:```ansi\n\u001b[1m{'Rank:':<5} {'Name:':<20} {'Trophies:'}\u001b[0m\n{'─' * 37}\n"
+
+                # Using f-string spacing to pretty print the leaderboard
+                for record in records:
+                    # Determine which tier the player belongs to
+                    tier_index = np.searchsorted(split, record['rank'])
+
+                    # Rank (bold)
+                    message += f"\u001b[1;{tier_color_code[tier_index]}m{'#' + str(record['rank']):<5}\u001b[0m "
+
+                    # Name and color for players with season pass
+                    try:  # For seasons without 'has season pass' key
+                        message += ("\u001b[1;33m" if record['metadata']['has_season_pass'] else "") + f"{record['username']:<20}" + (
+                            "\u001b[0m " if record['metadata']['has_season_pass'] else " ")
+                    except:
+                        message += f"{record['username']:<20} "  # Name only
+
+                    # Trophies
+                    message += f"{'🏆' + '{:,}'.format(record['score'])}\n"
+
+                    # Tier separators (bold)
+                    if (record['rank'] in split and record['rank'] % 25 != 0) or (last == True and record['rank'] % 25 == 0) or (len(records) != 25 and record['rank'] % 25 == len(records)):
+                        tier_name_with_space = " "+tier[tier_index]+" "
+                        message += f"\u001b[1;{tier_color_code[tier_index]}m{tier_name_with_space.center(37, '─')}\u001b[0m\n"
+
+                if fifty == True:
+                    message += "\u001b[1;31m──────────────── RUBY ───────────────\u001b[0m\n"
+                message += "```"
+                return message
+
+            message = f"```ansi\n\u001b[1m{'Rank:':<5} {'Name:':<20} {'Trophies:'}\u001b[0m\n{'─' * 37}\n"
+
+        elif mode == "Points":  # By Points
+            def points_hidden():
+                # Using f-string spacing to pretty print the leaderboard labels (bold)
+                message = (f"{season_info_2}\n📊 ***Leaderboard***:" if season != 0 else "") + \
+                    f"```ansi\n\u001b[1m{'Rank:':<5} {'Name:':<20} {'Points:'}\u001b[0m\n{'─' * 37}\n"
+
+                # Using f-string spacing to pretty print the leaderboard
+                for record in records:
+                    # Rank (bold)
+                    message += f"\u001b[1m{'#' + str(record['rank']):<5}\u001b[0m "
+
+                    # Name and color for players with season pass
+                    try:  # For seasons without 'has season pass' key
+                        message += ("\u001b[1;33m" if record['metadata']['has_season_pass'] else "") + f"{record['username']:<20}" + (
+                            "\u001b[0m " if record['metadata']['has_season_pass'] else " ")
+                    except:
+                        message += f"{record['username']:<20} "  # Name only
+
+                    # Points
+                    message += f"{'🧊' + '{:,}'.format(record['score'])}\n"
+                message += "```"
+                return message
+
+        # Send
+        cur_page = 1
+        embed_init = discord.Embed(title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode}):", description=(
+            points_hidden() if mode == "Points" else trophies_hidden()))
+        embed_init.set_footer(
+            text=f"Page {cur_page:<2}: {start:<4} to {end:<4}")
+        msg = await interaction.followup.send(embed=embed_init)
+
+        for reaction_emoji in ["◀️", "▶️", "⏪", "⏹️"]:
+            await msg.add_reaction(reaction_emoji)
+
+        while True:
             try:
-              rank_diff = records[i]['rank'] - db[records[i]['leaderboard_id']][records[i]['owner_id']]['rank']
-              if rank_diff < 0:
-                rank_diff_2 = f"\u001b[2;32m▲{abs(rank_diff):<3}\u001b[0m"
-              elif rank_diff > 0:
-                rank_diff_2 = f"\u001b[2;31m▼{abs(rank_diff):<3}\u001b[0m"
-              else:
-                rank_diff_2 = f"{'-':^4}"
-            except:
-              rank_diff_2 = f"{'':<4}"
-            message += f"{rank_diff_2}\u001b[1m{'#' + str(records[i]['rank']):<5}\u001b[0m "  #Rank (bold)
-            try:  #For seasons without 'has season pass' key
-                message += (
-                    "\u001b[1;33m" if records[i]['metadata']['has_season_pass']
-                    else "") + f"{records[i]['username']:<20}" + (
-                        "\u001b[0m " if records[i]['metadata']['has_season_pass']
-                        else " ")  #Name and color for players with season pass
-            except:
-                message += f"{records[i]['username']:<20} "  #Name
-            # Points
-            # Points difference
-            try:
-              points_diff = records[i]['score'] - db[records[i]['leaderboard_id']][records[i]['owner_id']]['score']
-              if points_diff > 0:
-                points_diff_2 = f"\u001b[2;32m+{abs(points_diff):<5}\u001b[0m"
-              else:
-                points_diff_2 = f"{'-':^6}"
-            except:
-              points_diff_2 = f"{'':<6}"
-            message += f"{'🧊' + '{:<8,.0f}'.format(records[i]['score'])}{points_diff_2}\n"  #Points
+                reaction, user = await client.wait_for("reaction_add", timeout=10, check=check)
+                # Waiting for a reaction to be added - times out after 10 seconds
 
-    # Split message
-    split_line_number = 26 if mode == "Trophies" else 24
-    message1 = label + message[:[m.start() for m in re.finditer(r"\n", message)][split_line_number]] + "```"
-    message2 = "```ansi\n" + message[([m.start() for m in re.finditer(r"\n", message)][split_line_number])+1:] + "```"
-    
-    #Send
-    await interaction.followup.send(embed=discord.Embed(
-        title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode}):", description=message1))
-    await interaction.followup.send(embed=discord.Embed(description=message2))
+                if str(reaction.emoji) == "▶️" and next_cursor != False:  # Next page
+                    cur_page += 1
+                    response = await rocketbot_client.query_leaderboard(
+                        season, ("tankkings_points" if mode == "Points" else "tankkings_trophies"), 25, cursor_dict[cur_page])
+                    records = json.loads(response['payload'])['records']
+                    start = records[0]['rank']
+                    end = records[len(records)-1]['rank']
+                    try:
+                        cursor_dict[cur_page +
+                                    1] = json.loads(response['payload'])['next_cursor']
+                    except:
+                        next_cursor = False  # Does not exist
+                    embed_next = discord.Embed(title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode}):", description=(
+                        points_hidden() if mode == "Points" else trophies_hidden()))
+                    embed_next.set_footer(
+                        text=f"Page {cur_page:<2}: {start:<4} to {end:<4}")
+                    await msg.edit(embed=embed_next)
+                    await msg.remove_reaction(reaction, user)
 
-    # Update to replit's database for old keys
-    if (f"tankkings_{mode.lower()}_{season}" in db.keys()) and (new_key_flag == False):
-      value = dict()
-      for record in records:
-          value[record['owner_id']] = {'rank': record['rank'], 'score': record['score']}
-      db[record['leaderboard_id']] = value
+                elif str(reaction.emoji) == "◀️" and cur_page > 1:  # Previous page
+                    cur_page -= 1
+                    response = await rocketbot_client.query_leaderboard(
+                        season, ("tankkings_points" if mode == "Points" else "tankkings_trophies"), 25, cursor_dict[cur_page])
+                    records = json.loads(response['payload'])['records']
+                    start = records[0]['rank']
+                    end = records[len(records)-1]['rank']
+                    embed_prev = discord.Embed(title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode}):", description=(
+                        points_hidden() if mode == "Points" else trophies_hidden()))
+                    embed_prev.set_footer(
+                        text=f"Page {cur_page:<2}: {start:<4} to {end:<4}")
+                    await msg.edit(embed=embed_prev)
+                    await msg.remove_reaction(reaction, user)
 
+                elif str(reaction.emoji) == "⏪" and cur_page != 1:  # First page
+                    cur_page = 1
+                    next_cursor = True
+                    response = await rocketbot_client.query_leaderboard(season, ("tankkings_points" if mode == "Points" else "tankkings_trophies"), 25, cursor_dict[cur_page])
+                    records = json.loads(response['payload'])['records']
+                    start = records[0]['rank']
+                    end = records[len(records)-1]['rank']
+                    embed_first = discord.Embed(title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode}):", description=(
+                        points_hidden() if mode == "Points" else trophies_hidden()))
+                    embed_first.set_footer(
+                        text=f"Page {cur_page:<2}: {start:<4} to {end:<4}")
+                    await msg.edit(embed=embed_first)
+                    await msg.remove_reaction(reaction, user)
+
+                elif str(reaction.emoji) == "⏹️":  # Exit page view and end the loop
+                    response = await rocketbot_client.query_leaderboard(
+                        season, ("tankkings_points" if mode == "Points" else "tankkings_trophies"), 50)
+                    records = json.loads(response['payload'])['records']
+                    await msg.edit(embed=discord.Embed(title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode}):", description=(points_hidden() if mode == "Points" else trophies_hidden(False, True))))
+                    await msg.clear_reactions()
+                    break
+
+                else:
+                    await msg.remove_reaction(reaction, user)
+                    # Removes reactions if invalid
+            except asyncio.TimeoutError:
+                response = await rocketbot_client.query_leaderboard(
+                    season, ("tankkings_points" if mode == "Points" else "tankkings_trophies"), 50)
+                records = json.loads(response['payload'])['records']
+                await msg.edit(embed=discord.Embed(title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode}):", description=(points_hidden() if mode == "Points" else trophies_hidden(False, True))))
+                await msg.clear_reactions()
+                break
+                # Ending the loop if user doesn't react after 10 seconds
 
 @tree.command()
 @app_commands.describe(
