@@ -72,6 +72,7 @@ tanks = ['<:pumpkin_tank:1022568065034104936>', '<a:pumpkin_evolved_tank_a:10225
 
 os.system('clear')
 
+
 def season_info(season):
     season_durations = []
     season_start_numbers = []
@@ -101,6 +102,7 @@ def season_info(season):
         status = f"\u001b[2;32mIn progress\u001b[0m ({((current_timestamp - season_start_timestamp)/season_duration)*100:.0f} %)"
     all_season_info = [season_start, season_end, season_days, status]
     return all_season_info
+
 
 def generate_random_name():
     adjective = [
@@ -174,14 +176,15 @@ async def refresh_config():
     while True:
         response = await rocketbot_client.get_config()
         server_config = json.loads(response['payload'])
-        
+
         # Remove past season keys
         curr_season = server_config['season']
         for i in db.prefix("tankkings"):
             if str(curr_season) not in i:
                 del db[i]
-        
+
         await asyncio.sleep(600)
+
 
 async def refresh_config_2():
     '''Refresh game configuration every 10 minutes'''
@@ -190,14 +193,15 @@ async def refresh_config_2():
     while True:
         response = await moonrock_client.get_config()
         server_config_2 = json.loads(response['payload'])
-        
+
         # Remove past season keys
         curr_season = server_config_2['season']
         for i in db.prefix("trophies"):
             if str(curr_season) not in i:
                 del db[i]
-        
+
         await asyncio.sleep(600)
+
 
 @client.event
 async def on_message(message: discord.message):
@@ -230,146 +234,7 @@ async def on_ready():
     print("Winterpixel community bot is ready.")
 
 
-# @tree.command()
-# @app_commands.describe(
-#     mode='Leaderboard by trophies or points',
-#     season='Trophies: Season 10 or later / Points: Season 0 or later, default current'
-# )
-# async def leaderboard_rocket_bot_royale(interaction: discord.Interaction, mode: typing.Literal['Trophies', 'Points'], season: int = -1):
-#     '''Return the specified season leaderboard of Rocket Bot Royale (by trophies/points), default current'''
-
-#     await interaction.response.defer(ephemeral=False, thinking=True)
-    
-#     curr_season = server_config['season']
-
-#     #Reassign season if unreasonable
-#     if mode == "Trophies":
-#         if season < 10 or season > curr_season:
-#             season = curr_season
-#     elif mode == "Points":
-#         if season < 0 or season > curr_season:
-#             season = curr_season
-
-#     #Get leaderboard info
-#     if mode == "Trophies":
-#         response = await rocketbot_client.query_leaderboard(
-#             season, "tankkings_trophies")
-#     elif mode == "Points":
-#         response = await rocketbot_client.query_leaderboard(season)
-#     records = json.loads(response['payload'])['records']
-    
-#     # Add to replit's database for new keys
-#     new_key_flag = False
-#     if f"tankkings_{mode.lower()}_{season}" not in db.keys():
-#       value = dict()
-#       for record in records:
-#           value[record['owner_id']] = {'rank': record['rank'], 'score': record['score']}
-#       db[record['leaderboard_id']] = value
-#       new_key_flag = True
-
-#     if mode == "Trophies":  # By Tropihes
-#         # Using f-string spacing to pretty print the leaderboard labels (bold)
-#         message = ""
-#         label = f"```ansi\n\u001b[1m    {'Rank:':<5} {'Name:':<20} {'Trophies:'}\u001b[0m\n{'—' * 45}\n"
-
-#         # Using f-string spacing to pretty print the leaderboard.
-#         split = [0, 1, 5, 10, 20, 50]
-#         tier = ["King", "Elite", "Champion", "Diamond", "Ruby"]
-#         tier_color_code = ["35", "32", "33", "34", "31"]
-#         split_init = 0
-#         for i in range(len(split) - 1):
-#             for j in range(split[split_init], split[split_init + 1]):
-#                 # Rank (bold)
-#                 # Rank difference
-#                 try:
-#                   rank_diff = records[j]['rank'] - db[records[j]['leaderboard_id']][records[j]['owner_id']]['rank']
-#                   if rank_diff < 0:
-#                     rank_diff_2 = f"\u001b[2;32m▲{abs(rank_diff):<3}\u001b[0m"
-#                   elif rank_diff > 0:
-#                     rank_diff_2 = f"\u001b[2;31m▼{abs(rank_diff):<3}\u001b[0m"
-#                   else:
-#                     rank_diff_2 = f"{'-':^4}"
-#                 except:
-#                   rank_diff_2 = f"{'':4}"
-#                 message += f"{rank_diff_2}\u001b[1;{tier_color_code[split_init]}m{'#' + str(records[j]['rank']):<5}\u001b[0m "
-#                 message += ("\u001b[1;33m" if records[j]['metadata']['has_season_pass'] else "") + f"{records[j]['username']:<20}" + (
-#                     "\u001b[0m " if records[j]['metadata']['has_season_pass'] else " ")  # Name and color for players with season pass
-
-#                 # Trophies
-#                 # Trophies difference
-#                 try:
-#                   trophies_diff = records[j]['score'] - db[records[j]['leaderboard_id']][records[j]['owner_id']]['score']
-#                   if trophies_diff < 0:
-#                     trophies_diff_2 = f"\u001b[2;31m-{abs(trophies_diff):<4}\u001b[0m"
-#                   elif trophies_diff > 0:
-#                     trophies_diff_2 = f"\u001b[2;32m+{abs(trophies_diff):<4}\u001b[0m"
-#                   else:
-#                     trophies_diff_2 = f"{'-':^5}"
-#                 except:
-#                   trophies_diff_2 = f"{'':<5}"
-#                 message += f"{'🏆' + '{:<6,.0f}'.format(records[j]['score'])}{trophies_diff_2}\n"
-#             tier_name_with_space = " " + tier[split_init] + " "
-#             # Tier separator (bold)
-#             message += f"\u001b[1;{tier_color_code[split_init]}m{tier_name_with_space.center(45, '—')}\u001b[0m\n"
-#             split_init += 1
-
-#     elif mode == "Points":  #By Points
-#         #Using f-string spacing to pretty print the leaderboard labels (bold)
-#         message = ""
-#         label = f"```ansi\n\u001b[1m    {'Rank:':<5} {'Name:':<20} {'Points:'}\u001b[0m\n{'—' * 47}\n"
-
-#         #Using f-string spacing to pretty print the leaderboard.
-#         for i in range(50):
-#             # Rank difference
-#             try:
-#               rank_diff = records[i]['rank'] - db[records[i]['leaderboard_id']][records[i]['owner_id']]['rank']
-#               if rank_diff < 0:
-#                 rank_diff_2 = f"\u001b[2;32m▲{abs(rank_diff):<3}\u001b[0m"
-#               elif rank_diff > 0:
-#                 rank_diff_2 = f"\u001b[2;31m▼{abs(rank_diff):<3}\u001b[0m"
-#               else:
-#                 rank_diff_2 = f"{'-':^4}"
-#             except:
-#               rank_diff_2 = f"{'':<4}"
-#             message += f"{rank_diff_2}\u001b[1m{'#' + str(records[i]['rank']):<5}\u001b[0m "  #Rank (bold)
-#             try:  #For seasons without 'has season pass' key
-#                 message += (
-#                     "\u001b[1;33m" if records[i]['metadata']['has_season_pass']
-#                     else "") + f"{records[i]['username']:<20}" + (
-#                         "\u001b[0m " if records[i]['metadata']['has_season_pass']
-#                         else " ")  #Name and color for players with season pass
-#             except:
-#                 message += f"{records[i]['username']:<20} "  #Name
-#             # Points
-#             # Points difference
-#             try:
-#               points_diff = records[i]['score'] - db[records[i]['leaderboard_id']][records[i]['owner_id']]['score']
-#               if points_diff > 0:
-#                 points_diff_2 = f"\u001b[2;32m+{abs(points_diff):<5}\u001b[0m"
-#               else:
-#                 points_diff_2 = f"{'-':^6}"
-#             except:
-#               points_diff_2 = f"{'':<6}"
-#             message += f"{'🧊' + '{:<8,.0f}'.format(records[i]['score'])}{points_diff_2}\n"  #Points
-
-#     # Split message
-#     split_line_number = 26 if mode == "Trophies" else 24
-#     message1 = label + message[:[m.start() for m in re.finditer(r"\n", message)][split_line_number]] + "```"
-#     message2 = "```ansi\n" + message[([m.start() for m in re.finditer(r"\n", message)][split_line_number])+1:] + "```"
-    
-#     #Send
-#     await interaction.followup.send(embed=discord.Embed(
-#         title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode}):", description=message1))
-#     await interaction.followup.send(embed=discord.Embed(description=message2))
-
-#     # Update to replit's database for old keys
-#     if (f"tankkings_{mode.lower()}_{season}" in db.keys()) and (new_key_flag == False):
-#       value = dict()
-#       for record in records:
-#           value[record['owner_id']] = {'rank': record['rank'], 'score': record['score']}
-#       db[record['leaderboard_id']] = value
-
-@tree.command(guild=discord.Object(id=962142361935314996))
+@tree.command()
 @app_commands.describe(
     mode='Leaderboard by trophies or points',
     changes='Only available for Top 50 records of current season, changes since last command used',
@@ -377,9 +242,9 @@ async def on_ready():
 )
 async def leaderboard_rocket_bot_royale(interaction: discord.Interaction, mode: typing.Literal['Trophies', 'Points'], changes: typing.Literal['Shown', 'Hidden'], season: int = -1):
     '''Return the specified season leaderboard of Rocket Bot Royale (by trophies/points), default current'''
-    
+
     await interaction.response.defer(ephemeral=False, thinking=True)
-    
+
     def check(reaction, user):
         return user == interaction.user and str(reaction.emoji) in ["◀️", "▶️", "⏪", "⏹️"]
         # This makes sure nobody except the command sender can interact with the "menu"
@@ -794,6 +659,7 @@ async def leaderboard_rocket_bot_royale(interaction: discord.Interaction, mode: 
                 break
                 # Ending the loop if user doesn't react after 10 seconds
 
+
 @tree.command()
 @app_commands.describe(
     changes='Only available for Top 50 records of current season, changes since last command used',
@@ -1079,6 +945,7 @@ async def leaderboard_moonrock_miners(interaction: discord.Interaction, changes:
             await msg.clear_reactions()
             break
             # Ending the loop if user doesn't react after 10 seconds
+
 
 @tree.command()
 @app_commands.describe(
