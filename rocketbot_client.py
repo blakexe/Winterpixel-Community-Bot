@@ -1,6 +1,12 @@
-import datetime, aiohttp, json, os
+import datetime
+import aiohttp
+import json
+import os
 
-class AuthError(BaseException): pass
+
+class AuthError(BaseException):
+    pass
+
 
 class RocketBotClient(object):
     def __init__(self, username: str, password: str):
@@ -9,22 +15,22 @@ class RocketBotClient(object):
         self.token = None
         self.session = None
 
-    async def post(self, url: str, data = {}, headers = {}):
-        if self.session == None:
-            self.session = aiohttp.ClientSession(raise_for_status=True)
-        
-        async with self.session.post(url, headers = headers, data = json.dumps(data)) as response:
-            return await response.text()
-
-    async def get(self, url, headers = {}):
+    async def post(self, url: str, data={}, headers={}):
         if self.session == None:
             self.session = aiohttp.ClientSession(raise_for_status=True)
 
-        async with self.session.get(url, headers = headers) as response:
+        async with self.session.post(url, headers=headers, data=json.dumps(data)) as response:
             return await response.text()
-    
-    async def refresh_token(self):        
-        #Only refresh token if 9 minutes have passed
+
+    async def get(self, url, headers={}):
+        if self.session == None:
+            self.session = aiohttp.ClientSession(raise_for_status=True)
+
+        async with self.session.get(url, headers=headers) as response:
+            return await response.text()
+
+    async def refresh_token(self):
+        # Only refresh token if 9 minutes have passed
         if self.token != None:
             time = datetime.datetime.now() - self.last_refresh
 
@@ -34,17 +40,17 @@ class RocketBotClient(object):
         data = {
             "email": self.username,
             "password": self.password,
-            "vars":{
+            "vars": {
                 "client_version": "99999",
             }
         }
 
         headers = {
-            #Secret to initially access server.
+            # Secret to initially access server.
             "authorization": os.environ['secret']
         }
 
-        #Get token
+        # Get token
         try:
             response = json.loads(await self.post("https://dev-nakama.winterpixel.io/v2/account/authenticate/email?create=false", data=data, headers=headers))
             self.token = response['token']
@@ -61,13 +67,13 @@ class RocketBotClient(object):
 
         return json.loads(await self.post("https://dev-nakama.winterpixel.io/v2/rpc/winterpixel_get_config", headers=headers, data="{}"))
 
-    async def query_leaderboard(self, season: int, leaderboard_id:str = "tankkings_points"):
+    async def query_leaderboard(self, season: int, leaderboard_id: str, limit: int = 100, cursor: str = ""):
         await self.refresh_token()
 
         data = {
             "leaderboard": leaderboard_id,
-            "limit": 100,
-            "cursor": "",
+            "limit": limit,
+            "cursor": cursor,
             "owner_ids": [],
             "season": season
         }
@@ -76,7 +82,7 @@ class RocketBotClient(object):
             "authorization": f"Bearer {self.token}"
         }
 
-        return json.loads(await self.post("https://dev-nakama.winterpixel.io/v2/rpc/query_leaderboard", data=json.dumps(data), headers=headers))   
+        return json.loads(await self.post("https://dev-nakama.winterpixel.io/v2/rpc/query_leaderboard", data=json.dumps(data), headers=headers))
 
     async def friend_code_to_id(self, friend_code: str):
         await self.refresh_token()
@@ -89,7 +95,7 @@ class RocketBotClient(object):
             "authorization": f"Bearer {self.token}"
         }
 
-        return json.loads(await self.post("https://dev-nakama.winterpixel.io/v2/rpc/winterpixel_query_user_id_for_friend_code", data=json.dumps(data), headers=headers)) 
+        return json.loads(await self.post("https://dev-nakama.winterpixel.io/v2/rpc/winterpixel_query_user_id_for_friend_code", data=json.dumps(data), headers=headers))
 
     async def get_user(self, user_id: str):
         await self.refresh_token()
@@ -102,7 +108,7 @@ class RocketBotClient(object):
             "authorization": f"Bearer {self.token}"
         }
 
-        return json.loads(await self.post("https://dev-nakama.winterpixel.io/v2/rpc/rpc_get_users_with_profile", data=json.dumps(data), headers=headers))  
+        return json.loads(await self.post("https://dev-nakama.winterpixel.io/v2/rpc/rpc_get_users_with_profile", data=json.dumps(data), headers=headers))
 
     async def query_users(self, display_name: str):
         await self.refresh_token()
@@ -115,13 +121,13 @@ class RocketBotClient(object):
             "authorization": f"Bearer {self.token}"
         }
 
-        return json.loads(await self.post("https://dev-nakama.winterpixel.io/v2/rpc/rpc_get_ids_from_display_name", data=json.dumps(data), headers=headers)) 
+        return json.loads(await self.post("https://dev-nakama.winterpixel.io/v2/rpc/rpc_get_ids_from_display_name", data=json.dumps(data), headers=headers))
 
     async def collect_time_bonus(self):
         await self.refresh_token()
-        
+
         headers = {
             "authorization": f"Bearer {self.token}"
         }
-        
-        return json.loads(await self.post("https://dev-nakama.winterpixel.io/v2/rpc/collect_timed_bonus", data='{}', headers=headers))  
+
+        return json.loads(await self.post("https://dev-nakama.winterpixel.io/v2/rpc/collect_timed_bonus", data='{}', headers=headers))
