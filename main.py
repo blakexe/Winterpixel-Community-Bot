@@ -1073,10 +1073,10 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
                         rank_emoji = '  '
                     if i <= 10:
                         points_record = True
-                        points += f"{i:^8}{rank_emoji:<1}{record['rank']:<5}🏆{record['score']:<9,.0f}\n"
+                        points += f"{i:^8}{rank_emoji:<1}{record['rank']:<5}🧊{record['score']:<9,.0f}\n"
                     else:
                         trophies_record = True
-                        trophies += f"{i:^8}{rank_emoji:<1}{record['rank']:<5}🧊{record['score']:<9,.0f}\n"
+                        trophies += f"{i:^8}{rank_emoji:<1}{record['rank']:<5}🏆{record['score']:<9,.0f}\n"
         if points_record == False and trophies_record == False:
             season_top_50_records_list += f"No records found"
         else:
