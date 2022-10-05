@@ -178,6 +178,7 @@ async def refresh_config():
         server_config = json.loads(response['payload'])
 
         # Remove past season keys
+        global curr_season
         curr_season = server_config['season']
         for i in db.prefix("tankkings"):
             if str(curr_season) not in i:
@@ -953,7 +954,7 @@ async def leaderboard_moonrock_miners(interaction: discord.Interaction, changes:
     id='User ID or Friend ID of the user',
     section='Section(s) to be shown'
 )
-async def get_user(interaction: discord.Interaction, user_type: typing.Literal['User ID', 'Friend ID'], id: str, section: typing.Literal['General Info only', 'with Badges', 'with Stats', 'with Items Collected', 'with Tanks', 'with Parachutes', 'with Trails', 'with All Cosmetics', 'All']):
+async def get_user(interaction: discord.Interaction, user_type: typing.Literal['User ID', 'Friend ID'], id: str, section: typing.Literal['General Info only', 'with Badges', 'with Season Top 50 Records', 'with Stats', 'with Items Collected', 'with Tanks', 'with Parachutes', 'with Trails', 'with All Cosmetics', 'All']):
     '''Return info about a specified user'''
 
     await interaction.response.defer(ephemeral=False, thinking=True)
@@ -1024,6 +1025,49 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
 
     # Add to embed
     message += f"📓 ***General Info***:\n{general_info}\n"
+
+    if section in {"with Season Top 50 Records", "All"}:
+        # Create season records list
+        season_top_50_records_list = "```ansi\n"
+
+        points_label = f"\u001b[1;2mBy points (Season 1 to 10):\n"
+        points = f"{'Season:':<8}{'Rank:':<7}{'Points:':<9}\u001b[0m\n"
+        separator = f"{'─'*30}\n"
+        trophies_label = f"\u001b[1;2mBy trophies (Season 11 to {curr_season}):\n"
+        trophies = f"{'Season:':<8}{'Rank:':<7}{'Trophies:':<9}\u001b[0m\n"
+        points_record = False
+        trophies_record = False
+
+        for i in range(1, curr_season+1):  # Queries from first season to current season
+            response = await rocketbot_client.query_leaderboard(i, ("tankkings_points" if i <= 10 else "tankkings_trophies"), 50)
+            records = json.loads(response['payload'])['records']
+            for record in records:
+                if record['owner_id'] == id:  # Records found (Top 50)
+                    if record['rank'] == 1:
+                        rank_emoji = '🥇'
+                    elif record['rank'] == 2:
+                        rank_emoji = '🥈'
+                    elif record['rank'] == 3:
+                        rank_emoji = '🥉'
+                    else:
+                        rank_emoji = '  '
+                    if i <= 10:
+                        points_record = True
+                        points += f"{i:^8}{rank_emoji:<1}{record['rank']:<5}🏆{record['score']:<9,.0f}\n"
+                    else:
+                        trophies_record = True
+                        trophies += f"{i:^8}{rank_emoji:<1}{record['rank']:<5}🧊{record['score']:<9,.0f}\n"
+        if points_record == False and trophies_record == False:
+            season_top_50_records_list += f"No records found"
+        else:
+            if points_record == True:
+                season_top_50_records_list += points_label + points
+            if trophies_record == True:
+                season_top_50_records_list += separator + trophies_label + trophies
+        season_top_50_records_list += "```"
+
+        # Add to embed
+        message += f"📊 ***Season Top 50***:\n{season_top_50_records_list}\n"
 
     if section in {"with Badges", "All"}:
         # Create badge list
