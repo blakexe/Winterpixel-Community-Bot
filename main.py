@@ -177,7 +177,8 @@ def add_player_coin(player, name, coins):
 
 def convert_mention_to_id(mention):
     print(mention)
-    return int(mention[1:][:len(mention)-2].replace("@", "").replace("!", ""))
+    return int(mention[2:-1])
+#     return int(mention[1:][:len(mention)-2].replace("@", "").replace("!", ""))
 
 
 def get_name_from_id(user_id):
@@ -1855,8 +1856,10 @@ async def start_game(interaction: discord.Interaction):
                 str(coin_num) + " <:coin:910247623787700264>"
             event += " and " + player_b + " lost " + \
                 str(coin_num) + " <:coin:910247623787700264>"
-            add_player_coin(convert_mention_to_id(player_a), coin_num)
-            add_player_coin(convert_mention_to_id(player_b), -coin_num)
+            if '@' in player_a:
+                add_player_coin(convert_mention_to_id(player_a), coin_num)
+            if '@' in player_b:
+                add_player_coin(convert_mention_to_id(player_b), -coin_num)
             if moneys.get(player_a) == None:
                 moneys[player_a] = coin_num
             else:
