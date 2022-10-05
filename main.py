@@ -11,7 +11,7 @@ import time
 import re
 import numpy as np
 import matplotlib.pyplot as plt
-from math import ceil, floor
+from math import ceil
 from collections import defaultdict, OrderedDict, Counter
 from operator import itemgetter
 from statistics import mean
@@ -242,14 +242,17 @@ async def on_ready():
     asyncio.create_task(refresh_config())
     asyncio.create_task(refresh_config_2())
 
-    for key in db.keys():
-#         print(str(key) + str(db[key]))
-        print(key)
     
     matches_rbr = db.prefix("tankkings")
     matches_mm = db.prefix("trophies")
     print(matches_rbr)
     print(matches_mm)
+    
+    for key in db.keys():
+        #         print(str(key) + str(db[key]))
+        if key not in matches_rbr and key not in matches_mm:
+            print(key, db[key])
+    
     print("Winterpixel community bot is ready.")
 
 
