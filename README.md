@@ -32,7 +32,7 @@ Join the discord to use the bot!
 | **`/battle`** | Have a battle with a random bot! |
 | **`/build_a_bot`** | Bear the responsibility of creating new life... I mean bot |
 | **`/join_game`** | Join the current game |
-| **`/start_game`** | Start a game with the people joined |
+| **`/start_game`**  *| Start a game with the people joined |
 | **`/get_money`** | Find out how much money you have in discord |
 | **`/discord_coins_leaderboard`** *| Return the discord coins leaderboard |
 | **`/random_tank`** | Get a random tank |
