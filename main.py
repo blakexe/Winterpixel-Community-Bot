@@ -1715,7 +1715,7 @@ async def battle(interaction: discord.Interaction):
 
     if "<R>" in event:
         # Get random name from leaderboard
-        response = await rocketbot_client.query_leaderboard(curr_season)
+        response = await rocketbot_client.query_leaderboard(curr_season, "tankkings_trophies", 50)
         records = json.loads(response['payload'])['records']
         rand_player = random.choice(records)['username']
 
