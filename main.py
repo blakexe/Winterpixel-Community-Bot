@@ -3414,7 +3414,10 @@ async def sync_commands(interaction: discord.Interaction):
 
 
 def main():
-    client.run(discord_token)
+    try:
+        client.run(discord_token)
+    except:
+        os.system("kill 1")
 
 
 if (__name__ == "__main__"):
