@@ -31,10 +31,10 @@ Join the discord to use the bot!
 | **`/get_user`** `user_type (User ID/Friend ID)` `id` `section`| Return info about a specified user |
 | **`/battle`** | Have a battle with a random bot! |
 | **`/build_a_bot`** | Bear the responsibility of creating new life... I mean bot |
-| **`/join_game`** | Join the current game |
-| **`/start_game`**  *| Start a game with the people joined |
-| **`/get_money`** | Find out how much money you have in discord |
-| **`/discord_coins_leaderboard`** *| Return the discord coins leaderboard |
+| **`/join_game`** * | Join the current game |
+| **`/start_game`**  * | Start a game with the people joined |
+| **`/get_money`**  * | Find out how much money you have in discord |
+| **`/discord_coins_leaderboard`** * | Return the discord coins leaderboard |
 | **`/random_tank`** | Get a random tank |
 | **`/long`** `length` `(barrel)`  | Build your supercalifragilisticexpialidocious long tank equipped with as many barrels as you want! |
 | **`/get_crate_stats`** `one_star` `two_star` `three_star` | Optimize the use of in game crates and Estimate the amount of coins |
