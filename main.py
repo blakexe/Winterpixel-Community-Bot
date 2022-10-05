@@ -155,7 +155,7 @@ def generate_random_name():
         "killing-machine",
     ]
 
-    name = (adjective).capitalize() + random.choice(noun).capitalize()
+    name = random.choice(adjective).capitalize() + random.choice(noun).capitalize()
 
     random_number = random.choice([True, False])
 
