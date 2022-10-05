@@ -1050,11 +1050,10 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
         # Create season records list
         season_top_50_records_list = "```ansi\n"
 
-        points_label = "\u001b[1;2mBy points (Season 1 to 10):\n"
-        points = f"{'Season:':<8}{'Rank:':<7}{'Points:':<9}\u001b[0m\n"
-        separator = f"{'─'*30}\n"
-        trophies_label = f"\u001b[1;2mBy trophies (Season 11 to {curr_season - 1}):\n"
-        trophies = f"{'Season:':<8}{'Rank:':<7}{'Trophies:':<9}\u001b[0m\n"
+        points_label = "\u001b[1;2mBy points (Season 1 to 10)\u001b[0m\n"
+        points = f"{'Season:':<8}{'Rank:':<7}{'Points:':<9}\n{'─'*24}\n"
+        trophies_label = f"\u001b[1;2mBy trophies (Season 11 to {curr_season - 1})\u001b[0m\n"
+        trophies = f"{'Season:':<8}{'Rank:':<7}{'Trophies:':<9}\n{'─'*24}\n"
         points_record = False
         trophies_record = False
 
@@ -1078,12 +1077,13 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
                         trophies_record = True
                         trophies += f"{i:^8}{rank_emoji:<1}{record['rank']:<5}🏆{record['score']:<9,.0f}\n"
         if points_record == False and trophies_record == False:
-            season_top_50_records_list += f"No records found"
+            season_top_50_records_list += "No records found"
         else:
             if points_record == True:
                 season_top_50_records_list += points_label + points
             if trophies_record == True:
-                season_top_50_records_list += (separator if points_record == True else "") + trophies_label + trophies
+                season_top_50_records_list += ("\n" if points_record ==
+                                               True else "") + trophies_label + trophies
         season_top_50_records_list += "```"
 
         # Add to embed
