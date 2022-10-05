@@ -1053,7 +1053,7 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
         points_label = "\u001b[1;2mBy points (Season 1 to 10):\n"
         points = f"{'Season:':<8}{'Rank:':<7}{'Points:':<9}\u001b[0m\n"
         separator = f"{'─'*30}\n"
-        trophies_label = f"\u001b[1;2mBy trophies (Season 11 to {curr_season}):\n"
+        trophies_label = f"\u001b[1;2mBy trophies (Season 11 to {curr_season - 1}):\n"
         trophies = f"{'Season:':<8}{'Rank:':<7}{'Trophies:':<9}\u001b[0m\n"
         points_record = False
         trophies_record = False
