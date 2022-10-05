@@ -176,6 +176,7 @@ def add_player_coin(player, name, coins):
 
 
 def convert_mention_to_id(mention):
+    print(mention)
     return int(mention[1:][:len(mention)-2].replace("@", "").replace("!", ""))
 
 
