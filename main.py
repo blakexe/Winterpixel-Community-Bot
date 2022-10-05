@@ -882,88 +882,88 @@ async def leaderboard_moonrock_miners(interaction: discord.Interaction, changes:
             message += "```"
             return message
 
-    # Send
-    cur_page = 1
-    embed_init = discord.Embed(
-        title=f"Moonrock Miners 🛸\nBeta Season {season} Leaderboard:", description=hidden())
-    embed_init.set_footer(
-        text=f"Page {cur_page:<2}: {start:<4} to {end:<4}")
-    msg = await interaction.followup.send(embed=embed_init)
+        # Send
+        cur_page = 1
+        embed_init = discord.Embed(
+            title=f"Moonrock Miners 🛸\nBeta Season {season} Leaderboard:", description=hidden())
+        embed_init.set_footer(
+            text=f"Page {cur_page:<2}: {start:<4} to {end:<4}")
+        msg = await interaction.followup.send(embed=embed_init)
 
-    for reaction_emoji in ["◀️", "▶️", "⏪", "⏹️"]:
-        await msg.add_reaction(reaction_emoji)
+        for reaction_emoji in ["◀️", "▶️", "⏪", "⏹️"]:
+            await msg.add_reaction(reaction_emoji)
 
-    while True:
-        try:
-            reaction, user = await client.wait_for("reaction_add", timeout=10, check=check)
-            # Waiting for a reaction to be added - times out after 10 seconds
+        while True:
+            try:
+                reaction, user = await client.wait_for("reaction_add", timeout=10, check=check)
+                # Waiting for a reaction to be added - times out after 10 seconds
 
-            if str(reaction.emoji) == "▶️" and next_cursor != False:  # Next page
-                cur_page += 1
-                response = await moonrock_client.query_leaderboard(
-                    season, "trophies", 25, cursor_dict[cur_page])
-                records = json.loads(response['payload'])['records']
-                start = records[0]['rank']
-                end = records[len(records)-1]['rank']
-                try:
-                    cursor_dict[cur_page +
-                                1] = json.loads(response['payload'])['next_cursor']
-                except:
-                    next_cursor = False  # Does not exist
-                embed_next = discord.Embed(
-                    title=f"Moonrock Miners 🛸\nBeta Season {season} Leaderboard:", description=hidden())
-                embed_next.set_footer(
-                    text=f"Page {cur_page:<2}: {start:<4} to {end:<4}")
-                await msg.edit(embed=embed_next)
-                await msg.remove_reaction(reaction, user)
+                if str(reaction.emoji) == "▶️" and next_cursor != False:  # Next page
+                    cur_page += 1
+                    response = await moonrock_client.query_leaderboard(
+                        season, "trophies", 25, cursor_dict[cur_page])
+                    records = json.loads(response['payload'])['records']
+                    start = records[0]['rank']
+                    end = records[len(records)-1]['rank']
+                    try:
+                        cursor_dict[cur_page +
+                                    1] = json.loads(response['payload'])['next_cursor']
+                    except:
+                        next_cursor = False  # Does not exist
+                    embed_next = discord.Embed(
+                        title=f"Moonrock Miners 🛸\nBeta Season {season} Leaderboard:", description=hidden())
+                    embed_next.set_footer(
+                        text=f"Page {cur_page:<2}: {start:<4} to {end:<4}")
+                    await msg.edit(embed=embed_next)
+                    await msg.remove_reaction(reaction, user)
 
-            elif str(reaction.emoji) == "◀️" and cur_page > 1:  # Previous page
-                cur_page -= 1
-                response = await moonrock_client.query_leaderboard(
-                    season, "trophies", 25, cursor_dict[cur_page])
-                records = json.loads(response['payload'])['records']
-                start = records[0]['rank']
-                end = records[len(records)-1]['rank']
-                embed_prev = discord.Embed(
-                    title=f"Moonrock Miners 🛸\nBeta Season {season} Leaderboard:", description=hidden())
-                embed_prev.set_footer(
-                    text=f"Page {cur_page:<2}: {start:<4} to {end:<4}")
-                await msg.edit(embed=embed_prev)
-                await msg.remove_reaction(reaction, user)
+                elif str(reaction.emoji) == "◀️" and cur_page > 1:  # Previous page
+                    cur_page -= 1
+                    response = await moonrock_client.query_leaderboard(
+                        season, "trophies", 25, cursor_dict[cur_page])
+                    records = json.loads(response['payload'])['records']
+                    start = records[0]['rank']
+                    end = records[len(records)-1]['rank']
+                    embed_prev = discord.Embed(
+                        title=f"Moonrock Miners 🛸\nBeta Season {season} Leaderboard:", description=hidden())
+                    embed_prev.set_footer(
+                        text=f"Page {cur_page:<2}: {start:<4} to {end:<4}")
+                    await msg.edit(embed=embed_prev)
+                    await msg.remove_reaction(reaction, user)
 
-            elif str(reaction.emoji) == "⏪" and cur_page != 1:  # First page
-                cur_page = 1
-                next_cursor = True
-                response = await moonrock_client.query_leaderboard(season, "trophies", 25, cursor_dict[cur_page])
-                records = json.loads(response['payload'])['records']
-                start = records[0]['rank']
-                end = records[len(records)-1]['rank']
-                embed_first = discord.Embed(
-                    title=f"Moonrock Miners 🛸\nBeta Season {season} Leaderboard:", description=hidden())
-                embed_first.set_footer(
-                    text=f"Page {cur_page:<2}: {start:<4} to {end:<4}")
-                await msg.edit(embed=embed_first)
-                await msg.remove_reaction(reaction, user)
+                elif str(reaction.emoji) == "⏪" and cur_page != 1:  # First page
+                    cur_page = 1
+                    next_cursor = True
+                    response = await moonrock_client.query_leaderboard(season, "trophies", 25, cursor_dict[cur_page])
+                    records = json.loads(response['payload'])['records']
+                    start = records[0]['rank']
+                    end = records[len(records)-1]['rank']
+                    embed_first = discord.Embed(
+                        title=f"Moonrock Miners 🛸\nBeta Season {season} Leaderboard:", description=hidden())
+                    embed_first.set_footer(
+                        text=f"Page {cur_page:<2}: {start:<4} to {end:<4}")
+                    await msg.edit(embed=embed_first)
+                    await msg.remove_reaction(reaction, user)
 
-            elif str(reaction.emoji) == "⏹️":  # Exit page view and end the loop
+                elif str(reaction.emoji) == "⏹️":  # Exit page view and end the loop
+                    response = await moonrock_client.query_leaderboard(
+                        season, "trophies", 50)
+                    records = json.loads(response['payload'])['records']
+                    await msg.edit(embed=discord.Embed(title=f"Moonrock Miners 🛸\nBeta Season {season} Leaderboard:", description=hidden()))
+                    await msg.clear_reactions()
+                    break
+
+                else:
+                    await msg.remove_reaction(reaction, user)
+                    # Removes reactions if invalid
+            except asyncio.TimeoutError:
                 response = await moonrock_client.query_leaderboard(
                     season, "trophies", 50)
                 records = json.loads(response['payload'])['records']
                 await msg.edit(embed=discord.Embed(title=f"Moonrock Miners 🛸\nBeta Season {season} Leaderboard:", description=hidden()))
                 await msg.clear_reactions()
                 break
-
-            else:
-                await msg.remove_reaction(reaction, user)
-                # Removes reactions if invalid
-        except asyncio.TimeoutError:
-            response = await moonrock_client.query_leaderboard(
-                season, "trophies", 50)
-            records = json.loads(response['payload'])['records']
-            await msg.edit(embed=discord.Embed(title=f"Moonrock Miners 🛸\nBeta Season {season} Leaderboard:", description=hidden()))
-            await msg.clear_reactions()
-            break
-            # Ending the loop if user doesn't react after 10 seconds
+                # Ending the loop if user doesn't react after 10 seconds
 
 
 @tree.command()
