@@ -155,7 +155,8 @@ def generate_random_name():
         "killing-machine",
     ]
 
-    name = random.choice(adjective).capitalize() + random.choice(noun).capitalize()
+    name = random.choice(adjective).capitalize() + \
+        random.choice(noun).capitalize()
 
     random_number = random.choice([True, False])
 
@@ -244,17 +245,16 @@ async def on_ready():
     asyncio.create_task(refresh_config())
     asyncio.create_task(refresh_config_2())
 
-    
     matches_rbr = db.prefix("tankkings")
     matches_mm = db.prefix("trophies")
     print(matches_rbr)
     print(matches_mm)
-    
+
     for key in db.keys():
         #         print(str(key) + str(db[key]))
         if key not in matches_rbr and key not in matches_mm:
             print(key, db[key])
-    
+
     print("Winterpixel community bot is ready.")
 
 
@@ -283,7 +283,8 @@ async def leaderboard_rocket_bot_royale(interaction: discord.Interaction, mode: 
 
     # Season Info
     global season_info_2
-    season_info_2 = f"📓 ***Season Info***:\n```ansi\n{'Start: ':>10}{season_info(season)[0]}\n{'End: ':>10}{season_info(season)[1]}\n{'Duration: ':>10}{season_info(season)[2]}\n{'Status: ':>10}{season_info(season)[3]}\n```"
+    season_info_2 = f"📓 ***Season Info***:\n```ansi\n{'Start: ':>10}{season_info(season)[0]}\n{'End: ':>10}{season_info(season)[1]}\n{'Duration: ':>10}{season_info(season)[2]}\n{'Status: ':>10}{season_info(season)[3]}\n" + (
+        f"{'Ends in: ':>10}{season_info(season)[4]}\n" if season == curr_season else "") + "```"
 
     # Hide changes for past seasons
     if season < curr_season:
