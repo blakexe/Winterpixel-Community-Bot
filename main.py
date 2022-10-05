@@ -230,8 +230,6 @@ async def on_message(message: discord.message):
     if "!idea" in message.content.lower():
         await message.add_reaction("<:upvote:910250647264329728>")
         await message.add_reaction("<:downvote:910250215217459281>")
-    if "moyai" in message.content or "🗿" in message.content:
-        await message.add_reaction(":moyai:")
     # (caps with spaces >= 10) or (repeated character or number >=10)
     if bool(re.search(r"\w*[A-Z ]{10}", message.content)) or bool(re.search(r"(?:([a-zA-Z0-9])\1{9,})", message.content)):
         await message.reply("Calm down!")
