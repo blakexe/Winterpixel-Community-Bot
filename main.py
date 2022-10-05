@@ -196,9 +196,10 @@ async def refresh_config_2():
         server_config_2 = json.loads(response['payload'])
 
         # Remove past season keys
-        curr_season = server_config_2['season']
+        global curr_season_2
+        curr_season_2 = server_config_2['season']
         for i in db.prefix("trophies"):
-            if str(curr_season) not in i:
+            if str(curr_season_2) not in i:
                 del db[i]
 
         await asyncio.sleep(600)
@@ -249,8 +250,6 @@ async def leaderboard_rocket_bot_royale(interaction: discord.Interaction, mode: 
     def check(reaction, user):
         return user == interaction.user and str(reaction.emoji) in ["◀️", "▶️", "⏪", "⏹️"]
         # This makes sure nobody except the command sender can interact with the "menu"
-
-    curr_season = server_config['season']
 
     # Reassign season if unreasonable
     if mode == "Trophies":
@@ -675,14 +674,12 @@ async def leaderboard_moonrock_miners(interaction: discord.Interaction, changes:
         return user == interaction.user and str(reaction.emoji) in ["◀️", "▶️", "⏪", "⏹️"]
         # This makes sure nobody except the command sender can interact with the "menu"
 
-    curr_season = server_config_2['season']
-
     # Reassign season if unreasonable
-    if season < 14 or season > curr_season:
-        season = curr_season
+    if season < 14 or season > curr_season_2:
+        season = curr_season_2
 
     # Hide changes for past seasons
-    if season < curr_season:
+    if season < curr_season_2:
         changes = "Hidden"
 
     # Get leaderboard info
@@ -1670,8 +1667,6 @@ async def battle(interaction: discord.Interaction):
     '''Have a battle with a random bot!'''
 
     await interaction.response.defer(ephemeral=False, thinking=True)
-
-    curr_season = server_config['season']
 
     events = {
         "The bot dodged your attack. <:bot:917467970182189056>": 70,
