@@ -1083,7 +1083,7 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
             if points_record == True:
                 season_top_50_records_list += points_label + points
             if trophies_record == True:
-                season_top_50_records_list += separator + trophies_label + trophies
+                season_top_50_records_list += (separator if points_record == True else "") + trophies_label + trophies
         season_top_50_records_list += "```"
 
         # Add to embed
