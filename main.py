@@ -1058,7 +1058,7 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
         points_record = False
         trophies_record = False
 
-        for i in range(1, curr_season+1):  # Queries from first season to current season
+        for i in range(1, curr_season):  # From first season to previous season
             response = await rocketbot_client.query_leaderboard(i, ("tankkings_points" if i <= 10 else "tankkings_trophies"), 50)
             records = json.loads(response['payload'])['records']
             for record in records:
@@ -1836,7 +1836,7 @@ async def start_game(interaction: discord.Interaction):
 #                 kill_messages["<A> kills <B> ,<C> and <D> `TRIPPLE KILL`"] = 5
 #             if len(players) > 4:
 #                 kill_messages["<A> kills <B>, <C>, <D> and <E> `QUAD KILL`"] = 2
-            weopons = {
+            weapons = {
                 "A FAT BOI (nuke)": 100,
                 "Rapidfire missiles": 100,
                 "Grenades": 100,
@@ -1851,7 +1851,7 @@ async def start_game(interaction: discord.Interaction):
             event = event.replace("<B>", player_b)
             if "<U>" in event:
                 event = event.replace("<U>", random.choices(population=list(
-                    weopons.keys()), weights=weopons.values(), k=1)[0])
+                    weapons.keys()), weights=weapons.values(), k=1)[0])
             # B-E die for kills, if we need a non dying player use F
             event += "\n\n" + player_a + " got " + \
                 str(coin_num) + " <:coin:910247623787700264>"
