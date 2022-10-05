@@ -30,9 +30,9 @@ Join the discord to use the bot!
 | **`/leaderboard_moonrock_miners`** `changes (Shown/Hidden)` `season`| Return the specified season leaderboard of Moonrock Miners, default current |
 | **`/get_user`** `user_type (User ID/Friend ID)` `id` `section`| Return info about a specified user |
 | **`/battle`** | Have a battle with a random bot! |
-| **`/build_a_bot`** * | Bear the responsibility of creating new life... I mean bot |
+| **`/build_a_bot`** | Bear the responsibility of creating new life... I mean bot |
 | **`/join_game`** | Join the current game |
-| **`/start_game`** * | Start a game with the people joined |
+| **`/start_game`** | Start a game with the people joined |
 | **`/get_money`** | Find out how much money you have in discord |
 | **`/discord_coins_leaderboard`** *| Return the discord coins leaderboard |
 | **`/random_tank`** | Get a random tank |
