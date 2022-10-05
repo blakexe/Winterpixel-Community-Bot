@@ -100,7 +100,22 @@ def season_info(season):
         status = "\u001b[2;31mEnded\u001b[0m"
     else:
         status = f"\u001b[2;32mIn progress\u001b[0m ({((current_timestamp - season_start_timestamp)/season_duration)*100:.0f} %)"
-    all_season_info = [season_start, season_end, season_days, status]
+
+    if season == curr_season:
+        season_difference = (current_timestamp -
+                             season_start_timestamp) / season_duration
+        season_seconds_remaining = (
+            ceil(season_difference) - season_difference) * season_duration
+        day = season_seconds_remaining // (24 * 3600)
+        hour = season_seconds_remaining % (24 * 3600) // 3600
+        minute = season_seconds_remaining % (24 * 3600) % 3600 // 60
+        second = season_seconds_remaining % (24 * 3600) % 3600 % 60
+        time_remaining = f"{int(day)}d {int(hour)}h {int(minute)}m {int(second)}s"
+    else:
+        time_remaining = ""
+
+    all_season_info = [season_start, season_end,
+                       season_days, status, time_remaining]
     return all_season_info
 
 
@@ -227,8 +242,10 @@ async def on_ready():
     asyncio.create_task(refresh_config())
     asyncio.create_task(refresh_config_2())
 
-#     for key in db.keys():
+    for key in db.keys():
 #         print(str(key) + str(db[key]))
+        print(key)
+    
     matches_rbr = db.prefix("tankkings")
     matches_mm = db.prefix("trophies")
     print(matches_rbr)
@@ -1027,7 +1044,7 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
         # Create season records list
         season_top_50_records_list = "```ansi\n"
 
-        points_label = f"\u001b[1;2mBy points (Season 1 to 10):\n"
+        points_label = "\u001b[1;2mBy points (Season 1 to 10):\n"
         points = f"{'Season:':<8}{'Rank:':<7}{'Points:':<9}\u001b[0m\n"
         separator = f"{'─'*30}\n"
         trophies_label = f"\u001b[1;2mBy trophies (Season 11 to {curr_season}):\n"
@@ -2439,27 +2456,21 @@ async def get_crate_stats(interaction: discord.Interaction, one_star: int, two_s
 
 
 @tree.command()
-async def season(interaction: discord.Interaction):
-    '''Return the current season and remaining time'''
-    current_unix_time = time.mktime(datetime.datetime.now().timetuple())
-    season_start_number = server_config['season_definitions'][len(
-        server_config['season_definitions'])-1]['season_start_number']
-    season_start_timestamp = server_config['season_definitions'][len(
-        server_config['season_definitions'])-1]['season_start_timestamp']
-    season_duration = server_config['season_definitions'][len(
-        server_config['season_definitions'])-1]['season_duration']
-    season_difference = (current_unix_time -
-                         season_start_timestamp) / season_duration
-    current_season = ceil((season_start_number - 1) + season_difference)
-    season_seconds_remaining = (
-        ceil(season_difference) - season_difference) * 3369600
-    day = season_seconds_remaining // (24 * 3600)
-    hour = season_seconds_remaining % (24 * 3600) // 3600
-    minute = season_seconds_remaining % (24 * 3600) % 3600 // 60
-    second = season_seconds_remaining % (24 * 3600) % 3600 % 60
-    season_percentage = floor((season_difference % 1) * 100)
-    final_msg = f"Season {current_season} Ends in: {int(day)}d {int(hour)}h {int(minute)}m {int(second)}s ({season_percentage}%)"
-    await interaction.response.send_message(final_msg)
+@app_commands.describe(
+    season='Season 1 or later, default current'
+)
+async def season(interaction: discord.Interaction, season: int = -1):
+    '''Return the season info, default current'''
+
+    await interaction.response.defer(ephemeral=False, thinking=True)
+
+    if season < 1 or season > curr_season:
+        season = curr_season
+    embed = discord.Embed()
+    embed.title = "Rocket Bot Royale 🚀"
+    embed.add_field(name="📓 ***Season Info***", value=f"```ansi\n{'Season: ':>10}{str(season)}\n{'Start: ':>10}{season_info(season)[0]}\n{'End: ':>10}{season_info(season)[1]}\n{'Duration: ':>10}{season_info(season)[2]}\n{'Status: ':>10}{season_info(season)[3]}\n" + (
+        f"{'Ends in: ':>10}{season_info(season)[4]}" if season == curr_season else "") + "```")
+    await interaction.followup.send(embed=embed)
 
 
 @tree.command()
