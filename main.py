@@ -1064,7 +1064,7 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
         season_top_50_records_list += "```"
 
         # Add to embed
-        message += f"📊 ***Season Top 50***:\n{season_top_50_records_list}\n"
+        message += f"📊 ***Season Top 50 Records***:\n{season_top_50_records_list}\n"
 
     if section in {"with Badges", "All"}:
         # Create badge list
