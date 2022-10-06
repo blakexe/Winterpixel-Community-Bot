@@ -256,18 +256,19 @@ async def on_ready():
 @tree.command(guild=discord.Object(id=962142361935314996))
 async def fix(interaction: discord.Interaction):
   
-  await interaction.response.defer(ephemeral=False, thinking=True)
-  
+  await interaction.response.defer(ephemeral=True, thinking=True)
+  await asyncio.sleep(60)
   name_id = dict()
   for id in db['archive']:
     try:
         name = await interaction.guild.query_members(user_ids=[id])
         name = str(name[0])[:-5]
         name_id[id] = name
+        print(name, id)
     except:
         pass
   await interaction.followup.send("Done")
-  print(name_id)
+  print(name_id, len(name_id))
 
 @tree.command()
 @app_commands.describe(
