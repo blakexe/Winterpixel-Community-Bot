@@ -255,6 +255,9 @@ async def on_ready():
 
 @tree.command(guild=discord.Object(id=962142361935314996))
 async def fix(interaction: discord.Interaction):
+  
+  await interaction.response.defer(ephemeral=False, thinking=True)
+  
   name_id = dict()
   for id in db['archive']:
     try:
@@ -263,6 +266,7 @@ async def fix(interaction: discord.Interaction):
         name_id[id] = name
     except:
         pass
+  await interaction.followup.send("Done")
   print(name_id)
 
 @tree.command()
