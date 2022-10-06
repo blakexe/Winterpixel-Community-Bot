@@ -2269,13 +2269,11 @@ async def slot(interaction: discord.Interaction, bet: int):
         if win == True:
             res_2 = "-- **YOU WON** --"
             net_change = bet * multiplier
-            change_player_coin(id, name, net_change)
         else:
             res_2 = "-- **YOU LOST** --"
             net_change = -bet
-            change_player_coin(id, name, net_change)
 
-        player_coin_after = change_player_coin(id, name, 0, True)
+        player_coin_after = change_player_coin(id, name, net_change, True)
 
         embed = discord.Embed(color=0xffd700, title="SLOT MACHINE :slot_machine:",
                               description=f"{slot_results_str}\n{'-' * 18}**\n{res_2}")
@@ -2399,8 +2397,16 @@ async def memory(interaction: discord.Interaction):
                         else:
                             reward = 5
                         gamestart = False
-                        # db["player_coin"] += reward
-                        # new_player_coin = db["player_coin"]
+
+                        id = convert_mention_to_id(interaction.user.mention)
+                        user_object = await interaction.guild.query_members(user_ids=[id])
+                        if user_object[0].nick == None:  # No nickname is found
+                            name = str(user_object[0])[:-5]  # Use username
+                        else:
+                            name = user_object[0].nick  # Use nickname
+
+                        player_coin_after = change_player_coin(
+                            id, name, reward, True)
                         embed = discord.Embed(
                             color=0xffd700, title="MEMORY GAME :brain:", description=f"{board}\n:tada: **YOU WON** :tada:")
                         embed.add_field(
@@ -2408,7 +2414,7 @@ async def memory(interaction: discord.Interaction):
                         embed.add_field(
                             name="Reward", value=f"{reward} <:coin1:910247623787700264>", inline=True)
                         embed.add_field(
-                            name="Balance", value=f"N.A. <:coin1:910247623787700264>", inline=True)
+                            name="Balance", value=f"{player_coin_after} <:coin1:910247623787700264>", inline=True)
                         await message.edit(embed=embed)
                         break
                     await message.edit(embed=embed)
