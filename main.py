@@ -168,9 +168,10 @@ def generate_random_name():
 
 def change_player_coin(id, name, coins, request=False):
     if id in db['discord_coins']:  # Old id
+        db['discord_coins'][id]['name'] = name  # Update nickname
         db['discord_coins'][id]['coins'] += coins
-    else:
-        db['discord_coins'][id] = {  # New id
+    else:  # New id
+        db['discord_coins'][id] = {  # New record
             'name': name, 'coins': coins, 'inventory': {}}
     if request == True:
         return db['discord_coins'][id]['coins']
