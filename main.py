@@ -2268,19 +2268,19 @@ async def slot(interaction: discord.Interaction, bet: int):
 
         if win == True:
             res_2 = "-- **YOU WON** --"
-            gain = bet * multiplier
-            change_player_coin(id, name, gain)
+            net_change = bet * multiplier
+            change_player_coin(id, name, net_change)
         else:
             res_2 = "-- **YOU LOST** --"
-            loss = -bet
-            change_player_coin(id, name, loss)
+            net_change = -bet
+            change_player_coin(id, name, net_change)
 
         player_coin_after = change_player_coin(id, name, 0, True)
 
         embed = discord.Embed(color=0xffd700, title="SLOT MACHINE :slot_machine:",
                               description=f"{slot_results_str}\n{'-' * 18}**\n{res_2}")
         embed.add_field(name="Bet", value=f"{bet} {coin[0]}", inline=True)
-        embed.add_field(name="Profit/Loss", value=f"{profit} {coin[0]}" + (
+        embed.add_field(name="Profit/Loss", value=f"{net_change} {coin[0]}" + (
             f" ({multiplier}x)" if win else ""), inline=True)
         embed.add_field(
             name="Balance", value=f"{player_coin_after} {coin[0]}", inline=True)
