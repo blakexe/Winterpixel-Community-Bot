@@ -253,26 +253,28 @@ async def on_ready():
 
     print("Winterpixel community bot is ready.")
 
+
 @tree.command()
 async def fix(interaction: discord.Interaction):
-  
-  await interaction.response.defer(ephemeral=False, thinking=True)
 
-  name_id = dict()
-  for id in db['archive']:
-    try: # User in server
-        user_object = await interaction.guild.query_members(user_ids=[id])
-        if user_object[0].nick == None: # No nickname is found
-            name = str(user_object[0])[:-5]  # Use username
-        else:
-            name = user_object[0].nick # Use nickname
-        name_id[id] = name
-        print(id, name)
-    except: # User not in server
-        print(id)
+    await interaction.response.defer(ephemeral=False, thinking=True)
 
-  await interaction.followup.send("Done")
-  print(name_id, len(name_id))
+    name_id = dict()
+    for id in db['archive']:
+        try:  # User in server
+            user_object = await interaction.guild.query_members(user_ids=[id])
+            if user_object[0].nick == None:  # No nickname is found
+                name = str(user_object[0])[:-5]  # Use username
+            else:
+                name = user_object[0].nick  # Use nickname
+            name_id[id] = name
+            print(id, name)
+        except:  # User not in server
+            print(id)
+
+    await interaction.followup.send("Done")
+    print(name_id, len(name_id))
+
 
 @tree.command()
 @app_commands.describe(
@@ -1871,15 +1873,23 @@ async def start_game(interaction: discord.Interaction):
                 str(coin_num) + " <:coin:910247623787700264>"
             event += " and " + player_b + " lost " + \
                 str(coin_num) + " <:coin:910247623787700264>"
-            if '@' in player_a:
+            if '@' in player_a:  # Not a bot
                 player_a_id = convert_mention_to_id(player_a)
-                player_a_name = await interaction.guild.query_members(user_ids=[player_a_id])
-                player_a_name = str(player_a_name[0])[:-5]
+                player_a_object = await interaction.guild.query_members(user_ids=[player_a_id])
+                if player_a_object[0].nick == None:  # No nickname is found
+                    player_a_name = str(player_a_object[0])[
+                        :-5]  # Use username
+                else:
+                    player_a_name = player_a_object[0].nick  # Use nickname
                 change_player_coin(player_a_id, player_a_name, coin_num)
-            if '@' in player_b:
+            if '@' in player_b:  # Not a bot
                 player_b_id = convert_mention_to_id(player_b)
-                player_b_name = await interaction.guild.query_members(user_ids=[player_b_id])
-                player_b_name = str(player_b_name[0])[:-5]
+                player_b_object = await interaction.guild.query_members(user_ids=[player_b_id])
+                if player_b_object[0].nick == None:  # No nickname is found
+                    player_b_name = str(player_b_object[0])[
+                        :-5]  # Use username
+                else:
+                    player_b_name = player_b_object[0].nick  # Use nickname
                 change_player_coin(player_b_id, player_b_name, -coin_num)
             if moneys.get(player_a) == None:
                 moneys[player_a] = coin_num
@@ -1949,8 +1959,11 @@ async def get_money(interaction: discord.Interaction):
     await interaction.response.defer(ephemeral=False, thinking=True)
 
     id = convert_mention_to_id(interaction.user.mention)
-    name = await interaction.guild.query_members(user_ids=[id])
-    name = str(name[0])[:-5]
+    user_object = await interaction.guild.query_members(user_ids=[id])
+    if user_object[0].nick == None:  # No nickname is found
+        name = str(user_object[0])[:-5]  # Use username
+    else:
+        name = user_object[0].nick  # Use nickname
     msg = f"{str(interaction.user.mention)} has {str(change_player_coin(id, name, 0, True))} <:coin:910247623787700264>"
     await interaction.followup.send(msg)
 
