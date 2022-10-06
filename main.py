@@ -22,7 +22,7 @@ from replit import db
 from discord import app_commands
 from rocketbot_client import RocketBotClient
 from moonrock_client import MoonRockClient
-
+db['discord_coins'] = dict()
 # Attempt to retrieve enviroment from environment.json
 working_directory = os.path.dirname(os.path.realpath(__file__))
 try:
@@ -166,24 +166,25 @@ def generate_random_name():
     return name
 
 
-def add_player_coin(player, name, coins):
-    if type(player) is int:
-        player_coins = db.get(str(player))
-        if player_coins == None:
-            db[str(player)] = {"name": name, "money": 500, "inventory": {}}
-        db[player]["money"] = db[player]["money"] + coins
-        return db[str(player)]["money"]
-    return 0
+def change_player_coin(id, name, coins, request=False):
+    if id in db['discord_coins']:  # Old id
+        db['discord_coins'][id]['coins'] += coins
+    else:
+        db['discord_coins'][id] = {  # New id
+            'name': name, 'coins': coins, 'inventory': {}}
+    if request == True:
+        return db['discord_coins'][id]['coins']
 
 
 def convert_mention_to_id(mention):
-    print(mention)
-    return int(mention[2:-1])
-#     return int(mention[1:][:len(mention)-2].replace("@", "").replace("!", ""))
+    id = mention[2:-1]
+    if id.startswith('!'):
+        id = id[1:]
+    return id
 
 
 def get_name_from_id(user_id):
-    guild = discord.Object(id=962142361935314996)
+    guild = discord.Object(id=989993645006536704)
     return guild.fetch_member(user_id)
 
 
@@ -253,7 +254,16 @@ async def on_ready():
         if key not in matches_rbr and key not in matches_mm:
             print(key, db[key])
 
+    print(db['discord_coins'])
+
     print("Winterpixel community bot is ready.")
+
+
+@tree.command()
+async def test_command(interaction: discord.Interaction, id: str):
+    '''Test command'''
+    await interaction.response.defer(ephemeral=False, thinking=True)
+    await interaction.followup.send(get_name_from_id(id))
 
 
 @tree.command()
@@ -1732,7 +1742,7 @@ async def build_a_bot(interaction: discord.Interaction):
     '''Bear the responsibility of creating new life... I mean bot'''
     bot_name = generate_random_name()
     response = f"***Meet your lovely new bot!***\n\n`{bot_name}`"
-    if len(bots) > 5:
+    if len(bots) >= 5:
         response += f"\n\n`{bot_name}` can't join because 5 bots have already joined"
     else:
         response += f"\n\n`{bot_name}` is joining the next game"
@@ -1744,7 +1754,6 @@ async def build_a_bot(interaction: discord.Interaction):
 @tree.command()
 async def join_game(interaction: discord.Interaction):
     '''Join the current game'''
-    response_hidden = False
     if playing:
         await interaction.response.send_message("Can't join because a game is already in progress")
         return
@@ -1753,13 +1762,12 @@ async def join_game(interaction: discord.Interaction):
         players.append(interaction.user.mention)
         response += '{} joined'.format(interaction.user.mention)
     else:
-        response_hidden = True
         response += '{} you cant join twice'.format(interaction.user.mention)
 
     await interaction.response.send_message(response)
 
 
-@tree.command(guild=discord.Object(id=962142361935314996))
+@tree.command(guild=discord.Object(id=989993645006536704))
 async def get_config(interaction: discord.Interaction):
     file = io.StringIO(json.dumps(server_config))
     await interaction.response.send_message(file=discord.File(fp=file, filename="server_config.json"))
@@ -1856,9 +1864,15 @@ async def start_game(interaction: discord.Interaction):
             event += " and " + player_b + " lost " + \
                 str(coin_num) + " <:coin:910247623787700264>"
             if '@' in player_a:
-                add_player_coin(convert_mention_to_id(player_a), coin_num)
+                player_a_id = convert_mention_to_id(player_a)
+                player_a_name = await interaction.guild.query_members(user_ids=[player_a_id])
+                player_a_name = str(player_a_name[0])[:-5]
+                change_player_coin(player_a_id, player_a_name, coin_num)
             if '@' in player_b:
-                add_player_coin(convert_mention_to_id(player_b), -coin_num)
+                player_b_id = convert_mention_to_id(player_b)
+                player_b_name = await interaction.guild.query_members(user_ids=[player_b_id])
+                player_b_name = str(player_b_name[0])[:-5]
+                change_player_coin(player_b_id, player_b_name, -coin_num)
             if moneys.get(player_a) == None:
                 moneys[player_a] = coin_num
             else:
@@ -1871,17 +1885,17 @@ async def start_game(interaction: discord.Interaction):
                 #                 cur_num = random.choice(range(1,100)
                 player_c = random.choice(players)
                 db[player_c] = db[player_c] - cur_num
-                player.remove(player_c)
+                players.remove(player_c)
                 event = event.replace("<C>", player_c)
             if "<D>" in event:
                 #                 coin_num += random.choice(range(1,100)
                 player_d = random.choice(players)
-                player.remove(player_d)
+                players.remove(player_d)
                 event.replace("<D>", player_d)
             if "<E>" in event:
                 #                 coin_num += random.choice(range(1,100)
                 player_e = random.choice(players)
-                player.remove(player_e)
+                players.remove(player_e)
                 event.replace("<E>", player_e)
             if "<F>" in event:
                 player_f = random.choice(players)
@@ -1924,14 +1938,20 @@ async def start_game(interaction: discord.Interaction):
 @tree.command()
 async def get_money(interaction: discord.Interaction):
     '''Find out how much money you have in discord'''
-    await interaction.response.send_message(str(interaction.user.mention) + " has " + str(add_player_coin(interaction.user.id, interaction.user.username, 0)) + " <:coin:910247623787700264>")
+    await interaction.response.defer(ephemeral=False, thinking=True)
+
+    id = convert_mention_to_id(interaction.user.mention)
+    name = await interaction.guild.query_members(user_ids=[id])
+    name = str(name[0])[:-5]
+    msg = f"{str(interaction.user.mention)} has {str(change_player_coin(id, name, 0, True))} <:coin:910247623787700264>"
+    await interaction.followup.send(msg)
 
 
 @tree.command()
 async def discord_coins_leaderboard(interaction: discord.Interaction):
     '''Return the discord coins leaderboard'''
 
-#    await interaction.response.defer(ephemeral=False, thinking=True)
+   # await interaction.response.defer(ephemeral=False, thinking=True)
 
     test_keys = db
     rankdict = {}
@@ -3409,10 +3429,10 @@ async def fandom(interaction: discord.Interaction, article: str):
         await interaction.followup.send(embed=discord.Embed(color=0xff0000, description=f':x: "{article}" is not found. Make sure capitalization is correct!', timestamp=datetime.datetime.utcnow()))
 
 
-@tree.command(guild=discord.Object(id=962142361935314996))
+@tree.command(guild=discord.Object(id=989993645006536704))
 async def sync_commands(interaction: discord.Interaction):
     await tree.sync()
-    await tree.sync(guild=discord.Object(id=962142361935314996))
+    await tree.sync(guild=discord.Object(id=989993645006536704))
     await interaction.response.send_message("Commands synced.")
 
 
