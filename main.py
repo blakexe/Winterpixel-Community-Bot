@@ -22,7 +22,7 @@ from replit import db
 from discord import app_commands
 from rocketbot_client import RocketBotClient
 from moonrock_client import MoonRockClient
-db['discord_coins'] = dict()
+
 # Attempt to retrieve enviroment from environment.json
 working_directory = os.path.dirname(os.path.realpath(__file__))
 try:
