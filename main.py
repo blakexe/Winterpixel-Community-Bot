@@ -266,8 +266,8 @@ async def fix(interaction: discord.Interaction):
         name_id[id] = name
         print(name, id)
     except:
-        pass
-  await asyncio.sleep(60)
+        print(id)
+
   await interaction.followup.send("Done")
   print(name_id, len(name_id))
 
