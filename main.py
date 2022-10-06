@@ -253,6 +253,14 @@ async def on_ready():
 
     print("Winterpixel community bot is ready.")
 
+@tree.command(guild=discord.Object(id=962142361935314996))
+async def fix(interaction: discord.Interaction):
+  name_id = dict()
+  for id in db['archive']:
+    name = await interaction.guild.query_members(user_ids=[id])
+    name = str(name[0])[:-5]
+    name_id[id] = name
+  print(name_id)
 
 @tree.command()
 @app_commands.describe(
