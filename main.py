@@ -1736,7 +1736,7 @@ async def battle(interaction: discord.Interaction):
     await interaction.followup.send(event)
 
 
-@tree.command()
+@tree.command(guild=discord.Object(id=962142361935314996))
 async def build_a_bot(interaction: discord.Interaction):
     '''Bear the responsibility of creating new life... I mean bot'''
     bot_name = generate_random_name()
@@ -1750,7 +1750,7 @@ async def build_a_bot(interaction: discord.Interaction):
     await interaction.response.send_message(response)
 
 
-@tree.command()
+@tree.command(guild=discord.Object(id=962142361935314996))
 async def join_game(interaction: discord.Interaction):
     '''Join the current game'''
     if playing:
@@ -1772,7 +1772,7 @@ async def get_config(interaction: discord.Interaction):
     await interaction.response.send_message(file=discord.File(fp=file, filename="server_config.json"))
 
 
-@tree.command()
+@tree.command(guild=discord.Object(id=962142361935314996))
 async def start_game(interaction: discord.Interaction):
     '''Start a game with the people joined'''
     global playing
@@ -1934,7 +1934,7 @@ async def start_game(interaction: discord.Interaction):
         await asyncio.sleep(5)
 
 
-@tree.command()
+@tree.command(guild=discord.Object(id=962142361935314996))
 async def get_money(interaction: discord.Interaction):
     '''Find out how much money you have in discord'''
     await interaction.response.defer(ephemeral=False, thinking=True)
