@@ -253,7 +253,7 @@ async def on_ready():
 
     print("Winterpixel community bot is ready.")
 
-@tree.command(guild=discord.Object(id=962142361935314996))
+@tree.command()
 async def fix(interaction: discord.Interaction):
   
   await interaction.response.defer(ephemeral=True, thinking=True)
@@ -267,7 +267,7 @@ async def fix(interaction: discord.Interaction):
         print(name, id)
     except:
         pass
-  await asyncio.sleep(30)
+  await asyncio.sleep(60)
   await interaction.followup.send("Done")
   print(name_id, len(name_id))
 
