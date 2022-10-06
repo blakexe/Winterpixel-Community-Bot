@@ -257,7 +257,7 @@ async def on_ready():
 async def fix(interaction: discord.Interaction):
   
   await interaction.response.defer(ephemeral=True, thinking=True)
-  await asyncio.sleep(60)
+
   name_id = dict()
   for id in db['archive']:
     try:
@@ -267,6 +267,7 @@ async def fix(interaction: discord.Interaction):
         print(name, id)
     except:
         pass
+  await asyncio.sleep(30)
   await interaction.followup.send("Done")
   print(name_id, len(name_id))
 
