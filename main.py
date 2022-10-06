@@ -257,9 +257,12 @@ async def on_ready():
 async def fix(interaction: discord.Interaction):
   name_id = dict()
   for id in db['archive']:
-    name = await interaction.guild.query_members(user_ids=[id])
-    name = str(name[0])[:-5]
-    name_id[id] = name
+    try:
+        name = await interaction.guild.query_members(user_ids=[id])
+        name = str(name[0])[:-5]
+        name_id[id] = name
+    except:
+        pass
   print(name_id)
 
 @tree.command()
