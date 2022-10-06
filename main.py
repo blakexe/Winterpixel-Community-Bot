@@ -23,6 +23,63 @@ from discord import app_commands
 from rocketbot_client import RocketBotClient
 from moonrock_client import MoonRockClient
 
+db['discord_coins'] = {
+    '287357374996545536': {'name': 'minajidas', 'coins': 500, 'coins_change': 0, 'inventory': {}},
+    '795760729331728464': {'name': 'noobfox unnoob?', 'coins': 549, 'coins_change': 0, 'inventory': {}},
+    '953894954307047444': {'name': '! ! ! ! Meme', 'coins': 701, 'coins_change': 0, 'inventory': {}},
+    '348667586893971457': {'name': '6721', 'coins': 500, 'coins_change': 0, 'inventory': {}},
+    '565871617134034965': {'name': 'cant_logic', 'coins': 500, 'coins_change': 0, 'inventory': {}},
+    '828024836101111839': {'name': 'Unknown User', 'coins': 703, 'coins_change': 0, 'inventory': {}},
+    '970784448633258054': {'name': 'TaNk8k', 'coins': 707, 'coins_change': 0, 'inventory': {}},
+    '890305108787744838': {'name': 'bireme(tu madre es gorda)', 'coins': 476, 'coins_change': 0, 'inventory': {}},
+    '978010453299068958': {'name': 'Sir Canis IV (ʜᴇ/ʜɪᴍ/ʜɪs)', 'coins': 500, 'coins_change': 0, 'inventory': {}},
+    '741161476353425420': {'name': 'Unknown User', 'coins': 500, 'coins_change': 0, 'inventory': {}},
+    '917526093165113364': {'name': 'т¥ɧ๏๏Ꮑ', 'coins': 500, 'coins_change': 0, 'inventory': {}},
+    '667898007592894482': {'name': 'Noahbear23', 'coins': 500, 'coins_change': 0, 'inventory': {}},
+    '707226035652919336': {'name': 'mininuke🗿', 'coins': 500, 'coins_change': 0, 'inventory': {}},
+    '639615677262462976': {'name': 'Mirio🗿', 'coins': 504, 'coins_change': 0, 'inventory': {}},
+    '908108270638616586': {'name': 'Unknown User', 'coins': 500, 'coins_change': 0, 'inventory': {}},
+    '835208786909462588': {'name': 'Unknown User', 'coins': 500, 'coins_change': 0, 'inventory': {}},
+    '217322331385757697': {'name': 'average lighthouse', 'coins': 461, 'coins_change': 0, 'inventory': {}},
+    '799355820722225194': {'name': '!Nightdrifter🗿', 'coins': 1247, 'coins_change': 0, 'inventory': {}},
+    '507965365930950657': {'name': 'dev', 'coins': 500, 'coins_change': 0, 'inventory': {}},
+    '152080881220059136': {'name': 'brianflakes', 'coins': 519, 'coins_change': 0, 'inventory': {}},
+    '92400886776627200': {'name': 'JL', 'coins': 266, 'coins_change': 0, 'inventory': {}},
+    '771472652610174987': {'name': 'What', 'coins': 449, 'coins_change': 0, 'inventory': {}},
+    '733827112175140945': {'name': '(Moyai clan) Rebecca 🗿', 'coins': 462, 'coins_change': 0, 'inventory': {}},
+    '887318763874189313': {'name': '[DC][MC] BEAST', 'coins': 500, 'coins_change': 0, 'inventory': {}},
+    '552064129872166912': {'name': '•𝓩ǝ𝔯๏•🗿', 'coins': 500, 'coins_change': 0, 'inventory': {}},
+    '244935915670077441': {'name': 'Deej Lile Babe', 'coins': 419, 'coins_change': 0, 'inventory': {}},
+    '668153108592853006': {'name': 'Guest69', 'coins': 10, 'coins_change': 0, 'inventory': {}},
+    '548992701169926161': {'name': 'Unknown User', 'coins': 500, 'coins_change': 0, 'inventory': {}},
+    '974388748273979392': {'name': 'Ein Purzel', 'coins': 500, 'coins_change': 0, 'inventory': {}},
+    '843576984621416530': {'name': '(Moyai Clan) PepperBoi🗿', 'coins': 1340, 'coins_change': 0, 'inventory': {}},
+    '958845970718785576': {'name': '! ! ! ! BOMB [PRM]', 'coins': 248, 'coins_change': 0, 'inventory': {}},
+    '617808605424386057': {'name': 'Arrow', 'coins': 345, 'coins_change': 0, 'inventory': {}},
+    '899272561148448828': {'name': '[Tax Evasion] Gr8', 'coins': 721, 'coins_change': 0, 'inventory': {}},
+    '933484238219653241': {'name': '[PRM] jellyfrog', 'coins': 291, 'coins_change': 0, 'inventory': {}},
+    '610369943967629340': {'name': 'gber 🗿', 'coins': 597, 'coins_change': 0, 'inventory': {}},
+    '746054282121576500': {'name': '!odssa (', 'coins': 567, 'coins_change': 0, 'inventory': {}},
+    '381074897083826176': {'name': 'Blaki🗿', 'coins': 518, 'coins_change': 0, 'inventory': {}},
+    '849305162098278451': {'name': 'Maxarian', 'coins': 500, 'coins_change': 0, 'inventory': {}},
+    '917204030198022154': {'name': '!armadillo71', 'coins': 500, 'coins_change': 0, 'inventory': {}},
+    '956571878682677268': {'name': 'Boop', 'coins': 1131, 'coins_change': 0, 'inventory': {}},
+    '439869920378093568': {'name': 'Clement', 'coins': 500, 'coins_change': 0, 'inventory': {}},
+    '972224178692423740': {'name': 'v1b3z', 'coins': 500, 'coins_change': 0, 'inventory': {}},
+    '958078466971029544': {'name': '(Moyai Clan) Brawl Stars 🗿', 'coins': 500, 'coins_change': 0, 'inventory': {}},
+    '988795020188483635': {'name': 'RODENTS', 'coins': 500, 'coins_change': 0, 'inventory': {}},
+    '942236747226574869': {'name': 'Zeek', 'coins': 500, 'coins_change': 0, 'inventory': {}},
+    '953365001245171794': {'name': 'asia1752', 'coins': -218, 'coins_change': 0, 'inventory': {}},
+    '255360946573279233': {'name': 'Unknown User', 'coins': 500, 'coins_change': 0, 'inventory': {}},
+    '958535660531245106': {'name': 'oofmania', 'coins': 500, 'coins_change': 0, 'inventory': {}},
+    '660284600400216064': {'name': 'Nowisk', 'coins': 679, 'coins_change': 0, 'inventory': {}},
+    '652144896077070366': {'name': 'Evvis', 'coins': 449, 'coins_change': 0, 'inventory': {}},
+    '782302769452941333': {'name': 'ultra-lion🗿', 'coins': 524, 'coins_change': 0, 'inventory': {}},
+    '898241469788356618': {'name': 'Unknown User', 'coins': 500, 'coins_change': 0, 'inventory': {}},
+    '774290172040577034': {'name': '(Moyai Clan) Spearfire81 🗿', 'coins': 766, 'coins_change': 0, 'inventory': {}},
+    '947338408429252638': {'name': 'Unknown User', 'coins': 500, 'coins_change': 0, 'inventory': {}}
+}
+
 # Attempt to retrieve enviroment from environment.json
 working_directory = os.path.dirname(os.path.realpath(__file__))
 try:
@@ -169,10 +226,11 @@ def generate_random_name():
 def change_player_coin(id, name, coins, request=False):
     if id in db['discord_coins']:  # Old id
         db['discord_coins'][id]['name'] = name  # Update nickname
-        db['discord_coins'][id]['coins'] += coins
     else:  # New id
         db['discord_coins'][id] = {  # New record
-            'name': name, 'coins': coins, 'inventory': {}}
+            'name': name, 'coins': 0, 'coins_change': 0, 'inventory': {}}
+    db['discord_coins'][id]['coins'] += coins
+    db['discord_coins'][id]['coins_change'] += coins
     if request == True:
         return db['discord_coins'][id]['coins']
 
