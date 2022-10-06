@@ -262,7 +262,9 @@ async def fix(interaction: discord.Interaction):
   for id in db['archive']:
     try:
         name = await interaction.guild.query_members(user_ids=[id])
-        name = name[0].nick
+        name = name[0].nick # Nickname
+        if name == None:
+            name = str(name[0])[:-5] # If no nickname is found, use username instead
         name_id[id] = name
         print(name, id)
     except:
