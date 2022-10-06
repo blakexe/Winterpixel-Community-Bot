@@ -183,11 +183,6 @@ def convert_mention_to_id(mention):
     return id
 
 
-def get_name_from_id(user_id):
-    guild = discord.Object(id=989993645006536704)
-    return guild.fetch_member(user_id)
-
-
 async def refresh_config():
     '''Refresh game configuration every 10 minutes'''
     global server_config
@@ -257,13 +252,6 @@ async def on_ready():
     print(db['discord_coins'])
 
     print("Winterpixel community bot is ready.")
-
-
-@tree.command()
-async def test_command(interaction: discord.Interaction, id: str):
-    '''Test command'''
-    await interaction.response.defer(ephemeral=False, thinking=True)
-    await interaction.followup.send(get_name_from_id(id))
 
 
 @tree.command()
@@ -1767,7 +1755,7 @@ async def join_game(interaction: discord.Interaction):
     await interaction.response.send_message(response)
 
 
-@tree.command(guild=discord.Object(id=989993645006536704))
+@tree.command(guild=discord.Object(id=962142361935314996))
 async def get_config(interaction: discord.Interaction):
     file = io.StringIO(json.dumps(server_config))
     await interaction.response.send_message(file=discord.File(fp=file, filename="server_config.json"))
@@ -3429,10 +3417,10 @@ async def fandom(interaction: discord.Interaction, article: str):
         await interaction.followup.send(embed=discord.Embed(color=0xff0000, description=f':x: "{article}" is not found. Make sure capitalization is correct!', timestamp=datetime.datetime.utcnow()))
 
 
-@tree.command(guild=discord.Object(id=989993645006536704))
+@tree.command(guild=discord.Object(id=962142361935314996))
 async def sync_commands(interaction: discord.Interaction):
     await tree.sync()
-    await tree.sync(guild=discord.Object(id=989993645006536704))
+    await tree.sync(guild=discord.Object(id=962142361935314996))
     await interaction.response.send_message("Commands synced.")
 
 
