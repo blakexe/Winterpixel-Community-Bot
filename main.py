@@ -2150,14 +2150,21 @@ async def slot(interaction: discord.Interaction, bet: int):
     coin = ["<:coin1:910247623787700264>", "<:coin2:991444836869754950>",
             "<:coin3:976289335844434000>", "<:coin4:976289358200049704>", "<:coin5:976288324266373130>"]
 
-    # if bet > db["player_coin"]:
-    #     await interaction.followup.send(embed=discord.Embed(
-    #         color=discord.Color.red(),
-    #         title="SLOT MACHINE :slot_machine:",
-    #         description=f"You don't have enough {coin[0]}"))
+    # Check how many coins the player has
+    id = convert_mention_to_id(interaction.user.mention)
+    user_object = await interaction.guild.query_members(user_ids=[id])
+    if user_object[0].nick == None:  # No nickname is found
+        name = str(user_object[0])[:-5]  # Use username
+    else:
+        name = user_object[0].nick  # Use nickname
+    player_coin_before = change_player_coin(id, name, 0, True)
 
-    if bet <= 0:
-        # elif bet <= 0:
+    if bet > player_coin_before:
+        await interaction.followup.send(embed=discord.Embed(
+            color=discord.Color.red(),
+            title="SLOT MACHINE :slot_machine:",
+            description=f"You don't have enough {coin[0]}"))
+    elif bet <= 0:
         await interaction.followup.send(embed=discord.Embed(color=discord.Color.red(), title="SLOT MACHINE :slot_machine:", description=f"The minimum bet is 1 {coin[0]}"))
 
     else:
@@ -2203,21 +2210,22 @@ async def slot(interaction: discord.Interaction, bet: int):
 
         if win == True:
             res_2 = "-- **YOU WON** --"
-            profit = bet * multiplier
-            # db["player_coin"] += profit
+            gain = bet * multiplier
+            change_player_coin(id, name, gain)
         else:
             res_2 = "-- **YOU LOST** --"
-            profit = -bet
-            # db["player_coin"] -= bet
+            loss = -bet
+            change_player_coin(id, name, loss)
 
-        # new_player_coin = db["player_coin"]
+        player_coin_after = change_player_coin(id, name, 0, True)
 
         embed = discord.Embed(color=0xffd700, title="SLOT MACHINE :slot_machine:",
                               description=f"{slot_results_str}\n{'-' * 18}**\n{res_2}")
         embed.add_field(name="Bet", value=f"{bet} {coin[0]}", inline=True)
         embed.add_field(name="Profit/Loss", value=f"{profit} {coin[0]}" + (
             f" ({multiplier}x)" if win else ""), inline=True)
-        embed.add_field(name="Balance", value=f"N.A. {coin[0]}", inline=True)
+        embed.add_field(
+            name="Balance", value=f"{player_coin_after} {coin[0]}", inline=True)
         embed.add_field(name="Pay Table", value=f"{'{}'.format(coin[4]) * 3} - 32x\n{'{}'.format(coin[3]) * 3} - 16x\n{'{}'.format(coin[2]) * 3} - 12x\n{'{}'.format(coin[1]) * 3} - 8x\n{'{}'.format(coin[4]) * 2}:grey_question: - 8x\n{'{}'.format(coin[0]) * 3} - 4x\n{'{}'.format(coin[3]) * 2}:grey_question: - 4x\n{'{}'.format(coin[2]) * 2}:grey_question: - 3x\n{'{}'.format(coin[1]) * 2}:grey_question: - 2x\n{'{}'.format(coin[0]) * 2}:grey_question: - 1x", inline=False)
         await sent_embed.edit(embed=embed)
 
@@ -2357,16 +2365,6 @@ async def memory(interaction: discord.Interaction):
                 await message.edit(embed=embed)
                 break
         break
-
-# @tree.command()
-# async def update_players_database(interaction: discord.Interaction):
-#     '''Change from user mention to dict'''
-#     for key in db.keys():
-#         user_id = convert_mention_to_id(key)
-#         db[user_id] = {"name":client.get_user(user_id),"money":db[key], "inventory":{}}
-#         db.pop(key)
-#     print(db.keys())
-#     await interaction.response.send_message("DONE =)")
 
 
 @tree.command()
