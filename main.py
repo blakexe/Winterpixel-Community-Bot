@@ -171,7 +171,7 @@ def change_player_coin(id, name, coins, request=False):
         db['discord_coins'][id]['name'] = name  # Update nickname
     else:  # New id
         db['discord_coins'][id] = {  # New record
-            'name': name, 'coins': 0, 'coins_change': 0, 'inventory': {}}
+            'name': name, 'coins': 500, 'coins_change': 0, 'inventory': {}}
     db['discord_coins'][id]['coins'] += coins
     db['discord_coins'][id]['coins_change'] += coins
     if request == True:
