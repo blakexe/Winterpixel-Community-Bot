@@ -2087,7 +2087,7 @@ async def discord_coins_leaderboard(interaction: discord.Interaction, changes: t
                 second_message = '```ansi\n'+leaderboard_split_dict[2]+'```'
                 embed_second = discord.Embed(description=second_message)
                 embed_second.set_footer(
-                    text=f"Page {'2':<2}: {'26':<4} to {'50':<4} | Changes since {db['discord_coins']['last_update_time']}" if changes == "Shown" else "")
+                    text=f"Changes since {db['discord_coins']['last_update_time']}" if changes == "Shown" else "")
                 await msg2.edit(embed=embed_second)
                 await msg.clear_reactions()
                 break
@@ -2102,7 +2102,7 @@ async def discord_coins_leaderboard(interaction: discord.Interaction, changes: t
             second_message = '```ansi\n'+leaderboard_split_dict[2]+'```'
             embed_second = discord.Embed(description=second_message)
             embed_second.set_footer(
-                text=f"Page {'2':<2}: {'26':<4} to {'50':<4} | Changes since {db['discord_coins']['last_update_time']}" if changes == "Shown" else "")
+                text=f"Changes since {db['discord_coins']['last_update_time']}" if changes == "Shown" else "")
             await msg2.edit(embed=embed_second)
             await msg.clear_reactions()
             break
