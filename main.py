@@ -257,7 +257,7 @@ async def on_ready():
 @tree.command()
 @app_commands.describe(
     mode='Leaderboard by trophies or points',
-    changes='Only available for Top 50 records of current season, changes since last command used, takes longer to compute',
+    changes='Only available for Top 50 records of current season, changes since last command used',
     season='Trophies: Season 10 or later / Points: Season 0 or later, default current'
 )
 async def leaderboard_rocket_bot_royale(interaction: discord.Interaction, mode: typing.Literal['Trophies', 'Points'], changes: typing.Literal['Shown', 'Hidden'], season: int = -1):
