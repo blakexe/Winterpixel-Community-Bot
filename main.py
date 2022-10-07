@@ -1969,27 +1969,166 @@ async def get_money(interaction: discord.Interaction):
 
 
 @tree.command()
-async def discord_coins_leaderboard(interaction: discord.Interaction):
+@app_commands.describe(
+    changes='Changes since last command used, takes longer to compute'
+)
+async def discord_coins_leaderboard(interaction: discord.Interaction, changes: typing.Literal['Shown', 'Hidden']):
     '''Return the discord coins leaderboard'''
 
-   # await interaction.response.defer(ephemeral=False, thinking=True)
+    await interaction.response.defer(ephemeral=False, thinking=True)
 
-    test_keys = db
-    rankdict = {}
+    def check(reaction, user):
+        return user == interaction.user and str(reaction.emoji) in ["◀️", "▶️", "⏪", "⏹️"]
+    # This makes sure nobody except the command sender can interact with the "menu"
 
-    for key in test_keys.keys():
-        rankdict[key] = test_keys[key]
-    global sorted_rankdict
-    sorted_rankdict = sorted(rankdict.items(), key=itemgetter(1), reverse=True)
-    message = f"```\n{'Rank:':<5} {'Name:':<20} {'Coins:'}\n{'‾' * 35}\n"
-    sorted_rankdict = sorted_rankdict[:10]
-    for i in sorted_rankdict:
-        message += f"{'#' + str(sorted_rankdict.index(i) + 1):<5} {i[0]:<20} {i[1]:>5,d} 🪙\n"
+    # Create a new dictionary
+    rank_dict = dict()
+    for id in db['discord_coins']:
+        if id != 'last_update_time':
+            rank_dict[id] = db['discord_coins'][id]['coins']
+
+    # Sort the new dictionary
+    sorted_rank_dict = sorted(
+        rank_dict.items(), key=itemgetter(1), reverse=True)
+
+    if changes == "Shown":
+        # Using f-string spacing to pretty print the leaderboard labels (bold)
+        label = f"```ansi\n\u001b[1m    {'Rank:':<5} {'Name:':<28} {'Coins:'}\n\u001b[0m{'─' * 52}\n"
+
+        # Using f-string spacing to pretty print the leaderboard
+        leaderboard = ""
+        for i in sorted_rank_dict:
+            # Rank difference
+            try:
+                rank_diff = (sorted_rank_dict.index(i) + 1) - \
+                    db['discord_coins'][i[0]]['rank']  # New rank - old rank
+                if rank_diff > 0:
+                    rank_diff_2 = f"\u001b[2;31m▼{abs(rank_diff):<3}\u001b[0m"
+                elif rank_diff < 0:
+                    rank_diff_2 = f"\u001b[2;32m▲{abs(rank_diff):<3}\u001b[0m"
+                else:
+                    rank_diff_2 = f"{'-':^4}"
+            except:
+                rank_diff_2 = f"{'':4}"  # Not found in repl.it's database
+
+            # Coins difference
+            coins_diff = db['discord_coins'][i[0]]['coins_change']
+            if coins_diff < 0:
+                coins_diff_2 = f"\u001b[2;31m-{abs(coins_diff):<4}\u001b[0m"
+            elif coins_diff > 0:
+                coins_diff_2 = f"\u001b[2;32m+{abs(coins_diff):<4}\u001b[0m"
+            else:
+                coins_diff_2 = f"{'-':^5}"
+
+            # A single all-in-one record
+            leaderboard += f"{rank_diff_2}\u001b[1m{'#' + str(sorted_rank_dict.index(i) + 1):<6}\u001b[0m{db['discord_coins'][i[0]]['name'].encode('utf-8', 'replace').decode():<28}🪙 {i[1]:<6,d}{coins_diff_2}\n"
+
+            # Store new 'rank'
+            db['discord_coins'][i[0]]['rank'] = sorted_rank_dict.index(i) + 1
+
+            # Reset 'coins_change'
+            db['discord_coins'][i[0]]['coins_change'] = 0
+
+            # Store 'last_update_time'
+            db['discord_coins'][
+                'last_update_time'] = f"{datetime.datetime.utcfromtimestamp(time.time()):%Y-%m-%d %H:%M:%S} UTC"
+
+    elif changes == "Hidden":
+        # Using f-string spacing to pretty print the leaderboard labels (bold)
+        label = f"```ansi\n\u001b[1m{'Rank:':<5} {'Name:':<28} {'Coins:'}\n\u001b[0m{'─' * 45}\n"
+
+        # Using f-string spacing to pretty print the leaderboard
+        leaderboard = ""
+        for i in sorted_rank_dict:
+            # A single all-in-one record
+            leaderboard += f"\u001b[1m{'#' + str(sorted_rank_dict.index(i) + 1):<6}\u001b[0m{db['discord_coins'][i[0]]['name'].encode('utf-8', 'replace').decode():<28}🪙 {i[1]:<6,d}\n"
+
+    # Split the message every 25 records
+    leaderboard_split = re.compile(
+        "(?:^.*$\n?){1,25}", re.M).findall(leaderboard)
+    leaderboard_split_dict = dict()
+    for i in leaderboard_split:
+        leaderboard_split_dict[leaderboard_split.index(i)+1] = i
+    cur_page = 1
+    message = label + leaderboard_split_dict[cur_page]
     message += "```"
-    await interaction.channel.send(message)
-    embed = discord.Embed(
-        color=0xffd700, title="Discord Coins Leaderboard", description=message)
-    await interaction.followup.send(embed=embed)
+
+    embed_first = discord.Embed(
+        title="Discord Coins Leaderboard <:coin:910247623787700264>", description=message)
+    embed_first.set_footer(
+        text=f"Page {cur_page:<2}: {'1':<4} to {'25':<4}" + f" | Changes since {db['discord_coins']['last_update_time']}" if changes == "Shown" else "")
+    msg = await interaction.followup.send(embed=embed_first)
+    msg2 = await interaction.followup.send(embed=discord.Embed(description="To be edited..."))
+
+    # Wait for reaction
+    for reaction_emoji in ["◀️", "▶️", "⏪", "⏹️"]:
+        await msg.add_reaction(reaction_emoji)
+
+    while True:
+        try:
+            reaction, user = await tree.wait_for("reaction_add", timeout=10, check=check)
+            # Waiting for a reaction to be added - times out after 10 seconds
+
+            if str(reaction.emoji) == "▶️" and cur_page < len(leaderboard_split_dict)-1:  # Next page
+                cur_page += 1
+                next_message = label+leaderboard_split_dict[cur_page]+'```'
+                embed_next = discord.Embed(
+                    title="Discord Coins Leaderboard <:coin:910247623787700264>", description=next_message)
+                start = 25 * cur_page - 24
+                if cur_page == len(leaderboard_split_dict)-1:
+                    end = len(sorted_rank_dict)
+                else:
+                    end = 25 * cur_page
+                embed_next.set_footer(
+                    text=f"Page {cur_page:<2}: {start:<4} to {end:<4}" + f" | Changes since {db['discord_coins']['last_update_time']}" if changes == "Shown" else "")
+                await msg.edit(embed=embed_next)
+                await msg.remove_reaction(reaction, user)
+
+            elif str(reaction.emoji) == "◀️" and cur_page > 1:  # Previous page
+                cur_page -= 1
+                next_message = label+leaderboard_split_dict[cur_page]+'```'
+                embed_prev = discord.Embed(
+                    title="Discord Coins Leaderboard <:coin:910247623787700264>", description=next_message)
+                start = 25 * cur_page - 24
+                end = 25 * cur_page
+                embed_prev.set_footer(
+                    text=f"Page {cur_page:<2}: {start:<4} to {end:<4}" + f" | Changes since {db['discord_coins']['last_update_time']}" if changes == "Shown" else "")
+                await msg.edit(embed=embed_prev)
+                await msg.remove_reaction(reaction, user)
+
+            elif str(reaction.emoji) == "⏪" and cur_page != 1:  # First page
+                cur_page = 1
+                await msg.edit(embed=embed_first)
+                await msg.remove_reaction(reaction, user)
+
+            elif str(reaction.emoji) == "⏹️":  # Exit page view and end the loop
+                first_message = label + leaderboard_split_dict[1] + '```'
+                embed_first = discord.Embed(
+                    title="Discord Coins Leaderboard <:coin:910247623787700264>", description=first_message)
+                await msg.edit(embed=embed_first)
+                second_message = '```ansi\n'+leaderboard_split_dict[2]+'```'
+                embed_second = discord.Embed(description=second_message)
+                embed_second.set_footer(
+                    text=f"Page {'2':<2}: {'26':<4} to {'50':<4} | Changes since {db['discord_coins']['last_update_time']}" if changes == "Shown" else "")
+                await msg2.edit(embed=embed_second)
+                await msg.clear_reactions()
+                break
+            else:
+                await msg.remove_reaction(reaction, user)
+                # Removes reactions if invalid
+        except asyncio.TimeoutError:
+            first_message = label + leaderboard_split_dict[1] + '```'
+            embed_first = discord.Embed(
+                title="Discord Coins Leaderboard <:coin:910247623787700264>", description=first_message)
+            await msg.edit(embed=embed_first)
+            second_message = '```ansi\n'+leaderboard_split_dict[2]+'```'
+            embed_second = discord.Embed(description=second_message)
+            embed_second.set_footer(
+                text=f"Page {'2':<2}: {'26':<4} to {'50':<4} | Changes since {db['discord_coins']['last_update_time']}" if changes == "Shown" else "")
+            await msg2.edit(embed=embed_second)
+            await msg.clear_reactions()
+            break
+            # Ending the loop if user doesn't react after 10 seconds
 
 
 @tree.command()
