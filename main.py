@@ -255,28 +255,6 @@ async def on_ready():
 
 
 @tree.command()
-async def fix(interaction: discord.Interaction):
-
-    await interaction.response.defer(ephemeral=False, thinking=True)
-
-    name_id = dict()
-    for id in db['archive']:
-        try:  # User in server
-            user_object = await interaction.guild.query_members(user_ids=[id])
-            if user_object[0].nick == None:  # No nickname is found
-                name = str(user_object[0])[:-5]  # Use username
-            else:
-                name = user_object[0].nick  # Use nickname
-            name_id[id] = name
-            print(id, name)
-        except:  # User not in server
-            print(id)
-
-    await interaction.followup.send("Done")
-    print(name_id, len(name_id))
-
-
-@tree.command()
 @app_commands.describe(
     mode='Leaderboard by trophies or points',
     changes='Only available for Top 50 records of current season, changes since last command used',
@@ -1747,7 +1725,7 @@ async def battle(interaction: discord.Interaction):
     await interaction.followup.send(event)
 
 
-@tree.command(guild=discord.Object(id=962142361935314996))
+@tree.command()
 async def build_a_bot(interaction: discord.Interaction):
     '''Bear the responsibility of creating new life... I mean bot'''
     bot_name = generate_random_name()
@@ -1761,7 +1739,7 @@ async def build_a_bot(interaction: discord.Interaction):
     await interaction.response.send_message(response)
 
 
-@tree.command(guild=discord.Object(id=962142361935314996))
+@tree.command()
 async def join_game(interaction: discord.Interaction):
     '''Join the current game'''
     if playing:
@@ -1783,7 +1761,7 @@ async def get_config(interaction: discord.Interaction):
     await interaction.response.send_message(file=discord.File(fp=file, filename="server_config.json"))
 
 
-@tree.command(guild=discord.Object(id=962142361935314996))
+@tree.command()
 async def start_game(interaction: discord.Interaction):
     '''Start a game with the people joined'''
     global playing
@@ -1953,7 +1931,7 @@ async def start_game(interaction: discord.Interaction):
         await asyncio.sleep(5)
 
 
-@tree.command(guild=discord.Object(id=962142361935314996))
+@tree.command()
 async def get_money(interaction: discord.Interaction):
     '''Find out how much money you have in discord'''
     await interaction.response.defer(ephemeral=False, thinking=True)
@@ -2021,7 +1999,7 @@ async def discord_coins_leaderboard(interaction: discord.Interaction, changes: t
                 coins_diff_2 = f"{'-':^5}"
 
             # A single all-in-one record
-            leaderboard += f"{rank_diff_2}\u001b[1m{'#' + str(sorted_rank_dict.index(i) + 1):<6}\u001b[0m{db['discord_coins'][i[0]]['name'].encode('utf-8', 'replace').decode():<28}🪙 {i[1]:<6,d}{coins_diff_2}\n"
+            leaderboard += f"{rank_diff_2}\u001b[1m{'#' + str(sorted_rank_dict.index(i) + 1):<6}\u001b[0m{db['discord_coins'][i[0]]['name']:<28}🪙 {i[1]:<6,d}{coins_diff_2}\n"
 
             # Store new 'rank'
             db['discord_coins'][i[0]]['rank'] = sorted_rank_dict.index(i) + 1
@@ -2041,7 +2019,7 @@ async def discord_coins_leaderboard(interaction: discord.Interaction, changes: t
         leaderboard = ""
         for i in sorted_rank_dict:
             # A single all-in-one record
-            leaderboard += f"\u001b[1m{'#' + str(sorted_rank_dict.index(i) + 1):<6}\u001b[0m{db['discord_coins'][i[0]]['name'].encode('utf-8', 'replace').decode():<28}🪙 {i[1]:<6,d}\n"
+            leaderboard += f"\u001b[1m{'#' + str(sorted_rank_dict.index(i) + 1):<6}\u001b[0m{db['discord_coins'][i[0]]['name']:<28}🪙 {i[1]:<6,d}\n"
 
     # Split the message every 25 records
     leaderboard_split = re.compile(
