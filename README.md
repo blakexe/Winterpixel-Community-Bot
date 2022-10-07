@@ -32,18 +32,16 @@ Join the discord to use the bot!
 | **`/battle`** | Have a battle with a random bot! |
 | **`/build_a_bot`** | Bear the responsibility of creating new life... I mean bot |
 | **`/join_game`** * | Join the current game |
-| **`/start_game`**  * | Start a game with the people joined |
-| **`/get_money`**  * | Find out how much money you have in discord |
-| **`/discord_coins_leaderboard`** * | Return the discord coins leaderboard |
+| **`/start_game`**  | Start a game with the people joined |
+| **`/get_money`**  | Find out how much money you have in discord |
+| **`/discord_coins_leaderboard`** `changes (Shown/Hidden)` | Return the discord coins leaderboard |
 | **`/random_tank`** | Get a random tank |
 | **`/long`** `length` `(barrel)`  | Build your supercalifragilisticexpialidocious long tank equipped with as many barrels as you want! |
 | **`/get_crate_stats`** `one_star` `two_star` `three_star` | Optimize the use of in game crates and Estimate the amount of coins |
-| **`/slot`** `bet` * | Play the slot machine game |
-| **`/memory`** * | Test your memory by matching 2 tanks! |
+| **`/slot`** `bet` | Play the slot machine game |
+| **`/memory`** | Test your memory by matching 2 tanks! |
 | **`/season`** | Return the current season and remaining time |
 | **`/random_bot_name`** | Generate a random bot name |
 | **`/fandom`** `article` | Fetch any articles from Rocket Bot Royale fandom wiki here |
-
-- under maintainance*
 
 Want to suggest something? Shoot a friend request to Blaki#4254. My DMs are open. You may also feel free to make a pull request if you want to implement it on your own.
