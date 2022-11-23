@@ -270,7 +270,7 @@ async def double_or_half(interaction: discord.Interaction):
     coins = change_player_coin(id, name, 0, True)
 
     if coins > 0:
-        await interaction.followup.send(embed=discord.Embed(description="Dude... your balance isn't negative", color=0xFF0000), ephemeral=True)
+        await interaction.followup.send(embed=discord.Embed(description="Dude... your balance isn't negative", color=0xFF0000))
     else:
         events = {
             True: 5.1,
@@ -281,7 +281,7 @@ async def double_or_half(interaction: discord.Interaction):
         if success:
             await interaction.followup.send(embed=discord.Embed(title="f{interaction.user} tries their hand at resolving their debt...", description=f"Your debt has been halved! New balance: {change_player_coin(id, name, coins / 2, True)}<:coin1:910247623787700264>", color=0x00FF00))
         else:
-            await interaction.followup.send(embed=discord.Embed(title="f{interaction.user} tries their hand at resolving their debt...", description=f"Lol. Your debt has been doubled. New Balance: {change_player_coin(id, name, coins * 2, True)}<:coin1:910247623787700264>", color=0x00FF00))
+            await interaction.followup.send(embed=discord.Embed(title="f{interaction.user} tries their hand at resolving their debt...", description=f"Lol. Your debt has been doubled. New Balance: {change_player_coin(id, name, coins * 2, True)}<:coin1:910247623787700264>", color=0xFF0000))
 
 @tree.command()
 @app_commands.describe(
