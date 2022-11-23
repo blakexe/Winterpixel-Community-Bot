@@ -260,6 +260,40 @@ async def on_ready():
     changes='Only available for Top 50 records of current season, changes since last command used',
     season='Trophies: Season 10 or later / Points: Season 0 or later, default current'
 )
+async def double_or_half(interaction: discord.Interaction):
+    '''Helps you get out of a rut if your balance is negative.'''
+
+    await interaction.response.defer(ephemeral=False, thinking=True)
+
+    id = convert_mention_to_id(interaction.user.mention)
+    user_object = await interaction.guild.query_members(user_ids=[id])
+    if user_object[0].nick == None:  # No nickname is found
+        name = str(user_object[0])[:-5]  # Use username
+    else:
+        name = user_object[0].nick  # Use nickname
+
+    coins = change_player_coin(id, name, 0, True)
+
+    if coins > 0:
+        await interaction.followup.send(embed=discord.Embed(description="Dude... your balance isn't negative", color=0xFF0000), ephemeral=True)
+    else:
+        events = {
+            True: 5.1,
+            False: 5
+        }
+        success = random.choices(population=list(events.keys()), weights=events.values(), k=1)[0]
+
+        if success:
+            await interaction.followup.send(embed=discord.Embed(title="f{interaction.user} tries their hand at resolving their debt...", description=f"Your debt has been halved! New balance: {change_player_coin(id, name, coins / 2, True)}<:coin1:910247623787700264>", color=0x00FF00))
+        else:
+            await interaction.followup.send(embed=discord.Embed(title="f{interaction.user} tries their hand at resolving their debt...", description=f"Lol. Your debt has been doubled. New Balance: {change_player_coin(id, name, coins * 2, True)}<:coin1:910247623787700264>", color=0x00FF00))
+
+@tree.command()
+@app_commands.describe(
+    mode='Leaderboard by trophies or points',
+    changes='Only available for Top 50 records of current season, changes since last command used',
+    season='Trophies: Season 10 or later / Points: Season 0 or later, default current'
+)
 async def leaderboard_rocket_bot_royale(interaction: discord.Interaction, mode: typing.Literal['Trophies', 'Points'], changes: typing.Literal['Shown', 'Hidden'], season: int = -1):
     '''Return the specified season leaderboard of Rocket Bot Royale (by trophies/points), default current'''
 
