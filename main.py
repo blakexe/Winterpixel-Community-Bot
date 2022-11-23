@@ -273,8 +273,8 @@ async def double_or_half(interaction: discord.Interaction):
         await interaction.followup.send(embed=discord.Embed(description="Dude... your balance isn't negative", color=0xFF0000))
     else:
         events = {
-            True: 5.1,
-            False: 5
+            True: 2,
+            False: 1
         }
         success = random.choices(population=list(events.keys()), weights=events.values(), k=1)[0]
 
