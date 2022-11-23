@@ -255,11 +255,6 @@ async def on_ready():
 
 
 @tree.command()
-@app_commands.describe(
-    mode='Leaderboard by trophies or points',
-    changes='Only available for Top 50 records of current season, changes since last command used',
-    season='Trophies: Season 10 or later / Points: Season 0 or later, default current'
-)
 async def double_or_half(interaction: discord.Interaction):
     '''Helps you get out of a rut if your balance is negative.'''
 
