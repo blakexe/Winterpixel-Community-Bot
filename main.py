@@ -279,9 +279,9 @@ async def double_or_half(interaction: discord.Interaction):
         success = random.choices(population=list(events.keys()), weights=events.values(), k=1)[0]
 
         if success:
-            await interaction.followup.send(embed=discord.Embed(title="f{interaction.user} tries their hand at resolving their debt...", description=f"Your debt has been halved! New balance: {change_player_coin(id, name, coins / 2, True)}<:coin1:910247623787700264>", color=0x00FF00))
+            await interaction.followup.send(embed=discord.Embed(title=f"{interaction.user} tries their hand at resolving their debt...", description=f"Your debt has been halved! New balance: {change_player_coin(id, name, coins / 2, True)}<:coin1:910247623787700264>", color=0x00FF00))
         else:
-            await interaction.followup.send(embed=discord.Embed(title="f{interaction.user} tries their hand at resolving their debt...", description=f"Lol. Your debt has been doubled. New Balance: {change_player_coin(id, name, coins * 2, True)}<:coin1:910247623787700264>", color=0xFF0000))
+            await interaction.followup.send(embed=discord.Embed(title=f"{interaction.user} tries their hand at resolving their debt...", description=f"Lol. Your debt has been doubled. New Balance: {change_player_coin(id, name, coins * 2, True)}<:coin1:910247623787700264>", color=0xFF0000))
 
 @tree.command()
 @app_commands.describe(
