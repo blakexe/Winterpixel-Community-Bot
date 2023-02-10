@@ -2200,6 +2200,14 @@ async def random_tank(interaction: discord.Interaction):
         tank_name = "UFO Evolved"
     elif tank_name == "Ufo":
         tank_name = "UFO"
+    elif tank_name == "128Bit":
+        tank_name = "128bit"
+    elif tank_name == "32Bit":
+        tank_name = "32bit"
+    elif tank_name == "16Bit":
+        tank_name = "16bit"
+    elif tank_name == "8Bit":
+        tank_name = "8bit"
 
     # Get tank info
     awards_config = server_config['awards']
