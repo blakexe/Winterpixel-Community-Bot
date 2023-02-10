@@ -1476,7 +1476,7 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
         await interaction.followup.send(embed=discord.Embed(description=message5, color=0x00C6FE))
     
     if section in {
-            "with Items_Collected", "with Tanks", "with Parachutes", "with Trails",
+            "with Items Collected", "with Tanks", "with Parachutes", "with Trails",
             "with All Cosmetics", "All"
     }:
         # Get skins info
