@@ -68,7 +68,10 @@ rocketbotroyale = MediaWiki(url='https://rocketbotroyale.fandom.com/api.php')
 
 # List contains all tank emojis for random_tank and memory command
 tanks = ['<:pumpkin_tank:1022568065034104936>', '<a:pumpkin_evolved_tank_a:1022572757860499486>', '<:eyeball_tank:1022568661745143908>', '<a:skull_tank_a:1022574941591306362>', '<:snowman_tank:1012941920844132362>', '<:snowman_evolved_tank:1012941924094713917>', '<:snowmobile_tank:1012941917337698375>', '<:icy_tank:1012941914254876794>', '<:brain_bot_tank:1006531910224322630>', '<:mine_bot_tank:1006532474945417216>', '<:bot_tank:917467970182189056>', '<:default_tank:996465659812774040>', '<:beta_tank:997947350943277106>', '<:canon_tank:997951207840686162>', '<:hot_dog_tank:997955038435614934>', '<a:wave_tank_a:1001203703325397033>', '<:zig_tank:997954180717215975>', '<:blade_tank:997947874715385856>', '<:buggy_tank:997948966933119016>', '<:burger_evolved_tank:997950412348989562>', '<:burger_tank:997950506976694302>', '<:catapult_evolved_tank:997951715284365323>', '<:catapult_tank:997951809282912346>', '<a:crab_evolved_tank_a:1001203931713654864>', '<a:crab_tank_a:1001203874469793822>', '<:cyclops_tank:997952308333793322>', '<:diamond_tank:997952379595010048>', '<a:dozer_evolved_tank_a:1001204001053876374>',
-         '<:dozer_tank:997952516501278760>', '<:fork_tank:997952581408129084>', '<:fries_tank:997952688656494672>', '<:gears_tank:997952760127434782>', '<:hay_tank:997952813386715148>', '<:hollow_tank:997952878142562384>', '<:medic_tank:997953168673619978>', '<:mixer_tank:997953233098113054>', '<:pagliacci_tank:997953348097560628>', '<:pail_tank:997953413717438575>', '<a:pistons_tank_a:1001208481300369608>', '<a:reactor_tank_a:1024935111461969990>', '<a:spider_evolved_tank_a:1001204256193396856>', '<a:spider_tank_a:1001204193887002704>', '<:spike_tank:997953736041308280>', '<:square_tank:997953791217377381>', '<:trap_tank:997953904610381834>', '<:tread_tank:997953970213494905>', '<:tub_tank:997954029902626886>', '<:tubdown_tank:997954078535598270>', '<:concave_tank:997951897749176450>', '<:crawler_tank:997952124279324753>', '<:log_tank:997953009910829198>', '<:long_tank:997953087006330971>', '<a:UFO_evolved_tank_a:1012268475626033174>', '<a:UFO_tank_a:1012268306482343936>', '<a:miner_tank_a:1003099245777276952>', '<:rover_tank:1003014762327716042>', '<a:bug_tank_a:1001203807893590168>', '<:moai_tank:1006528445355917394>']
+         '<:dozer_tank:997952516501278760>', '<:fork_tank:997952581408129084>', '<:fries_tank:997952688656494672>', '<:gears_tank:997952760127434782>', '<:hay_tank:997952813386715148>', '<:hollow_tank:997952878142562384>', '<:medic_tank:997953168673619978>', '<:mixer_tank:997953233098113054>', '<:pagliacci_tank:997953348097560628>', '<:pail_tank:997953413717438575>', '<a:pistons_tank_a:1001208481300369608>', '<a:reactor_tank_a:1024935111461969990>', '<a:spider_evolved_tank_a:1001204256193396856>', '<a:spider_tank_a:1001204193887002704>', '<:spike_tank:997953736041308280>', '<:square_tank:997953791217377381>', '<:trap_tank:997953904610381834>', '<:tread_tank:997953970213494905>', '<:tub_tank:997954029902626886>', '<:tubdown_tank:997954078535598270>', '<:concave_tank:997951897749176450>', '<:crawler_tank:997952124279324753>', '<:log_tank:997953009910829198>', '<:long_tank:997953087006330971>', '<a:UFO_evolved_tank_a:1012268475626033174>', '<a:UFO_tank_a:1012268306482343936>', '<a:miner_tank_a:1003099245777276952>', '<:rover_tank:1003014762327716042>', '<a:bug_tank_a:1001203807893590168>', '<:moai_tank:1006528445355917394>', 
+         '<:128bit_tank:1073330000868163624>', '<:16bit_tank:1073329502148644904>', 
+         '<:32bit_tank:1073329509824204960>', '<:8bit_tank:1073329497451008140>', 
+         '<:army1_tank:1073329520339329145>', '<:army2_tank:1073329525917765683>', '<:army3_tank:1073329532376989746>', '<:army4_tank:1073329538387423262>', '<:champion_s13_tank:1051208428263067728>', '<:champion_s14_tank:1063549554798120960>', '<:champion_s15_tank:1073329544410443897>', '<:giftbox_tank:1073329550492172388>', '<:gingerbread_tank:1073330256578093208>', '<:handheld_tank:1073329559694495854>', '<:pirate_tank:1073329566657032282>', '<:pixel_tank:1073329572218671266>', '<:sailboat_tank:1073329578308812871>', '<:snowflake_tank:1073330011597197384>', '<:snowglobe_tank:1073330262441734164>', '<:tree_evolved_tank:1073330265742643344>', '<:tree_tank:1073329598542123018>', '<:viking_evolved_tank:1073329604393173023>', '<:viking_tank:1073329612513366087>']
 
 os.system('clear')
 
@@ -999,7 +1002,7 @@ async def leaderboard_moonrock_miners(interaction: discord.Interaction, changes:
     id='User ID or Friend ID of the user',
     section='Section(s) to be shown'
 )
-async def get_user(interaction: discord.Interaction, user_type: typing.Literal['User ID', 'Friend ID'], id: str, section: typing.Literal['General Info only', 'with Badges', 'with Season Top 50 Records', 'with Stats', 'with Items Collected', 'with Tanks', 'with Parachutes', 'with Trails', 'with All Cosmetics', 'All']):
+async def get_user(interaction: discord.Interaction, user_type: typing.Literal['User ID', 'Friend ID'], id: str, section: typing.Literal['General Info only', 'with Badges', 'with Season Top 50 Records', 'with Stats', 'with Goals', 'with Items Collected', 'with Tanks', 'with Parachutes', 'with Trails', 'with All Cosmetics', 'All']):
     '''Return info about a specified user'''
 
     await interaction.response.defer(ephemeral=False, thinking=True)
@@ -1017,16 +1020,17 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
     except aiohttp.ClientResponseError:
         # The code is wrong, send an error response
         await interaction.followup.send(embed=discord.Embed(color=discord.Color.red(),
-                                                            title="❌ Player not found ❌"))
+                                           title="❌ Player not found ❌"))
         return
-
-    # Create message
-    message = ""
 
     # Get award config
     awards_config = server_config['awards']
     default_award = {'type': "Unknown", "name": "Unknown"}
 
+    # Get goal config
+    goals_config = server_config['player_goals']
+    default_goal = {"name": "Unknown"}
+    
     # Get general player info
     username = user_data['display_name']
     is_online = user_data['online']
@@ -1040,37 +1044,46 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
     current_parachute = awards_config.get(metadata['parachute'],
                                           default_award)['name']
     current_badge = awards_config.get(metadata['badge'], default_award)['name']
-    no_season_pass = False
     try:
         has_season_pass = server_config['season'] in metadata['season_passes']
     except:
-        no_season_pass = True
+        has_season_pass = False
     level = metadata['progress']['level']
     XP = metadata['progress']['xp']
     friend_code = metadata['friend_code']
     id = user_data['user_id']
 
     # Add general player info
-    general_info = "```\n"
+    general_info = "```ansi\n"
     general_info += f"Username: {username}\n"
-    general_info += f"Online: {is_online}\n"
-    general_info += f"Create Time: {datetime.datetime.utcfromtimestamp(create_time):%Y-%m-%d %H:%M:%S} UTC\n"
-    general_info += f"Timed Bonus Last Collect: {datetime.datetime.utcfromtimestamp(timed_bonus_last_collect):%Y-%m-%d %H:%M:%S} UTC\n"
+    general_info += "Online: \u001b[2;" + ("32" if is_online else "31") + f"m{is_online}\u001b[0m\n"
+    general_info += f"Create Time: {datetime.datetime.fromtimestamp(create_time):%Y-%m-%d %H:%M:%S}\n"
+    general_info += f"Timed Bonus Last Collect: {datetime.datetime.fromtimestamp(timed_bonus_last_collect):%Y-%m-%d %H:%M:%S}\n"
     general_info += f"Current Tank: {current_tank}\n"
     general_info += f"Current Trail: {current_trail}\n"
     general_info += f"Current Parachute: {current_parachute}\n"
     general_info += f"Current Badge: {current_badge}\n"
-    if no_season_pass == False:
-        general_info += f"Has Season Pass: {has_season_pass}\n"
+    general_info += "Has Season Pass: \u001b[2;"+ ("32" if has_season_pass else "31") + f"m{has_season_pass}\u001b[0m\n"
     general_info += f"Level: {level}\n"
-    general_info += f"XP: {XP}\n"
+    max_level = len(server_config['player_progression']['xp_levels'])
+    try:
+        XP_target = server_config['player_progression']['xp_levels'][level][str(level+1)]['xp_target']
+        reach_max_level = False
+    except IndexError:
+        XP_target = server_config['player_progression']['xp_levels'][-1][str(max_level)]['xp_target']
+        reach_max_level = True
+    general_info += f"XP: {XP}/{XP_target} (" + ("MAX" if reach_max_level else f"{XP/XP_target*100:.0f}%") + ")\n"
     general_info += f"Friend Code: {friend_code}\n"
     general_info += f"User ID: {id}\n"
     general_info += "```"
 
     # Add to embed
-    message += f"📓 ***General Info***:\n{general_info}\n"
+    message1 = ""
+    message1 += f"📓 ***General Info***:\n{general_info}\n"
 
+    # Send 
+    await interaction.followup.send(embed=discord.Embed(description=message1, color=0x00C6FE))
+    
     if section in {"with Season Top 50 Records", "All"}:
         # Create season records list
         season_top_50_records_list = "```ansi\n"
@@ -1112,8 +1125,12 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
         season_top_50_records_list += "```"
 
         # Add to embed
-        message += f"📊 ***Season Top 50 Records***:\n{season_top_50_records_list}\n"
+        message2 = ""
+        message2 += f"📊 ***Season Top 50 Records***:\n{season_top_50_records_list}\n"
 
+        # Send
+        await interaction.followup.send(embed=discord.Embed(description=message2, color=0x00C6FE))
+    
     if section in {"with Badges", "All"}:
         # Create badge list
         badge_list = "```\n"
@@ -1127,12 +1144,15 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
         badge_list += "```"
 
         # Add to embed
-        message += f"🛡️ ***Badges***:\n{badge_list}\n"
+        message3 = ""
+        message3 += f"🛡️ ***Badges***:\n{badge_list}\n"
 
+        # Send
+        await interaction.followup.send(embed=discord.Embed(description=message3, color=0x00C6FE))
+        
     if section in {"with Stats", "All"}:
         # Create stats
         stat_list = "```ansi\n"
-
         # Rearrange keys
         keys_order = {
             "best_rank": 0,
@@ -1159,6 +1179,8 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
             "games_played": 0,
             "games_won": 0,
             "top_5": 0,
+            "deathmatch_played": 0,
+            "deathmatch_won": 0,
             "teams_played": 0,
             "teams_won": 0,
             "squads_played": 0,
@@ -1195,32 +1217,29 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
             keys_order[key] = value
 
         # Plot Kills by Weapons pie chart
-        data_stream = io.BytesIO()  # Initialize IO
-
+        data_stream = io.BytesIO() # Initialize IO
+        
         labels = []
         sizes = []
         for key in keys_order:
             if "kills_using" in key and keys_order[key] != 0:
-                if "triple-shot" in key:
-                    labels.append(key.replace("kills_using_", "").replace(
-                        "triple-shot", "rapidfire").title())
-                else:
-                    labels.append(key.replace("kills_using_", "").title())
-                sizes.append(keys_order[key])
+              if "triple-shot" in key:
+                labels.append(key.replace("kills_using_", "").replace("triple-shot", "rapidfire").title())
+              else:
+                labels.append(key.replace("kills_using_", "").title())
+              sizes.append(keys_order[key])
 
         fig1, ax1 = plt.subplots(facecolor=("#2f3137"), figsize=(5, 6))
-        ax1.set_title(user_data['display_name']+'\'s\n Kills Using Weapons distribution',
-                      color="#FFFFFF", fontsize=16, pad=15)
-        ax1.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=90, textprops={'color': "#FFFFFF"}, wedgeprops={
-                "edgecolor": "#FFFFFF", 'linewidth': 1, 'antialiased': True}, pctdistance=0.85)
+        ax1.set_title(user_data['display_name']+'\'s\n Kills by Weapons distribution', color="#FFFFFF", fontsize=16, pad=15)
+        ax1.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=90, textprops={'color':"#FFFFFF"}, wedgeprops={"edgecolor":"#FFFFFF",'linewidth': 1, 'antialiased': True}, pctdistance=0.85)
         ax1.axis('equal')
-
-        plt.savefig(data_stream, format='png', dpi=80)
+      
+        plt.savefig(data_stream, format='png', dpi = 80)
         plt.close()
 
         # Avoid divided by zero error
         try:
-            total_games_played = keys_order["games_played"] + keys_order[
+            total_games_played = keys_order["games_played"] + keys_order["deathmatch_played"] + keys_order[
                 "teams_played"] + keys_order["squads_played"] + keys_order[
                     "minemayhem_played"]
         except:
@@ -1239,8 +1258,7 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
         except:
             KDR = 0
         try:
-            games_won_pct = keys_order["games_won"] / \
-                keys_order["games_played"]
+            games_won_pct = keys_order["games_won"] / keys_order["games_played"]
         except:
             games_won_pct = 0
         try:
@@ -1248,13 +1266,17 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
         except:
             top_5_pct = 0
         try:
+            deathmatch_won_pct = keys_order["deathmatch_won"] / keys_order[
+                "deathmatch_played"]
+        except:
+            deathmatch_won_pct = 0
+        try:
             squads_won_pct = keys_order["squads_won"] / keys_order[
                 "squads_played"]
         except:
             squads_won_pct = 0
         try:
-            teams_won_pct = keys_order["teams_won"] / \
-                keys_order["teams_played"]
+            teams_won_pct = keys_order["teams_won"] / keys_order["teams_played"]
         except:
             teams_won_pct = 0
         try:
@@ -1349,6 +1371,8 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
             keys_order["games_won"]) + f"({games_won_pct*100:.0f}%)"
         keys_order["top_5"] = "{:<6}".format(
             keys_order["top_5"]) + f"({top_5_pct*100:.0f}%)"
+        keys_order["deathmatch_won"] = "{:<6}".format(
+            keys_order["deathmatch_won"]) + f"({deathmatch_won_pct*100:.0f}%)"
         keys_order["squads_won"] = "{:<6}".format(
             keys_order["squads_won"]) + f"({squads_won_pct*100:.0f}%)"
         keys_order["teams_won"] = "{:<6}".format(
@@ -1394,15 +1418,15 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
         ) + f"({blocks_using_shield_pct*100:.0f}%)"
 
         first_title = " General "
-        stat_list += f"\u001b[1;2m{first_title.center(44, '—')}\u001b[0m\n"
+        stat_list += f"\u001b[1;2m{first_title.center(47, '—')}\u001b[0m\n"
         keys = [
             "deaths", "snipers", "two_birdss", "games_played", "games_won",
-            "top_5", "teams_played", "teams_won", "triple-shots_used",
+            "top_5", "deathmatch_played", "deathmatch_won", "teams_played", "teams_won", "triple-shots_used",
             "kills_using_triple-shot", "blocks_using_proj"
         ]
         rennamed_keys = [
             "total_deaths", "long_shot", "two_birdses", "solo_played",
-            "solo_won", "solo_top_5", "Red_VS_Blue_played", "Red_VS_Blue_won",
+            "solo_won", "solo_top_5", "squads_deathmatch_played", "squads_deathmatch_won", "Red_VS_Blue_played", "Red_VS_Blue_won",
             "rapidfire_used", "kills_using_rapidfire", "blocks_using_missile"
         ]
         for key in keys_order:
@@ -1410,7 +1434,7 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
                 renamed_key = rennamed_keys[keys.index(key)]
             else:
                 renamed_key = key
-            stat_list += f"{renamed_key.replace('_', ' ').title():>21}: {keys_order[key]}\n"
+            stat_list += f"{renamed_key.replace('_', ' ').title():>24}: {keys_order[key]}\n"
             remaining_titles = [" Medals ", " Games Played ", " Weapons "]
             key_cutoff = ["K/D Ratio", "quad_kills", "total_games_played"]
             if key in key_cutoff:
@@ -1419,18 +1443,41 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
         stat_list += "```"
 
         # Add to embed
-        message += f"🗒️ ***Stats***:\n{stat_list}"
+        message4 = ""
+        message4 += f"🗒️ ***Stats***:\n{stat_list}\n"
 
-    # Send first message if contains all sections
-    if section in {"All"}:
-        embed1 = discord.Embed(description=message, color=0x00C6FE)
+        # Send
+        embed1 = discord.Embed(description=message4, color=0x00C6FE)
         data_stream.seek(0)
         chart = discord.File(data_stream, filename="plot.png")
         embed1.set_image(url="attachment://plot.png")
         await interaction.followup.send(embed=embed1, file=chart)
+    
+    if section in {"with Goals", "All"}:
+        # Create goal list
+        goal_list = "```\n"
 
+        for goal in metadata['goals']:
+            selected_goal = goals_config.get(goal['goal_id'], default_goal)
+            goal_name = selected_goal['name']
+            goal_progress = f"{goal['count']:>2}/{selected_goal['count']:<2}"
+            goal_xp = f"{selected_goal['xp']}XP"
+            if len(goal_name) > 40:
+                goal_list += f"- {goal_name.rsplit(' ', 1)[0]:<40} {goal_progress:<5}{goal_xp:>6}\n  {goal_name.rsplit(' ', 1)[1]}\n"
+            else:
+                goal_list += f"- {goal_name:<40} {goal_progress:<5}{goal_xp:>6}\n"
+        goal_list += "```"
+    
+        # Add to embed
+        message5 = ""
+        message5 += f"🥅 ***Current Goals***:\n{goal_list}\n"
+
+        # Send
+        await interaction.followup.send(embed=discord.Embed(description=message5, color=0x00C6FE))
+    
     if section in {
-            "with Items Collected", "with Tanks", "with Parachutes", "with Trails", "with All Cosmetics", "All"
+            "with Items_Collected", "with Tanks", "with Parachutes", "with Trails",
+            "with All Cosmetics", "All"
     }:
         # Get skins info
         tank_common_total = 0
@@ -1596,28 +1643,21 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
             parachute_legendary_owned + trail_legendary_owned
         legendary_total = tank_legendary_total + \
             parachute_legendary_total + trail_legendary_total
-        purchased_owned = tank_purchased_owned + \
-            parachute_purchased_owned + trail_purchased_owned
+        purchased_owned = tank_purchased_owned + parachute_purchased_owned + trail_purchased_owned
         purchased_total = tank_purchased_total + \
             parachute_purchased_total + trail_purchased_total
         earned_owned = tank_earned_owned + parachute_earned_owned + trail_earned_owned
         earned_total = tank_earned_total + \
             parachute_earned_total + trail_earned_total
 
-        tank_owned = tank_common_owned + tank_rare_owned + \
-            tank_legendary_owned + tank_purchased_owned + tank_earned_owned
-        tank_total = tank_common_total + tank_rare_total + \
-            tank_legendary_total + tank_purchased_total + tank_earned_total
+        tank_owned = tank_common_owned + tank_rare_owned + tank_legendary_owned + tank_purchased_owned + tank_earned_owned
+        tank_total = tank_common_total + tank_rare_total + tank_legendary_total + tank_purchased_total + tank_earned_total
         parachute_owned = parachute_common_owned + \
-            parachute_rare_owned + parachute_legendary_owned + \
-            parachute_purchased_owned + parachute_earned_owned
+            parachute_rare_owned + parachute_legendary_owned + parachute_purchased_owned + parachute_earned_owned
         parachute_total = parachute_common_total + \
-            parachute_rare_total + parachute_legendary_total + \
-            parachute_purchased_total + parachute_earned_total
-        trail_owned = trail_common_owned + trail_rare_owned + \
-            trail_legendary_owned + trail_purchased_owned + trail_earned_owned
-        trail_total = trail_common_total + trail_rare_total + \
-            trail_legendary_total + trail_purchased_total + trail_earned_total
+            parachute_rare_total + parachute_legendary_total + parachute_purchased_total + parachute_earned_total
+        trail_owned = trail_common_owned + trail_rare_owned + trail_legendary_owned + trail_purchased_owned + trail_earned_owned
+        trail_total = trail_common_total + trail_rare_total + trail_legendary_total + trail_purchased_total + trail_earned_total
 
         owned = tank_owned + parachute_owned + trail_owned
         total = tank_total + parachute_total + trail_total
@@ -1631,11 +1671,15 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
         s += f"│     Ꙋ {'Earned':<10}│{str(tank_earned_owned):>2}/{str(tank_earned_total):<2}│{str(parachute_earned_owned):>4}/{str(parachute_earned_total):<5}│{str(trail_earned_owned):>2}/{str(trail_earned_total):<3}│{str(earned_owned):>4}/{str(earned_total):<4}│\n├{'─'*17}┼{'─'*5}┼{'─'*10}┼{'─'*6}┼{'─'*9}┤\n"
         s += f"│ {'Sub-total':^16}│{str(tank_owned):>2}/{str(tank_total):<2}│{str(parachute_owned):>4}/{str(parachute_total):<5}│{str(trail_owned):>2}/{str(trail_total):<3}│{str(owned):>4}/{str(total):<4}│\n└{'─'*17}┴{'─'*5}┴{'─'*10}┴{'─'*6}┴{'─'*9}┘```"
 
-        if section in {"with Items Collected", "with All Cosmetics"}:
+        if section in {"with Items Collected", "All Cosmetics", "All"}:
             # Add to embed
-            message += f"📦 ***Items Collected***:\n{s}\n"
+            message6 = ""
+            message6 += f"📦 ***Items Collected***:\n{s}\n"
+    
+            # Send
+            await interaction.followup.send(embed=discord.Embed(description=message6, color=0x00C6FE))
 
-        if section in {"with Tanks", "with All Cosmetics", "All"}:
+        if section in {"with Tanks", "All Cosmetics", "All"}:
             # Create tank list
             tank_list = f"```\n{'Rarity:':<7} {'Name:':<17} {'Colors:':}\n{'—'*33}\n"
 
@@ -1663,39 +1707,29 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
 
             tank_list += "```"
 
-        if section in {"with Tanks", "with All Cosmetics"}:
+        if section in {"with Tanks", "All Cosmetics", "All"}:
             # Add to embed
-            message += f"🪖 ***Tanks***:\n{tank_list}\n"
+            message7 = ""
+            message7 += f"🪖 ***Tanks***:\n{tank_list}\n"
+    
+            # Send
+            await interaction.followup.send(embed=discord.Embed(description=message7, color=0x00C6FE))
 
-        if section in {"with Parachutes", "with All Cosmetics"}:
+        if section in {"with Parachutes", "All Cosmetics", "All"}:
             # Add to embed
-            message += f"🪂 ***Parachutes***:\n{parachute_list}\n"
+            message8 = ""
+            message8 += f"🪂 ***Parachutes***:\n{parachute_list}\n"
+    
+            # Send
+            await interaction.followup.send(embed=discord.Embed(description=message8, color=0x00C6FE))
 
-        if section in {"with Trails", "with All Cosmetics"}:
+        if section in {"with Trails", "All Cosmetics", "All"}:
             # Add to embed
-            message += f"🌟 ***Trails***:\n{trail_list}\n"
-
-        if section in {"All"}:
-            # Separate message for cosmetics related info for all sections to avoid message exceeds length limit
-            message_2 = ""
-            message_2 += f"📦 ***Items Collected***:\n{s}\n"
-            message_2 += f"🪖 ***Tanks***:\n{tank_list}\n"
-            message_2 += f"🪂 ***Parachutes***:\n{parachute_list}\n"
-            message_2 += f"🌟 ***Trails***:\n{trail_list}\n"
-
-    # Send message
-    if section not in {"All"}:
-        embed1 = discord.Embed(description=message, color=0x00C6FE)
-        if section in {"with Stats"}:
-            data_stream.seek(0)
-            chart = discord.File(data_stream, filename="plot.png")
-            embed1.set_image(url="attachment://plot.png")
-            await interaction.followup.send(embed=embed1, file=chart)
-        else:
-            await interaction.followup.send(embed=embed1)
-    if section in {"All"}:
-        await interaction.followup.send(
-            embed=discord.Embed(description=message_2, color=0x00C6FE))
+            message9 = ""
+            message9 += f"🌟 ***Trails***:\n{trail_list}\n"
+    
+            # Send
+            await interaction.followup.send(embed=discord.Embed(description=message9, color=0x00C6FE))
 
 
 @tree.command()
