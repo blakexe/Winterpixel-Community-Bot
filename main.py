@@ -1,4 +1,5 @@
 import random
+import textwrap
 import aiohttp
 import discord
 import json
@@ -1002,7 +1003,7 @@ async def leaderboard_moonrock_miners(interaction: discord.Interaction, changes:
     id='User ID or Friend ID of the user',
     section='Section(s) to be shown'
 )
-async def get_user(interaction: discord.Interaction, user_type: typing.Literal['User ID', 'Friend ID'], id: str, section: typing.Literal['General Info only', 'with Badges', 'with Season Top 50 Records', 'with Stats', 'with Goals', 'with Items Collected', 'with Tanks', 'with Parachutes', 'with Trails', 'with All Cosmetics', 'All']):
+async def get_user(interaction: discord.Interaction, user_type: typing.Literal['User ID', 'Friend ID'], id: str, section: typing.Literal['📓 General Info only', 'with 📊 Season Top 50 Records', 'with 🛡️ Badges', 'with 🗒️ Stats', 'with 🥅 Current Goals', 'with 📦 Items Collected', 'with 🪖 Tanks', 'with 🪂 Parachutes', 'with 🌟 Trails', 'with All Cosmetics', 'All']):
     '''Return info about a specified user'''
 
     await interaction.response.defer(ephemeral=False, thinking=True)
@@ -1035,7 +1036,10 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
     username = user_data['display_name']
     is_online = user_data['online']
     create_time = user_data['create_time']
-    timed_bonus_last_collect = metadata['timed_bonus_last_collect']
+    try:
+        timed_bonus_last_collect = metadata['timed_bonus_last_collect']
+    except:
+        timed_bonus_last_collect = "N.A."
     current_tank = metadata['skin'].replace(
         '_', ' ').split()[0].title() + " " + awards_config.get(
             awards_config.get(metadata['skin'], default_award)['skin_name'],
@@ -1058,7 +1062,7 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
     general_info += f"Username: {username}\n"
     general_info += "Online: \u001b[2;" + ("32" if is_online else "31") + f"m{is_online}\u001b[0m\n"
     general_info += f"Create Time: {datetime.datetime.fromtimestamp(create_time):%Y-%m-%d %H:%M:%S}\n"
-    general_info += f"Timed Bonus Last Collect: {datetime.datetime.fromtimestamp(timed_bonus_last_collect):%Y-%m-%d %H:%M:%S}\n"
+    general_info += "Timed Bonus Last Collect: " + (f"{datetime.datetime.fromtimestamp(timed_bonus_last_collect):%Y-%m-%d %H:%M:%S}\n" if timed_bonus_last_collect != "N.A." else "N.A.\n")
     general_info += f"Current Tank: {current_tank}\n"
     general_info += f"Current Trail: {current_trail}\n"
     general_info += f"Current Parachute: {current_parachute}\n"
@@ -1230,23 +1234,41 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
               sizes.append(keys_order[key])
 
         fig1, ax1 = plt.subplots(facecolor=("#2f3137"), figsize=(5, 6))
-        ax1.set_title(user_data['display_name']+'\'s\n Kills by Weapons distribution', color="#FFFFFF", fontsize=16, pad=15)
-        ax1.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=90, textprops={'color':"#FFFFFF"}, wedgeprops={"edgecolor":"#FFFFFF",'linewidth': 1, 'antialiased': True}, pctdistance=0.85)
+        ax1.set_title(user_data['display_name'] +
+                    '\'s\n Kills Using Weapons distribution\n(Missiles excluded)',
+                    color="#FFFFFF",
+                    fontsize=16,
+                    pad=0)
+        ax1.pie(sizes,
+                labels=labels,
+                autopct='%1.1f%%',
+                startangle=90,
+                textprops={'color': "#FFFFFF"},
+                wedgeprops={
+                "edgecolor": "#FFFFFF",
+                'linewidth': 1,
+                'antialiased': True
+                },
+                pctdistance=0.85)
         ax1.axis('equal')
-      
-        plt.savefig(data_stream, format='png', dpi = 80)
+
+        plt.tight_layout()
+        plt.savefig(data_stream, format='png', dpi=100)
         plt.close()
 
         # Avoid divided by zero error
         try:
-            total_games_played = keys_order["games_played"] + keys_order["deathmatch_played"] + keys_order[
-                "teams_played"] + keys_order["squads_played"] + keys_order[
-                    "minemayhem_played"]
+            total_games_played = keys_order["games_played"] + keys_order[
+                "deathmatch_played"] + keys_order["teams_played"] + keys_order[
+                "squads_played"] + keys_order["minemayhem_played"]
         except:
             total_games_played = 0
         try:
-            player_kills_pct = keys_order["player_kills"] / keys_order[
-                "total_kills"]
+            five_kills_pct = keys_order["5_kills"] / total_games_played
+        except:
+            five_kills_pct = 0
+        try:
+            player_kills_pct = keys_order["player_kills"] / keys_order["total_kills"]
         except:
             player_kills_pct = 0
         try:
@@ -1258,6 +1280,42 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
         except:
             KDR = 0
         try:
+            assists_pct = keys_order["assists"] / total_games_played
+        except:
+            assists_pct = 0
+        try:
+            dunk_tanks_pct = keys_order["dunk_tanks"] / total_games_played
+        except:
+            dunk_tanks_pct = 0
+        try:
+            first_bloods_pct = keys_order["first_bloods"] / total_games_played
+        except:
+            first_bloods_pct = 0
+        try:
+            snipers_pct = keys_order["snipers"] / total_games_played
+        except:
+            snipers_pct = 0
+        try:
+            two_birdss_pct = keys_order["two_birdss"] / total_games_played
+        except:
+            two_birdss_pct = 0
+        try:
+            yardsales_pct = keys_order["yardsales"] / total_games_played
+        except:
+            yardsales_pct = 0
+        try:
+            double_kills_pct = keys_order["double_kills"] / total_games_played
+        except:
+            double_kills_pct = 0
+        try:
+            triple_kills_pct = keys_order["triple_kills"] / total_games_played
+        except:
+            triple_kills_pct = 0
+        try:
+            quad_kills_pct = keys_order["quad_kills"] / total_games_played
+        except:
+            quad_kills_pct = 0
+        try:
             games_won_pct = keys_order["games_won"] / keys_order["games_played"]
         except:
             games_won_pct = 0
@@ -1267,12 +1325,11 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
             top_5_pct = 0
         try:
             deathmatch_won_pct = keys_order["deathmatch_won"] / keys_order[
-                "deathmatch_played"]
+            "deathmatch_played"]
         except:
             deathmatch_won_pct = 0
         try:
-            squads_won_pct = keys_order["squads_won"] / keys_order[
-                "squads_played"]
+            squads_won_pct = keys_order["squads_won"] / keys_order["squads_played"]
         except:
             squads_won_pct = 0
         try:
@@ -1281,65 +1338,62 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
             teams_won_pct = 0
         try:
             minemayhem_won_pct = keys_order["minemayhem_won"] / keys_order[
-                "minemayhem_played"]
+            "minemayhem_played"]
         except:
             minemayhem_won_pct = 0
         try:
-            kills_using_drill_pct = keys_order[
-                "kills_using_drill"] / keys_order["drills_used"]
+            kills_using_drill_pct = keys_order["kills_using_drill"] / keys_order[
+            "drills_used"]
         except:
             kills_using_drill_pct = 0
         try:
             kills_using_flak_pct = keys_order["kills_using_flak"] / keys_order[
-                "flaks_used"]
+            "flaks_used"]
         except:
             kills_using_flak_pct = 0
         try:
-            kills_using_grenade_pct = keys_order[
-                "kills_using_grenade"] / keys_order["grenades_used"]
+            kills_using_grenade_pct = keys_order["kills_using_grenade"] / keys_order[
+            "grenades_used"]
         except:
             kills_using_grenade_pct = 0
         try:
-            kills_using_homing_pct = keys_order[
-                "kills_using_homing"] / keys_order["homings_used"]
+            kills_using_homing_pct = keys_order["kills_using_homing"] / keys_order[
+            "homings_used"]
         except:
             kills_using_homing_pct = 0
         try:
             kills_using_mine_pct = keys_order["kills_using_mine"] / keys_order[
-                "mines_used"]
+            "mines_used"]
         except:
             kills_using_mine_pct = 0
         try:
             kills_using_nuke_pct = keys_order["kills_using_nuke"] / keys_order[
-                "nukes_used"]
+            "nukes_used"]
         except:
             kills_using_nuke_pct = 0
         try:
-            kills_using_poison_pct = keys_order[
-                "kills_using_poison"] / keys_order["poisons_used"]
+            kills_using_poison_pct = keys_order["kills_using_poison"] / keys_order[
+            "poisons_used"]
         except:
             kills_using_poison_pct = 0
         try:
-            kills_using_shield_pct = keys_order[
-                "kills_using_shield"] / keys_order["shields_used"]
+            kills_using_shield_pct = keys_order["kills_using_shield"] / keys_order[
+            "shields_used"]
         except:
             kills_using_shield_pct = 0
         try:
             kills_using_triple_shot_pct = keys_order[
-                "kills_using_triple-shot"] / keys_order["triple-shots_used"]
+            "kills_using_triple-shot"] / keys_order["triple-shots_used"]
         except:
             kills_using_triple_shot_pct = 0
         try:
             kills_using_missiles = keys_order["total_kills"] - keys_order[
-                "kills_using_drill"] - keys_order[
-                    "kills_using_flak"] - keys_order[
-                        "kills_using_grenade"] - keys_order[
-                            "kills_using_homing"] - keys_order[
-                                "kills_using_mine"] - keys_order[
-                                    "kills_using_nuke"] - keys_order[
-                                        "kills_using_poison"] - keys_order[
-                                            "kills_using_shield"] - keys_order[
-                                                "kills_using_triple-shot"]
+                "kills_using_drill"] - keys_order["kills_using_flak"] - keys_order[
+                "kills_using_grenade"] - keys_order[
+                    "kills_using_homing"] - keys_order[
+                    "kills_using_mine"] - keys_order["kills_using_nuke"] - keys_order[
+                        "kills_using_poison"] - keys_order[
+                        "kills_using_shield"] - keys_order["kills_using_triple-shot"]
         except:
             kills_using_missiles = 0
         try:
@@ -1349,73 +1403,48 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
             kills_using_missiles_pct = 0
         try:
             blocks_using_proj_pct = keys_order["blocks_using_proj"] / (
-                keys_order["blocks_using_proj"] +
-                keys_order["blocks_using_shield"])
+                keys_order["blocks_using_proj"] + keys_order["blocks_using_shield"])
         except:
             blocks_using_proj_pct = 0
         try:
             blocks_using_shield_pct = keys_order["blocks_using_shield"] / (
-                keys_order["blocks_using_proj"] +
-                keys_order["blocks_using_shield"])
+                keys_order["blocks_using_proj"] + keys_order["blocks_using_shield"])
         except:
             blocks_using_shield_pct = 0
 
-        keys_order["meters_driven"] = "{:.1f}".format(
-            keys_order["meters_driven"] / 1000) + " km"
-        keys_order["player_kills"] = "{:<6}".format(
-            keys_order["player_kills"]) + f"({player_kills_pct*100:.0f}%)"
-        keys_order["bot_kills"] = "{:<6}".format(
-            keys_order["bot_kills"]) + f"({bot_kills_pct*100:.0f}%)"
+        keys_order["meters_driven"] = "{:.1f}".format(keys_order["meters_driven"] / 1000) + " km"
+        keys_order["5_kills"] = "{:<6}".format(keys_order["5_kills"]) + "(" + f"{five_kills_pct*100:>2.0f}" + "%) †"
+        keys_order["player_kills"] = "{:<6}".format(keys_order["player_kills"]) + "(" + f"{player_kills_pct*100:>2.0f}" + "%)"
+        keys_order["bot_kills"] = "{:<6}".format(keys_order["bot_kills"]) + "(" + f"{bot_kills_pct*100:>2.0f}" + "%)"
         keys_order["K/D Ratio"] = KDR
-        keys_order["games_won"] = "{:<6}".format(
-            keys_order["games_won"]) + f"({games_won_pct*100:.0f}%)"
-        keys_order["top_5"] = "{:<6}".format(
-            keys_order["top_5"]) + f"({top_5_pct*100:.0f}%)"
-        keys_order["deathmatch_won"] = "{:<6}".format(
-            keys_order["deathmatch_won"]) + f"({deathmatch_won_pct*100:.0f}%)"
-        keys_order["squads_won"] = "{:<6}".format(
-            keys_order["squads_won"]) + f"({squads_won_pct*100:.0f}%)"
-        keys_order["teams_won"] = "{:<6}".format(
-            keys_order["teams_won"]) + f"({teams_won_pct*100:.0f}%)"
-        keys_order["minemayhem_won"] = "{:<6}".format(
-            keys_order["minemayhem_won"]) + f"({minemayhem_won_pct*100:.0f}%)"
-        keys_order["total_games_played"] = total_games_played
-        keys_order["kills_using_drill"] = "{:<6}".format(
-            keys_order["kills_using_drill"]
-        ) + f"({kills_using_drill_pct*100:.0f}%)"
-        keys_order["kills_using_flak"] = "{:<6}".format(
-            keys_order["kills_using_flak"]
-        ) + f"({kills_using_flak_pct*100:.0f}%)"
-        keys_order["kills_using_grenade"] = "{:<6}".format(
-            keys_order["kills_using_grenade"]
-        ) + f"({kills_using_grenade_pct*100:.0f}%)"
-        keys_order["kills_using_homing"] = "{:<6}".format(
-            keys_order["kills_using_homing"]
-        ) + f"({kills_using_homing_pct*100:.0f}%)"
-        keys_order["kills_using_mine"] = "{:<6}".format(
-            keys_order["kills_using_mine"]
-        ) + f"({kills_using_mine_pct*100:.0f}%)"
-        keys_order["kills_using_nuke"] = "{:<6}".format(
-            keys_order["kills_using_nuke"]
-        ) + f"({kills_using_nuke_pct*100:.0f}%)"
-        keys_order["kills_using_poison"] = "{:<6}".format(
-            keys_order["kills_using_poison"]
-        ) + f"({kills_using_poison_pct*100:.0f}%)"
-        keys_order["kills_using_shield"] = "{:<6}".format(
-            keys_order["kills_using_shield"]
-        ) + f"({kills_using_shield_pct*100:.0f}%)"
-        keys_order["kills_using_triple-shot"] = "{:<6}".format(
-            keys_order["kills_using_triple-shot"]
-        ) + f"({kills_using_triple_shot_pct*100:.0f}%)"
-        keys_order["kills_using_missiles"] = "{:<6}".format(
-            str(kills_using_missiles)
-        ) + f"({kills_using_missiles_pct*100:.0f}%)"
-        keys_order["blocks_using_proj"] = "{:<6}".format(
-            keys_order["blocks_using_proj"]
-        ) + f"({blocks_using_proj_pct*100:.0f}%)"
-        keys_order["blocks_using_shield"] = "{:<6}".format(
-            keys_order["blocks_using_shield"]
-        ) + f"({blocks_using_shield_pct*100:.0f}%)"
+        keys_order["assists"] = "{:<6}".format(keys_order["assists"]) + "(" + f"{assists_pct*100:>2.0f}" + "%) †"
+        keys_order["dunk_tanks"] = "{:<6}".format(keys_order["dunk_tanks"]) + "(" + f"{dunk_tanks_pct*100:>2.0f}" + "%) †"
+        keys_order["first_bloods"] = "{:<6}".format(keys_order["first_bloods"]) + "(" + f"{first_bloods_pct*100:>2.0f}" + "%) †"
+        keys_order["snipers"] = "{:<6}".format(keys_order["snipers"]) + "(" + f"{snipers_pct*100:>2.0f}" + "%) †"
+        keys_order["two_birdss"] = "{:<6}".format(keys_order["two_birdss"]) + "(" + f"{two_birdss_pct*100:>2.0f}" + "%) †"
+        keys_order["yardsales"] = "{:<6}".format(keys_order["yardsales"]) + "(" + f"{yardsales_pct*100:>2.0f}" + "%) †"
+        keys_order["double_kills"] = "{:<6}".format(keys_order["double_kills"]) + "(" + f"{double_kills_pct*100:>2.0f}" + "%) †"
+        keys_order["triple_kills"] = "{:<6}".format(keys_order["triple_kills"]) + "(" + f"{triple_kills_pct*100:>2.0f}" + "%) †"
+        keys_order["quad_kills"] = "{:<6}".format(keys_order["quad_kills"]) + "(" + f"{quad_kills_pct*100:>2.0f}" + "%) †"
+        keys_order["games_won"] = "{:<6}".format(keys_order["games_won"]) + "(" + f"{games_won_pct*100:>2.0f}" + "%)"
+        keys_order["top_5"] = "{:<6}".format(keys_order["top_5"]) + "(" + f"{top_5_pct*100:>2.0f}" + "%)"
+        keys_order["deathmatch_won"] = "{:<6}".format(keys_order["deathmatch_won"]) + "(" + f"{deathmatch_won_pct*100:>2.0f}" + "%)"
+        keys_order["squads_won"] = "{:<6}".format(keys_order["squads_won"]) + "(" + f"{squads_won_pct*100:>2.0f}" + "%)"
+        keys_order["teams_won"] = "{:<6}".format(keys_order["teams_won"]) + "(" + f"{teams_won_pct*100:>2.0f}" + "%)"
+        keys_order["minemayhem_won"] = "{:<6}".format(keys_order["minemayhem_won"]) + "(" + f"{minemayhem_won_pct*100:>2.0f}" + "%)"
+        keys_order["total_games_played"] = f"{total_games_played:<11} †"
+        keys_order["kills_using_drill"] = "{:<6}".format(keys_order["kills_using_drill"]) + "(" + f"{kills_using_drill_pct*100:>2.0f}" + "%)"
+        keys_order["kills_using_flak"] = "{:<6}".format(keys_order["kills_using_flak"]) + "(" + f"{kills_using_flak_pct*100:>2.0f}" + "%)"
+        keys_order["kills_using_grenade"] = "{:<6}".format(keys_order["kills_using_grenade"]) + "(" + f"{kills_using_grenade_pct*100:>2.0f}" + "%)"
+        keys_order["kills_using_homing"] = "{:<6}".format(keys_order["kills_using_homing"]) + "(" + f"{kills_using_homing_pct*100:>2.0f}" + "%)"
+        keys_order["kills_using_mine"] = "{:<6}".format(keys_order["kills_using_mine"]) + "(" + f"{kills_using_mine_pct*100:>2.0f}" + "%)"
+        keys_order["kills_using_nuke"] = "{:<6}".format(keys_order["kills_using_nuke"]) + "(" + f"{kills_using_nuke_pct*100:>2.0f}" + "%)"
+        keys_order["kills_using_poison"] = "{:<6}".format(keys_order["kills_using_poison"]) + "(" + f"{kills_using_poison_pct*100:>2.0f}" + "%)"
+        keys_order["kills_using_shield"] = "{:<6}".format(keys_order["kills_using_shield"]) + "(" + f"{kills_using_shield_pct*100:>2.0f}" + "%)"
+        keys_order["kills_using_triple-shot"] = "{:<6}".format(keys_order["kills_using_triple-shot"]) + "(" + f"{kills_using_triple_shot_pct*100:>2.0f}" + "%)"
+        keys_order["kills_using_missiles"] = "{:<6}".format(str(kills_using_missiles)) + "(" + f"{kills_using_missiles_pct*100:>2.0f}" + "%)"
+        keys_order["blocks_using_proj"] = "{:<6}".format(keys_order["blocks_using_proj"]) + "(" + f"{blocks_using_proj_pct*100:>2.0f}" + "%)"
+        keys_order["blocks_using_shield"] = "{:<6}".format(keys_order["blocks_using_shield"]) + "(" + f"{blocks_using_shield_pct*100:>2.0f}" + "%)"
 
         first_title = " General "
         stat_list += f"\u001b[1;2m{first_title.center(47, '—')}\u001b[0m\n"
@@ -1460,12 +1489,14 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
         for goal in metadata['goals']:
             selected_goal = goals_config.get(goal['goal_id'], default_goal)
             goal_name = selected_goal['name']
-            goal_progress = f"{goal['count']:>2}/{selected_goal['count']:<2}"
+            goal_progress = f"{goal['count']:>4.0f}/{selected_goal['count']:<4}"
             goal_xp = f"{selected_goal['xp']}XP"
-            if len(goal_name) > 40:
-                goal_list += f"- {goal_name.rsplit(' ', 1)[0]:<40} {goal_progress:<5}{goal_xp:>6}\n  {goal_name.rsplit(' ', 1)[1]}\n"
+
+            if len(goal_name) > 34:
+                lines = textwrap.wrap(goal_name, 34, break_long_words=False)
+                goal_list += f"- {lines[0]:<34} {goal_progress:<9}{goal_xp:>6}\n  {lines[1]}\n"
             else:
-                goal_list += f"- {goal_name:<40} {goal_progress:<5}{goal_xp:>6}\n"
+                goal_list += f"- {goal_name:<34} {goal_progress:<9}{goal_xp:>6}\n"
         goal_list += "```"
     
         # Add to embed
@@ -1663,14 +1694,14 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
         total = tank_total + parachute_total + trail_total
 
         # Items Collected table
-        s = f"```\n┌{'─'*17}┬{'─'*5}┬{'─'*10}┬{'─'*6}┬{'─'*9}┐\n│{'Rarity':^17}│{'Tanks':^5}│{'Parachutes':^10}│{'Trails':^6}│{'Sub-total':^9}│\n├{'─'*17}┼{'─'*5}┼{'─'*10}┼{'─'*6}┼{'─'*9}┤\n"
-        s += f"│     * {'Common':<10}│{str(tank_common_owned):>2}/{str(tank_common_total):<2}│{str(parachute_common_owned):>4}/{str(parachute_common_total):<5}│{str(trail_common_owned):>2}/{str(trail_common_total):<3}│{str(common_owned):>4}/{str(common_total):<4}│\n├{'─'*17}┼{'─'*5}┼{'─'*10}┼{'─'*6}┼{'─'*9}┤\n"
-        s += f"│    ** {'Rare':<10}│{str(tank_rare_owned):>2}/{str(tank_rare_total):<2}│{str(parachute_rare_owned):>4}/{str(parachute_rare_total):<5}│{str(trail_rare_owned):>2}/{str(trail_rare_total):<3}│{str(rare_owned):>4}/{str(rare_total):<4}│\n├{'─'*17}┼{'─'*5}┼{'─'*10}┼{'─'*6}┼{'─'*9}┤\n"
-        s += f"│   *** {'Legendary':<10}│{str(tank_legendary_owned):>2}/{str(tank_legendary_total):<2}│{str(parachute_legendary_owned):>4}/{str(parachute_legendary_total):<5}│{str(trail_legendary_owned):>2}/{str(trail_legendary_total):<3}│{str(legendary_owned):>4}/{str(legendary_total):<4}│\n├{'─'*17}┼{'─'*5}┼{'─'*10}┼{'─'*6}┼{'─'*9}┤\n"
-        s += f"│     $ {'Purchased':<10}│{str(tank_purchased_owned):>2}/{str(tank_purchased_total):<2}│{str(parachute_purchased_owned):>4}/{str(parachute_purchased_total):<5}│{str(trail_purchased_owned):>2}/{str(trail_purchased_total):<3}│{str(purchased_owned):>4}/{str(purchased_total):<4}│\n├{'─'*17}┼{'─'*5}┼{'─'*10}┼{'─'*6}┼{'─'*9}┤\n"
-        s += f"│     Ꙋ {'Earned':<10}│{str(tank_earned_owned):>2}/{str(tank_earned_total):<2}│{str(parachute_earned_owned):>4}/{str(parachute_earned_total):<5}│{str(trail_earned_owned):>2}/{str(trail_earned_total):<3}│{str(earned_owned):>4}/{str(earned_total):<4}│\n├{'─'*17}┼{'─'*5}┼{'─'*10}┼{'─'*6}┼{'─'*9}┤\n"
-        s += f"│ {'Sub-total':^16}│{str(tank_owned):>2}/{str(tank_total):<2}│{str(parachute_owned):>4}/{str(parachute_total):<5}│{str(trail_owned):>2}/{str(trail_total):<3}│{str(owned):>4}/{str(total):<4}│\n└{'─'*17}┴{'─'*5}┴{'─'*10}┴{'─'*6}┴{'─'*9}┘```"
-
+        s = f"```\n┌{'─'*17}┬{'─'*7}┬{'─'*10}┬{'─'*6}┬{'─'*9}┐\n│{'Rarity':^17}│{'Tanks':^7}│{'Parachutes':^10}│{'Trails':^6}│{'Sub-total':^9}│\n├{'─'*17}┼{'─'*7}┼{'─'*10}┼{'─'*6}┼{'─'*9}┤\n"
+        s += f"│     * {'Common':<10}│{str(tank_common_owned):>3}/{str(tank_common_total):<3}│{str(parachute_common_owned):>4}/{str(parachute_common_total):<5}│{str(trail_common_owned):>2}/{str(trail_common_total):<3}│{str(common_owned):>4}/{str(common_total):<4}│\n├{'─'*17}┼{'─'*7}┼{'─'*10}┼{'─'*6}┼{'─'*9}┤\n"
+        s += f"│    ** {'Rare':<10}│{str(tank_rare_owned):>3}/{str(tank_rare_total):<3}│{str(parachute_rare_owned):>4}/{str(parachute_rare_total):<5}│{str(trail_rare_owned):>2}/{str(trail_rare_total):<3}│{str(rare_owned):>4}/{str(rare_total):<4}│\n├{'─'*17}┼{'─'*7}┼{'─'*10}┼{'─'*6}┼{'─'*9}┤\n"
+        s += f"│   *** {'Legendary':<10}│{str(tank_legendary_owned):>3}/{str(tank_legendary_total):<3}│{str(parachute_legendary_owned):>4}/{str(parachute_legendary_total):<5}│{str(trail_legendary_owned):>2}/{str(trail_legendary_total):<3}│{str(legendary_owned):>4}/{str(legendary_total):<4}│\n├{'─'*17}┼{'─'*7}┼{'─'*10}┼{'─'*6}┼{'─'*9}┤\n"
+        s += f"│     $ {'Purchased':<10}│{str(tank_purchased_owned):>3}/{str(tank_purchased_total):<3}│{str(parachute_purchased_owned):>4}/{str(parachute_purchased_total):<5}│{str(trail_purchased_owned):>2}/{str(trail_purchased_total):<3}│{str(purchased_owned):>4}/{str(purchased_total):<4}│\n├{'─'*17}┼{'─'*7}┼{'─'*10}┼{'─'*6}┼{'─'*9}┤\n"
+        s += f"│     Ꙋ {'Earned':<10}│{str(tank_earned_owned):>3}/{str(tank_earned_total):<3}│{str(parachute_earned_owned):>4}/{str(parachute_earned_total):<5}│{str(trail_earned_owned):>2}/{str(trail_earned_total):<3}│{str(earned_owned):>4}/{str(earned_total):<4}│\n├{'─'*17}┼{'─'*7}┼{'─'*10}┼{'─'*6}┼{'─'*9}┤\n"
+        s += f"│ {'Sub-total':^16}│{str(tank_owned):>3}/{str(tank_total):<3}│{str(parachute_owned):>4}/{str(parachute_total):<5}│{str(trail_owned):>2}/{str(trail_total):<3}│{str(owned):>4}/{str(total):<4}│\n└{'─'*17}┴{'─'*7}┴{'─'*10}┴{'─'*6}┴{'─'*9}┘```"
+        
         if section in {"with Items Collected", "with All Cosmetics", "All"}:
             # Add to embed
             message6 = ""
