@@ -1088,7 +1088,7 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
     # Send 
     await interaction.followup.send(embed=discord.Embed(description=message1, color=0x00C6FE))
     
-    if section in {"with Season Top 50 Records", "All"}:
+    if section in {"with 📊 Season Top 50 Records", "All"}:
         # Create season records list
         season_top_50_records_list = "```ansi\n"
 
@@ -1135,7 +1135,7 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
         # Send
         await interaction.followup.send(embed=discord.Embed(description=message2, color=0x00C6FE))
     
-    if section in {"with Badges", "All"}:
+    if section in {"with 🛡️ Badges", "All"}:
         # Create badge list
         badge_list = "```\n"
 
@@ -1154,7 +1154,7 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
         # Send
         await interaction.followup.send(embed=discord.Embed(description=message3, color=0x00C6FE))
         
-    if section in {"with Stats", "All"}:
+    if section in {"with 🗒️ Stats", "All"}:
         # Create stats
         stat_list = "```ansi\n"
         # Rearrange keys
@@ -1482,7 +1482,7 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
         embed1.set_image(url="attachment://plot.png")
         await interaction.followup.send(embed=embed1, file=chart)
     
-    if section in {"with Goals", "All"}:
+    if section in {"with 🥅 Current Goals", "All"}:
         # Create goal list
         goal_list = "```\n"
 
@@ -1507,7 +1507,7 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
         await interaction.followup.send(embed=discord.Embed(description=message5, color=0x00C6FE))
     
     if section in {
-            "with Items Collected", "with Tanks", "with Parachutes", "with Trails",
+            "with 📦 Items Collected", "with 🪖 Tanks", "with 🪂 Parachutes", "with 🌟 Trails",
             "with All Cosmetics", "All"
     }:
         # Get skins info
@@ -1702,7 +1702,7 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
         s += f"│     Ꙋ {'Earned':<10}│{str(tank_earned_owned):>3}/{str(tank_earned_total):<3}│{str(parachute_earned_owned):>4}/{str(parachute_earned_total):<5}│{str(trail_earned_owned):>2}/{str(trail_earned_total):<3}│{str(earned_owned):>4}/{str(earned_total):<4}│\n├{'─'*17}┼{'─'*7}┼{'─'*10}┼{'─'*6}┼{'─'*9}┤\n"
         s += f"│ {'Sub-total':^16}│{str(tank_owned):>3}/{str(tank_total):<3}│{str(parachute_owned):>4}/{str(parachute_total):<5}│{str(trail_owned):>2}/{str(trail_total):<3}│{str(owned):>4}/{str(total):<4}│\n└{'─'*17}┴{'─'*7}┴{'─'*10}┴{'─'*6}┴{'─'*9}┘```"
         
-        if section in {"with Items Collected", "with All Cosmetics", "All"}:
+        if section in {"with 📦 Items Collected", "with All Cosmetics", "All"}:
             # Add to embed
             message6 = ""
             message6 += f"📦 ***Items Collected***:\n{s}\n"
@@ -1710,7 +1710,7 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
             # Send
             await interaction.followup.send(embed=discord.Embed(description=message6, color=0x00C6FE))
 
-        if section in {"with Tanks", "with All Cosmetics", "All"}:
+        if section in {"with 🪖 Tanks", "with All Cosmetics", "All"}:
             # Create tank list
             tank_list = f"```\n{'Rarity:':<7} {'Name:':<17} {'Colors:':}\n{'—'*33}\n"
 
@@ -1738,7 +1738,7 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
 
             tank_list += "```"
 
-        if section in {"with Tanks", "with All Cosmetics", "All"}:
+        if section in {"with 🪖 Tanks", "with All Cosmetics", "All"}:
             # Add to embed
             message7 = ""
             message7 += f"🪖 ***Tanks***:\n{tank_list}\n"
@@ -1746,7 +1746,7 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
             # Send
             await interaction.followup.send(embed=discord.Embed(description=message7, color=0x00C6FE))
 
-        if section in {"with Parachutes", "with All Cosmetics", "All"}:
+        if section in {"with 🪂 Parachutes", "with All Cosmetics", "All"}:
             # Add to embed
             message8 = ""
             message8 += f"🪂 ***Parachutes***:\n{parachute_list}\n"
@@ -1754,7 +1754,7 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
             # Send
             await interaction.followup.send(embed=discord.Embed(description=message8, color=0x00C6FE))
 
-        if section in {"with Trails", "with All Cosmetics", "All"}:
+        if section in {"with 🌟 Trails", "with All Cosmetics", "All"}:
             # Add to embed
             message9 = ""
             message9 += f"🌟 ***Trails***:\n{trail_list}\n"
