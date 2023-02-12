@@ -2093,7 +2093,7 @@ async def discord_coins_leaderboard(interaction: discord.Interaction, changes: t
                 coins_diff_2 = f"{'-':^5}"
 
             # A single all-in-one record
-            leaderboard += f"{rank_diff_2}\u001b[1m{'#' + str(sorted_rank_dict.index(i) + 1):<6}\u001b[0m{db['discord_coins'][i[0]]['name']:<28}🪙 {i[1]:<6,d}{coins_diff_2}\n"
+            leaderboard += f"{rank_diff_2}\u001b[1m{'#' + str(sorted_rank_dict.index(i) + 1):<6}\u001b[0m{db['discord_coins'][i[0]]['name']:<28}🪙 {i[1]:<6,.0f}{coins_diff_2}\n"
 
             # Store new 'rank'
             db['discord_coins'][i[0]]['rank'] = sorted_rank_dict.index(i) + 1
@@ -2113,7 +2113,7 @@ async def discord_coins_leaderboard(interaction: discord.Interaction, changes: t
         leaderboard = ""
         for i in sorted_rank_dict:
             # A single all-in-one record
-            leaderboard += f"\u001b[1m{'#' + str(sorted_rank_dict.index(i) + 1):<6}\u001b[0m{db['discord_coins'][i[0]]['name']:<28}🪙 {i[1]:<6,d}\n"
+            leaderboard += f"\u001b[1m{'#' + str(sorted_rank_dict.index(i) + 1):<6}\u001b[0m{db['discord_coins'][i[0]]['name']:<28}🪙 {i[1]:<6,.0f}\n"
 
     # Split the message every 25 records
     leaderboard_split = re.compile(
