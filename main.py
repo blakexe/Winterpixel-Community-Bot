@@ -3777,13 +3777,12 @@ async def plot(interaction: discord.Interaction, graph: typing.Literal['Box Plot
   ax_a_1.set_facecolor("#222222")
   bp1 = box_plot(data_a_1, '#1392E8', '#BBE6FD')
   if season_end == curr_season:
-      bp2 = box_plot(data_a_2, '#FA4D56', '#FED6D9')
-  if season_end == curr_season:
-    if season_start == season_end:
+    bp2 = box_plot(data_a_2, '#FA4D56', '#FED6D9')
+    if season_start == season_end: # Current Season only
         ax_a_1.legend([bp2["boxes"][0]], ['Current Season'], loc='upper left')
-    else:
+    else: # Past Season(s) and Current Season
         ax_a_1.legend([bp1["boxes"][0], bp2["boxes"][0]], ['Past Season' + ('' if one_past_season else 's'), 'Current Season'], loc='upper left')
-  else:
+  else: # Past Season(s) only
       ax_a_1.legend([bp1["boxes"][0]], ['Past Season' + ('' if one_past_season else 's')], loc='upper left')
 
   # Bottom axis
@@ -3866,11 +3865,20 @@ async def plot(interaction: discord.Interaction, graph: typing.Literal['Box Plot
 
   # Fix legends x-coordinate
   if season_end == curr_season:
+    if season_start != season_end: # Past Season(s) and Current Season
+      legends_name.append("Past Season" + ('' if one_past_season else 's'))
       legends_name.append("Current Season")
+      legends_color.append("#1155cc")
       legends_color.append("#cc0000")
       bbox_to_anchor_x = 0.125
-  else:
-      bbox_to_anchor_x = 0.055
+    else: # Current Season only
+      legends_name.append("Current Season")
+      legends_color.append("#cc0000")
+      bbox_to_anchor_x = 0.065
+  else: # Past Season(s) only
+    legends_name.append("Past Season" + ('' if one_past_season else 's'))
+    legends_color.append("#1155cc")
+    bbox_to_anchor_x = 0.065
   
   for row in range(len(legends_name)):
       plt.bar(legends_name, legends_name[row], 0, color=legends_color[::-1][row], label=legends_name[::-1][row])
