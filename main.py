@@ -3840,12 +3840,11 @@ async def plot(interaction: discord.Interaction, graph: typing.Literal['Box Plot
   for (row, col), cell in table.get_celld().items():
       cell.set_edgecolor('w')
       cell.set_text_props(color='w')
-      cell.set_text_props(fontproperties=FontProperties(size='x-small'))
+      cell.set_text_props(fontproperties=FontProperties(weight='bold', size='x-small'))
       if (row % 2 == 1):
           cell.set_facecolor("#1155cc") # odd row
       elif (row == 0):
           cell.set_facecolor("#222222") # first row
-          cell.set_text_props(fontproperties=FontProperties(weight='bold'))
       else:
           cell.set_facecolor("#3c78d8") # even row
       if season_end == curr_season:
