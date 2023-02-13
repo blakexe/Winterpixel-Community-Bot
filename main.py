@@ -3805,7 +3805,7 @@ async def plot(interaction: discord.Interaction, graph: typing.Literal['Box Plot
   plt.figtext(0.98, 0.03, "Generated at " + current_timestamp, ha="right", color='w', fontsize=8)
 
   plt.tight_layout()
-  plt.savefig(data_stream_a, format='png', dpi=100)
+  plt.savefig(data_stream_a, format='png', dpi=250)
   plt.close()
 
   # Send the first graph
@@ -3817,7 +3817,7 @@ async def plot(interaction: discord.Interaction, graph: typing.Literal['Box Plot
   # Initialize IO
   data_stream_b = io.BytesIO()
   
-  column_headers = ["Season", "Duration (days)", "Min", "Lower Quartile (Q1)", "Median (Q2)", "Upper Quartile (Q3)", "Max", "Mean"]
+  column_headers = ["Season", "Duration (days)", "Min", "Lower Quartile", "Median", "Upper Quartile", "Max", "Mean"]
   
   cell_text = []
   for row in data_b:
@@ -3827,7 +3827,8 @@ async def plot(interaction: discord.Interaction, graph: typing.Literal['Box Plot
     fig_height = 2 # Minimum height
   plt.figure(linewidth=1, facecolor='#2f3137', tight_layout={'pad':2}, figsize=(8,fig_height), edgecolor='w')
   
-  table = plt.table(cellText=cell_text, rowLoc='center', colLabels=column_headers, cellLoc='center',loc='center')
+  table = plt.table(cellText=cell_text, rowLoc='center', colLabels=column_headers, cellLoc='center', loc='center')
+  table.auto_set_font_size(False)
   
   # Hide axes
   ax_b = plt.gca()
@@ -3838,7 +3839,7 @@ async def plot(interaction: discord.Interaction, graph: typing.Literal['Box Plot
   for (row, col), cell in table.get_celld().items():
       cell.set_edgecolor('w')
       cell.set_text_props(color='w')
-      cell.set_text_props(fontproperties=FontProperties(weight='bold'))
+      cell.set_text_props(fontproperties=FontProperties(weight='bold', size='x-small'))
       if (row % 2 == 1):
           cell.set_facecolor("#1155cc") # odd row
       elif (row == 0):
@@ -3886,7 +3887,7 @@ async def plot(interaction: discord.Interaction, graph: typing.Literal['Box Plot
   handles, labels = ax_b.get_legend_handles_labels()
   ax_b.legend(handles[::-1], labels[::-1], loc=8, bbox_to_anchor=(bbox_to_anchor_x, 0.85), ncol=2, fontsize=6)
 
-  plt.savefig(data_stream_b, format='png', dpi=150)
+  plt.savefig(data_stream_b, format='png', dpi=250)
   plt.close()
 
   # Send the second graph
