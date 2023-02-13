@@ -3688,7 +3688,7 @@ db['plot'] = dict()
 @app_commands.describe(
     graph='Type of graph to be plotted. Box Plot: Top 100 players',
     mode='Trophies or Points',
-    season_start='Trophies: Season 11 or later / Points: Season 1 or later'
+    season_start='Trophies: Season 11 or later / Points: Season 1 or later',
     season_end='same or greater than season_start'
 )
 async def plot(interaction: discord.Interaction, graph: typing.Literal['Box Plot'], mode: typing.Literal['Trophies', 'Points'], season_start: int = 1, season_end: int = -1):
