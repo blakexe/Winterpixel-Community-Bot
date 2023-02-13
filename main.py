@@ -3774,7 +3774,6 @@ async def plot(interaction: discord.Interaction, graph: typing.Literal['Box Plot
     return bp
   
   fig, ax_a_1 = plt.subplots(facecolor="#2f3137", figsize=(8, 6), edgecolor='w', linewidth=1)
-  fig.subplots_adjust(bottom=0.15)
   ax_a_1.set_facecolor("#222222")
   bp1 = box_plot(data_a_1, '#1392E8', '#BBE6FD')
   if season_end == curr_season:
@@ -3805,6 +3804,7 @@ async def plot(interaction: discord.Interaction, graph: typing.Literal['Box Plot
   # Footer
   plt.figtext(0.98, 0.03, "Generated at " + current_timestamp, ha="right", color='w', fontsize=8)
 
+  plt.tight_layout()
   plt.savefig(data_stream_a, format='png', dpi=250)
   plt.close()
 
