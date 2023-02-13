@@ -3860,8 +3860,8 @@ async def plot(interaction: discord.Interaction, graph: typing.Literal['Box Plot
   plt.tight_layout()
 
   # Legend
-  legends_name = ["Past Season" + ('' if one_past_season else 's')]
-  legends_color = ['#1155cc']
+  legends_name = []
+  legends_color = []
 
   # Fix legends x-coordinate
   if season_end == curr_season:
