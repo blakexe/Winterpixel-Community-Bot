@@ -3683,7 +3683,7 @@ async def fandom(interaction: discord.Interaction, article: str):
     except:
         await interaction.followup.send(embed=discord.Embed(color=0xff0000, description=f':x: "{article}" is not found. Make sure capitalization is correct!', timestamp=datetime.datetime.utcnow()))
 
-db['plot'] = dict()
+
 @tree.command()
 @app_commands.describe(
     graph='Type of graph to be plotted. Box Plot: Top 100 players',
