@@ -3805,7 +3805,6 @@ async def plot(interaction: discord.Interaction, graph: typing.Literal['Box Plot
   # Footer
   plt.figtext(0.98, 0.03, "Generated at " + current_timestamp, ha="right", color='w', fontsize=8)
 
-  plt.tight_layout()
   plt.savefig(data_stream_a, format='png', dpi=250)
   plt.close()
 
