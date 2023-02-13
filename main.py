@@ -3774,6 +3774,7 @@ async def plot(interaction: discord.Interaction, graph: typing.Literal['Box Plot
     return bp
   
   fig, ax_a_1 = plt.subplots(facecolor="#2f3137", figsize=(8, 6), edgecolor='w', linewidth=1)
+  fig.subplots_adjust(bottom=0.15)
   ax_a_1.set_facecolor("#222222")
   bp1 = box_plot(data_a_1, '#1392E8', '#BBE6FD')
   if season_end == curr_season:
@@ -3839,11 +3840,12 @@ async def plot(interaction: discord.Interaction, graph: typing.Literal['Box Plot
   for (row, col), cell in table.get_celld().items():
       cell.set_edgecolor('w')
       cell.set_text_props(color='w')
-      cell.set_text_props(fontproperties=FontProperties(weight='bold', size='x-small'))
+      cell.set_text_props(fontproperties=FontProperties(size='x-small'))
       if (row % 2 == 1):
           cell.set_facecolor("#1155cc") # odd row
       elif (row == 0):
           cell.set_facecolor("#222222") # first row
+          cell.set_text_props(fontproperties=FontProperties(weight='bold'))
       else:
           cell.set_facecolor("#3c78d8") # even row
       if season_end == curr_season:
@@ -3871,21 +3873,21 @@ async def plot(interaction: discord.Interaction, graph: typing.Literal['Box Plot
       legends_name.append("Current Season")
       legends_color.append("#1155cc")
       legends_color.append("#cc0000")
-      bbox_to_anchor_x = 0.125
+      bbox_to_anchor_x = 0.165
     else: # Current Season only
       legends_name.append("Current Season")
       legends_color.append("#cc0000")
-      bbox_to_anchor_x = 0.065
+      bbox_to_anchor_x = 0.085
   else: # Past Season(s) only
     legends_name.append("Past Season" + ('' if one_past_season else 's'))
     legends_color.append("#1155cc")
-    bbox_to_anchor_x = 0.065
+    bbox_to_anchor_x = 0.085
   
   for row in range(len(legends_name)):
       plt.bar(legends_name, legends_name[row], 0, color=legends_color[::-1][row], label=legends_name[::-1][row])
   
   handles, labels = ax_b.get_legend_handles_labels()
-  ax_b.legend(handles[::-1], labels[::-1], loc=8, bbox_to_anchor=(bbox_to_anchor_x, 0.85), ncol=2, fontsize=6)
+  ax_b.legend(handles[::-1], labels[::-1], loc=8, bbox_to_anchor=(bbox_to_anchor_x, 0.85), ncol=2, fontsize=8)
 
   plt.savefig(data_stream_b, format='png', dpi=250)
   plt.close()
