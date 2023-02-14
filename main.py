@@ -3688,8 +3688,8 @@ async def fandom(interaction: discord.Interaction, article: str):
 @app_commands.describe(
     graph='Type of graph to be plotted. Box Plot: Top 100 players',
     mode='Trophies or Points',
-    season_start='Trophies: Season 11 or later / Points: Season 1 or later',
-    season_end='same or greater than season_start'
+    season_start='Trophies: Season 11 or later / Points: Season 1 or later, default all',
+    season_end='same or greater than season_start, default all'
 )
 async def plot(interaction: discord.Interaction, graph: typing.Literal['Box Plot'], mode: typing.Literal['Trophies', 'Points'], season_start: int = 1, season_end: int = -1):
   '''Plot statistics graph and table about trophies or points in season(s)'''
@@ -3882,7 +3882,7 @@ async def plot(interaction: discord.Interaction, graph: typing.Literal['Box Plot
     bbox_to_anchor_x = 0.085
   
   for row in range(len(legends_name)):
-      plt.bar(legends_name, legends_name[row], 0, color=legends_color[::-1][row], label=legends_name[::-1][row])
+      plt.bar(legends_name, legends_name[row], 0, color=legends_color[::-1][row], label=legends_name[::-1][row]) # Set width 0 to hide the bars
   
   handles, labels = ax_b.get_legend_handles_labels()
   ax_b.legend(handles[::-1], labels[::-1], loc=8, bbox_to_anchor=(bbox_to_anchor_x, 0.85), ncol=2, fontsize=8)
