@@ -2407,7 +2407,7 @@ async def slot(interaction: discord.Interaction, bet: int):
             coin[3]: 1.5 / 26.26,
             coin[4]: 1.25 / 26.25,
         }
-        if id in ['152080881220059136', '381074897083826176', '610369943967629340']:
+        if id in ['152080881220059136', '381074897083826176', '610369943967629340', '970784448633258054']:
             print(f"Unrigging slots for user: {id}")
             events = {
                 coin[0]: 0.2,
