@@ -2289,6 +2289,9 @@ async def random_tank(interaction: discord.Interaction):
 )
 async def long(interaction: discord.Interaction, length: int, barrel: int = 1):
     '''Build your supercalifragilisticexpialidocious long tank equipped with as many barrels as you want!'''
+    
+    await interaction.response.defer(ephemeral=False, thinking=True)
+    
     long_emoji = [
             "<:longtank_part1:991838180699541504>",
             "<:longtank_part2:991838184910626916>",
