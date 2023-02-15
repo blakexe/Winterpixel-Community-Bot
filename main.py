@@ -3734,14 +3734,21 @@ async def plot(interaction: discord.Interaction, graph: typing.Literal['Box Plot
         db['plot'][str(season)]['days'] = season_info(season)[2][:-5]
       response = await rocketbot_client.query_leaderboard(season, f"tankkings_{mode.lower()}", 100)
       records = json.loads(response['payload'])['records']
+      global not_enough_100_records
+      if len(records) < 100:
+        not_enough_100_records = True
+      else:
+        not_enough_100_records = False
+        season_top_100 = []
+        for record in records:
+          season_top_100.append(record['score'])
+        db['plot'][str(season)][f"top_100_{mode.lower()}"] = season_top_100
   
-      season_top_100 = []
-      for record in records:
-        season_top_100.append(record['score'])
-      db['plot'][str(season)][f"top_100_{mode.lower()}"] = season_top_100
+        season_records = db['plot'][str(season)][f"top_100_{mode.lower()}"]
+        db['plot'][str(season)][f"top_100_{mode.lower()}_stats"] = [min(season_records)] + [int(round(boxplot_stats(season_records)[0][i])) for i in ['q1','med','q3']] + [max(season_records)] + [int(round(mean(season_records)))]
 
-      season_records = db['plot'][str(season)][f"top_100_{mode.lower()}"]
-      db['plot'][str(season)][f"top_100_{mode.lower()}_stats"] = [min(season_records)] + [int(round(boxplot_stats(season_records)[0][i])) for i in ['q1','med','q3']] + [max(season_records)] + [int(round(mean(season_records)))]
+  if not_enough_100_records == True:
+    season_end = curr_season - 1
       
   # Get data
   data_a = [] # A
