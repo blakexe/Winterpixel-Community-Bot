@@ -14,6 +14,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.cbook import boxplot_stats
 from matplotlib.font_manager import FontProperties
+from matplotlib.ticker import (MultipleLocator, AutoMinorLocator)
 from math import ceil
 from collections import defaultdict, OrderedDict, Counter
 from operator import itemgetter
@@ -362,7 +363,7 @@ async def leaderboard_rocket_bot_royale(interaction: discord.Interaction, mode: 
             tier = []
             for i in range(5):
                 split.append(server_config['trophy_tiers'][i]['maximum_rank'])
-                tier.append(server_config['trophy_tiers'][i]['name'].upper())
+                tier.append(server_config['trophy_tiers'][i]['name'])
             tier_color_code = ["35", "36", "33", "34", "31"]
 
             # Using f-string spacing to pretty print the leaderboard labels (bold)
@@ -570,7 +571,7 @@ async def leaderboard_rocket_bot_royale(interaction: discord.Interaction, mode: 
                     split.append(
                         server_config['trophy_tiers'][i]['maximum_rank'])
                     tier.append(
-                        server_config['trophy_tiers'][i]['name'].upper())
+                        server_config['trophy_tiers'][i]['name'])
                 tier_color_code = ["35", "36", "33", "34", "31",
                                    "32", "35", "31", "33", "30", "37", "37"]
 
@@ -1243,19 +1244,20 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
                     pad=0)
         ax1.pie(sizes,
                 labels=labels,
-                autopct='%1.1f%%',
+                autopct=lambda p: '{:.1f}%\n({:.0f})'.format(p,
+                                                                p * sum(sizes) / 100),
                 startangle=90,
-                textprops={'color': "#FFFFFF"},
+                textprops={'color': "#FFFFFF", 'fontsize': 8},
                 wedgeprops={
-                "edgecolor": "#FFFFFF",
-                'linewidth': 1,
-                'antialiased': True
+                    "edgecolor": "#FFFFFF",
+                    'linewidth': 1,
+                    'antialiased': True
                 },
                 pctdistance=0.85)
         ax1.axis('equal')
 
         plt.tight_layout()
-        plt.savefig(data_stream, format='png', dpi=100)
+        plt.savefig(data_stream, format='png', dpi=150)
         plt.close()
 
         # Avoid divided by zero error
@@ -2287,79 +2289,81 @@ async def random_tank(interaction: discord.Interaction):
 )
 async def long(interaction: discord.Interaction, length: int, barrel: int = 1):
     '''Build your supercalifragilisticexpialidocious long tank equipped with as many barrels as you want!'''
-    try:
-        long_emoji = [
+    long_emoji = [
             "<:longtank_part1:991838180699541504>",
             "<:longtank_part2:991838184910626916>",
             "<:longtank_part3:991838189591470130>",
             "<:longtank_part4:991838192145793125>"
-        ]
-        if length < 0:
-            length = 0
-        if barrel < 0:
-            barrel = 0
-        if barrel > length:
-            barrel = length
+    ]
+    if length < 0:
+        length = 0
+    if barrel < 0:
+        barrel = 0
+    if barrel > length:
+        barrel = length
 
-        def even_space(n, k):
-            a = []
-            for i in range(k):
-                a.append(n // k)
-            for i in range(n % k):
-                a[i] += 1
-            b = list(OrderedDict.fromkeys(a))
-            global x, y
-            x, y = b[0], b[1] if len(b) > 1 else ''
-            for i in range(len(a)):
-                a[i] = 'x' if a[i] == b[0] else 'y'
-            s = ''.join(str(i) for i in a)
-            return s
+    def even_space(n, k):
+        a = []
+        for i in range(k):
+            a.append(n // k)
+        for i in range(n % k):
+            a[i] += 1
+        b = list(OrderedDict.fromkeys(a))
+        global x, y
+        x, y = b[0], b[1] if len(b) > 1 else ''
+        for i in range(len(a)):
+            a[i] = 'x' if a[i] == b[0] else 'y'
+        s = ''.join(str(i) for i in a)
+        return s
 
-        def palindrome_check(str):
-            return sum(map(lambda i: str.count(i) % 2, set(str))) <= 1
+    def palindrome_check(str):
+        return sum(map(lambda i: str.count(i) % 2, set(str))) <= 1
 
-        def palindrome_rearrange(str):
-            hmap = defaultdict(int)
-            for i in range(len(str)):
-                hmap[str[i]] += 1
+    def palindrome_rearrange(str):
+        hmap = defaultdict(int)
+        for i in range(len(str)):
+            hmap[str[i]] += 1
 
-            odd_count = 0
+        odd_count = 0
 
-            for x in hmap:
-                if (hmap[x] % 2 != 0):
-                    odd_count += 1
-                    odd_char = x
+        for x in hmap:
+            if (hmap[x] % 2 != 0):
+                odd_count += 1
+                odd_char = x
 
-            first_half = ''
-            second_half = ''
+        first_half = ''
+        second_half = ''
 
-            for x in sorted(hmap.keys()):
-                s = (hmap[x] // 2) * x
-                first_half = first_half + s
-                second_half = s + second_half
+        for x in sorted(hmap.keys()):
+            s = (hmap[x] // 2) * x
+            first_half = first_half + s
+            second_half = s + second_half
 
-            return (first_half + odd_char + second_half) if (odd_count == 1) else (first_half + second_half)
+        return (first_half + odd_char + second_half) if (odd_count == 1) else (first_half + second_half)
 
-        even_space_encode = even_space(length - barrel, barrel + 1)
-        even_space_encode_palindrome = palindrome_rearrange(
-            even_space_encode) if palindrome_check(even_space_encode) else even_space_encode
+    even_space_encode = even_space(length - barrel, barrel + 1)
+    even_space_encode_palindrome = palindrome_rearrange(
+        even_space_encode) if palindrome_check(even_space_encode) else even_space_encode
 
-        even_space_encode_palindrome_decode = []
-        for i in even_space_encode_palindrome:
-            even_space_encode_palindrome_decode.append(i)
-        for i in range(len(even_space_encode_palindrome_decode)):
-            even_space_encode_palindrome_decode[i] = x if even_space_encode_palindrome_decode[i] == 'x' else y
+    even_space_encode_palindrome_decode = []
+    for i in even_space_encode_palindrome:
+        even_space_encode_palindrome_decode.append(i)
+    for i in range(len(even_space_encode_palindrome_decode)):
+        even_space_encode_palindrome_decode[i] = x if even_space_encode_palindrome_decode[i] == 'x' else y
 
-        output_middle = ""
-        for i in range(len(even_space_encode_palindrome_decode) - 1):
-            output_middle += (long_emoji[1] *
-                              even_space_encode_palindrome_decode[i] + long_emoji[2])
-        output_middle += long_emoji[1] * \
-            even_space_encode_palindrome_decode[-1]
-        msg = f"{long_emoji[0]}{output_middle}{long_emoji[3]}"
-        await interaction.response.send_message(f"```ansi\nThis is your \u001b[2;32ml\u001b[1;32m{'o'*length}\u001b[0m\u001b[2;32mng\u001b[0m tank!\n```\n{msg}")
+    output_middle = ""
+    for i in range(len(even_space_encode_palindrome_decode) - 1):
+        output_middle += (long_emoji[1] *
+                          even_space_encode_palindrome_decode[i] + long_emoji[2])
+    output_middle += long_emoji[1] * \
+        even_space_encode_palindrome_decode[-1]
+    msg = f"{long_emoji[0]}{output_middle}{long_emoji[3]}"
+    quote = await interaction.followup.send("```\nBuilding your tank, please wait...```")
+    try:
+        await interaction.followup.send(msg)
+        await quote.edit(content=f"```ansi\nThis is your \u001b[2;32ml\u001b[1;32m{'o'*length}\u001b[0m\u001b[2;32mng\u001b[0m tank!```")
     except:
-        await interaction.response.send_message("The tank is too long to build!")
+        await quote.edit(content="```\nThe tank is too long to build!```")
 
 
 @tree.command()
@@ -3779,20 +3783,28 @@ async def plot(interaction: discord.Interaction, graph: typing.Literal['Box Plot
   if season_end == curr_season:
     bp2 = box_plot(data_a_2, '#FA4D56', '#FED6D9')
     if season_start == season_end: # Current Season only
-        ax_a_1.legend([bp2["boxes"][0]], ['Current Season'], loc='upper left')
+        ax_a_1.legend([bp2["boxes"][0]], ['Current Season'], loc='upper left', framealpha=1)
     else: # Past Season(s) and Current Season
-        ax_a_1.legend([bp1["boxes"][0], bp2["boxes"][0]], ['Past Season' + ('' if one_past_season else 's'), 'Current Season'], loc='upper left')
+        ax_a_1.legend([bp1["boxes"][0], bp2["boxes"][0]], ['Past Season' + ('' if one_past_season else 's'), 'Current Season'], loc='upper left', framealpha=1)
   else: # Past Season(s) only
-      ax_a_1.legend([bp1["boxes"][0]], ['Past Season' + ('' if one_past_season else 's')], loc='upper left')
+      ax_a_1.legend([bp1["boxes"][0]], ['Past Season' + ('' if one_past_season else 's')], loc='upper left', framealpha=1)
 
   # Bottom axis
   ax_a_1.set_xticklabels(xlabels_a_1 * (2 if season_end == curr_season else 1))
-  ax_a_1.set_title(f"Rocket Bot Royale - Box Plot of Top 100 Players' {mode} by Season" + ('' if one_past_season else 's'), color='w', weight='bold', pad=12)
+  ax_a_1.set_title(
+    f"Rocket Bot Royale - Box Plot of Top 100 Players' {mode} by Season" +
+    ('' if one_past_season else 's'),
+    color='w',
+    weight='bold',
+    pad=12)
   ax_a_1.set_xlabel('Season', color='w', weight='bold')
   ax_a_1.set_ylabel(f'{mode}', color='w', weight='bold')
-  ax_a_1.tick_params(axis='both', colors='w')
-  ax_a_1.xaxis.grid(True, alpha=.25)
-  ax_a_1.yaxis.grid(True, alpha=.25)
+  ax_a_1.tick_params(axis='both', which='both', colors='w')
+  ax_a_1.xaxis.grid(True, alpha=.5)
+  ax_a_1.yaxis.set_major_locator(MultipleLocator(500 if mode == "Trophies" else 100000))
+  ax_a_1.yaxis.set_minor_locator(AutoMinorLocator(5))
+  ax_a_1.yaxis.grid(which='major', alpha=.5)
+  ax_a_1.yaxis.grid(which='minor', alpha=.2)
 
   # Top axis
   ax_a_2 = ax_a_1.secondary_xaxis("top")
@@ -3885,7 +3897,7 @@ async def plot(interaction: discord.Interaction, graph: typing.Literal['Box Plot
       plt.bar(legends_name, legends_name[row], 0, color=legends_color[::-1][row], label=legends_name[::-1][row]) # Set width 0 to hide the bars
   
   handles, labels = ax_b.get_legend_handles_labels()
-  ax_b.legend(handles[::-1], labels[::-1], loc=8, bbox_to_anchor=(bbox_to_anchor_x, 0.85), ncol=2, fontsize=8)
+  ax_b.legend(handles[::-1], labels[::-1], loc='lower center', bbox_to_anchor=(bbox_to_anchor_x, 0.85), ncol=2, fontsize=8, framealpha=1)
 
   plt.savefig(data_stream_b, format='png', dpi=250)
   plt.close()
