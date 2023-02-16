@@ -40,8 +40,10 @@ Join the discord to use the bot!
 | **`/get_crate_stats`** `one_star` `two_star` `three_star` | Optimize the use of in game crates and Estimate the amount of coins |
 | **`/slot`** `bet` | Play the slot machine game |
 | **`/memory`** | Test your memory by matching 2 tanks! |
+| **`/double_or_half`** | Helps you get out of a rut if your balance is negative |
 | **`/season`** | Return the current season and remaining time |
 | **`/random_bot_name`** | Generate a random bot name |
 | **`/fandom`** `article` | Fetch any articles from Rocket Bot Royale fandom wiki here |
+| **`/plot`** `graph (Box Plot)` `mode (Trophies/Points)` `season_start` `season_end` | Plot statistics graph and table about trophies or points in season(s) |
 
 Want to suggest something? Shoot a friend request to Blaki#4254. My DMs are open. You may also feel free to make a pull request if you want to implement it on your own.
