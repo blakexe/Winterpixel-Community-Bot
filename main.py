@@ -4966,37 +4966,66 @@ async def plot(
 
     # Legends
     legends_name = []
-    legends_color = []
 
     # Fix legends x-coordinate
     if season_end == curr_season:
         if season_start != season_end:  # Past Season(s) and Current Season
             legends_name.append("Past Season" + ("" if one_past_season else "s"))
             legends_name.append("Current Season")
-            legends_color.append("#1155CC")
-            legends_color.append("#CC0000")
             bbox_to_anchor_x = 0.165
         else:  # Current Season only
             legends_name.append("Current Season")
-            legends_color.append("#CC0000")
             bbox_to_anchor_x = 0.085
     else:  # Past Season(s) only
         legends_name.append("Past Season" + ("" if one_past_season else "s"))
-        legends_color.append("#1155CC")
         bbox_to_anchor_x = 0.085
 
     for row in range(len(legends_name)):
         plt.bar(
             legends_name,
-            legends_name[row],
             0,
-            color=legends_color[::-1][row],
             label=legends_name[::-1][row],
         )  # Set width 0 to hide the bars
 
+    (dark_blue,) = ax_b.plot(
+        [],
+        [],
+        color="#1155CC",
+        marker="s",
+        markersize=8,
+        fillstyle="top",
+        linestyle="none",
+        markeredgecolor="white",
+        markeredgewidth=0,
+    )
+
+    (light_blue,) = ax_b.plot(
+        [],
+        [],
+        color="#1155CC" if one_past_season == True else "#3C78D8",
+        marker="s",
+        markersize=8,
+        fillstyle="bottom",
+        linestyle="none",
+        markeredgecolor="white",
+        markeredgewidth=0,
+    )
+
+    (red,) = ax_b.plot(
+        [],
+        c="#CC0000",
+        marker="s",
+        markersize=8,
+        linestyle="none",
+        markeredgecolor="white",
+        markeredgewidth=0,
+    )
+
     handles, labels = ax_b.get_legend_handles_labels()
     ax_b.legend(
-        handles[::-1],
+        ((dark_blue, light_blue), (red))[::-1]
+        if season_start == season_end == curr_season
+        else ((dark_blue, light_blue), (red)),
         labels[::-1],
         loc="lower center",
         bbox_to_anchor=(bbox_to_anchor_x, 0.85),
