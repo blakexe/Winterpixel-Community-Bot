@@ -14,7 +14,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.cbook import boxplot_stats
 from matplotlib.font_manager import FontProperties
-from matplotlib.ticker import (MultipleLocator, AutoMinorLocator)
+from matplotlib.ticker import MultipleLocator, AutoMinorLocator
 from math import ceil
 from collections import defaultdict, OrderedDict, Counter
 from operator import itemgetter
@@ -41,11 +41,13 @@ else:
 
 # Get sensitive info
 try:
-    discord_token = os.environ['discord_token']
-    rocketbot_user = os.environ['rocketbot_username']
-    rocketbot_pass = os.environ['rocketbot_password']
+    discord_token = os.environ["discord_token"]
+    rocketbot_user = os.environ["rocketbot_username"]
+    rocketbot_pass = os.environ["rocketbot_password"]
 except KeyError:
-    print("ERROR: An environment value was not found. Please make sure your environment.json has all the right info or that you have correctly preloaded values into your environment.")
+    print(
+        "ERROR: An environment value was not found. Please make sure your environment.json has all the right info or that you have correctly preloaded values into your environment."
+    )
     os._exit(1)
 
 # Set up discord bot
@@ -68,35 +70,114 @@ playing = False
 
 # Set targeted fandom site's api for fandom command
 set_wiki("rocketbotroyale")
-rocketbotroyale = MediaWiki(url='https://rocketbotroyale.fandom.com/api.php')
+rocketbotroyale = MediaWiki(url="https://rocketbotroyale.fandom.com/api.php")
 
 # List contains all tank emojis for random_tank and memory command
-tanks = ['<:pumpkin_tank:1022568065034104936>', '<a:pumpkin_evolved_tank_a:1022572757860499486>', '<:eyeball_tank:1022568661745143908>', '<a:skull_tank_a:1022574941591306362>', '<:snowman_tank:1012941920844132362>', '<:snowman_evolved_tank:1012941924094713917>', '<:snowmobile_tank:1012941917337698375>', '<:icy_tank:1012941914254876794>', '<:brain_bot_tank:1006531910224322630>', '<:mine_bot_tank:1006532474945417216>', '<:bot_tank:917467970182189056>', '<:default_tank:996465659812774040>', '<:beta_tank:997947350943277106>', '<:canon_tank:997951207840686162>', '<:hot_dog_tank:997955038435614934>', '<a:wave_tank_a:1001203703325397033>', '<:zig_tank:997954180717215975>', '<:blade_tank:997947874715385856>', '<:buggy_tank:997948966933119016>', '<:burger_evolved_tank:997950412348989562>', '<:burger_tank:997950506976694302>', '<:catapult_evolved_tank:997951715284365323>', '<:catapult_tank:997951809282912346>', '<a:crab_evolved_tank_a:1001203931713654864>', '<a:crab_tank_a:1001203874469793822>', '<:cyclops_tank:997952308333793322>', '<:diamond_tank:997952379595010048>', '<a:dozer_evolved_tank_a:1001204001053876374>',
-         '<:dozer_tank:997952516501278760>', '<:fork_tank:997952581408129084>', '<:fries_tank:997952688656494672>', '<:gears_tank:997952760127434782>', '<:hay_tank:997952813386715148>', '<:hollow_tank:997952878142562384>', '<:medic_tank:997953168673619978>', '<:mixer_tank:997953233098113054>', '<:pagliacci_tank:997953348097560628>', '<:pail_tank:997953413717438575>', '<a:pistons_tank_a:1001208481300369608>', '<a:reactor_tank_a:1024935111461969990>', '<a:spider_evolved_tank_a:1001204256193396856>', '<a:spider_tank_a:1001204193887002704>', '<:spike_tank:997953736041308280>', '<:square_tank:997953791217377381>', '<:trap_tank:997953904610381834>', '<:tread_tank:997953970213494905>', '<:tub_tank:997954029902626886>', '<:tubdown_tank:997954078535598270>', '<:concave_tank:997951897749176450>', '<:crawler_tank:997952124279324753>', '<:log_tank:997953009910829198>', '<:long_tank:997953087006330971>', '<a:UFO_evolved_tank_a:1012268475626033174>', '<a:UFO_tank_a:1012268306482343936>', '<a:miner_tank_a:1003099245777276952>', '<:rover_tank:1003014762327716042>', '<a:bug_tank_a:1001203807893590168>', '<:moai_tank:1006528445355917394>', 
-         '<:128bit_tank:1073330000868163624>', '<:16bit_tank:1073329502148644904>', 
-         '<:32bit_tank:1073329509824204960>', '<:8bit_tank:1073329497451008140>', 
-         '<:army1_tank:1073329520339329145>', '<:army2_tank:1073329525917765683>', '<:army3_tank:1073329532376989746>', '<:army4_tank:1073329538387423262>', '<:champion_s13_tank:1051208428263067728>', '<:champion_s14_tank:1063549554798120960>', '<:champion_s15_tank:1073329544410443897>', '<:giftbox_tank:1073329550492172388>', '<:gingerbread_tank:1073330256578093208>', '<:handheld_tank:1073329559694495854>', '<:pirate_tank:1073329566657032282>', '<:pixel_tank:1073329572218671266>', '<:sailboat_tank:1073329578308812871>', '<:snowflake_tank:1073330011597197384>', '<:snowglobe_tank:1073330262441734164>', '<:tree_evolved_tank:1073330265742643344>', '<:tree_tank:1073329598542123018>', '<:viking_evolved_tank:1073329604393173023>', '<:viking_tank:1073329612513366087>']
+tanks = [
+    "<:pumpkin_tank:1022568065034104936>",
+    "<a:pumpkin_evolved_tank_a:1022572757860499486>",
+    "<:eyeball_tank:1022568661745143908>",
+    "<a:skull_tank_a:1022574941591306362>",
+    "<:snowman_tank:1012941920844132362>",
+    "<:snowman_evolved_tank:1012941924094713917>",
+    "<:snowmobile_tank:1012941917337698375>",
+    "<:icy_tank:1012941914254876794>",
+    "<:brain_bot_tank:1006531910224322630>",
+    "<:mine_bot_tank:1006532474945417216>",
+    "<:bot_tank:917467970182189056>",
+    "<:default_tank:996465659812774040>",
+    "<:beta_tank:997947350943277106>",
+    "<:canon_tank:997951207840686162>",
+    "<:hot_dog_tank:997955038435614934>",
+    "<a:wave_tank_a:1001203703325397033>",
+    "<:zig_tank:997954180717215975>",
+    "<:blade_tank:997947874715385856>",
+    "<:buggy_tank:997948966933119016>",
+    "<:burger_evolved_tank:997950412348989562>",
+    "<:burger_tank:997950506976694302>",
+    "<:catapult_evolved_tank:997951715284365323>",
+    "<:catapult_tank:997951809282912346>",
+    "<a:crab_evolved_tank_a:1001203931713654864>",
+    "<a:crab_tank_a:1001203874469793822>",
+    "<:cyclops_tank:997952308333793322>",
+    "<:diamond_tank:997952379595010048>",
+    "<a:dozer_evolved_tank_a:1001204001053876374>",
+    "<:dozer_tank:997952516501278760>",
+    "<:fork_tank:997952581408129084>",
+    "<:fries_tank:997952688656494672>",
+    "<:gears_tank:997952760127434782>",
+    "<:hay_tank:997952813386715148>",
+    "<:hollow_tank:997952878142562384>",
+    "<:medic_tank:997953168673619978>",
+    "<:mixer_tank:997953233098113054>",
+    "<:pagliacci_tank:997953348097560628>",
+    "<:pail_tank:997953413717438575>",
+    "<a:pistons_tank_a:1001208481300369608>",
+    "<a:reactor_tank_a:1024935111461969990>",
+    "<a:spider_evolved_tank_a:1001204256193396856>",
+    "<a:spider_tank_a:1001204193887002704>",
+    "<:spike_tank:997953736041308280>",
+    "<:square_tank:997953791217377381>",
+    "<:trap_tank:997953904610381834>",
+    "<:tread_tank:997953970213494905>",
+    "<:tub_tank:997954029902626886>",
+    "<:tubdown_tank:997954078535598270>",
+    "<:concave_tank:997951897749176450>",
+    "<:crawler_tank:997952124279324753>",
+    "<:log_tank:997953009910829198>",
+    "<:long_tank:997953087006330971>",
+    "<a:UFO_evolved_tank_a:1012268475626033174>",
+    "<a:UFO_tank_a:1012268306482343936>",
+    "<a:miner_tank_a:1003099245777276952>",
+    "<:rover_tank:1003014762327716042>",
+    "<a:bug_tank_a:1001203807893590168>",
+    "<:moai_tank:1006528445355917394>",
+    "<:128bit_tank:1073330000868163624>",
+    "<:16bit_tank:1073329502148644904>",
+    "<:32bit_tank:1073329509824204960>",
+    "<:8bit_tank:1073329497451008140>",
+    "<:army1_tank:1073329520339329145>",
+    "<:army2_tank:1073329525917765683>",
+    "<:army3_tank:1073329532376989746>",
+    "<:army4_tank:1073329538387423262>",
+    "<:champion_s13_tank:1051208428263067728>",
+    "<:champion_s14_tank:1063549554798120960>",
+    "<:champion_s15_tank:1073329544410443897>",
+    "<:giftbox_tank:1073329550492172388>",
+    "<:gingerbread_tank:1073330256578093208>",
+    "<:handheld_tank:1073329559694495854>",
+    "<:pirate_tank:1073329566657032282>",
+    "<:pixel_tank:1073329572218671266>",
+    "<:sailboat_tank:1073329578308812871>",
+    "<:snowflake_tank:1073330011597197384>",
+    "<:snowglobe_tank:1073330262441734164>",
+    "<:tree_evolved_tank:1073330265742643344>",
+    "<:tree_tank:1073329598542123018>",
+    "<:viking_evolved_tank:1073329604393173023>",
+    "<:viking_tank:1073329612513366087>",
+]
 
-os.system('clear')
+os.system("clear")
 
 
 def season_info(season):
     season_durations = []
     season_start_numbers = []
     season_start_timestamps = []
-    for key in server_config['season_definitions']:
-        season_durations.append(key['season_duration'])
-        season_start_numbers.append(key['season_start_number'])
-        season_start_timestamps.append(key['season_start_timestamp'])
+    for key in server_config["season_definitions"]:
+        season_durations.append(key["season_duration"])
+        season_start_numbers.append(key["season_start_number"])
+        season_start_timestamps.append(key["season_start_timestamp"])
 
-    season_index = np.searchsorted(season_start_numbers, season+1)-1
+    season_index = np.searchsorted(season_start_numbers, season + 1) - 1
 
-    season_start_timestamp = season_start_timestamps[season_index] + (
-        season - season_start_numbers[season_index]) * season_durations[season_index]
+    season_start_timestamp = (
+        season_start_timestamps[season_index]
+        + (season - season_start_numbers[season_index]) * season_durations[season_index]
+    )
     season_start = f"{datetime.datetime.utcfromtimestamp(season_start_timestamp):%Y-%m-%d %H:%M:%S} UTC"
 
-    season_end_timestamp = season_start_timestamp + \
-        season_durations[season_index]
+    season_end_timestamp = season_start_timestamp + season_durations[season_index]
     season_end = f"{datetime.datetime.utcfromtimestamp(season_end_timestamp):%Y-%m-%d %H:%M:%S} UTC"
 
     season_duration = season_durations[season_index]
@@ -109,10 +190,12 @@ def season_info(season):
         status = f"\u001b[2;32mIn progress\u001b[0m ({((current_timestamp - season_start_timestamp)/season_duration)*100:.0f} %)"
 
     if season == curr_season:
-        season_difference = (current_timestamp -
-                             season_start_timestamp) / season_duration
+        season_difference = (
+            current_timestamp - season_start_timestamp
+        ) / season_duration
         season_seconds_remaining = (
-            ceil(season_difference) - season_difference) * season_duration
+            ceil(season_difference) - season_difference
+        ) * season_duration
         day = season_seconds_remaining // (24 * 3600)
         hour = season_seconds_remaining % (24 * 3600) // 3600
         minute = season_seconds_remaining % (24 * 3600) % 3600 // 60
@@ -121,8 +204,7 @@ def season_info(season):
     else:
         time_remaining = ""
 
-    all_season_info = [season_start, season_end,
-                       season_days, status, time_remaining]
+    all_season_info = [season_start, season_end, season_days, status, time_remaining]
     return all_season_info
 
 
@@ -142,7 +224,7 @@ def generate_random_name():
         "super",
         "superlative",
         "creaky",
-        "bloody"
+        "bloody",
     ]
 
     noun = [
@@ -162,8 +244,7 @@ def generate_random_name():
         "killing-machine",
     ]
 
-    name = random.choice(adjective).capitalize() + \
-        random.choice(noun).capitalize()
+    name = random.choice(adjective).capitalize() + random.choice(noun).capitalize()
 
     random_number = random.choice([True, False])
 
@@ -174,35 +255,39 @@ def generate_random_name():
 
 
 def change_player_coin(id, name, coins, request=False):
-    if id in db['discord_coins']:  # Old id
-        db['discord_coins'][id]['name'] = name  # Update nickname
+    if id in db["discord_coins"]:  # Old id
+        db["discord_coins"][id]["name"] = name  # Update nickname
     else:  # New id
-        db['discord_coins'][id] = {  # New record
-            'name': name, 'coins': 500, 'coins_change': 0, 'inventory': {}}
-    db['discord_coins'][id]['coins'] += coins
-    db['discord_coins'][id]['coins_change'] += coins
+        db["discord_coins"][id] = {  # New record
+            "name": name,
+            "coins": 500,
+            "coins_change": 0,
+            "inventory": {},
+        }
+    db["discord_coins"][id]["coins"] += coins
+    db["discord_coins"][id]["coins_change"] += coins
     if request == True:
-        return db['discord_coins'][id]['coins']
+        return db["discord_coins"][id]["coins"]
 
 
 def convert_mention_to_id(mention):
     id = mention[2:-1]
-    if id.startswith('!'):
+    if id.startswith("!"):
         id = id[1:]
     return id
 
 
 async def refresh_config():
-    '''Refresh game configuration every 10 minutes'''
+    """Refresh game configuration every 10 minutes"""
     global server_config
 
     while True:
         response = await rocketbot_client.get_config()
-        server_config = json.loads(response['payload'])
+        server_config = json.loads(response["payload"])
 
         # Remove past season keys
         global curr_season
-        curr_season = server_config['season']
+        curr_season = server_config["season"]
         for i in db.prefix("tankkings"):
             if str(curr_season) not in i:
                 del db[i]
@@ -211,16 +296,16 @@ async def refresh_config():
 
 
 async def refresh_config_2():
-    '''Refresh game configuration every 10 minutes'''
+    """Refresh game configuration every 10 minutes"""
     global server_config_2
 
     while True:
         response = await moonrock_client.get_config()
-        server_config_2 = json.loads(response['payload'])
+        server_config_2 = json.loads(response["payload"])
 
         # Remove past season keys
         global curr_season_2
-        curr_season_2 = server_config_2['season']
+        curr_season_2 = server_config_2["season"]
         for i in db.prefix("trophies"):
             if str(curr_season_2) not in i:
                 del db[i]
@@ -230,19 +315,25 @@ async def refresh_config_2():
 
 @client.event
 async def on_message(message: discord.message):
-    if "moyai" in message.content.lower() or "🗿" in message.content.lower() or "moai" in message.content.lower():
+    if (
+        "moyai" in message.content.lower()
+        or "🗿" in message.content.lower()
+        or "moai" in message.content.lower()
+    ):
         await message.add_reaction("🗿")
     if "!idea" in message.content.lower():
         await message.add_reaction("<:upvote:910250647264329728>")
         await message.add_reaction("<:downvote:910250215217459281>")
     # (caps with spaces >= 10) or (repeated character or number >=10)
-    if bool(re.search(r"\w*[A-Z ]{10}", message.content)) or bool(re.search(r"(?:([a-zA-Z0-9])\1{9,})", message.content)):
+    if bool(re.search(r"\w*[A-Z ]{10}", message.content)) or bool(
+        re.search(r"(?:([a-zA-Z0-9])\1{9,})", message.content)
+    ):
         await message.reply("Calm down!")
 
 
 @client.event
 async def on_ready():
-    '''Called when the discord client is ready.'''
+    """Called when the discord client is ready."""
 
     # Start up the 10 minute config refresher
     asyncio.create_task(refresh_config())
@@ -263,7 +354,7 @@ async def on_ready():
 
 @tree.command()
 async def double_or_half(interaction: discord.Interaction):
-    '''Helps you get out of a rut if your balance is negative.'''
+    """Helps you get out of a rut if your balance is negative."""
 
     await interaction.response.defer(ephemeral=False, thinking=True)
 
@@ -277,32 +368,58 @@ async def double_or_half(interaction: discord.Interaction):
     coins = change_player_coin(id, name, 0, True)
 
     if coins > 0:
-        await interaction.followup.send(embed=discord.Embed(description="Dude... your balance isn't negative", color=0xFF0000))
+        await interaction.followup.send(
+            embed=discord.Embed(
+                description="Dude... your balance isn't negative", color=0xFF0000
+            )
+        )
     else:
-        events = {
-            True: 2,
-            False: 1
-        }
-        success = random.choices(population=list(events.keys()), weights=events.values(), k=1)[0]
+        events = {True: 2, False: 1}
+        success = random.choices(
+            population=list(events.keys()), weights=events.values(), k=1
+        )[0]
 
         if success:
-            await interaction.followup.send(embed=discord.Embed(title=f"{interaction.user} tries their hand at resolving their debt...", description=f"Your debt has been halved! New balance: {change_player_coin(id, name, -1 * int(coins / 2), True)}<:coin1:910247623787700264>", color=0x00FF00))
+            await interaction.followup.send(
+                embed=discord.Embed(
+                    title=f"{interaction.user} tries their hand at resolving their debt...",
+                    description=f"Your debt has been halved! New balance: {change_player_coin(id, name, -1 * int(coins / 2), True)}<:coin1:910247623787700264>",
+                    color=0x00FF00,
+                )
+            )
         else:
-            await interaction.followup.send(embed=discord.Embed(title=f"{interaction.user} tries their hand at resolving their debt...", description=f"Lol. Your debt has been doubled. New Balance: {change_player_coin(id, name, coins, True)}<:coin1:910247623787700264>", color=0xFF0000))
+            await interaction.followup.send(
+                embed=discord.Embed(
+                    title=f"{interaction.user} tries their hand at resolving their debt...",
+                    description=f"Lol. Your debt has been doubled. New Balance: {change_player_coin(id, name, coins, True)}<:coin1:910247623787700264>",
+                    color=0xFF0000,
+                )
+            )
+
 
 @tree.command()
 @app_commands.describe(
-    mode='Leaderboard by trophies or points',
-    changes='Only available for Top 50 records of current season, changes since last command used',
-    season='Trophies: Season 10 or later / Points: Season 0 or later, default current'
+    mode="Leaderboard by trophies or points",
+    changes="Only available for Top 50 records of current season, changes since last command used",
+    season="Trophies: Season 10 or later / Points: Season 0 or later, default current",
 )
-async def leaderboard_rocket_bot_royale(interaction: discord.Interaction, mode: typing.Literal['Trophies', 'Points'], changes: typing.Literal['Shown', 'Hidden'], season: int = -1):
-    '''Return the specified season leaderboard of Rocket Bot Royale (by trophies/points), default current'''
+async def leaderboard_rocket_bot_royale(
+    interaction: discord.Interaction,
+    mode: typing.Literal["Trophies", "Points"],
+    changes: typing.Literal["Shown", "Hidden"],
+    season: int = -1,
+):
+    """Return the specified season leaderboard of Rocket Bot Royale (by trophies/points), default current"""
 
     await interaction.response.defer(ephemeral=False, thinking=True)
 
     def check(reaction, user):
-        return user == interaction.user and str(reaction.emoji) in ["◀️", "▶️", "⏪", "⏹️"]
+        return user == interaction.user and str(reaction.emoji) in [
+            "◀️",
+            "▶️",
+            "⏪",
+            "⏹️",
+        ]
         # This makes sure nobody except the command sender can interact with the "menu"
 
     # Reassign season if unreasonable
@@ -315,8 +432,15 @@ async def leaderboard_rocket_bot_royale(interaction: discord.Interaction, mode: 
 
     # Season Info
     global season_info_2
-    season_info_2 = f"📓 ***Season Info***:\n```ansi\n{'Start: ':>10}{season_info(season)[0]}\n{'End: ':>10}{season_info(season)[1]}\n{'Duration: ':>10}{season_info(season)[2]}\n{'Status: ':>10}{season_info(season)[3]}\n" + (
-        f"{'Ends in: ':>10}{season_info(season)[4]}\n" if season == curr_season else "") + "```"
+    season_info_2 = (
+        f"📓 ***Season Info***:\n```ansi\n{'Start: ':>10}{season_info(season)[0]}\n{'End: ':>10}{season_info(season)[1]}\n{'Duration: ':>10}{season_info(season)[2]}\n{'Status: ':>10}{season_info(season)[3]}\n"
+        + (
+            f"{'Ends in: ':>10}{season_info(season)[4]}\n"
+            if season == curr_season
+            else ""
+        )
+        + "```"
+    )
 
     # Hide changes for past seasons
     if season < curr_season:
@@ -330,18 +454,20 @@ async def leaderboard_rocket_bot_royale(interaction: discord.Interaction, mode: 
 
     if mode == "Trophies":
         response = await rocketbot_client.query_leaderboard(
-            season, "tankkings_trophies", limit)
+            season, "tankkings_trophies", limit
+        )
     elif mode == "Points":
         response = await rocketbot_client.query_leaderboard(
-            season, "tankkings_points", limit)
-    records = json.loads(response['payload'])['records']
-    start = records[0]['rank']
-    end = records[len(records)-1]['rank']
+            season, "tankkings_points", limit
+        )
+    records = json.loads(response["payload"])["records"]
+    start = records[0]["rank"]
+    end = records[len(records) - 1]["rank"]
     cursor_dict = dict()
     cursor_dict[1] = ""
 
     try:
-        cursor_dict[2] = json.loads(response['payload'])['next_cursor']
+        cursor_dict[2] = json.loads(response["payload"])["next_cursor"]
         next_cursor = True
     except:
         next_cursor = False
@@ -352,18 +478,22 @@ async def leaderboard_rocket_bot_royale(interaction: discord.Interaction, mode: 
         if f"tankkings_{mode.lower()}_{season}" not in db.keys():
             value = dict()
             for record in records:
-                value[record['owner_id']] = {
-                    'rank': record['rank'], 'score': record['score']}
-            value['last_update_time'] = f"{datetime.datetime.utcfromtimestamp(time.time()):%Y-%m-%d %H:%M:%S} UTC"
-            db[record['leaderboard_id']] = value
+                value[record["owner_id"]] = {
+                    "rank": record["rank"],
+                    "score": record["score"],
+                }
+            value[
+                "last_update_time"
+            ] = f"{datetime.datetime.utcfromtimestamp(time.time()):%Y-%m-%d %H:%M:%S} UTC"
+            db[record["leaderboard_id"]] = value
             new_key_flag = True
 
         if mode == "Trophies":  # By Tropihes
             split = []
             tier = []
             for i in range(5):
-                split.append(server_config['trophy_tiers'][i]['maximum_rank'])
-                tier.append(server_config['trophy_tiers'][i]['name'])
+                split.append(server_config["trophy_tiers"][i]["maximum_rank"])
+                tier.append(server_config["trophy_tiers"][i]["name"])
             tier_color_code = ["35", "36", "33", "34", "31"]
 
             # Using f-string spacing to pretty print the leaderboard labels (bold)
@@ -378,13 +508,16 @@ async def leaderboard_rocket_bot_royale(interaction: discord.Interaction, mode: 
 
             for i in range(records_range):
                 # Determine which tier the player belongs to
-                tier_index = np.searchsorted(split, records[i]['rank'])
+                tier_index = np.searchsorted(split, records[i]["rank"])
 
                 # Rank difference
                 try:
-                    rank_diff = records[i]['rank'] - \
-                        db[records[i]['leaderboard_id']
-                           ][records[i]['owner_id']]['rank']
+                    rank_diff = (
+                        records[i]["rank"]
+                        - db[records[i]["leaderboard_id"]][records[i]["owner_id"]][
+                            "rank"
+                        ]
+                    )
                     if rank_diff < 0:
                         rank_diff_2 = f"\u001b[2;32m▲{abs(rank_diff):<3}\u001b[0m"
                     elif rank_diff > 0:
@@ -398,18 +531,36 @@ async def leaderboard_rocket_bot_royale(interaction: discord.Interaction, mode: 
                 message += f"{rank_diff_2}\u001b[1;{tier_color_code[tier_index]}m{'#' + str(records[i]['rank']):<5}\u001b[0m "
 
                 # Name and color for players with season pass
-                message += ("\u001b[1;33m" if records[i]['metadata']['has_season_pass'] else "") + f"{records[i]['username']:<20}" + (
-                    "\u001b[0m " if records[i]['metadata']['has_season_pass'] else " ")
+                message += (
+                    (
+                        "\u001b[1;33m"
+                        if records[i]["metadata"]["has_season_pass"]
+                        else ""
+                    )
+                    + f"{records[i]['username']:<20}"
+                    + (
+                        "\u001b[0m "
+                        if records[i]["metadata"]["has_season_pass"]
+                        else " "
+                    )
+                )
 
                 # Trophies difference
                 try:
-                    trophies_diff = records[i]['score'] - \
-                        db[records[i]['leaderboard_id']
-                           ][records[i]['owner_id']]['score']
+                    trophies_diff = (
+                        records[i]["score"]
+                        - db[records[i]["leaderboard_id"]][records[i]["owner_id"]][
+                            "score"
+                        ]
+                    )
                     if trophies_diff < 0:
-                        trophies_diff_2 = f"\u001b[2;31m-{abs(trophies_diff):<4}\u001b[0m"
+                        trophies_diff_2 = (
+                            f"\u001b[2;31m-{abs(trophies_diff):<4}\u001b[0m"
+                        )
                     elif trophies_diff > 0:
-                        trophies_diff_2 = f"\u001b[2;32m+{abs(trophies_diff):<4}\u001b[0m"
+                        trophies_diff_2 = (
+                            f"\u001b[2;32m+{abs(trophies_diff):<4}\u001b[0m"
+                        )
                     else:
                         trophies_diff_2 = f"{'-':^5}"
                 except:
@@ -420,8 +571,8 @@ async def leaderboard_rocket_bot_royale(interaction: discord.Interaction, mode: 
                 message += f"{'🏆' + '{:<6,.0f}'.format(records[i]['score'])}{trophies_diff_2}\n"
 
                 # Tier separators (bold)
-                if (records[i]['rank'] in split and records[i]['rank'] % 25 != 0):
-                    tier_name_with_space = " "+tier[tier_index]+" "
+                if records[i]["rank"] in split and records[i]["rank"] % 25 != 0:
+                    tier_name_with_space = " " + tier[tier_index] + " "
                     message += f"\u001b[1;{tier_color_code[tier_index]}m{tier_name_with_space.center(45, '─')}\u001b[0m\n"
 
         elif mode == "Points":  # By Points
@@ -438,8 +589,12 @@ async def leaderboard_rocket_bot_royale(interaction: discord.Interaction, mode: 
             for i in range(records_range):
                 # Rank difference
                 try:
-                    rank_diff = records[i]['rank'] - db[records[i]
-                                                        ['leaderboard_id']][records[i]['owner_id']]['rank']
+                    rank_diff = (
+                        records[i]["rank"]
+                        - db[records[i]["leaderboard_id"]][records[i]["owner_id"]][
+                            "rank"
+                        ]
+                    )
                     if rank_diff < 0:
                         rank_diff_2 = f"\u001b[2;32m▲{abs(rank_diff):<3}\u001b[0m"
                     elif rank_diff > 0:
@@ -455,17 +610,29 @@ async def leaderboard_rocket_bot_royale(interaction: discord.Interaction, mode: 
                 # Name and color for players with season pass
                 try:  # For seasons without 'has season pass' key
                     message += (
-                        "\u001b[1;33m" if records[i]['metadata']['has_season_pass']
-                        else "") + f"{records[i]['username']:<20}" + (
-                            "\u001b[0m " if records[i]['metadata']['has_season_pass']
-                            else " ")
+                        (
+                            "\u001b[1;33m"
+                            if records[i]["metadata"]["has_season_pass"]
+                            else ""
+                        )
+                        + f"{records[i]['username']:<20}"
+                        + (
+                            "\u001b[0m "
+                            if records[i]["metadata"]["has_season_pass"]
+                            else " "
+                        )
+                    )
                 except:
                     message += f"{records[i]['username']:<20} "  # Name only
 
                 # Points difference
                 try:
-                    points_diff = records[i]['score'] - db[records[i]
-                                                           ['leaderboard_id']][records[i]['owner_id']]['score']
+                    points_diff = (
+                        records[i]["score"]
+                        - db[records[i]["leaderboard_id"]][records[i]["owner_id"]][
+                            "score"
+                        ]
+                    )
                     if points_diff > 0:
                         points_diff_2 = f"\u001b[2;32m+{abs(points_diff):<5}\u001b[0m"
                     else:
@@ -475,16 +642,33 @@ async def leaderboard_rocket_bot_royale(interaction: discord.Interaction, mode: 
                     points_diff_2 = f"{'':<6}"
 
                 # Points
-                message += f"{'🧊' + '{:<8,.0f}'.format(records[i]['score'])}{points_diff_2}\n"
+                message += (
+                    f"{'🧊' + '{:<8,.0f}'.format(records[i]['score'])}{points_diff_2}\n"
+                )
 
         # Split message
         cannot_split = False  # Prevent index out of range error
         split_line_number = 26 if mode == "Trophies" else 24  # Evenly split message
         try:  # In case there are not enough records
-            message1 = message[:[m.start() for m in re.finditer(r"\n", message)]
-                               [split_line_number]]
-            message2 = message[([m.start() for m in re.finditer(r"\n", message)]
-                                [split_line_number])+1:] + ("\u001b[1;31m———————————————————— RUBY ———————————————————\u001b[0m\n" if mode == "Trophies" else "")+"```"
+            message1 = message[
+                : [m.start() for m in re.finditer(r"\n", message)][split_line_number]
+            ]
+            message2 = (
+                message[
+                    (
+                        [m.start() for m in re.finditer(r"\n", message)][
+                            split_line_number
+                        ]
+                    )
+                    + 1 :
+                ]
+                + (
+                    "\u001b[1;31m———————————————————— RUBY ———————————————————\u001b[0m\n"
+                    if mode == "Trophies"
+                    else ""
+                )
+                + "```"
+            )
         except:
             cannot_split = True
 
@@ -492,45 +676,79 @@ async def leaderboard_rocket_bot_royale(interaction: discord.Interaction, mode: 
         if cannot_split == False:
             cur_page = 1
             embed_init = discord.Embed(
-                title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode}):", description=label+message1+("\n\u001b[1;31m———————————————————— RUBY ———————————————————\u001b[0m\n" if mode == "Trophies" else "")+"```")
+                title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode}):",
+                description=label
+                + message1
+                + (
+                    "\n\u001b[1;31m———————————————————— RUBY ———————————————————\u001b[0m\n"
+                    if mode == "Trophies"
+                    else ""
+                )
+                + "```",
+            )
             embed_init.set_footer(
-                text=f"Page 1/2:  1 to 25 | Changes since {db[f'tankkings_{mode.lower()}_{season}']['last_update_time']}")
+                text=f"Page 1/2:  1 to 25 | Changes since {db[f'tankkings_{mode.lower()}_{season}']['last_update_time']}"
+            )
             msg = await interaction.followup.send(embed=embed_init)
-            msg2 = await interaction.followup.send(embed=discord.Embed(description="To be edited..."))
+            msg2 = await interaction.followup.send(
+                embed=discord.Embed(description="To be edited...")
+            )
 
             for reaction_emoji in ["◀️", "▶️", "⏹️"]:
                 await msg.add_reaction(reaction_emoji)
 
             while True:
                 try:
-                    reaction, user = await client.wait_for("reaction_add", timeout=10, check=check)
+                    reaction, user = await client.wait_for(
+                        "reaction_add", timeout=10, check=check
+                    )
                     # Waiting for a reaction to be added - times out after 10 seconds
 
                     if str(reaction.emoji) == "▶️" and cur_page == 1:  # Go to Page 2
                         cur_page += 1
                         embed_first = discord.Embed(
-                            title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode}):", description="\n"+label+message2)
+                            title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode}):",
+                            description="\n" + label + message2,
+                        )
                         embed_first.set_footer(
-                            text=f"Page 2/2: 26 to 50 | Changes since {db[f'tankkings_{mode.lower()}_{season}']['last_update_time']}")
+                            text=f"Page 2/2: 26 to 50 | Changes since {db[f'tankkings_{mode.lower()}_{season}']['last_update_time']}"
+                        )
                         await msg.edit(embed=embed_first)
                         await msg.remove_reaction(reaction, user)
 
                     elif str(reaction.emoji) == "◀️" and cur_page == 2:  # Go to Page 1
                         cur_page -= 1
                         embed_second = discord.Embed(
-                            title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode}):", description="\n"+label+message1+("\n\u001b[1;31m———————————————————— RUBY ———————————————————\u001b[0m\n" if mode == "Trophies" else "")+"```")
+                            title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode}):",
+                            description="\n"
+                            + label
+                            + message1
+                            + (
+                                "\n\u001b[1;31m———————————————————— RUBY ———————————————————\u001b[0m\n"
+                                if mode == "Trophies"
+                                else ""
+                            )
+                            + "```",
+                        )
                         embed_second.set_footer(
-                            text=f"Page 1/2:  1 to 25 | Changes since {db[f'tankkings_{mode.lower()}_{season}']['last_update_time']}")
+                            text=f"Page 1/2:  1 to 25 | Changes since {db[f'tankkings_{mode.lower()}_{season}']['last_update_time']}"
+                        )
                         await msg.edit(embed=embed_second)
                         await msg.remove_reaction(reaction, user)
 
                     elif str(reaction.emoji) == "⏹️":  # Exit page view and end the loop
-                        await msg.edit(embed=discord.Embed(
-                            title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode}):", description=label+message1+"```"))
+                        await msg.edit(
+                            embed=discord.Embed(
+                                title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode}):",
+                                description=label + message1 + "```",
+                            )
+                        )
                         embed_second_timeout = discord.Embed(
-                            description="```ansi\n"+message2)
+                            description="```ansi\n" + message2
+                        )
                         embed_second_timeout.set_footer(
-                            text=f"Changes since {db[f'tankkings_{mode.lower()}_{season}']['last_update_time']}")
+                            text=f"Changes since {db[f'tankkings_{mode.lower()}_{season}']['last_update_time']}"
+                        )
                         await msg2.edit(embed=embed_second_timeout)
                         await msg.clear_reactions()
                         break
@@ -539,41 +757,68 @@ async def leaderboard_rocket_bot_royale(interaction: discord.Interaction, mode: 
                         await msg.remove_reaction(reaction, user)
                         # Removes reactions if invalid
                 except asyncio.TimeoutError:
-                    await msg.edit(embed=discord.Embed(
-                        title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode}):", description=label+message1+"```"))
+                    await msg.edit(
+                        embed=discord.Embed(
+                            title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode}):",
+                            description=label + message1 + "```",
+                        )
+                    )
                     embed_second_timeout = discord.Embed(
-                        description="```ansi\n"+message2)
+                        description="```ansi\n" + message2
+                    )
                     embed_second_timeout.set_footer(
-                        text=f"Changes since {db[f'tankkings_{mode.lower()}_{season}']['last_update_time']}")
+                        text=f"Changes since {db[f'tankkings_{mode.lower()}_{season}']['last_update_time']}"
+                    )
                     await msg2.edit(embed=embed_second_timeout)
                     await msg.clear_reactions()
                     break
                     # Ending the loop if user doesn't react after 10 seconds
         elif cannot_split == True:  # Send in 1 message if there are too little records
-            await interaction.followup.send(embed=discord.Embed(
-                title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode}):", description=label+message+"```"))
+            await interaction.followup.send(
+                embed=discord.Embed(
+                    title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode}):",
+                    description=label + message + "```",
+                )
+            )
 
         # Update to repl.it's database for old keys
-        if (f"tankkings_{mode.lower()}_{season}" in db.keys()) and (new_key_flag == False):
+        if (f"tankkings_{mode.lower()}_{season}" in db.keys()) and (
+            new_key_flag == False
+        ):
             value = dict()
             for record in records:
-                value[record['owner_id']] = {
-                    'rank': record['rank'], 'score': record['score']}
-            value['last_update_time'] = f"{datetime.datetime.utcfromtimestamp(time.time()):%Y-%m-%d %H:%M:%S} UTC"
-            db[record['leaderboard_id']] = value
+                value[record["owner_id"]] = {
+                    "rank": record["rank"],
+                    "score": record["score"],
+                }
+            value[
+                "last_update_time"
+            ] = f"{datetime.datetime.utcfromtimestamp(time.time()):%Y-%m-%d %H:%M:%S} UTC"
+            db[record["leaderboard_id"]] = value
 
     elif changes == "Hidden":
         if mode == "Trophies":  # By Tropihes
+
             def trophies_hidden(last=True, fifty=False):
                 split = []
                 tier = []
                 for i in range(12):
-                    split.append(
-                        server_config['trophy_tiers'][i]['maximum_rank'])
-                    tier.append(
-                        server_config['trophy_tiers'][i]['name'])
-                tier_color_code = ["35", "36", "33", "34", "31",
-                                   "32", "35", "31", "33", "30", "37", "37"]
+                    split.append(server_config["trophy_tiers"][i]["maximum_rank"])
+                    tier.append(server_config["trophy_tiers"][i]["name"])
+                tier_color_code = [
+                    "35",
+                    "36",
+                    "33",
+                    "34",
+                    "31",
+                    "32",
+                    "35",
+                    "31",
+                    "33",
+                    "30",
+                    "37",
+                    "37",
+                ]
 
                 # Using f-string spacing to pretty print the leaderboard labels (bold)
                 message = f"{season_info_2}\n📊 ***Leaderboard***:```ansi\n\u001b[1m{'Rank:':<5} {'Name:':<20} {'Trophies:'}\u001b[0m\n{'─' * 37}\n"
@@ -581,15 +826,26 @@ async def leaderboard_rocket_bot_royale(interaction: discord.Interaction, mode: 
                 # Using f-string spacing to pretty print the leaderboard
                 for record in records:
                     # Determine which tier the player belongs to
-                    tier_index = np.searchsorted(split, record['rank'])
+                    tier_index = np.searchsorted(split, record["rank"])
 
                     # Rank (bold)
                     message += f"\u001b[1;{tier_color_code[tier_index]}m{'#' + str(record['rank']):<5}\u001b[0m "
 
                     # Name and color for players with season pass
                     try:  # For seasons without 'has season pass' key
-                        message += ("\u001b[1;33m" if record['metadata']['has_season_pass'] else "") + f"{record['username']:<20}" + (
-                            "\u001b[0m " if record['metadata']['has_season_pass'] else " ")
+                        message += (
+                            (
+                                "\u001b[1;33m"
+                                if record["metadata"]["has_season_pass"]
+                                else ""
+                            )
+                            + f"{record['username']:<20}"
+                            + (
+                                "\u001b[0m "
+                                if record["metadata"]["has_season_pass"]
+                                else " "
+                            )
+                        )
                     except:
                         message += f"{record['username']:<20} "  # Name only
 
@@ -597,22 +853,31 @@ async def leaderboard_rocket_bot_royale(interaction: discord.Interaction, mode: 
                     message += f"{'🏆' + '{:,}'.format(record['score'])}\n"
 
                     # Tier separators (bold)
-                    if (record['rank'] in split and record['rank'] % 25 != 0) or (last == True and record['rank'] % 25 == 0) or (len(records) != 25 and record['rank'] % 25 == len(records)):
-                        tier_name_with_space = " "+tier[tier_index]+" "
+                    if (
+                        (record["rank"] in split and record["rank"] % 25 != 0)
+                        or (last == True and record["rank"] % 25 == 0)
+                        or (len(records) != 25 and record["rank"] % 25 == len(records))
+                    ):
+                        tier_name_with_space = " " + tier[tier_index] + " "
                         message += f"\u001b[1;{tier_color_code[tier_index]}m{tier_name_with_space.center(37, '─')}\u001b[0m\n"
 
                 if fifty == True:
-                    message += "\u001b[1;31m──────────────── RUBY ───────────────\u001b[0m\n"
+                    message += (
+                        "\u001b[1;31m──────────────── RUBY ───────────────\u001b[0m\n"
+                    )
                 message += "```"
                 return message
 
             message = f"```ansi\n\u001b[1m{'Rank:':<5} {'Name:':<20} {'Trophies:'}\u001b[0m\n{'─' * 37}\n"
 
         elif mode == "Points":  # By Points
+
             def points_hidden():
                 # Using f-string spacing to pretty print the leaderboard labels (bold)
-                message = (f"{season_info_2}\n📊 ***Leaderboard***:" if season != 0 else "") + \
-                    f"```ansi\n\u001b[1m{'Rank:':<5} {'Name:':<20} {'Points:'}\u001b[0m\n{'─' * 37}\n"
+                message = (
+                    (f"{season_info_2}\n📊 ***Leaderboard***:" if season != 0 else "")
+                    + f"```ansi\n\u001b[1m{'Rank:':<5} {'Name:':<20} {'Points:'}\u001b[0m\n{'─' * 37}\n"
+                )
 
                 # Using f-string spacing to pretty print the leaderboard
                 for record in records:
@@ -621,8 +886,19 @@ async def leaderboard_rocket_bot_royale(interaction: discord.Interaction, mode: 
 
                     # Name and color for players with season pass
                     try:  # For seasons without 'has season pass' key
-                        message += ("\u001b[1;33m" if record['metadata']['has_season_pass'] else "") + f"{record['username']:<20}" + (
-                            "\u001b[0m " if record['metadata']['has_season_pass'] else " ")
+                        message += (
+                            (
+                                "\u001b[1;33m"
+                                if record["metadata"]["has_season_pass"]
+                                else ""
+                            )
+                            + f"{record['username']:<20}"
+                            + (
+                                "\u001b[0m "
+                                if record["metadata"]["has_season_pass"]
+                                else " "
+                            )
+                        )
                     except:
                         message += f"{record['username']:<20} "  # Name only
 
@@ -633,10 +909,11 @@ async def leaderboard_rocket_bot_royale(interaction: discord.Interaction, mode: 
 
         # Send
         cur_page = 1
-        embed_init = discord.Embed(title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode}):", description=(
-            points_hidden() if mode == "Points" else trophies_hidden()))
-        embed_init.set_footer(
-            text=f"Page {cur_page:<2}: {start:<4} to {end:<4}")
+        embed_init = discord.Embed(
+            title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode}):",
+            description=(points_hidden() if mode == "Points" else trophies_hidden()),
+        )
+        embed_init.set_footer(text=f"Page {cur_page:<2}: {start:<4} to {end:<4}")
         msg = await interaction.followup.send(embed=embed_init)
 
         for reaction_emoji in ["◀️", "▶️", "⏪", "⏹️"]:
@@ -644,61 +921,120 @@ async def leaderboard_rocket_bot_royale(interaction: discord.Interaction, mode: 
 
         while True:
             try:
-                reaction, user = await client.wait_for("reaction_add", timeout=10, check=check)
+                reaction, user = await client.wait_for(
+                    "reaction_add", timeout=10, check=check
+                )
                 # Waiting for a reaction to be added - times out after 10 seconds
 
                 if str(reaction.emoji) == "▶️" and next_cursor != False:  # Next page
                     cur_page += 1
                     response = await rocketbot_client.query_leaderboard(
-                        season, ("tankkings_points" if mode == "Points" else "tankkings_trophies"), 25, cursor_dict[cur_page])
-                    records = json.loads(response['payload'])['records']
-                    start = records[0]['rank']
-                    end = records[len(records)-1]['rank']
+                        season,
+                        (
+                            "tankkings_points"
+                            if mode == "Points"
+                            else "tankkings_trophies"
+                        ),
+                        25,
+                        cursor_dict[cur_page],
+                    )
+                    records = json.loads(response["payload"])["records"]
+                    start = records[0]["rank"]
+                    end = records[len(records) - 1]["rank"]
                     try:
-                        cursor_dict[cur_page +
-                                    1] = json.loads(response['payload'])['next_cursor']
+                        cursor_dict[cur_page + 1] = json.loads(response["payload"])[
+                            "next_cursor"
+                        ]
                     except:
                         next_cursor = False  # Does not exist
-                    embed_next = discord.Embed(title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode}):", description=(
-                        points_hidden() if mode == "Points" else trophies_hidden()))
+                    embed_next = discord.Embed(
+                        title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode}):",
+                        description=(
+                            points_hidden() if mode == "Points" else trophies_hidden()
+                        ),
+                    )
                     embed_next.set_footer(
-                        text=f"Page {cur_page:<2}: {start:<4} to {end:<4}")
+                        text=f"Page {cur_page:<2}: {start:<4} to {end:<4}"
+                    )
                     await msg.edit(embed=embed_next)
                     await msg.remove_reaction(reaction, user)
 
                 elif str(reaction.emoji) == "◀️" and cur_page > 1:  # Previous page
                     cur_page -= 1
                     response = await rocketbot_client.query_leaderboard(
-                        season, ("tankkings_points" if mode == "Points" else "tankkings_trophies"), 25, cursor_dict[cur_page])
-                    records = json.loads(response['payload'])['records']
-                    start = records[0]['rank']
-                    end = records[len(records)-1]['rank']
-                    embed_prev = discord.Embed(title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode}):", description=(
-                        points_hidden() if mode == "Points" else trophies_hidden()))
+                        season,
+                        (
+                            "tankkings_points"
+                            if mode == "Points"
+                            else "tankkings_trophies"
+                        ),
+                        25,
+                        cursor_dict[cur_page],
+                    )
+                    records = json.loads(response["payload"])["records"]
+                    start = records[0]["rank"]
+                    end = records[len(records) - 1]["rank"]
+                    embed_prev = discord.Embed(
+                        title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode}):",
+                        description=(
+                            points_hidden() if mode == "Points" else trophies_hidden()
+                        ),
+                    )
                     embed_prev.set_footer(
-                        text=f"Page {cur_page:<2}: {start:<4} to {end:<4}")
+                        text=f"Page {cur_page:<2}: {start:<4} to {end:<4}"
+                    )
                     await msg.edit(embed=embed_prev)
                     await msg.remove_reaction(reaction, user)
 
                 elif str(reaction.emoji) == "⏪" and cur_page != 1:  # First page
                     cur_page = 1
                     next_cursor = True
-                    response = await rocketbot_client.query_leaderboard(season, ("tankkings_points" if mode == "Points" else "tankkings_trophies"), 25, cursor_dict[cur_page])
-                    records = json.loads(response['payload'])['records']
-                    start = records[0]['rank']
-                    end = records[len(records)-1]['rank']
-                    embed_first = discord.Embed(title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode}):", description=(
-                        points_hidden() if mode == "Points" else trophies_hidden()))
+                    response = await rocketbot_client.query_leaderboard(
+                        season,
+                        (
+                            "tankkings_points"
+                            if mode == "Points"
+                            else "tankkings_trophies"
+                        ),
+                        25,
+                        cursor_dict[cur_page],
+                    )
+                    records = json.loads(response["payload"])["records"]
+                    start = records[0]["rank"]
+                    end = records[len(records) - 1]["rank"]
+                    embed_first = discord.Embed(
+                        title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode}):",
+                        description=(
+                            points_hidden() if mode == "Points" else trophies_hidden()
+                        ),
+                    )
                     embed_first.set_footer(
-                        text=f"Page {cur_page:<2}: {start:<4} to {end:<4}")
+                        text=f"Page {cur_page:<2}: {start:<4} to {end:<4}"
+                    )
                     await msg.edit(embed=embed_first)
                     await msg.remove_reaction(reaction, user)
 
                 elif str(reaction.emoji) == "⏹️":  # Exit page view and end the loop
                     response = await rocketbot_client.query_leaderboard(
-                        season, ("tankkings_points" if mode == "Points" else "tankkings_trophies"), 50)
-                    records = json.loads(response['payload'])['records']
-                    await msg.edit(embed=discord.Embed(title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode}):", description=(points_hidden() if mode == "Points" else trophies_hidden(False, True))))
+                        season,
+                        (
+                            "tankkings_points"
+                            if mode == "Points"
+                            else "tankkings_trophies"
+                        ),
+                        50,
+                    )
+                    records = json.loads(response["payload"])["records"]
+                    await msg.edit(
+                        embed=discord.Embed(
+                            title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode}):",
+                            description=(
+                                points_hidden()
+                                if mode == "Points"
+                                else trophies_hidden(False, True)
+                            ),
+                        )
+                    )
                     await msg.clear_reactions()
                     break
 
@@ -707,9 +1043,21 @@ async def leaderboard_rocket_bot_royale(interaction: discord.Interaction, mode: 
                     # Removes reactions if invalid
             except asyncio.TimeoutError:
                 response = await rocketbot_client.query_leaderboard(
-                    season, ("tankkings_points" if mode == "Points" else "tankkings_trophies"), 50)
-                records = json.loads(response['payload'])['records']
-                await msg.edit(embed=discord.Embed(title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode}):", description=(points_hidden() if mode == "Points" else trophies_hidden(False, True))))
+                    season,
+                    ("tankkings_points" if mode == "Points" else "tankkings_trophies"),
+                    50,
+                )
+                records = json.loads(response["payload"])["records"]
+                await msg.edit(
+                    embed=discord.Embed(
+                        title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode}):",
+                        description=(
+                            points_hidden()
+                            if mode == "Points"
+                            else trophies_hidden(False, True)
+                        ),
+                    )
+                )
                 await msg.clear_reactions()
                 break
                 # Ending the loop if user doesn't react after 10 seconds
@@ -717,16 +1065,25 @@ async def leaderboard_rocket_bot_royale(interaction: discord.Interaction, mode: 
 
 @tree.command()
 @app_commands.describe(
-    changes='Only available for Top 50 records of current season, changes since last command used',
-    season='Beta Season 14 or later'
+    changes="Only available for Top 50 records of current season, changes since last command used",
+    season="Beta Season 14 or later",
 )
-async def leaderboard_moonrock_miners(interaction: discord.Interaction, changes: typing.Literal['Shown', 'Hidden'], season: int = -1):
-    '''Return the specified season leaderboard of Moonrock Miners, default current'''
+async def leaderboard_moonrock_miners(
+    interaction: discord.Interaction,
+    changes: typing.Literal["Shown", "Hidden"],
+    season: int = -1,
+):
+    """Return the specified season leaderboard of Moonrock Miners, default current"""
 
     await interaction.response.defer(ephemeral=False, thinking=True)
 
     def check(reaction, user):
-        return user == interaction.user and str(reaction.emoji) in ["◀️", "▶️", "⏪", "⏹️"]
+        return user == interaction.user and str(reaction.emoji) in [
+            "◀️",
+            "▶️",
+            "⏪",
+            "⏹️",
+        ]
         # This makes sure nobody except the command sender can interact with the "menu"
 
     # Reassign season if unreasonable
@@ -744,14 +1101,14 @@ async def leaderboard_moonrock_miners(interaction: discord.Interaction, changes:
         limit = 25
 
     response = await moonrock_client.query_leaderboard(season, "trophies", limit)
-    records = json.loads(response['payload'])['records']
-    start = records[0]['rank']
-    end = records[len(records)-1]['rank']
+    records = json.loads(response["payload"])["records"]
+    start = records[0]["rank"]
+    end = records[len(records) - 1]["rank"]
     cursor_dict = dict()
     cursor_dict[1] = ""
 
     try:
-        cursor_dict[2] = json.loads(response['payload'])['next_cursor']
+        cursor_dict[2] = json.loads(response["payload"])["next_cursor"]
         next_cursor = True
     except:
         next_cursor = False
@@ -762,10 +1119,14 @@ async def leaderboard_moonrock_miners(interaction: discord.Interaction, changes:
         if f"trophies_{season}" not in db.keys():
             value = dict()
             for record in records:
-                value[record['owner_id']] = {
-                    'rank': record['rank'], 'score': record['score']}
-            value['last_update_time'] = f"{datetime.datetime.utcfromtimestamp(time.time()):%Y-%m-%d %H:%M:%S} UTC"
-            db[record['leaderboard_id']] = value
+                value[record["owner_id"]] = {
+                    "rank": record["rank"],
+                    "score": record["score"],
+                }
+            value[
+                "last_update_time"
+            ] = f"{datetime.datetime.utcfromtimestamp(time.time()):%Y-%m-%d %H:%M:%S} UTC"
+            db[record["leaderboard_id"]] = value
             new_key_flag = True
 
         # Using f-string spacing to pretty print the leaderboard labels (bold)
@@ -781,8 +1142,10 @@ async def leaderboard_moonrock_miners(interaction: discord.Interaction, changes:
         for i in range(records_range):
             # Rank difference
             try:
-                rank_diff = records[i]['rank'] - db[records[i]
-                                                    ['leaderboard_id']][records[i]['owner_id']]['rank']
+                rank_diff = (
+                    records[i]["rank"]
+                    - db[records[i]["leaderboard_id"]][records[i]["owner_id"]]["rank"]
+                )
                 if rank_diff < 0:
                     rank_diff_2 = f"\u001b[2;32m▲{abs(rank_diff):<3}\u001b[0m"
                 elif rank_diff > 0:
@@ -793,15 +1156,19 @@ async def leaderboard_moonrock_miners(interaction: discord.Interaction, changes:
                 rank_diff_2 = f"{'':<4}"  # Not found ind repl.it's database
 
             # Rank (bold)
-            message += f"{rank_diff_2}\u001b[1m{'#' + str(records[i]['rank']):<5}\u001b[0m "
+            message += (
+                f"{rank_diff_2}\u001b[1m{'#' + str(records[i]['rank']):<5}\u001b[0m "
+            )
 
             # Name
             message += f"{records[i]['username']:<20} "
 
             # Trophies difference
             try:
-                trophies_diff = records[i]['score'] - db[records[i]
-                                                         ['leaderboard_id']][records[i]['owner_id']]['score']
+                trophies_diff = (
+                    records[i]["score"]
+                    - db[records[i]["leaderboard_id"]][records[i]["owner_id"]]["score"]
+                )
                 if trophies_diff < 0:
                     trophies_diff_2 = f"\u001b[2;31m-{abs(trophies_diff):<4}\u001b[0m"
                 elif trophies_diff > 0:
@@ -812,15 +1179,18 @@ async def leaderboard_moonrock_miners(interaction: discord.Interaction, changes:
                 trophies_diff_2 = f"{'':<5}"
 
             # Trophies
-            message += f"{'🏆' + '{:<6,.0f}'.format(records[i]['score'])} {trophies_diff_2}\n"
+            message += (
+                f"{'🏆' + '{:<6,.0f}'.format(records[i]['score'])} {trophies_diff_2}\n"
+            )
 
         # Split message
         cannot_split = False  # Prevent index out of range error
         try:  # In case there are not enough records
-            message1 = message[:[m.start()
-                                 for m in re.finditer(r"\n", message)][24]]
-            message2 = message[([m.start()
-                                 for m in re.finditer(r"\n", message)][24])+1:] + "```"
+            message1 = message[: [m.start() for m in re.finditer(r"\n", message)][24]]
+            message2 = (
+                message[([m.start() for m in re.finditer(r"\n", message)][24]) + 1 :]
+                + "```"
+            )
         except:
             cannot_split = True
 
@@ -828,45 +1198,64 @@ async def leaderboard_moonrock_miners(interaction: discord.Interaction, changes:
         if cannot_split == False:
             cur_page = 1
             embed_init = discord.Embed(
-                title=f"Moonrock Miners 🛸\nBeta Season {season} Leaderboard:", description=label+message1+"```")
+                title=f"Moonrock Miners 🛸\nBeta Season {season} Leaderboard:",
+                description=label + message1 + "```",
+            )
             embed_init.set_footer(
-                text=f"Page 1/2:  1 to 25 | Changes since {db[f'trophies_{season}']['last_update_time']}")
+                text=f"Page 1/2:  1 to 25 | Changes since {db[f'trophies_{season}']['last_update_time']}"
+            )
             msg = await interaction.followup.send(embed=embed_init)
-            msg2 = await interaction.followup.send(embed=discord.Embed(description="To be edited..."))
+            msg2 = await interaction.followup.send(
+                embed=discord.Embed(description="To be edited...")
+            )
 
             for reaction_emoji in ["◀️", "▶️", "⏹️"]:
                 await msg.add_reaction(reaction_emoji)
 
             while True:
                 try:
-                    reaction, user = await client.wait_for("reaction_add", timeout=10, check=check)
+                    reaction, user = await client.wait_for(
+                        "reaction_add", timeout=10, check=check
+                    )
                     # Waiting for a reaction to be added - times out after 10 seconds
 
                     if str(reaction.emoji) == "▶️" and cur_page == 1:  # Go to Page 2
                         cur_page += 1
                         embed_first = discord.Embed(
-                            title=f"Moonrock Miners 🛸\nBeta Season {season} Leaderboard:", description="\n"+label+message2)
+                            title=f"Moonrock Miners 🛸\nBeta Season {season} Leaderboard:",
+                            description="\n" + label + message2,
+                        )
                         embed_first.set_footer(
-                            text=f"Page 2/2: 26 to 50 | Changes since {db[f'trophies_{season}']['last_update_time']}")
+                            text=f"Page 2/2: 26 to 50 | Changes since {db[f'trophies_{season}']['last_update_time']}"
+                        )
                         await msg.edit(embed=embed_first)
                         await msg.remove_reaction(reaction, user)
 
                     elif str(reaction.emoji) == "◀️" and cur_page == 2:  # Go to Page 1
                         cur_page -= 1
                         embed_second = discord.Embed(
-                            title=f"Moonrock Miners 🛸\nBeta Season {season} Leaderboard:", description="\n"+label+message1+"```")
+                            title=f"Moonrock Miners 🛸\nBeta Season {season} Leaderboard:",
+                            description="\n" + label + message1 + "```",
+                        )
                         embed_second.set_footer(
-                            text=f"Page 1/2:  1 to 25 | Changes since {db[f'trophies_{season}']['last_update_time']}")
+                            text=f"Page 1/2:  1 to 25 | Changes since {db[f'trophies_{season}']['last_update_time']}"
+                        )
                         await msg.edit(embed=embed_second)
                         await msg.remove_reaction(reaction, user)
 
                     elif str(reaction.emoji) == "⏹️":  # Exit page view and end the loop
-                        await msg.edit(embed=discord.Embed(
-                            title=f"Moonrock Miners 🛸\nBeta Season {season} Leaderboard:", description=label+message1+"```"))
+                        await msg.edit(
+                            embed=discord.Embed(
+                                title=f"Moonrock Miners 🛸\nBeta Season {season} Leaderboard:",
+                                description=label + message1 + "```",
+                            )
+                        )
                         embed_second_timeout = discord.Embed(
-                            description="```ansi\n"+message2)
+                            description="```ansi\n" + message2
+                        )
                         embed_second_timeout.set_footer(
-                            text=f"Changes since {db[f'trophies_{season}']['last_update_time']}")
+                            text=f"Changes since {db[f'trophies_{season}']['last_update_time']}"
+                        )
                         await msg2.edit(embed=embed_second_timeout)
                         await msg.clear_reactions()
                         break
@@ -875,30 +1264,45 @@ async def leaderboard_moonrock_miners(interaction: discord.Interaction, changes:
                         await msg.remove_reaction(reaction, user)
                         # Removes reactions if invalid
                 except asyncio.TimeoutError:
-                    await msg.edit(embed=discord.Embed(
-                        title=f"Moonrock Miners 🛸\nBeta Season {season} Leaderboard:", description=label+message1+"```"))
+                    await msg.edit(
+                        embed=discord.Embed(
+                            title=f"Moonrock Miners 🛸\nBeta Season {season} Leaderboard:",
+                            description=label + message1 + "```",
+                        )
+                    )
                     embed_second_timeout = discord.Embed(
-                        description="```ansi\n"+message2)
+                        description="```ansi\n" + message2
+                    )
                     embed_second_timeout.set_footer(
-                        text=f"Changes since {db[f'trophies_{season}']['last_update_time']}")
+                        text=f"Changes since {db[f'trophies_{season}']['last_update_time']}"
+                    )
                     await msg2.edit(embed=embed_second_timeout)
                     await msg.clear_reactions()
                     break
                     # Ending the loop if user doesn't react after 10 seconds
         elif cannot_split == True:  # Send in 1 message if there are too little records
-            await interaction.followup.send(embed=discord.Embed(
-                title=f"Moonrock Miners 🛸\nBeta Season {season} Leaderboard:", description=label+message+"```"))
+            await interaction.followup.send(
+                embed=discord.Embed(
+                    title=f"Moonrock Miners 🛸\nBeta Season {season} Leaderboard:",
+                    description=label + message + "```",
+                )
+            )
 
         # Update to replit's database for old keys
         if (f"trophies_{season}" in db.keys()) and (new_key_flag == False):
             value = dict()
             for record in records:
-                value[record['owner_id']] = {
-                    'rank': record['rank'], 'score': record['score']}
-            value['last_update_time'] = f"{datetime.datetime.utcfromtimestamp(time.time()):%Y-%m-%d %H:%M:%S} UTC"
-            db[record['leaderboard_id']] = value
+                value[record["owner_id"]] = {
+                    "rank": record["rank"],
+                    "score": record["score"],
+                }
+            value[
+                "last_update_time"
+            ] = f"{datetime.datetime.utcfromtimestamp(time.time()):%Y-%m-%d %H:%M:%S} UTC"
+            db[record["leaderboard_id"]] = value
 
     elif changes == "Hidden":
+
         def hidden():
             # Using f-string spacing to pretty print the leaderboard labels (bold)
             message = f"```ansi\n\u001b[1m{'Rank:':<5} {'Name:':<20} {'Points:'}\u001b[0m\n{'─' * 37}\n"
@@ -919,9 +1323,10 @@ async def leaderboard_moonrock_miners(interaction: discord.Interaction, changes:
         # Send
         cur_page = 1
         embed_init = discord.Embed(
-            title=f"Moonrock Miners 🛸\nBeta Season {season} Leaderboard:", description=hidden())
-        embed_init.set_footer(
-            text=f"Page {cur_page:<2}: {start:<4} to {end:<4}")
+            title=f"Moonrock Miners 🛸\nBeta Season {season} Leaderboard:",
+            description=hidden(),
+        )
+        embed_init.set_footer(text=f"Page {cur_page:<2}: {start:<4} to {end:<4}")
         msg = await interaction.followup.send(embed=embed_init)
 
         for reaction_emoji in ["◀️", "▶️", "⏪", "⏹️"]:
@@ -929,61 +1334,83 @@ async def leaderboard_moonrock_miners(interaction: discord.Interaction, changes:
 
         while True:
             try:
-                reaction, user = await client.wait_for("reaction_add", timeout=10, check=check)
+                reaction, user = await client.wait_for(
+                    "reaction_add", timeout=10, check=check
+                )
                 # Waiting for a reaction to be added - times out after 10 seconds
 
                 if str(reaction.emoji) == "▶️" and next_cursor != False:  # Next page
                     cur_page += 1
                     response = await moonrock_client.query_leaderboard(
-                        season, "trophies", 25, cursor_dict[cur_page])
-                    records = json.loads(response['payload'])['records']
-                    start = records[0]['rank']
-                    end = records[len(records)-1]['rank']
+                        season, "trophies", 25, cursor_dict[cur_page]
+                    )
+                    records = json.loads(response["payload"])["records"]
+                    start = records[0]["rank"]
+                    end = records[len(records) - 1]["rank"]
                     try:
-                        cursor_dict[cur_page +
-                                    1] = json.loads(response['payload'])['next_cursor']
+                        cursor_dict[cur_page + 1] = json.loads(response["payload"])[
+                            "next_cursor"
+                        ]
                     except:
                         next_cursor = False  # Does not exist
                     embed_next = discord.Embed(
-                        title=f"Moonrock Miners 🛸\nBeta Season {season} Leaderboard:", description=hidden())
+                        title=f"Moonrock Miners 🛸\nBeta Season {season} Leaderboard:",
+                        description=hidden(),
+                    )
                     embed_next.set_footer(
-                        text=f"Page {cur_page:<2}: {start:<4} to {end:<4}")
+                        text=f"Page {cur_page:<2}: {start:<4} to {end:<4}"
+                    )
                     await msg.edit(embed=embed_next)
                     await msg.remove_reaction(reaction, user)
 
                 elif str(reaction.emoji) == "◀️" and cur_page > 1:  # Previous page
                     cur_page -= 1
                     response = await moonrock_client.query_leaderboard(
-                        season, "trophies", 25, cursor_dict[cur_page])
-                    records = json.loads(response['payload'])['records']
-                    start = records[0]['rank']
-                    end = records[len(records)-1]['rank']
+                        season, "trophies", 25, cursor_dict[cur_page]
+                    )
+                    records = json.loads(response["payload"])["records"]
+                    start = records[0]["rank"]
+                    end = records[len(records) - 1]["rank"]
                     embed_prev = discord.Embed(
-                        title=f"Moonrock Miners 🛸\nBeta Season {season} Leaderboard:", description=hidden())
+                        title=f"Moonrock Miners 🛸\nBeta Season {season} Leaderboard:",
+                        description=hidden(),
+                    )
                     embed_prev.set_footer(
-                        text=f"Page {cur_page:<2}: {start:<4} to {end:<4}")
+                        text=f"Page {cur_page:<2}: {start:<4} to {end:<4}"
+                    )
                     await msg.edit(embed=embed_prev)
                     await msg.remove_reaction(reaction, user)
 
                 elif str(reaction.emoji) == "⏪" and cur_page != 1:  # First page
                     cur_page = 1
                     next_cursor = True
-                    response = await moonrock_client.query_leaderboard(season, "trophies", 25, cursor_dict[cur_page])
-                    records = json.loads(response['payload'])['records']
-                    start = records[0]['rank']
-                    end = records[len(records)-1]['rank']
+                    response = await moonrock_client.query_leaderboard(
+                        season, "trophies", 25, cursor_dict[cur_page]
+                    )
+                    records = json.loads(response["payload"])["records"]
+                    start = records[0]["rank"]
+                    end = records[len(records) - 1]["rank"]
                     embed_first = discord.Embed(
-                        title=f"Moonrock Miners 🛸\nBeta Season {season} Leaderboard:", description=hidden())
+                        title=f"Moonrock Miners 🛸\nBeta Season {season} Leaderboard:",
+                        description=hidden(),
+                    )
                     embed_first.set_footer(
-                        text=f"Page {cur_page:<2}: {start:<4} to {end:<4}")
+                        text=f"Page {cur_page:<2}: {start:<4} to {end:<4}"
+                    )
                     await msg.edit(embed=embed_first)
                     await msg.remove_reaction(reaction, user)
 
                 elif str(reaction.emoji) == "⏹️":  # Exit page view and end the loop
                     response = await moonrock_client.query_leaderboard(
-                        season, "trophies", 50)
-                    records = json.loads(response['payload'])['records']
-                    await msg.edit(embed=discord.Embed(title=f"Moonrock Miners 🛸\nBeta Season {season} Leaderboard:", description=hidden()))
+                        season, "trophies", 50
+                    )
+                    records = json.loads(response["payload"])["records"]
+                    await msg.edit(
+                        embed=discord.Embed(
+                            title=f"Moonrock Miners 🛸\nBeta Season {season} Leaderboard:",
+                            description=hidden(),
+                        )
+                    )
                     await msg.clear_reactions()
                     break
 
@@ -992,9 +1419,15 @@ async def leaderboard_moonrock_miners(interaction: discord.Interaction, changes:
                     # Removes reactions if invalid
             except asyncio.TimeoutError:
                 response = await moonrock_client.query_leaderboard(
-                    season, "trophies", 50)
-                records = json.loads(response['payload'])['records']
-                await msg.edit(embed=discord.Embed(title=f"Moonrock Miners 🛸\nBeta Season {season} Leaderboard:", description=hidden()))
+                    season, "trophies", 50
+                )
+                records = json.loads(response["payload"])["records"]
+                await msg.edit(
+                    embed=discord.Embed(
+                        title=f"Moonrock Miners 🛸\nBeta Season {season} Leaderboard:",
+                        description=hidden(),
+                    )
+                )
                 await msg.clear_reactions()
                 break
                 # Ending the loop if user doesn't react after 10 seconds
@@ -1002,84 +1435,123 @@ async def leaderboard_moonrock_miners(interaction: discord.Interaction, changes:
 
 @tree.command()
 @app_commands.describe(
-    user_type='Use either User ID or Friend ID of the user',
-    id='User ID or Friend ID of the user',
-    section='Section(s) to be shown'
+    user_type="Use either User ID or Friend ID of the user",
+    id="User ID or Friend ID of the user",
+    section="Section(s) to be shown",
 )
-async def get_user(interaction: discord.Interaction, user_type: typing.Literal['User ID', 'Friend ID'], id: str, section: typing.Literal['📓 General Info only', 'with 📊 Season Top 50 Records', 'with 🛡️ Badges', 'with 🗒️ Stats', 'with 🥅 Current Goals', 'with 📦 Items Collected', 'with 🪖 Tanks', 'with 🪂 Parachutes', 'with 🌟 Trails', 'with All Cosmetics', 'All']):
-    '''Return info about a specified user'''
+async def get_user(
+    interaction: discord.Interaction,
+    user_type: typing.Literal["User ID", "Friend ID"],
+    id: str,
+    section: typing.Literal[
+        "📓 General Info only",
+        "with 📊 Season Top 50 Records",
+        "with 🛡️ Badges",
+        "with 🗒️ Stats",
+        "with 🥅 Current Goals",
+        "with 📦 Items Collected",
+        "with 🪖 Tanks",
+        "with 🪂 Parachutes",
+        "with 🌟 Trails",
+        "with All Cosmetics",
+        "All",
+    ],
+):
+    """Return info about a specified user"""
 
     await interaction.response.defer(ephemeral=False, thinking=True)
 
     # If the user specified a friend code we need to query the server for their ID.
     try:
-        if (user_type == "Friend ID"):
+        if user_type == "Friend ID":
             id_response = await rocketbot_client.friend_code_to_id(id)
-            id = json.loads(id_response['payload'])['user_id']
+            id = json.loads(id_response["payload"])["user_id"]
 
         # Get user data
         response = await rocketbot_client.get_user(id)
-        user_data = json.loads(response['payload'])[0]
-        metadata = user_data['metadata']
+        user_data = json.loads(response["payload"])[0]
+        metadata = user_data["metadata"]
     except aiohttp.ClientResponseError:
         # The code is wrong, send an error response
-        await interaction.followup.send(embed=discord.Embed(color=discord.Color.red(),
-                                           title="❌ Player not found ❌"))
+        await interaction.followup.send(
+            embed=discord.Embed(color=discord.Color.red(), title="❌ Player not found ❌")
+        )
         return
 
     # Get award config
-    awards_config = server_config['awards']
-    default_award = {'type': "Unknown", "name": "Unknown"}
+    awards_config = server_config["awards"]
+    default_award = {"type": "Unknown", "name": "Unknown"}
 
     # Get goal config
-    goals_config = server_config['player_goals']
+    goals_config = server_config["player_goals"]
     default_goal = {"name": "Unknown"}
-    
+
     # Get general player info
-    username = user_data['display_name']
-    is_online = user_data['online']
-    create_time = user_data['create_time']
+    username = user_data["display_name"]
+    is_online = user_data["online"]
+    create_time = user_data["create_time"]
     try:
-        timed_bonus_last_collect = metadata['timed_bonus_last_collect']
+        timed_bonus_last_collect = metadata["timed_bonus_last_collect"]
     except:
         timed_bonus_last_collect = "N.A."
-    current_tank = metadata['skin'].replace(
-        '_', ' ').split()[0].title() + " " + awards_config.get(
-            awards_config.get(metadata['skin'], default_award)['skin_name'],
-            default_award)['name']
-    current_trail = awards_config.get(metadata['trail'], default_award)['name']
-    current_parachute = awards_config.get(metadata['parachute'],
-                                          default_award)['name']
-    current_badge = awards_config.get(metadata['badge'], default_award)['name']
+    current_tank = (
+        metadata["skin"].replace("_", " ").split()[0].title()
+        + " "
+        + awards_config.get(
+            awards_config.get(metadata["skin"], default_award)["skin_name"],
+            default_award,
+        )["name"]
+    )
+    current_trail = awards_config.get(metadata["trail"], default_award)["name"]
+    current_parachute = awards_config.get(metadata["parachute"], default_award)["name"]
+    current_badge = awards_config.get(metadata["badge"], default_award)["name"]
     try:
-        has_season_pass = server_config['season'] in metadata['season_passes']
+        has_season_pass = server_config["season"] in metadata["season_passes"]
     except:
         has_season_pass = False
-    level = metadata['progress']['level']
-    XP = metadata['progress']['xp']
-    friend_code = metadata['friend_code']
-    id = user_data['user_id']
+    level = metadata["progress"]["level"]
+    XP = metadata["progress"]["xp"]
+    friend_code = metadata["friend_code"]
+    id = user_data["user_id"]
 
     # Add general player info
     general_info = "```ansi\n"
     general_info += f"Username: {username}\n"
-    general_info += "Online: \u001b[2;" + ("32" if is_online else "31") + f"m{is_online}\u001b[0m\n"
+    general_info += (
+        "Online: \u001b[2;" + ("32" if is_online else "31") + f"m{is_online}\u001b[0m\n"
+    )
     general_info += f"Create Time: {datetime.datetime.fromtimestamp(create_time):%Y-%m-%d %H:%M:%S}\n"
-    general_info += "Timed Bonus Last Collect: " + (f"{datetime.datetime.fromtimestamp(timed_bonus_last_collect):%Y-%m-%d %H:%M:%S}\n" if timed_bonus_last_collect != "N.A." else "N.A.\n")
+    general_info += "Timed Bonus Last Collect: " + (
+        f"{datetime.datetime.fromtimestamp(timed_bonus_last_collect):%Y-%m-%d %H:%M:%S}\n"
+        if timed_bonus_last_collect != "N.A."
+        else "N.A.\n"
+    )
     general_info += f"Current Tank: {current_tank}\n"
     general_info += f"Current Trail: {current_trail}\n"
     general_info += f"Current Parachute: {current_parachute}\n"
     general_info += f"Current Badge: {current_badge}\n"
-    general_info += "Has Season Pass: \u001b[2;"+ ("32" if has_season_pass else "31") + f"m{has_season_pass}\u001b[0m\n"
+    general_info += (
+        "Has Season Pass: \u001b[2;"
+        + ("32" if has_season_pass else "31")
+        + f"m{has_season_pass}\u001b[0m\n"
+    )
     general_info += f"Level: {level}\n"
-    max_level = len(server_config['player_progression']['xp_levels'])
+    max_level = len(server_config["player_progression"]["xp_levels"])
     try:
-        XP_target = server_config['player_progression']['xp_levels'][level][str(level+1)]['xp_target']
+        XP_target = server_config["player_progression"]["xp_levels"][level][
+            str(level + 1)
+        ]["xp_target"]
         reach_max_level = False
     except IndexError:
-        XP_target = server_config['player_progression']['xp_levels'][-1][str(max_level)]['xp_target']
+        XP_target = server_config["player_progression"]["xp_levels"][-1][
+            str(max_level)
+        ]["xp_target"]
         reach_max_level = True
-    general_info += f"XP: {XP}/{XP_target} (" + ("MAX" if reach_max_level else f"{XP/XP_target*100:.0f}%") + ")\n"
+    general_info += (
+        f"XP: {XP}/{XP_target} ("
+        + ("MAX" if reach_max_level else f"{XP/XP_target*100:.0f}%")
+        + ")\n"
+    )
     general_info += f"Friend Code: {friend_code}\n"
     general_info += f"User ID: {id}\n"
     general_info += "```"
@@ -1088,33 +1560,39 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
     message1 = ""
     message1 += f"📓 ***General Info***:\n{general_info}\n"
 
-    # Send 
-    await interaction.followup.send(embed=discord.Embed(description=message1, color=0x00C6FE))
-    
+    # Send
+    await interaction.followup.send(
+        embed=discord.Embed(description=message1, color=0x00C6FE)
+    )
+
     if section in {"with 📊 Season Top 50 Records", "All"}:
         # Create season records list
         season_top_50_records_list = "```ansi\n"
 
         points_label = "\u001b[1;2mBy points (Season 1 to 10)\u001b[0m\n"
         points = f"{'Season:':<8}{'Rank:':<7}{'Points:':<9}\n{'─'*24}\n"
-        trophies_label = f"\u001b[1;2mBy trophies (Season 11 to {curr_season - 1})\u001b[0m\n"
+        trophies_label = (
+            f"\u001b[1;2mBy trophies (Season 11 to {curr_season - 1})\u001b[0m\n"
+        )
         trophies = f"{'Season:':<8}{'Rank:':<7}{'Trophies:':<9}\n{'─'*24}\n"
         points_record = False
         trophies_record = False
 
         for i in range(1, curr_season):  # From first season to previous season
-            response = await rocketbot_client.query_leaderboard(i, ("tankkings_points" if i <= 10 else "tankkings_trophies"), 50)
-            records = json.loads(response['payload'])['records']
+            response = await rocketbot_client.query_leaderboard(
+                i, ("tankkings_points" if i <= 10 else "tankkings_trophies"), 50
+            )
+            records = json.loads(response["payload"])["records"]
             for record in records:
-                if record['owner_id'] == id:  # Records found (Top 50)
-                    if record['rank'] == 1:
-                        rank_emoji = '🥇'
-                    elif record['rank'] == 2:
-                        rank_emoji = '🥈'
-                    elif record['rank'] == 3:
-                        rank_emoji = '🥉'
+                if record["owner_id"] == id:  # Records found (Top 50)
+                    if record["rank"] == 1:
+                        rank_emoji = "🥇"
+                    elif record["rank"] == 2:
+                        rank_emoji = "🥈"
+                    elif record["rank"] == 3:
+                        rank_emoji = "🥉"
                     else:
-                        rank_emoji = '  '
+                        rank_emoji = "  "
                     if i <= 10:
                         points_record = True
                         points += f"{i:^8}{rank_emoji:<1}{record['rank']:<5}🧊{record['score']:<9,.0f}\n"
@@ -1127,8 +1605,9 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
             if points_record == True:
                 season_top_50_records_list += points_label + points
             if trophies_record == True:
-                season_top_50_records_list += ("\n" if points_record ==
-                                               True else "") + trophies_label + trophies
+                season_top_50_records_list += (
+                    ("\n" if points_record == True else "") + trophies_label + trophies
+                )
         season_top_50_records_list += "```"
 
         # Add to embed
@@ -1136,18 +1615,20 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
         message2 += f"📊 ***Season Top 50 Records***:\n{season_top_50_records_list}\n"
 
         # Send
-        await interaction.followup.send(embed=discord.Embed(description=message2, color=0x00C6FE))
-    
+        await interaction.followup.send(
+            embed=discord.Embed(description=message2, color=0x00C6FE)
+        )
+
     if section in {"with 🛡️ Badges", "All"}:
         # Create badge list
         badge_list = "```\n"
 
-        for badge in metadata['awards']:
+        for badge in metadata["awards"]:
             award = awards_config.get(badge, default_award)
-            type = award['type']
+            type = award["type"]
 
             if type == "badge":
-                badge_list += award['name'] + "\n"
+                badge_list += award["name"] + "\n"
         badge_list += "```"
 
         # Add to embed
@@ -1155,8 +1636,10 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
         message3 += f"🛡️ ***Badges***:\n{badge_list}\n"
 
         # Send
-        await interaction.followup.send(embed=discord.Embed(description=message3, color=0x00C6FE))
-        
+        await interaction.followup.send(
+            embed=discord.Embed(description=message3, color=0x00C6FE)
+        )
+
     if section in {"with 🗒️ Stats", "All"}:
         # Create stats
         stat_list = "```ansi\n"
@@ -1218,53 +1701,60 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
             "jetpacks_used": 0,
             "whirlwinds_used": 0,
             "blocks_using_proj": 0,
-            "blocks_using_shield": 0
+            "blocks_using_shield": 0,
         }
-        for key, value in metadata['stats'].items():
+        for key, value in metadata["stats"].items():
             keys_order[key] = value
 
         # Plot Kills by Weapons pie chart
-        data_stream = io.BytesIO() # Initialize IO
-        
+        data_stream = io.BytesIO()  # Initialize IO
+
         labels = []
         sizes = []
         for key in keys_order:
             if "kills_using" in key and keys_order[key] != 0:
-              if "triple-shot" in key:
-                labels.append(key.replace("kills_using_", "").replace("triple-shot", "rapidfire").title())
-              else:
-                labels.append(key.replace("kills_using_", "").title())
-              sizes.append(keys_order[key])
+                if "triple-shot" in key:
+                    labels.append(
+                        key.replace("kills_using_", "")
+                        .replace("triple-shot", "rapidfire")
+                        .title()
+                    )
+                else:
+                    labels.append(key.replace("kills_using_", "").title())
+                sizes.append(keys_order[key])
 
         fig1, ax1 = plt.subplots(facecolor=("#2f3137"), figsize=(5, 6))
-        ax1.set_title(user_data['display_name'] +
-                    '\'s\n Kills Using Weapons distribution\n(Missiles excluded)',
-                    color="#FFFFFF",
-                    fontsize=16,
-                    pad=0)
-        ax1.pie(sizes,
-                labels=labels,
-                autopct=lambda p: '{:.1f}%\n({:.0f})'.format(p,
-                                                                p * sum(sizes) / 100),
-                startangle=90,
-                textprops={'color': "#FFFFFF", 'fontsize': 8},
-                wedgeprops={
-                    "edgecolor": "#FFFFFF",
-                    'linewidth': 1,
-                    'antialiased': True
-                },
-                pctdistance=0.85)
-        ax1.axis('equal')
+        ax1.set_title(
+            user_data["display_name"]
+            + "'s\n Kills Using Weapons distribution\n(Missiles excluded)",
+            color="#FFFFFF",
+            fontsize=16,
+            pad=0,
+        )
+        ax1.pie(
+            sizes,
+            labels=labels,
+            autopct=lambda p: "{:.1f}%\n({:.0f})".format(p, p * sum(sizes) / 100),
+            startangle=90,
+            textprops={"color": "#FFFFFF", "fontsize": 8},
+            wedgeprops={"edgecolor": "#FFFFFF", "linewidth": 1, "antialiased": True},
+            pctdistance=0.85,
+        )
+        ax1.axis("equal")
 
         plt.tight_layout()
-        plt.savefig(data_stream, format='png', dpi=150)
+        plt.savefig(data_stream, format="png", dpi=150)
         plt.close()
 
         # Avoid divided by zero error
         try:
-            total_games_played = keys_order["games_played"] + keys_order[
-                "deathmatch_played"] + keys_order["teams_played"] + keys_order[
-                "squads_played"] + keys_order["minemayhem_played"]
+            total_games_played = (
+                keys_order["games_played"]
+                + keys_order["deathmatch_played"]
+                + keys_order["teams_played"]
+                + keys_order["squads_played"]
+                + keys_order["minemayhem_played"]
+            )
         except:
             total_games_played = 0
         try:
@@ -1328,8 +1818,9 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
         except:
             top_5_pct = 0
         try:
-            deathmatch_won_pct = keys_order["deathmatch_won"] / keys_order[
-            "deathmatch_played"]
+            deathmatch_won_pct = (
+                keys_order["deathmatch_won"] / keys_order["deathmatch_played"]
+            )
         except:
             deathmatch_won_pct = 0
         try:
@@ -1341,133 +1832,322 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
         except:
             teams_won_pct = 0
         try:
-            minemayhem_won_pct = keys_order["minemayhem_won"] / keys_order[
-            "minemayhem_played"]
+            minemayhem_won_pct = (
+                keys_order["minemayhem_won"] / keys_order["minemayhem_played"]
+            )
         except:
             minemayhem_won_pct = 0
         try:
-            kills_using_drill_pct = keys_order["kills_using_drill"] / keys_order[
-            "drills_used"]
+            kills_using_drill_pct = (
+                keys_order["kills_using_drill"] / keys_order["drills_used"]
+            )
         except:
             kills_using_drill_pct = 0
         try:
-            kills_using_flak_pct = keys_order["kills_using_flak"] / keys_order[
-            "flaks_used"]
+            kills_using_flak_pct = (
+                keys_order["kills_using_flak"] / keys_order["flaks_used"]
+            )
         except:
             kills_using_flak_pct = 0
         try:
-            kills_using_grenade_pct = keys_order["kills_using_grenade"] / keys_order[
-            "grenades_used"]
+            kills_using_grenade_pct = (
+                keys_order["kills_using_grenade"] / keys_order["grenades_used"]
+            )
         except:
             kills_using_grenade_pct = 0
         try:
-            kills_using_homing_pct = keys_order["kills_using_homing"] / keys_order[
-            "homings_used"]
+            kills_using_homing_pct = (
+                keys_order["kills_using_homing"] / keys_order["homings_used"]
+            )
         except:
             kills_using_homing_pct = 0
         try:
-            kills_using_mine_pct = keys_order["kills_using_mine"] / keys_order[
-            "mines_used"]
+            kills_using_mine_pct = (
+                keys_order["kills_using_mine"] / keys_order["mines_used"]
+            )
         except:
             kills_using_mine_pct = 0
         try:
-            kills_using_nuke_pct = keys_order["kills_using_nuke"] / keys_order[
-            "nukes_used"]
+            kills_using_nuke_pct = (
+                keys_order["kills_using_nuke"] / keys_order["nukes_used"]
+            )
         except:
             kills_using_nuke_pct = 0
         try:
-            kills_using_poison_pct = keys_order["kills_using_poison"] / keys_order[
-            "poisons_used"]
+            kills_using_poison_pct = (
+                keys_order["kills_using_poison"] / keys_order["poisons_used"]
+            )
         except:
             kills_using_poison_pct = 0
         try:
-            kills_using_shield_pct = keys_order["kills_using_shield"] / keys_order[
-            "shields_used"]
+            kills_using_shield_pct = (
+                keys_order["kills_using_shield"] / keys_order["shields_used"]
+            )
         except:
             kills_using_shield_pct = 0
         try:
-            kills_using_triple_shot_pct = keys_order[
-            "kills_using_triple-shot"] / keys_order["triple-shots_used"]
+            kills_using_triple_shot_pct = (
+                keys_order["kills_using_triple-shot"] / keys_order["triple-shots_used"]
+            )
         except:
             kills_using_triple_shot_pct = 0
         try:
-            kills_using_missiles = keys_order["total_kills"] - keys_order[
-                "kills_using_drill"] - keys_order["kills_using_flak"] - keys_order[
-                "kills_using_grenade"] - keys_order[
-                    "kills_using_homing"] - keys_order[
-                    "kills_using_mine"] - keys_order["kills_using_nuke"] - keys_order[
-                        "kills_using_poison"] - keys_order[
-                        "kills_using_shield"] - keys_order["kills_using_triple-shot"]
+            kills_using_missiles = (
+                keys_order["total_kills"]
+                - keys_order["kills_using_drill"]
+                - keys_order["kills_using_flak"]
+                - keys_order["kills_using_grenade"]
+                - keys_order["kills_using_homing"]
+                - keys_order["kills_using_mine"]
+                - keys_order["kills_using_nuke"]
+                - keys_order["kills_using_poison"]
+                - keys_order["kills_using_shield"]
+                - keys_order["kills_using_triple-shot"]
+            )
         except:
             kills_using_missiles = 0
         try:
-            kills_using_missiles_pct = kills_using_missiles / keys_order[
-                "missiles_fired"]
+            kills_using_missiles_pct = (
+                kills_using_missiles / keys_order["missiles_fired"]
+            )
         except:
             kills_using_missiles_pct = 0
         try:
             blocks_using_proj_pct = keys_order["blocks_using_proj"] / (
-                keys_order["blocks_using_proj"] + keys_order["blocks_using_shield"])
+                keys_order["blocks_using_proj"] + keys_order["blocks_using_shield"]
+            )
         except:
             blocks_using_proj_pct = 0
         try:
             blocks_using_shield_pct = keys_order["blocks_using_shield"] / (
-                keys_order["blocks_using_proj"] + keys_order["blocks_using_shield"])
+                keys_order["blocks_using_proj"] + keys_order["blocks_using_shield"]
+            )
         except:
             blocks_using_shield_pct = 0
 
-        keys_order["meters_driven"] = "{:.1f}".format(keys_order["meters_driven"] / 1000) + " km"
-        keys_order["5_kills"] = "{:<6}".format(keys_order["5_kills"]) + "(" + f"{five_kills_pct*100:>2.0f}" + "%) †"
-        keys_order["player_kills"] = "{:<6}".format(keys_order["player_kills"]) + "(" + f"{player_kills_pct*100:>2.0f}" + "%)"
-        keys_order["bot_kills"] = "{:<6}".format(keys_order["bot_kills"]) + "(" + f"{bot_kills_pct*100:>2.0f}" + "%)"
+        keys_order["meters_driven"] = (
+            "{:.1f}".format(keys_order["meters_driven"] / 1000) + " km"
+        )
+        keys_order["5_kills"] = (
+            "{:<6}".format(keys_order["5_kills"])
+            + "("
+            + f"{five_kills_pct*100:>2.0f}"
+            + "%) †"
+        )
+        keys_order["player_kills"] = (
+            "{:<6}".format(keys_order["player_kills"])
+            + "("
+            + f"{player_kills_pct*100:>2.0f}"
+            + "%)"
+        )
+        keys_order["bot_kills"] = (
+            "{:<6}".format(keys_order["bot_kills"])
+            + "("
+            + f"{bot_kills_pct*100:>2.0f}"
+            + "%)"
+        )
         keys_order["K/D Ratio"] = KDR
-        keys_order["assists"] = "{:<6}".format(keys_order["assists"]) + "(" + f"{assists_pct*100:>2.0f}" + "%) †"
-        keys_order["dunk_tanks"] = "{:<6}".format(keys_order["dunk_tanks"]) + "(" + f"{dunk_tanks_pct*100:>2.0f}" + "%) †"
-        keys_order["first_bloods"] = "{:<6}".format(keys_order["first_bloods"]) + "(" + f"{first_bloods_pct*100:>2.0f}" + "%) †"
-        keys_order["snipers"] = "{:<6}".format(keys_order["snipers"]) + "(" + f"{snipers_pct*100:>2.0f}" + "%) †"
-        keys_order["two_birdss"] = "{:<6}".format(keys_order["two_birdss"]) + "(" + f"{two_birdss_pct*100:>2.0f}" + "%) †"
-        keys_order["yardsales"] = "{:<6}".format(keys_order["yardsales"]) + "(" + f"{yardsales_pct*100:>2.0f}" + "%) †"
-        keys_order["double_kills"] = "{:<6}".format(keys_order["double_kills"]) + "(" + f"{double_kills_pct*100:>2.0f}" + "%) †"
-        keys_order["triple_kills"] = "{:<6}".format(keys_order["triple_kills"]) + "(" + f"{triple_kills_pct*100:>2.0f}" + "%) †"
-        keys_order["quad_kills"] = "{:<6}".format(keys_order["quad_kills"]) + "(" + f"{quad_kills_pct*100:>2.0f}" + "%) †"
-        keys_order["games_won"] = "{:<6}".format(keys_order["games_won"]) + "(" + f"{games_won_pct*100:>2.0f}" + "%)"
-        keys_order["top_5"] = "{:<6}".format(keys_order["top_5"]) + "(" + f"{top_5_pct*100:>2.0f}" + "%)"
-        keys_order["deathmatch_won"] = "{:<6}".format(keys_order["deathmatch_won"]) + "(" + f"{deathmatch_won_pct*100:>2.0f}" + "%)"
-        keys_order["squads_won"] = "{:<6}".format(keys_order["squads_won"]) + "(" + f"{squads_won_pct*100:>2.0f}" + "%)"
-        keys_order["teams_won"] = "{:<6}".format(keys_order["teams_won"]) + "(" + f"{teams_won_pct*100:>2.0f}" + "%)"
-        keys_order["minemayhem_won"] = "{:<6}".format(keys_order["minemayhem_won"]) + "(" + f"{minemayhem_won_pct*100:>2.0f}" + "%)"
+        keys_order["assists"] = (
+            "{:<6}".format(keys_order["assists"])
+            + "("
+            + f"{assists_pct*100:>2.0f}"
+            + "%) †"
+        )
+        keys_order["dunk_tanks"] = (
+            "{:<6}".format(keys_order["dunk_tanks"])
+            + "("
+            + f"{dunk_tanks_pct*100:>2.0f}"
+            + "%) †"
+        )
+        keys_order["first_bloods"] = (
+            "{:<6}".format(keys_order["first_bloods"])
+            + "("
+            + f"{first_bloods_pct*100:>2.0f}"
+            + "%) †"
+        )
+        keys_order["snipers"] = (
+            "{:<6}".format(keys_order["snipers"])
+            + "("
+            + f"{snipers_pct*100:>2.0f}"
+            + "%) †"
+        )
+        keys_order["two_birdss"] = (
+            "{:<6}".format(keys_order["two_birdss"])
+            + "("
+            + f"{two_birdss_pct*100:>2.0f}"
+            + "%) †"
+        )
+        keys_order["yardsales"] = (
+            "{:<6}".format(keys_order["yardsales"])
+            + "("
+            + f"{yardsales_pct*100:>2.0f}"
+            + "%) †"
+        )
+        keys_order["double_kills"] = (
+            "{:<6}".format(keys_order["double_kills"])
+            + "("
+            + f"{double_kills_pct*100:>2.0f}"
+            + "%) †"
+        )
+        keys_order["triple_kills"] = (
+            "{:<6}".format(keys_order["triple_kills"])
+            + "("
+            + f"{triple_kills_pct*100:>2.0f}"
+            + "%) †"
+        )
+        keys_order["quad_kills"] = (
+            "{:<6}".format(keys_order["quad_kills"])
+            + "("
+            + f"{quad_kills_pct*100:>2.0f}"
+            + "%) †"
+        )
+        keys_order["games_won"] = (
+            "{:<6}".format(keys_order["games_won"])
+            + "("
+            + f"{games_won_pct*100:>2.0f}"
+            + "%)"
+        )
+        keys_order["top_5"] = (
+            "{:<6}".format(keys_order["top_5"]) + "(" + f"{top_5_pct*100:>2.0f}" + "%)"
+        )
+        keys_order["deathmatch_won"] = (
+            "{:<6}".format(keys_order["deathmatch_won"])
+            + "("
+            + f"{deathmatch_won_pct*100:>2.0f}"
+            + "%)"
+        )
+        keys_order["squads_won"] = (
+            "{:<6}".format(keys_order["squads_won"])
+            + "("
+            + f"{squads_won_pct*100:>2.0f}"
+            + "%)"
+        )
+        keys_order["teams_won"] = (
+            "{:<6}".format(keys_order["teams_won"])
+            + "("
+            + f"{teams_won_pct*100:>2.0f}"
+            + "%)"
+        )
+        keys_order["minemayhem_won"] = (
+            "{:<6}".format(keys_order["minemayhem_won"])
+            + "("
+            + f"{minemayhem_won_pct*100:>2.0f}"
+            + "%)"
+        )
         keys_order["total_games_played"] = f"{total_games_played:<11} †"
-        keys_order["kills_using_drill"] = "{:<6}".format(keys_order["kills_using_drill"]) + "(" + f"{kills_using_drill_pct*100:>2.0f}" + "%)"
-        keys_order["kills_using_flak"] = "{:<6}".format(keys_order["kills_using_flak"]) + "(" + f"{kills_using_flak_pct*100:>2.0f}" + "%)"
-        keys_order["kills_using_grenade"] = "{:<6}".format(keys_order["kills_using_grenade"]) + "(" + f"{kills_using_grenade_pct*100:>2.0f}" + "%)"
-        keys_order["kills_using_homing"] = "{:<6}".format(keys_order["kills_using_homing"]) + "(" + f"{kills_using_homing_pct*100:>2.0f}" + "%)"
-        keys_order["kills_using_mine"] = "{:<6}".format(keys_order["kills_using_mine"]) + "(" + f"{kills_using_mine_pct*100:>2.0f}" + "%)"
-        keys_order["kills_using_nuke"] = "{:<6}".format(keys_order["kills_using_nuke"]) + "(" + f"{kills_using_nuke_pct*100:>2.0f}" + "%)"
-        keys_order["kills_using_poison"] = "{:<6}".format(keys_order["kills_using_poison"]) + "(" + f"{kills_using_poison_pct*100:>2.0f}" + "%)"
-        keys_order["kills_using_shield"] = "{:<6}".format(keys_order["kills_using_shield"]) + "(" + f"{kills_using_shield_pct*100:>2.0f}" + "%)"
-        keys_order["kills_using_triple-shot"] = "{:<6}".format(keys_order["kills_using_triple-shot"]) + "(" + f"{kills_using_triple_shot_pct*100:>2.0f}" + "%)"
-        keys_order["kills_using_missiles"] = "{:<6}".format(str(kills_using_missiles)) + "(" + f"{kills_using_missiles_pct*100:>2.0f}" + "%)"
-        keys_order["blocks_using_proj"] = "{:<6}".format(keys_order["blocks_using_proj"]) + "(" + f"{blocks_using_proj_pct*100:>2.0f}" + "%)"
-        keys_order["blocks_using_shield"] = "{:<6}".format(keys_order["blocks_using_shield"]) + "(" + f"{blocks_using_shield_pct*100:>2.0f}" + "%)"
+        keys_order["kills_using_drill"] = (
+            "{:<6}".format(keys_order["kills_using_drill"])
+            + "("
+            + f"{kills_using_drill_pct*100:>2.0f}"
+            + "%)"
+        )
+        keys_order["kills_using_flak"] = (
+            "{:<6}".format(keys_order["kills_using_flak"])
+            + "("
+            + f"{kills_using_flak_pct*100:>2.0f}"
+            + "%)"
+        )
+        keys_order["kills_using_grenade"] = (
+            "{:<6}".format(keys_order["kills_using_grenade"])
+            + "("
+            + f"{kills_using_grenade_pct*100:>2.0f}"
+            + "%)"
+        )
+        keys_order["kills_using_homing"] = (
+            "{:<6}".format(keys_order["kills_using_homing"])
+            + "("
+            + f"{kills_using_homing_pct*100:>2.0f}"
+            + "%)"
+        )
+        keys_order["kills_using_mine"] = (
+            "{:<6}".format(keys_order["kills_using_mine"])
+            + "("
+            + f"{kills_using_mine_pct*100:>2.0f}"
+            + "%)"
+        )
+        keys_order["kills_using_nuke"] = (
+            "{:<6}".format(keys_order["kills_using_nuke"])
+            + "("
+            + f"{kills_using_nuke_pct*100:>2.0f}"
+            + "%)"
+        )
+        keys_order["kills_using_poison"] = (
+            "{:<6}".format(keys_order["kills_using_poison"])
+            + "("
+            + f"{kills_using_poison_pct*100:>2.0f}"
+            + "%)"
+        )
+        keys_order["kills_using_shield"] = (
+            "{:<6}".format(keys_order["kills_using_shield"])
+            + "("
+            + f"{kills_using_shield_pct*100:>2.0f}"
+            + "%)"
+        )
+        keys_order["kills_using_triple-shot"] = (
+            "{:<6}".format(keys_order["kills_using_triple-shot"])
+            + "("
+            + f"{kills_using_triple_shot_pct*100:>2.0f}"
+            + "%)"
+        )
+        keys_order["kills_using_missiles"] = (
+            "{:<6}".format(str(kills_using_missiles))
+            + "("
+            + f"{kills_using_missiles_pct*100:>2.0f}"
+            + "%)"
+        )
+        keys_order["blocks_using_proj"] = (
+            "{:<6}".format(keys_order["blocks_using_proj"])
+            + "("
+            + f"{blocks_using_proj_pct*100:>2.0f}"
+            + "%)"
+        )
+        keys_order["blocks_using_shield"] = (
+            "{:<6}".format(keys_order["blocks_using_shield"])
+            + "("
+            + f"{blocks_using_shield_pct*100:>2.0f}"
+            + "%)"
+        )
 
         first_title = " General "
         stat_list += f"\u001b[1;2m{first_title.center(47, '—')}\u001b[0m\n"
         keys = [
-            "deaths", "snipers", "two_birdss", "games_played", "games_won",
-            "top_5", "deathmatch_played", "deathmatch_won", "teams_played", "teams_won", "triple-shots_used",
-            "kills_using_triple-shot", "blocks_using_proj"
+            "deaths",
+            "snipers",
+            "two_birdss",
+            "games_played",
+            "games_won",
+            "top_5",
+            "deathmatch_played",
+            "deathmatch_won",
+            "teams_played",
+            "teams_won",
+            "triple-shots_used",
+            "kills_using_triple-shot",
+            "blocks_using_proj",
         ]
         rennamed_keys = [
-            "total_deaths", "long_shot", "two_birdses", "solo_played",
-            "solo_won", "solo_top_5", "squads_deathmatch_played", "squads_deathmatch_won", "Red_VS_Blue_played", "Red_VS_Blue_won",
-            "rapidfire_used", "kills_using_rapidfire", "blocks_using_missile"
+            "total_deaths",
+            "long_shot",
+            "two_birdses",
+            "solo_played",
+            "solo_won",
+            "solo_top_5",
+            "squads_deathmatch_played",
+            "squads_deathmatch_won",
+            "Red_VS_Blue_played",
+            "Red_VS_Blue_won",
+            "rapidfire_used",
+            "kills_using_rapidfire",
+            "blocks_using_missile",
         ]
         for key in keys_order:
             if key in keys:
                 renamed_key = rennamed_keys[keys.index(key)]
             else:
                 renamed_key = key
-            stat_list += f"{renamed_key.replace('_', ' ').title():>24}: {keys_order[key]}\n"
+            stat_list += (
+                f"{renamed_key.replace('_', ' ').title():>24}: {keys_order[key]}\n"
+            )
             remaining_titles = [" Medals ", " Games Played ", " Weapons "]
             key_cutoff = ["K/D Ratio", "quad_kills", "total_games_played"]
             if key in key_cutoff:
@@ -1485,34 +2165,42 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
         chart = discord.File(data_stream, filename="plot.png")
         embed1.set_image(url="attachment://plot.png")
         await interaction.followup.send(embed=embed1, file=chart)
-    
+
     if section in {"with 🥅 Current Goals", "All"}:
         # Create goal list
         goal_list = "```\n"
 
-        for goal in metadata['goals']:
-            selected_goal = goals_config.get(goal['goal_id'], default_goal)
-            goal_name = selected_goal['name']
+        for goal in metadata["goals"]:
+            selected_goal = goals_config.get(goal["goal_id"], default_goal)
+            goal_name = selected_goal["name"]
             goal_progress = f"{goal['count']:>4.0f}/{selected_goal['count']:<4}"
             goal_xp = f"{selected_goal['xp']}XP"
 
             if len(goal_name) > 34:
                 lines = textwrap.wrap(goal_name, 34, break_long_words=False)
-                goal_list += f"- {lines[0]:<34} {goal_progress:<9}{goal_xp:>6}\n  {lines[1]}\n"
+                goal_list += (
+                    f"- {lines[0]:<34} {goal_progress:<9}{goal_xp:>6}\n  {lines[1]}\n"
+                )
             else:
                 goal_list += f"- {goal_name:<34} {goal_progress:<9}{goal_xp:>6}\n"
         goal_list += "```"
-    
+
         # Add to embed
         message5 = ""
         message5 += f"🥅 ***Current Goals***:\n{goal_list}\n"
 
         # Send
-        await interaction.followup.send(embed=discord.Embed(description=message5, color=0x00C6FE))
-    
+        await interaction.followup.send(
+            embed=discord.Embed(description=message5, color=0x00C6FE)
+        )
+
     if section in {
-            "with 📦 Items Collected", "with 🪖 Tanks", "with 🪂 Parachutes", "with 🌟 Trails",
-            "with All Cosmetics", "All"
+        "with 📦 Items Collected",
+        "with 🪖 Tanks",
+        "with 🪂 Parachutes",
+        "with 🌟 Trails",
+        "with All Cosmetics",
+        "All",
     }:
         # Get skins info
         tank_common_total = 0
@@ -1550,69 +2238,69 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
         for key, value in awards_config.items():
             try:
                 try:
-                    if value['hidden'] != True:
+                    if value["hidden"] != True:
                         pass
                     else:
-                        if value['name'] == 'Moai':
+                        if value["name"] == "Moai":
                             tank_legendary_total += 1
 
                 except:
-                    if value['type'] == "skin_set":
-                        if value['rarity'] == "common":
+                    if value["type"] == "skin_set":
+                        if value["rarity"] == "common":
                             tank_common_total += 1
-                        elif value['rarity'] == "rare":
+                        elif value["rarity"] == "rare":
                             tank_rare_total += 1
-                        elif value['rarity'] == "legendary":
+                        elif value["rarity"] == "legendary":
                             tank_legendary_total += 1
-                        elif value['rarity'] == "purchased":
+                        elif value["rarity"] == "purchased":
                             tank_purchased_total += 1
-                        elif value['rarity'] == "earned":
+                        elif value["rarity"] == "earned":
                             tank_earned_total += 1
-                    elif value['type'] == "parachute":
-                        if value['rarity'] == "common":
+                    elif value["type"] == "parachute":
+                        if value["rarity"] == "common":
                             parachute_common_total += 1
-                        elif value['rarity'] == "rare":
+                        elif value["rarity"] == "rare":
                             parachute_rare_total += 1
-                        elif value['rarity'] == "legendary":
+                        elif value["rarity"] == "legendary":
                             parachute_legendary_total += 1
-                        elif value['rarity'] == "purchased":
+                        elif value["rarity"] == "purchased":
                             parachute_purchased_total += 1
-                        elif value['rarity'] == "earned":
+                        elif value["rarity"] == "earned":
                             parachute_earned_total += 1
-                    elif value['type'] == "trail":
-                        if value['rarity'] == "common":
+                    elif value["type"] == "trail":
+                        if value["rarity"] == "common":
                             trail_common_total += 1
-                        elif value['rarity'] == "rare":
+                        elif value["rarity"] == "rare":
                             trail_rare_total += 1
-                        elif value['rarity'] == "legendary":
+                        elif value["rarity"] == "legendary":
                             trail_legendary_total += 1
-                        elif value['rarity'] == "purchased":
+                        elif value["rarity"] == "purchased":
                             trail_purchased_total += 1
-                        elif value['rarity'] == "earned":
+                        elif value["rarity"] == "earned":
                             trail_earned_total += 1
             except:
                 pass
 
         tank_list_duplicated = []
-        for tank in metadata['awards']:
+        for tank in metadata["awards"]:
             award = awards_config.get(tank, default_award)
-            type = award['type']
+            type = award["type"]
 
             if type == "skin":
-                tank_list_duplicated.append(award['skin_name'])
+                tank_list_duplicated.append(award["skin_name"])
 
         tank_list_counter = Counter(tank_list_duplicated)
         for unique_tank in tank_list_counter:
             try:
-                if awards_config.get(unique_tank)['rarity'] == "common":
+                if awards_config.get(unique_tank)["rarity"] == "common":
                     tank_common_owned += 1
-                elif awards_config.get(unique_tank)['rarity'] == "rare":
+                elif awards_config.get(unique_tank)["rarity"] == "rare":
                     tank_rare_owned += 1
-                elif awards_config.get(unique_tank)['rarity'] == "legendary":
+                elif awards_config.get(unique_tank)["rarity"] == "legendary":
                     tank_legendary_owned += 1
-                elif awards_config.get(unique_tank)['rarity'] == "purchased":
+                elif awards_config.get(unique_tank)["rarity"] == "purchased":
                     tank_purchased_owned += 1
-                elif awards_config.get(unique_tank)['rarity'] == "earned":
+                elif awards_config.get(unique_tank)["rarity"] == "earned":
                     tank_earned_owned += 1
             except:
                 pass
@@ -1623,47 +2311,47 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
         # Create trail list
         trail_list = f"```\n{'Rarity:':<7} {'Name:':<17}\n{'—'*25}\n"
 
-        for award in metadata['awards']:
+        for award in metadata["awards"]:
             skin = awards_config.get(award, default_award)
 
             try:
-                if skin['name'] == 'No trail':
-                    trail_list += "        " + skin['name'] + "\n"
+                if skin["name"] == "No trail":
+                    trail_list += "        " + skin["name"] + "\n"
                 else:
-                    type = skin['type']
-                    rarity = skin['rarity']
+                    type = skin["type"]
+                    rarity = skin["rarity"]
                     if type == "parachute":
-                        if rarity == 'common':
+                        if rarity == "common":
                             parachute_common_owned += 1
-                            parachute_list += "     ⭐ " + skin['name'] + "\n"
-                        elif rarity == 'rare':
+                            parachute_list += "     ⭐ " + skin["name"] + "\n"
+                        elif rarity == "rare":
                             parachute_rare_owned += 1
-                            parachute_list += "   ⭐⭐ " + skin['name'] + "\n"
-                        elif rarity == 'legendary':
+                            parachute_list += "   ⭐⭐ " + skin["name"] + "\n"
+                        elif rarity == "legendary":
                             parachute_legendary_owned += 1
-                            parachute_list += " ⭐⭐⭐ " + skin['name'] + "\n"
-                        elif rarity == 'purchased':
+                            parachute_list += " ⭐⭐⭐ " + skin["name"] + "\n"
+                        elif rarity == "purchased":
                             parachute_purchased_owned += 1
-                            parachute_list += "     💰 " + skin['name'] + "\n"
-                        elif rarity == 'earned':
+                            parachute_list += "     💰 " + skin["name"] + "\n"
+                        elif rarity == "earned":
                             parachute_earned_owned += 1
-                            parachute_list += "     🏅 " + skin['name'] + "\n"
+                            parachute_list += "     🏅 " + skin["name"] + "\n"
                     if type == "trail":
-                        if rarity == 'common':
+                        if rarity == "common":
                             trail_common_owned += 1
-                            trail_list += "     ⭐ " + skin['name'] + "\n"
-                        elif rarity == 'rare':
+                            trail_list += "     ⭐ " + skin["name"] + "\n"
+                        elif rarity == "rare":
                             trail_rare_owned += 1
-                            trail_list += "   ⭐⭐ " + skin['name'] + "\n"
-                        elif rarity == 'legendary':
+                            trail_list += "   ⭐⭐ " + skin["name"] + "\n"
+                        elif rarity == "legendary":
                             trail_legendary_owned += 1
-                            trail_list += " ⭐⭐⭐ " + skin['name'] + "\n"
-                        elif rarity == 'purchased':
+                            trail_list += " ⭐⭐⭐ " + skin["name"] + "\n"
+                        elif rarity == "purchased":
                             trail_purchased_owned += 1
-                            trail_list += "     💰 " + skin['name'] + "\n"
-                        elif rarity == 'earned':
+                            trail_list += "     💰 " + skin["name"] + "\n"
+                        elif rarity == "earned":
                             trail_earned_owned += 1
-                            trail_list += "     🏅 " + skin['name'] + "\n"
+                            trail_list += "     🏅 " + skin["name"] + "\n"
             except:
                 pass
 
@@ -1674,25 +2362,63 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
         common_total = tank_common_total + parachute_common_total + trail_common_total
         rare_owned = tank_rare_owned + parachute_rare_owned + trail_rare_owned
         rare_total = tank_rare_total + parachute_rare_total + trail_rare_total
-        legendary_owned = tank_legendary_owned + \
-            parachute_legendary_owned + trail_legendary_owned
-        legendary_total = tank_legendary_total + \
-            parachute_legendary_total + trail_legendary_total
-        purchased_owned = tank_purchased_owned + parachute_purchased_owned + trail_purchased_owned
-        purchased_total = tank_purchased_total + \
-            parachute_purchased_total + trail_purchased_total
+        legendary_owned = (
+            tank_legendary_owned + parachute_legendary_owned + trail_legendary_owned
+        )
+        legendary_total = (
+            tank_legendary_total + parachute_legendary_total + trail_legendary_total
+        )
+        purchased_owned = (
+            tank_purchased_owned + parachute_purchased_owned + trail_purchased_owned
+        )
+        purchased_total = (
+            tank_purchased_total + parachute_purchased_total + trail_purchased_total
+        )
         earned_owned = tank_earned_owned + parachute_earned_owned + trail_earned_owned
-        earned_total = tank_earned_total + \
-            parachute_earned_total + trail_earned_total
+        earned_total = tank_earned_total + parachute_earned_total + trail_earned_total
 
-        tank_owned = tank_common_owned + tank_rare_owned + tank_legendary_owned + tank_purchased_owned + tank_earned_owned
-        tank_total = tank_common_total + tank_rare_total + tank_legendary_total + tank_purchased_total + tank_earned_total
-        parachute_owned = parachute_common_owned + \
-            parachute_rare_owned + parachute_legendary_owned + parachute_purchased_owned + parachute_earned_owned
-        parachute_total = parachute_common_total + \
-            parachute_rare_total + parachute_legendary_total + parachute_purchased_total + parachute_earned_total
-        trail_owned = trail_common_owned + trail_rare_owned + trail_legendary_owned + trail_purchased_owned + trail_earned_owned
-        trail_total = trail_common_total + trail_rare_total + trail_legendary_total + trail_purchased_total + trail_earned_total
+        tank_owned = (
+            tank_common_owned
+            + tank_rare_owned
+            + tank_legendary_owned
+            + tank_purchased_owned
+            + tank_earned_owned
+        )
+        tank_total = (
+            tank_common_total
+            + tank_rare_total
+            + tank_legendary_total
+            + tank_purchased_total
+            + tank_earned_total
+        )
+        parachute_owned = (
+            parachute_common_owned
+            + parachute_rare_owned
+            + parachute_legendary_owned
+            + parachute_purchased_owned
+            + parachute_earned_owned
+        )
+        parachute_total = (
+            parachute_common_total
+            + parachute_rare_total
+            + parachute_legendary_total
+            + parachute_purchased_total
+            + parachute_earned_total
+        )
+        trail_owned = (
+            trail_common_owned
+            + trail_rare_owned
+            + trail_legendary_owned
+            + trail_purchased_owned
+            + trail_earned_owned
+        )
+        trail_total = (
+            trail_common_total
+            + trail_rare_total
+            + trail_legendary_total
+            + trail_purchased_total
+            + trail_earned_total
+        )
 
         owned = tank_owned + parachute_owned + trail_owned
         total = tank_total + parachute_total + trail_total
@@ -1705,14 +2431,16 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
         s += f"│     $ {'Purchased':<10}│{str(tank_purchased_owned):>3}/{str(tank_purchased_total):<3}│{str(parachute_purchased_owned):>4}/{str(parachute_purchased_total):<5}│{str(trail_purchased_owned):>2}/{str(trail_purchased_total):<3}│{str(purchased_owned):>4}/{str(purchased_total):<4}│\n├{'─'*17}┼{'─'*7}┼{'─'*10}┼{'─'*6}┼{'─'*9}┤\n"
         s += f"│     Ꙋ {'Earned':<10}│{str(tank_earned_owned):>3}/{str(tank_earned_total):<3}│{str(parachute_earned_owned):>4}/{str(parachute_earned_total):<5}│{str(trail_earned_owned):>2}/{str(trail_earned_total):<3}│{str(earned_owned):>4}/{str(earned_total):<4}│\n├{'─'*17}┼{'─'*7}┼{'─'*10}┼{'─'*6}┼{'─'*9}┤\n"
         s += f"│ {'Sub-total':^16}│{str(tank_owned):>3}/{str(tank_total):<3}│{str(parachute_owned):>4}/{str(parachute_total):<5}│{str(trail_owned):>2}/{str(trail_total):<3}│{str(owned):>4}/{str(total):<4}│\n└{'─'*17}┴{'─'*7}┴{'─'*10}┴{'─'*6}┴{'─'*9}┘```"
-        
+
         if section in {"with 📦 Items Collected", "with All Cosmetics", "All"}:
             # Add to embed
             message6 = ""
             message6 += f"📦 ***Items Collected***:\n{s}\n"
-    
+
             # Send
-            await interaction.followup.send(embed=discord.Embed(description=message6, color=0x00C6FE))
+            await interaction.followup.send(
+                embed=discord.Embed(description=message6, color=0x00C6FE)
+            )
 
         if section in {"with 🪖 Tanks", "with All Cosmetics", "All"}:
             # Create tank list
@@ -1720,22 +2448,30 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
 
             for unique_tank in tank_list_counter:
                 try:
-                    if awards_config.get(unique_tank,
-                                         default_award)['rarity'] == 'common':
+                    if (
+                        awards_config.get(unique_tank, default_award)["rarity"]
+                        == "common"
+                    ):
                         tank_list += f"     ⭐ {awards_config.get(unique_tank, default_award)['name']:<17} {str(tank_list_counter[unique_tank])}\n"
-                    elif awards_config.get(unique_tank,
-                                           default_award)['rarity'] == 'rare':
+                    elif (
+                        awards_config.get(unique_tank, default_award)["rarity"]
+                        == "rare"
+                    ):
                         tank_list += f"   ⭐⭐ {awards_config.get(unique_tank, default_award)['name']:<17} {str(tank_list_counter[unique_tank])}\n"
-                    elif awards_config.get(
-                            unique_tank,
-                            default_award)['rarity'] == 'legendary':
+                    elif (
+                        awards_config.get(unique_tank, default_award)["rarity"]
+                        == "legendary"
+                    ):
                         tank_list += f" ⭐⭐⭐ {awards_config.get(unique_tank, default_award)['name']:<17} {str(tank_list_counter[unique_tank])}\n"
-                    elif awards_config.get(
-                            unique_tank,
-                            default_award)['rarity'] == 'purchased':
+                    elif (
+                        awards_config.get(unique_tank, default_award)["rarity"]
+                        == "purchased"
+                    ):
                         tank_list += f"     💰 {awards_config.get(unique_tank, default_award)['name']:<17} {str(tank_list_counter[unique_tank])}\n"
-                    elif awards_config.get(
-                            unique_tank, default_award)['rarity'] == 'earned':
+                    elif (
+                        awards_config.get(unique_tank, default_award)["rarity"]
+                        == "earned"
+                    ):
                         tank_list += f"     🏅 {awards_config.get(unique_tank, default_award)['name']:<17} {str(tank_list_counter[unique_tank])}\n"
                 except:
                     pass
@@ -1746,30 +2482,36 @@ async def get_user(interaction: discord.Interaction, user_type: typing.Literal['
             # Add to embed
             message7 = ""
             message7 += f"🪖 ***Tanks***:\n{tank_list}\n"
-    
+
             # Send
-            await interaction.followup.send(embed=discord.Embed(description=message7, color=0x00C6FE))
+            await interaction.followup.send(
+                embed=discord.Embed(description=message7, color=0x00C6FE)
+            )
 
         if section in {"with 🪂 Parachutes", "with All Cosmetics", "All"}:
             # Add to embed
             message8 = ""
             message8 += f"🪂 ***Parachutes***:\n{parachute_list}\n"
-    
+
             # Send
-            await interaction.followup.send(embed=discord.Embed(description=message8, color=0x00C6FE))
+            await interaction.followup.send(
+                embed=discord.Embed(description=message8, color=0x00C6FE)
+            )
 
         if section in {"with 🌟 Trails", "with All Cosmetics", "All"}:
             # Add to embed
             message9 = ""
             message9 += f"🌟 ***Trails***:\n{trail_list}\n"
-    
+
             # Send
-            await interaction.followup.send(embed=discord.Embed(description=message9, color=0x00C6FE))
+            await interaction.followup.send(
+                embed=discord.Embed(description=message9, color=0x00C6FE)
+            )
 
 
 @tree.command()
 async def bot_info(interaction: discord.Interaction):
-    '''Get info about this bot.'''
+    """Get info about this bot."""
 
     await interaction.response.defer(ephemeral=False, thinking=True)
 
@@ -1781,7 +2523,7 @@ async def bot_info(interaction: discord.Interaction):
 
 @tree.command()
 async def battle(interaction: discord.Interaction):
-    '''Have a battle with a random bot!'''
+    """Have a battle with a random bot!"""
 
     await interaction.response.defer(ephemeral=False, thinking=True)
 
@@ -1799,33 +2541,38 @@ async def battle(interaction: discord.Interaction):
         "The missile goes off-screen. Instead of getting a kill, a beachball comes hurtling back at mach 2.": 0.3,
         "The bot vanishes. Was there ever really a bot there at all?...": 0.2,
         "You destroyed the bot! It drops what appears to be MILLIONS of coins, filling every pixel on your screen with a different shade of gold. Your game immediately slows to a halt and crashes.": 0.2,
-        "The missile vanishes off the screen, seemingly lost to the water.\nSuddenly, you hear a flurry of *ping*s! The words \"Long Shot!\" splash across your monitor, followed by \"Two Birds\", \"Double Kill\", \"Triple Kill\", and finally \"Quad Kill\". This is it. This is the moment you thought would never happen. The \"Get a quad kill\" and \"Destroy two tanks with one explosion\" goals you've had for two months are finally complete. As the flood of joy and relief washes over you, so does the rising water over your tank. You've lost the match, but you don't care. The war is already won. In a hurry you leave the match and click to the Goals tab, overcome with anticipation to see those beautiful green *Collect!* buttons. You slide your cursor over.\nBAM! The moment before you click, the screen goes black. All you can see is \"Connecting...\". The loading indicator never goes away.": 0.1,
+        'The missile vanishes off the screen, seemingly lost to the water.\nSuddenly, you hear a flurry of *ping*s! The words "Long Shot!" splash across your monitor, followed by "Two Birds", "Double Kill", "Triple Kill", and finally "Quad Kill". This is it. This is the moment you thought would never happen. The "Get a quad kill" and "Destroy two tanks with one explosion" goals you\'ve had for two months are finally complete. As the flood of joy and relief washes over you, so does the rising water over your tank. You\'ve lost the match, but you don\'t care. The war is already won. In a hurry you leave the match and click to the Goals tab, overcome with anticipation to see those beautiful green *Collect!* buttons. You slide your cursor over.\nBAM! The moment before you click, the screen goes black. All you can see is "Connecting...". The loading indicator never goes away.': 0.1,
         "You get a quad kill, four birds one stone! It was four bots doing the same exact movement. They drop 4 coins. <:coin:910247623787700264> <:coin:910247623787700264> <:coin:910247623787700264> <:coin:910247623787700264>": 0.1,
         "🗿 Moyai God comes down from the heavens and blocks your missile. You bow down (as a tank) and repent for your sins.": 0.1,
-        "Before your bullet hits the bot you were aiming at, a shiny green bot jumps up and takes the hit. Suddenly a green gem appears where it died, floating in midair. JACKPOT<:gem:910247413695016970>": .1
+        "Before your bullet hits the bot you were aiming at, a shiny green bot jumps up and takes the hit. Suddenly a green gem appears where it died, floating in midair. JACKPOT<:gem:910247413695016970>": 0.1,
     }
-    event = "You fire a missile at a bot. <:rocketmint:910253491019202661>\n" + \
-        random.choices(population=list(events.keys()),
-                       weights=events.values(), k=1)[0]
+    event = (
+        "You fire a missile at a bot. <:rocketmint:910253491019202661>\n"
+        + random.choices(population=list(events.keys()), weights=events.values(), k=1)[
+            0
+        ]
+    )
 
     if "<R>" in event:
         # Get random name from leaderboard
-        response = await rocketbot_client.query_leaderboard(curr_season, "tankkings_trophies", 50)
-        records = json.loads(response['payload'])['records']
-        rand_player = random.choice(records)['username']
+        response = await rocketbot_client.query_leaderboard(
+            curr_season, "tankkings_trophies", 50
+        )
+        records = json.loads(response["payload"])["records"]
+        rand_player = random.choice(records)["username"]
 
         # Formulate response with random name
         event = event.replace("<R>", rand_player)
     else:
         # Otherwise wait half a second
-        await asyncio.sleep(.5)
+        await asyncio.sleep(0.5)
 
     await interaction.followup.send(event)
 
 
 @tree.command()
 async def build_a_bot(interaction: discord.Interaction):
-    '''Bear the responsibility of creating new life... I mean bot'''
+    """Bear the responsibility of creating new life... I mean bot"""
     bot_name = generate_random_name()
     response = f"***Meet your lovely new bot!***\n\n`{bot_name}`"
     if len(bots) >= 5:
@@ -1839,16 +2586,18 @@ async def build_a_bot(interaction: discord.Interaction):
 
 @tree.command()
 async def join_game(interaction: discord.Interaction):
-    '''Join the current game'''
+    """Join the current game"""
     if playing:
-        await interaction.response.send_message("Can't join because a game is already in progress")
+        await interaction.response.send_message(
+            "Can't join because a game is already in progress"
+        )
         return
     response = ""
     if interaction.user.mention not in players:
         players.append(interaction.user.mention)
-        response += '{} joined'.format(interaction.user.mention)
+        response += "{} joined".format(interaction.user.mention)
     else:
-        response += '{} you cant join twice'.format(interaction.user.mention)
+        response += "{} you cant join twice".format(interaction.user.mention)
 
     await interaction.response.send_message(response)
 
@@ -1856,12 +2605,14 @@ async def join_game(interaction: discord.Interaction):
 @tree.command(guild=discord.Object(id=962142361935314996))
 async def get_config(interaction: discord.Interaction):
     file = io.StringIO(json.dumps(server_config))
-    await interaction.response.send_message(file=discord.File(fp=file, filename="server_config.json"))
+    await interaction.response.send_message(
+        file=discord.File(fp=file, filename="server_config.json")
+    )
 
 
 @tree.command()
 async def start_game(interaction: discord.Interaction):
-    '''Start a game with the people joined'''
+    """Start a game with the people joined"""
     global playing
     if playing:
         return
@@ -1873,22 +2624,20 @@ async def start_game(interaction: discord.Interaction):
         return
     for i in players:
         response += "\n" + i
-    embed1 = discord.Embed(color=0xa80022)
+    embed1 = discord.Embed(color=0xA80022)
     embed1.add_field(name="Players: ", value=response, inline=False)
     await interaction.response.send_message(response)
     msg = await interaction.channel.send("Starting game")
-#     await asyncio.sleep(0)
+    #     await asyncio.sleep(0)
     moneys = OrderedDict()
     while len(players) >= 1:
-        embed = discord.Embed(color=0xa80022)
+        embed = discord.Embed(color=0xA80022)
         if len(players) <= 1:
             embed.add_field(name="Players: ", value=players[0], inline=False)
-            embed.add_field(
-                name="Game:", value=players[0] + " wins!", inline=False)
+            embed.add_field(name="Game:", value=players[0] + " wins!", inline=False)
             money_txt = ""
             for i in moneys.keys():
-                money_txt += i + " " + \
-                    str(moneys[i]) + "<:coin:910247623787700264>\n"
+                money_txt += i + " " + str(moneys[i]) + "<:coin:910247623787700264>\n"
             if money_txt != "":
                 embed.add_field(name="Money:", value=money_txt, inline=False)
             await msg.edit(embed=embed)
@@ -1903,8 +2652,9 @@ async def start_game(interaction: discord.Interaction):
         embed.add_field(name="Players: ", value=player_text, inline=False)
         action_types = {"Kill": 100, "Miss": 50, "Self": 20, "Special": 0}
 
-        action_choice = random.choices(population=list(
-            action_types.keys()), weights=action_types.values(), k=1)[0]
+        action_choice = random.choices(
+            population=list(action_types.keys()), weights=action_types.values(), k=1
+        )[0]
 
         action = ""
         if action_choice == "Kill":
@@ -1922,12 +2672,12 @@ async def start_game(interaction: discord.Interaction):
                 "<A> pretends to friend <B> but then kills them": 5,
                 "<A> intimidates <B> into jumping into the water": 0.5,
             }
-#             if len(players) > 2:
-#                 kill_messages["<A> kills <B> and <C> `DOUBLE KILL`"] = 10
-#             if len(players) > 3:
-#                 kill_messages["<A> kills <B> ,<C> and <D> `TRIPPLE KILL`"] = 5
-#             if len(players) > 4:
-#                 kill_messages["<A> kills <B>, <C>, <D> and <E> `QUAD KILL`"] = 2
+            #             if len(players) > 2:
+            #                 kill_messages["<A> kills <B> and <C> `DOUBLE KILL`"] = 10
+            #             if len(players) > 3:
+            #                 kill_messages["<A> kills <B> ,<C> and <D> `TRIPPLE KILL`"] = 5
+            #             if len(players) > 4:
+            #                 kill_messages["<A> kills <B>, <C>, <D> and <E> `QUAD KILL`"] = 2
             weapons = {
                 "A FAT BOI (nuke)": 100,
                 "Rapidfire missiles": 100,
@@ -1935,35 +2685,54 @@ async def start_game(interaction: discord.Interaction):
                 "A Homing Missile": 100,
                 "A Flak": 100,
                 "A Drill": 100,
-                "THE POWER OF MOYAI 🗿": 0.1
+                "THE POWER OF MOYAI 🗿": 0.1,
             }
-            event = random.choices(population=list(
-                kill_messages.keys()), weights=kill_messages.values(), k=1)[0]
+            event = random.choices(
+                population=list(kill_messages.keys()),
+                weights=kill_messages.values(),
+                k=1,
+            )[0]
             event = event.replace("<A>", player_a)
             event = event.replace("<B>", player_b)
             if "<U>" in event:
-                event = event.replace("<U>", random.choices(population=list(
-                    weapons.keys()), weights=weapons.values(), k=1)[0])
+                event = event.replace(
+                    "<U>",
+                    random.choices(
+                        population=list(weapons.keys()), weights=weapons.values(), k=1
+                    )[0],
+                )
             # B-E die for kills, if we need a non dying player use F
-            event += "\n\n" + player_a + " got " + \
-                str(coin_num) + " <:coin:910247623787700264>"
-            event += " and " + player_b + " lost " + \
-                str(coin_num) + " <:coin:910247623787700264>"
-            if '@' in player_a:  # Not a bot
+            event += (
+                "\n\n"
+                + player_a
+                + " got "
+                + str(coin_num)
+                + " <:coin:910247623787700264>"
+            )
+            event += (
+                " and "
+                + player_b
+                + " lost "
+                + str(coin_num)
+                + " <:coin:910247623787700264>"
+            )
+            if "@" in player_a:  # Not a bot
                 player_a_id = convert_mention_to_id(player_a)
-                player_a_object = await interaction.guild.query_members(user_ids=[player_a_id])
+                player_a_object = await interaction.guild.query_members(
+                    user_ids=[player_a_id]
+                )
                 if player_a_object[0].nick == None:  # No nickname is found
-                    player_a_name = str(player_a_object[0])[
-                        :-5]  # Use username
+                    player_a_name = str(player_a_object[0])[:-5]  # Use username
                 else:
                     player_a_name = player_a_object[0].nick  # Use nickname
                 change_player_coin(player_a_id, player_a_name, coin_num)
-            if '@' in player_b:  # Not a bot
+            if "@" in player_b:  # Not a bot
                 player_b_id = convert_mention_to_id(player_b)
-                player_b_object = await interaction.guild.query_members(user_ids=[player_b_id])
+                player_b_object = await interaction.guild.query_members(
+                    user_ids=[player_b_id]
+                )
                 if player_b_object[0].nick == None:  # No nickname is found
-                    player_b_name = str(player_b_object[0])[
-                        :-5]  # Use username
+                    player_b_name = str(player_b_object[0])[:-5]  # Use username
                 else:
                     player_b_name = player_b_object[0].nick  # Use nickname
                 change_player_coin(player_b_id, player_b_name, -coin_num)
@@ -2000,29 +2769,32 @@ async def start_game(interaction: discord.Interaction):
             choices = random.sample(set(players), 2)
             player_a = choices[0]
             player_b = choices[1]
-#             if "<F>" in event:
-#                 player_f = random.choice(players)
-#                 event.replace("<F>", player_f)
+            #             if "<F>" in event:
+            #                 player_f = random.choice(players)
+            #                 event.replace("<F>", player_f)
             action = player_a + " shoots at " + player_b + " but misses."
         elif action_choice == "Self":
             kill_messages = {
                 "<A> jumps into the water.": 50,
-                "On <A>'s screen an error pops up: `CLIENT DISCONNECTED` <:alertbad:910249086299557888>": 1}
-            event = random.choices(population=list(
-                kill_messages.keys()), weights=kill_messages.values(), k=1)[0]
+                "On <A>'s screen an error pops up: `CLIENT DISCONNECTED` <:alertbad:910249086299557888>": 1,
+            }
+            event = random.choices(
+                population=list(kill_messages.keys()),
+                weights=kill_messages.values(),
+                k=1,
+            )[0]
             player_a = random.choice(players)
             players.remove(player_a)
             event = event.replace("<A>", player_a)
             if moneys.get(player_a) == None:
                 moneys[player_a] = 0
             action = event
-#             case "Special":
-#                 pass
+        #             case "Special":
+        #                 pass
         embed.add_field(name="Game:", value=action, inline=False)
         money_txt = ""
         for i in moneys.keys():
-            money_txt += i + " " + \
-                str(moneys[i]) + "<:coin:910247623787700264>\n"
+            money_txt += i + " " + str(moneys[i]) + "<:coin:910247623787700264>\n"
         if money_txt != "":
             embed.add_field(name="Money:", value=money_txt, inline=False)
         await msg.edit(embed=embed)
@@ -2031,7 +2803,7 @@ async def start_game(interaction: discord.Interaction):
 
 @tree.command()
 async def get_money(interaction: discord.Interaction):
-    '''Find out how much money you have in discord'''
+    """Find out how much money you have in discord"""
     await interaction.response.defer(ephemeral=False, thinking=True)
 
     id = convert_mention_to_id(interaction.user.mention)
@@ -2046,26 +2818,33 @@ async def get_money(interaction: discord.Interaction):
 
 @tree.command()
 @app_commands.describe(
-    changes='Changes since last command used, takes longer to compute'
+    changes="Changes since last command used, takes longer to compute"
 )
-async def discord_coins_leaderboard(interaction: discord.Interaction, changes: typing.Literal['Shown', 'Hidden']):
-    '''Return the discord coins leaderboard'''
+async def discord_coins_leaderboard(
+    interaction: discord.Interaction, changes: typing.Literal["Shown", "Hidden"]
+):
+    """Return the discord coins leaderboard"""
 
     await interaction.response.defer(ephemeral=False, thinking=True)
 
     def check(reaction, user):
-        return user == interaction.user and str(reaction.emoji) in ["◀️", "▶️", "⏪", "⏹️"]
+        return user == interaction.user and str(reaction.emoji) in [
+            "◀️",
+            "▶️",
+            "⏪",
+            "⏹️",
+        ]
+
     # This makes sure nobody except the command sender can interact with the "menu"
 
     # Create a new dictionary
     rank_dict = dict()
-    for id in db['discord_coins']:
-        if id != 'last_update_time':
-            rank_dict[id] = db['discord_coins'][id]['coins']
+    for id in db["discord_coins"]:
+        if id != "last_update_time":
+            rank_dict[id] = db["discord_coins"][id]["coins"]
 
     # Sort the new dictionary
-    sorted_rank_dict = sorted(
-        rank_dict.items(), key=itemgetter(1), reverse=True)
+    sorted_rank_dict = sorted(rank_dict.items(), key=itemgetter(1), reverse=True)
 
     if changes == "Shown":
         # Using f-string spacing to pretty print the leaderboard labels (bold)
@@ -2076,8 +2855,9 @@ async def discord_coins_leaderboard(interaction: discord.Interaction, changes: t
         for i in sorted_rank_dict:
             # Rank difference
             try:
-                rank_diff = (sorted_rank_dict.index(i) + 1) - \
-                    db['discord_coins'][i[0]]['rank']  # New rank - old rank
+                rank_diff = (sorted_rank_dict.index(i) + 1) - db["discord_coins"][i[0]][
+                    "rank"
+                ]  # New rank - old rank
                 if rank_diff > 0:
                     rank_diff_2 = f"\u001b[2;31m▼{abs(rank_diff):<3}\u001b[0m"
                 elif rank_diff < 0:
@@ -2088,7 +2868,7 @@ async def discord_coins_leaderboard(interaction: discord.Interaction, changes: t
                 rank_diff_2 = f"{'':4}"  # Not found in repl.it's database
 
             # Coins difference
-            coins_diff = db['discord_coins'][i[0]]['coins_change']
+            coins_diff = db["discord_coins"][i[0]]["coins_change"]
             if coins_diff < 0:
                 coins_diff_2 = f"\u001b[2;31m-{abs(coins_diff):<4}\u001b[0m"
             elif coins_diff > 0:
@@ -2100,14 +2880,15 @@ async def discord_coins_leaderboard(interaction: discord.Interaction, changes: t
             leaderboard += f"{rank_diff_2}\u001b[1m{'#' + str(sorted_rank_dict.index(i) + 1):<6}\u001b[0m{db['discord_coins'][i[0]]['name']:<28}🪙 {i[1]:<6,.0f}{coins_diff_2}\n"
 
             # Store new 'rank'
-            db['discord_coins'][i[0]]['rank'] = sorted_rank_dict.index(i) + 1
+            db["discord_coins"][i[0]]["rank"] = sorted_rank_dict.index(i) + 1
 
             # Reset 'coins_change'
-            db['discord_coins'][i[0]]['coins_change'] = 0
+            db["discord_coins"][i[0]]["coins_change"] = 0
 
             # Store 'last_update_time'
-            db['discord_coins'][
-                'last_update_time'] = f"{datetime.datetime.utcfromtimestamp(time.time()):%Y-%m-%d %H:%M:%S} UTC"
+            db["discord_coins"][
+                "last_update_time"
+            ] = f"{datetime.datetime.utcfromtimestamp(time.time()):%Y-%m-%d %H:%M:%S} UTC"
 
     elif changes == "Hidden":
         # Using f-string spacing to pretty print the leaderboard labels (bold)
@@ -2120,21 +2901,28 @@ async def discord_coins_leaderboard(interaction: discord.Interaction, changes: t
             leaderboard += f"\u001b[1m{'#' + str(sorted_rank_dict.index(i) + 1):<6}\u001b[0m{db['discord_coins'][i[0]]['name']:<28}🪙 {i[1]:<6,.0f}\n"
 
     # Split the message every 25 records
-    leaderboard_split = re.compile(
-        "(?:^.*$\n?){1,25}", re.M).findall(leaderboard)
+    leaderboard_split = re.compile("(?:^.*$\n?){1,25}", re.M).findall(leaderboard)
     leaderboard_split_dict = dict()
     for i in leaderboard_split:
-        leaderboard_split_dict[leaderboard_split.index(i)+1] = i
+        leaderboard_split_dict[leaderboard_split.index(i) + 1] = i
     cur_page = 1
     message = label + leaderboard_split_dict[cur_page]
     message += "```"
 
     embed_first = discord.Embed(
-        title="Discord Coins Leaderboard <:coin:910247623787700264>", description=message)
+        title="Discord Coins Leaderboard <:coin:910247623787700264>",
+        description=message,
+    )
     embed_first.set_footer(
-        text=f"Page {cur_page:<2}: {'1':<4} to {'25':<4}" + f" | Changes since {db['discord_coins']['last_update_time']}" if changes == "Shown" else "")
+        text=f"Page {cur_page:<2}: {'1':<4} to {'25':<4}"
+        + f" | Changes since {db['discord_coins']['last_update_time']}"
+        if changes == "Shown"
+        else ""
+    )
     msg = await interaction.followup.send(embed=embed_first)
-    msg2 = await interaction.followup.send(embed=discord.Embed(description="To be edited..."))
+    msg2 = await interaction.followup.send(
+        embed=discord.Embed(description="To be edited...")
+    )
 
     # Wait for reaction
     for reaction_emoji in ["◀️", "▶️", "⏪", "⏹️"]:
@@ -2142,33 +2930,50 @@ async def discord_coins_leaderboard(interaction: discord.Interaction, changes: t
 
     while True:
         try:
-            reaction, user = await client.wait_for("reaction_add", timeout=10, check=check)
+            reaction, user = await client.wait_for(
+                "reaction_add", timeout=10, check=check
+            )
             # Waiting for a reaction to be added - times out after 10 seconds
 
-            if str(reaction.emoji) == "▶️" and cur_page < len(leaderboard_split_dict)-1:  # Next page
+            if (
+                str(reaction.emoji) == "▶️"
+                and cur_page < len(leaderboard_split_dict) - 1
+            ):  # Next page
                 cur_page += 1
-                next_message = label+leaderboard_split_dict[cur_page]+'```'
+                next_message = label + leaderboard_split_dict[cur_page] + "```"
                 embed_next = discord.Embed(
-                    title="Discord Coins Leaderboard <:coin:910247623787700264>", description=next_message)
+                    title="Discord Coins Leaderboard <:coin:910247623787700264>",
+                    description=next_message,
+                )
                 start = 25 * cur_page - 24
-                if cur_page == len(leaderboard_split_dict)-1:
+                if cur_page == len(leaderboard_split_dict) - 1:
                     end = len(sorted_rank_dict)
                 else:
                     end = 25 * cur_page
                 embed_next.set_footer(
-                    text=f"Page {cur_page:<2}: {start:<4} to {end:<4}" + f" | Changes since {db['discord_coins']['last_update_time']}" if changes == "Shown" else "")
+                    text=f"Page {cur_page:<2}: {start:<4} to {end:<4}"
+                    + f" | Changes since {db['discord_coins']['last_update_time']}"
+                    if changes == "Shown"
+                    else ""
+                )
                 await msg.edit(embed=embed_next)
                 await msg.remove_reaction(reaction, user)
 
             elif str(reaction.emoji) == "◀️" and cur_page > 1:  # Previous page
                 cur_page -= 1
-                next_message = label+leaderboard_split_dict[cur_page]+'```'
+                next_message = label + leaderboard_split_dict[cur_page] + "```"
                 embed_prev = discord.Embed(
-                    title="Discord Coins Leaderboard <:coin:910247623787700264>", description=next_message)
+                    title="Discord Coins Leaderboard <:coin:910247623787700264>",
+                    description=next_message,
+                )
                 start = 25 * cur_page - 24
                 end = 25 * cur_page
                 embed_prev.set_footer(
-                    text=f"Page {cur_page:<2}: {start:<4} to {end:<4}" + f" | Changes since {db['discord_coins']['last_update_time']}" if changes == "Shown" else "")
+                    text=f"Page {cur_page:<2}: {start:<4} to {end:<4}"
+                    + f" | Changes since {db['discord_coins']['last_update_time']}"
+                    if changes == "Shown"
+                    else ""
+                )
                 await msg.edit(embed=embed_prev)
                 await msg.remove_reaction(reaction, user)
 
@@ -2178,14 +2983,19 @@ async def discord_coins_leaderboard(interaction: discord.Interaction, changes: t
                 await msg.remove_reaction(reaction, user)
 
             elif str(reaction.emoji) == "⏹️":  # Exit page view and end the loop
-                first_message = label + leaderboard_split_dict[1] + '```'
+                first_message = label + leaderboard_split_dict[1] + "```"
                 embed_first = discord.Embed(
-                    title="Discord Coins Leaderboard <:coin:910247623787700264>", description=first_message)
+                    title="Discord Coins Leaderboard <:coin:910247623787700264>",
+                    description=first_message,
+                )
                 await msg.edit(embed=embed_first)
-                second_message = '```ansi\n'+leaderboard_split_dict[2]+'```'
+                second_message = "```ansi\n" + leaderboard_split_dict[2] + "```"
                 embed_second = discord.Embed(description=second_message)
                 embed_second.set_footer(
-                    text=f"Changes since {db['discord_coins']['last_update_time']}" if changes == "Shown" else "")
+                    text=f"Changes since {db['discord_coins']['last_update_time']}"
+                    if changes == "Shown"
+                    else ""
+                )
                 await msg2.edit(embed=embed_second)
                 await msg.clear_reactions()
                 break
@@ -2193,14 +3003,19 @@ async def discord_coins_leaderboard(interaction: discord.Interaction, changes: t
                 await msg.remove_reaction(reaction, user)
                 # Removes reactions if invalid
         except asyncio.TimeoutError:
-            first_message = label + leaderboard_split_dict[1] + '```'
+            first_message = label + leaderboard_split_dict[1] + "```"
             embed_first = discord.Embed(
-                title="Discord Coins Leaderboard <:coin:910247623787700264>", description=first_message)
+                title="Discord Coins Leaderboard <:coin:910247623787700264>",
+                description=first_message,
+            )
             await msg.edit(embed=embed_first)
-            second_message = '```ansi\n'+leaderboard_split_dict[2]+'```'
+            second_message = "```ansi\n" + leaderboard_split_dict[2] + "```"
             embed_second = discord.Embed(description=second_message)
             embed_second.set_footer(
-                text=f"Changes since {db['discord_coins']['last_update_time']}" if changes == "Shown" else "")
+                text=f"Changes since {db['discord_coins']['last_update_time']}"
+                if changes == "Shown"
+                else ""
+            )
             await msg2.edit(embed=embed_second)
             await msg.clear_reactions()
             break
@@ -2209,7 +3024,7 @@ async def discord_coins_leaderboard(interaction: discord.Interaction, changes: t
 
 @tree.command()
 async def random_tank(interaction: discord.Interaction):
-    '''Get a random tank'''
+    """Get a random tank"""
 
     await interaction.response.defer(ephemeral=False, thinking=True)
 
@@ -2217,16 +3032,14 @@ async def random_tank(interaction: discord.Interaction):
 
     # Get emoji's source url stored in Discord
     # Png for static emojis and Gif for animated emojis
-    if 'a:' in chosen_tank:
-        emoji_code_split = chosen_tank[3:-1].split(':')
-        img_link = 'https://cdn.discordapp.com/emojis/' + \
-            emoji_code_split[1] + '.gif'
-        tank_name = emoji_code_split[0].replace('_', ' ')[:-7].title()
+    if "a:" in chosen_tank:
+        emoji_code_split = chosen_tank[3:-1].split(":")
+        img_link = "https://cdn.discordapp.com/emojis/" + emoji_code_split[1] + ".gif"
+        tank_name = emoji_code_split[0].replace("_", " ")[:-7].title()
     else:
-        emoji_code_split = chosen_tank[2:-1].split(':')
-        img_link = 'https://cdn.discordapp.com/emojis/' + \
-            emoji_code_split[1] + '.png'
-        tank_name = emoji_code_split[0].replace('_', ' ')[:-5].title()
+        emoji_code_split = chosen_tank[2:-1].split(":")
+        img_link = "https://cdn.discordapp.com/emojis/" + emoji_code_split[1] + ".png"
+        tank_name = emoji_code_split[0].replace("_", " ")[:-5].title()
 
     # Manual rename to avoid error
     if tank_name == "Default":
@@ -2245,31 +3058,31 @@ async def random_tank(interaction: discord.Interaction):
         tank_name = "8bit"
 
     # Get tank info
-    awards_config = server_config['awards']
+    awards_config = server_config["awards"]
     for key, value in awards_config.items():
         try:
-            if value['type'] == "skin_set":
-                if value['name'] == tank_name:
-                    description = value['description']
-                    if value['rarity'] == 'common':
+            if value["type"] == "skin_set":
+                if value["name"] == tank_name:
+                    description = value["description"]
+                    if value["rarity"] == "common":
                         rarity_icon = "⭐"
                         color = 0x49C8FF
-                    elif value['rarity'] == 'rare':
+                    elif value["rarity"] == "rare":
                         rarity_icon = "⭐⭐"
                         color = 0xCB6DFF
-                    elif value['rarity'] == 'legendary':
+                    elif value["rarity"] == "legendary":
                         rarity_icon = "⭐⭐⭐"
                         color = 0xFFDC5E
-                    elif value['rarity'] == 'purchased':
+                    elif value["rarity"] == "purchased":
                         rarity_icon = "💰"
                         color = 0x80FF7C
-                    elif value['rarity'] == 'earned':
+                    elif value["rarity"] == "earned":
                         rarity_icon = "🏅"
                         color = 0xF1689D
-            elif value['type'] == "skin":
-                if value['name'] == tank_name:  # 3 bot skins
+            elif value["type"] == "skin":
+                if value["name"] == tank_name:  # 3 bot skins
                     rarity_icon = ""
-                    description = value['description']
+                    description = value["description"]
                     color = 0x000000
                     break
         except:
@@ -2277,26 +3090,26 @@ async def random_tank(interaction: discord.Interaction):
 
     # Send
     embed = discord.Embed(
-        title=f"{rarity_icon} {tank_name}", description=description, color=color)
+        title=f"{rarity_icon} {tank_name}", description=description, color=color
+    )
     embed.set_image(url=img_link)
     await interaction.followup.send(embed=embed)
 
 
 @tree.command()
 @app_commands.describe(
-    length='Length of the tank',
-    barrel='Number of barrels to be equipped'
+    length="Length of the tank", barrel="Number of barrels to be equipped"
 )
 async def long(interaction: discord.Interaction, length: int, barrel: int = 1):
-    '''Build your supercalifragilisticexpialidocious long tank equipped with as many barrels as you want!'''
-    
+    """Build your supercalifragilisticexpialidocious long tank equipped with as many barrels as you want!"""
+
     await interaction.response.defer(ephemeral=False, thinking=True)
-    
+
     long_emoji = [
-            "<:longtank_part1:991838180699541504>",
-            "<:longtank_part2:991838184910626916>",
-            "<:longtank_part3:991838189591470130>",
-            "<:longtank_part4:991838192145793125>"
+        "<:longtank_part1:991838180699541504>",
+        "<:longtank_part2:991838184910626916>",
+        "<:longtank_part3:991838189591470130>",
+        "<:longtank_part4:991838192145793125>",
     ]
     if length < 0:
         length = 0
@@ -2313,10 +3126,10 @@ async def long(interaction: discord.Interaction, length: int, barrel: int = 1):
             a[i] += 1
         b = list(OrderedDict.fromkeys(a))
         global x, y
-        x, y = b[0], b[1] if len(b) > 1 else ''
+        x, y = b[0], b[1] if len(b) > 1 else ""
         for i in range(len(a)):
-            a[i] = 'x' if a[i] == b[0] else 'y'
-        s = ''.join(str(i) for i in a)
+            a[i] = "x" if a[i] == b[0] else "y"
+        s = "".join(str(i) for i in a)
         return s
 
     def palindrome_check(str):
@@ -2330,54 +3143,70 @@ async def long(interaction: discord.Interaction, length: int, barrel: int = 1):
         odd_count = 0
 
         for x in hmap:
-            if (hmap[x] % 2 != 0):
+            if hmap[x] % 2 != 0:
                 odd_count += 1
                 odd_char = x
 
-        first_half = ''
-        second_half = ''
+        first_half = ""
+        second_half = ""
 
         for x in sorted(hmap.keys()):
             s = (hmap[x] // 2) * x
             first_half = first_half + s
             second_half = s + second_half
 
-        return (first_half + odd_char + second_half) if (odd_count == 1) else (first_half + second_half)
+        return (
+            (first_half + odd_char + second_half)
+            if (odd_count == 1)
+            else (first_half + second_half)
+        )
 
     even_space_encode = even_space(length - barrel, barrel + 1)
-    even_space_encode_palindrome = palindrome_rearrange(
-        even_space_encode) if palindrome_check(even_space_encode) else even_space_encode
+    even_space_encode_palindrome = (
+        palindrome_rearrange(even_space_encode)
+        if palindrome_check(even_space_encode)
+        else even_space_encode
+    )
 
     even_space_encode_palindrome_decode = []
     for i in even_space_encode_palindrome:
         even_space_encode_palindrome_decode.append(i)
     for i in range(len(even_space_encode_palindrome_decode)):
-        even_space_encode_palindrome_decode[i] = x if even_space_encode_palindrome_decode[i] == 'x' else y
+        even_space_encode_palindrome_decode[i] = (
+            x if even_space_encode_palindrome_decode[i] == "x" else y
+        )
 
     output_middle = ""
     for i in range(len(even_space_encode_palindrome_decode) - 1):
-        output_middle += (long_emoji[1] *
-                          even_space_encode_palindrome_decode[i] + long_emoji[2])
-    output_middle += long_emoji[1] * \
-        even_space_encode_palindrome_decode[-1]
+        output_middle += (
+            long_emoji[1] * even_space_encode_palindrome_decode[i] + long_emoji[2]
+        )
+    output_middle += long_emoji[1] * even_space_encode_palindrome_decode[-1]
     msg = f"{long_emoji[0]}{output_middle}{long_emoji[3]}"
-    quote = await interaction.followup.send("```\nBuilding your tank, please wait...```")
+    quote = await interaction.followup.send(
+        "```\nBuilding your tank, please wait...```"
+    )
     try:
         await interaction.followup.send(msg)
-        await quote.edit(content=f"```ansi\nThis is your \u001b[2;32ml\u001b[1;32m{'o'*length}\u001b[0m\u001b[2;32mng\u001b[0m tank!```")
+        await quote.edit(
+            content=f"```ansi\nThis is your \u001b[2;32ml\u001b[1;32m{'o'*length}\u001b[0m\u001b[2;32mng\u001b[0m tank!```"
+        )
     except:
         await quote.edit(content="```\nThe tank is too long to build!```")
 
 
 @tree.command()
-@app_commands.describe(
-    bet='The minimum bet is 1 coin'
-)
+@app_commands.describe(bet="The minimum bet is 1 coin")
 async def slot(interaction: discord.Interaction, bet: int):
-    '''Play the slot machine game!'''
+    """Play the slot machine game!"""
     await interaction.response.defer(ephemeral=False, thinking=True)
-    coin = ["<:coin1:910247623787700264>", "<:coin2:991444836869754950>",
-            "<:coin3:976289335844434000>", "<:coin4:976289358200049704>", "<:coin5:976288324266373130>"]
+    coin = [
+        "<:coin1:910247623787700264>",
+        "<:coin2:991444836869754950>",
+        "<:coin3:976289335844434000>",
+        "<:coin4:976289358200049704>",
+        "<:coin5:976288324266373130>",
+    ]
 
     # Check how many coins the player has
     id = convert_mention_to_id(interaction.user.mention)
@@ -2389,12 +3218,21 @@ async def slot(interaction: discord.Interaction, bet: int):
     player_coin_before = change_player_coin(id, name, 0, True)
 
     if bet > player_coin_before:
-        await interaction.followup.send(embed=discord.Embed(
-            color=discord.Color.red(),
-            title="SLOT MACHINE :slot_machine:",
-            description=f"You don't have enough {coin[0]}"))
+        await interaction.followup.send(
+            embed=discord.Embed(
+                color=discord.Color.red(),
+                title="SLOT MACHINE :slot_machine:",
+                description=f"You don't have enough {coin[0]}",
+            )
+        )
     elif bet <= 0:
-        await interaction.followup.send(embed=discord.Embed(color=discord.Color.red(), title="SLOT MACHINE :slot_machine:", description=f"The minimum bet is 1 {coin[0]}"))
+        await interaction.followup.send(
+            embed=discord.Embed(
+                color=discord.Color.red(),
+                title="SLOT MACHINE :slot_machine:",
+                description=f"The minimum bet is 1 {coin[0]}",
+            )
+        )
 
     else:
         coins_loop = "<a:coin_loop:992273503288037408>"
@@ -2407,7 +3245,12 @@ async def slot(interaction: discord.Interaction, bet: int):
             coin[3]: 1.5 / 26.26,
             coin[4]: 1.25 / 26.25,
         }
-        if id in ['152080881220059136', '381074897083826176', '610369943967629340', '970784448633258054']:
+        if id in [
+            "152080881220059136",
+            "381074897083826176",
+            "610369943967629340",
+            "970784448633258054",
+        ]:
             print(f"Unrigging slots for user: {id}")
             events = {
                 coin[0]: 0.2,
@@ -2419,11 +3262,17 @@ async def slot(interaction: discord.Interaction, bet: int):
 
         slots = []
         for i in range(3):
-            slots.append(random.choices(population=list(
-                events.keys()), weights=events.values())[0])
+            slots.append(
+                random.choices(population=list(events.keys()), weights=events.values())[
+                    0
+                ]
+            )
 
-        slot_embed = discord.Embed(color=0xffd700, title="SLOT MACHINE :slot_machine:",
-                                   description=f"**{'-' * 18}\n|{' {} |'.format(coins_loop) * 3}\n{'-' * 18}**")
+        slot_embed = discord.Embed(
+            color=0xFFD700,
+            title="SLOT MACHINE :slot_machine:",
+            description=f"**{'-' * 18}\n|{' {} |'.format(coins_loop) * 3}\n{'-' * 18}**",
+        )
 
         sent_embed = await interaction.followup.send(embed=slot_embed)
         current_slot_pics = [coins_loop] * 3
@@ -2434,7 +3283,10 @@ async def slot(interaction: discord.Interaction, bet: int):
             for thisSlot in current_slot_pics:
                 slot_results_str += f" {thisSlot} |"
             new_slot_embed = discord.Embed(
-                color=0xffd700, title="SLOT MACHINE :slot_machine:", description=f"{slot_results_str}\n{'-' * 18}**")
+                color=0xFFD700,
+                title="SLOT MACHINE :slot_machine:",
+                description=f"{slot_results_str}\n{'-' * 18}**",
+            )
             await sent_embed.edit(embed=new_slot_embed)
 
         if slots[0] == slots[1]:
@@ -2455,39 +3307,75 @@ async def slot(interaction: discord.Interaction, bet: int):
 
         player_coin_after = change_player_coin(id, name, net_change, True)
 
-        embed = discord.Embed(color=0xffd700, title="SLOT MACHINE :slot_machine:",
-                              description=f"{slot_results_str}\n{'-' * 18}**\n{res_2}")
+        embed = discord.Embed(
+            color=0xFFD700,
+            title="SLOT MACHINE :slot_machine:",
+            description=f"{slot_results_str}\n{'-' * 18}**\n{res_2}",
+        )
         embed.add_field(name="Bet", value=f"{bet} {coin[0]}", inline=True)
-        embed.add_field(name="Profit/Loss", value=f"{net_change} {coin[0]}" + (
-            f" ({multiplier}x)" if win else ""), inline=True)
         embed.add_field(
-            name="Balance", value=f"{player_coin_after} {coin[0]}", inline=True)
-        embed.add_field(name="Pay Table", value=f"{'{}'.format(coin[4]) * 3} - 32x\n{'{}'.format(coin[3]) * 3} - 16x\n{'{}'.format(coin[2]) * 3} - 12x\n{'{}'.format(coin[1]) * 3} - 8x\n{'{}'.format(coin[4]) * 2}:grey_question: - 8x\n{'{}'.format(coin[0]) * 3} - 4x\n{'{}'.format(coin[3]) * 2}:grey_question: - 4x\n{'{}'.format(coin[2]) * 2}:grey_question: - 3x\n{'{}'.format(coin[1]) * 2}:grey_question: - 2x\n{'{}'.format(coin[0]) * 2}:grey_question: - 1x", inline=False)
+            name="Profit/Loss",
+            value=f"{net_change} {coin[0]}" + (f" ({multiplier}x)" if win else ""),
+            inline=True,
+        )
+        embed.add_field(
+            name="Balance", value=f"{player_coin_after} {coin[0]}", inline=True
+        )
+        embed.add_field(
+            name="Pay Table",
+            value=f"{'{}'.format(coin[4]) * 3} - 32x\n{'{}'.format(coin[3]) * 3} - 16x\n{'{}'.format(coin[2]) * 3} - 12x\n{'{}'.format(coin[1]) * 3} - 8x\n{'{}'.format(coin[4]) * 2}:grey_question: - 8x\n{'{}'.format(coin[0]) * 3} - 4x\n{'{}'.format(coin[3]) * 2}:grey_question: - 4x\n{'{}'.format(coin[2]) * 2}:grey_question: - 3x\n{'{}'.format(coin[1]) * 2}:grey_question: - 2x\n{'{}'.format(coin[0]) * 2}:grey_question: - 1x",
+            inline=False,
+        )
         await sent_embed.edit(embed=embed)
 
 
 @tree.command()
 async def memory(interaction: discord.Interaction):
-    '''Test your memory by matching 2 tanks!'''
+    """Test your memory by matching 2 tanks!"""
     await interaction.response.defer(ephemeral=False, thinking=True)
     b = [":white_large_square:" for i in range(16)]
-    c = ['a1', 'b1', 'c1', 'd1', 'a2', 'b2', 'c2', 'd2',
-         'a3', 'b3', 'c3', 'd3', 'a4', 'b4', 'c4', 'd4']
+    c = [
+        "a1",
+        "b1",
+        "c1",
+        "d1",
+        "a2",
+        "b2",
+        "c2",
+        "d2",
+        "a3",
+        "b3",
+        "c3",
+        "d3",
+        "a4",
+        "b4",
+        "c4",
+        "d4",
+    ]
     a = random.sample(tanks, 8) * 2
     random.shuffle(a)
     board = f":black_large_square: :regional_indicator_a: :regional_indicator_b: :regional_indicator_c: :regional_indicator_d:\n:one: {b[0]} {b[1]} {b[2]} {b[3]}\n:two: {b[4]} {b[5]} {b[6]} {b[7]}\n:three: {b[8]} {b[9]} {b[10]} {b[11]}\n:four: {b[12]} {b[13]} {b[14]} {b[15]}\n"
     answer = f":black_large_square: :regional_indicator_a: :regional_indicator_b: :regional_indicator_c: :regional_indicator_d:\n:one: {a[0]} {a[1]} {a[2]} {a[3]}\n:two: {a[4]} {a[5]} {a[6]} {a[7]}\n:three: {a[8]} {a[9]} {a[10]} {a[11]}\n:four: {a[12]} {a[13]} {a[14]} {a[15]}\n"
 
     def check(m):
-        return (m.channel.id == interaction.channel.id and m.author == interaction.user)
+        return m.channel.id == interaction.channel.id and m.author == interaction.user
 
-    embed = discord.Embed(color=0xffd700, title="MEMORY GAME :brain:",
-                          description="Test your memory by matching 2 tanks!")
+    embed = discord.Embed(
+        color=0xFFD700,
+        title="MEMORY GAME :brain:",
+        description="Test your memory by matching 2 tanks!",
+    )
     embed.add_field(name="Time", value="<80s\n<100s\n≥100s", inline=True)
     embed.add_field(
-        name="Reward", value="20 <:coin1:910247623787700264>\n10 <:coin1:910247623787700264>\n5 <:coin1:910247623787700264>", inline=True)
+        name="Reward",
+        value="20 <:coin1:910247623787700264>\n10 <:coin1:910247623787700264>\n5 <:coin1:910247623787700264>",
+        inline=True,
+    )
     embed.add_field(
-        name="Controls", value="Type `s` to start the game\nType `q` to quit the game", inline=False)
+        name="Controls",
+        value="Type `s` to start the game\nType `q` to quit the game",
+        inline=False,
+    )
     message = await interaction.followup.send(embed=embed)
 
     global gamestart
@@ -2497,25 +3385,39 @@ async def memory(interaction: discord.Interaction):
         try:
             msg = await client.wait_for("message", check=check, timeout=15)
             if str(msg.content.lower()) == "q":
-                embed = discord.Embed(color=discord.Color.red(
-                ), title="MEMORY GAME :brain:", description="You have quit the game")
+                embed = discord.Embed(
+                    color=discord.Color.red(),
+                    title="MEMORY GAME :brain:",
+                    description="You have quit the game",
+                )
                 await message.edit(embed=embed)
                 break
-            if ((str(msg.content.lower()) == "s") or (str(msg.content.lower()) == "q")) == False:
-                warn = await interaction.followup.send(":x: Invalid input has been entered :x:")
+            if (
+                (str(msg.content.lower()) == "s") or (str(msg.content.lower()) == "q")
+            ) == False:
+                warn = await interaction.followup.send(
+                    ":x: Invalid input has been entered :x:"
+                )
                 await asyncio.sleep(2)
                 await warn.delete()
             if str(msg.content.lower()) == "s":
                 gamestart = True
                 embed = discord.Embed(
-                    color=0xffd700, title="MEMORY GAME :brain:", description=board)
+                    color=0xFFD700, title="MEMORY GAME :brain:", description=board
+                )
                 embed.add_field(
-                    name="Controls", value="Type `a1` / `A1` to flip the card\nType `q` to quit the game", inline=False)
+                    name="Controls",
+                    value="Type `a1` / `A1` to flip the card\nType `q` to quit the game",
+                    inline=False,
+                )
                 await message.edit(embed=embed)
                 start = timer()
         except asyncio.TimeoutError:
-            embed = discord.Embed(color=discord.Color.red(
-            ), title="MEMORY GAME :brain:", description="You did not start the game")
+            embed = discord.Embed(
+                color=discord.Color.red(),
+                title="MEMORY GAME :brain:",
+                description="You did not start the game",
+            )
             await message.edit(embed=embed)
             break
 
@@ -2526,12 +3428,17 @@ async def memory(interaction: discord.Interaction):
                 msg = await client.wait_for("message", check=check, timeout=15)
                 if str(msg.content.lower()) == "q":
                     board = answer
-                    embed = discord.Embed(color=discord.Color.red(
-                    ), title="MEMORY GAME :brain:", description=f"{board}\nYou have quit the game")
+                    embed = discord.Embed(
+                        color=discord.Color.red(),
+                        title="MEMORY GAME :brain:",
+                        description=f"{board}\nYou have quit the game",
+                    )
                     await message.edit(embed=embed)
                     break
                 if (str(msg.content.lower()) in c) == False:
-                    warn2 = await interaction.followup.send(":x: Invalid coordinate has been entered :x:")
+                    warn2 = await interaction.followup.send(
+                        ":x: Invalid coordinate has been entered :x:"
+                    )
                     await asyncio.sleep(2)
                     await warn2.delete()
                 elif b[c.index(str(msg.content.lower()))] == ":white_large_square:":
@@ -2541,9 +3448,15 @@ async def memory(interaction: discord.Interaction):
                         flag = not flag
                         board = f":black_large_square: :regional_indicator_a: :regional_indicator_b: :regional_indicator_c: :regional_indicator_d:\n:one: {b[0]} {b[1]} {b[2]} {b[3]}\n:two: {b[4]} {b[5]} {b[6]} {b[7]}\n:three: {b[8]} {b[9]} {b[10]} {b[11]}\n:four: {b[12]} {b[13]} {b[14]} {b[15]}\n"
                         embed = discord.Embed(
-                            color=0xffd700, title="MEMORY GAME :brain:", description=board)
+                            color=0xFFD700,
+                            title="MEMORY GAME :brain:",
+                            description=board,
+                        )
                         embed.add_field(
-                            name="Controls", value="Type `a1` / `A1` to flip the card\nType `q` to quit the game", inline=False)
+                            name="Controls",
+                            value="Type `a1` / `A1` to flip the card\nType `q` to quit the game",
+                            inline=False,
+                        )
                         await message.edit(embed=embed)
                     else:
                         y = c.index(str(msg.content.lower()))
@@ -2551,9 +3464,15 @@ async def memory(interaction: discord.Interaction):
                         flag = not flag
                         board = f":black_large_square: :regional_indicator_a: :regional_indicator_b: :regional_indicator_c: :regional_indicator_d:\n:one: {b[0]} {b[1]} {b[2]} {b[3]}\n:two: {b[4]} {b[5]} {b[6]} {b[7]}\n:three: {b[8]} {b[9]} {b[10]} {b[11]}\n:four: {b[12]} {b[13]} {b[14]} {b[15]}\n"
                         embed = discord.Embed(
-                            color=0xffd700, title="MEMORY GAME :brain:", description=board)
+                            color=0xFFD700,
+                            title="MEMORY GAME :brain:",
+                            description=board,
+                        )
                         embed.add_field(
-                            name="Controls", value="Type `a1` / `A1` to flip the card\nType `q` to quit the game", inline=False)
+                            name="Controls",
+                            value="Type `a1` / `A1` to flip the card\nType `q` to quit the game",
+                            inline=False,
+                        )
                         await message.edit(embed=embed)
                         await asyncio.sleep(1)
                         if a[x] == a[y]:
@@ -2563,9 +3482,15 @@ async def memory(interaction: discord.Interaction):
                             b[y] = ":white_large_square:"
                             board = f":black_large_square: :regional_indicator_a: :regional_indicator_b: :regional_indicator_c: :regional_indicator_d:\n:one: {b[0]} {b[1]} {b[2]} {b[3]}\n:two: {b[4]} {b[5]} {b[6]} {b[7]}\n:three: {b[8]} {b[9]} {b[10]} {b[11]}\n:four: {b[12]} {b[13]} {b[14]} {b[15]}\n"
                             embed = discord.Embed(
-                                color=0xffd700, title="MEMORY GAME :brain:", description=board)
+                                color=0xFFD700,
+                                title="MEMORY GAME :brain:",
+                                description=board,
+                            )
                             embed.add_field(
-                                name="Controls", value="Type `a1` / `A1` to flip the card\nType `q` to quit the game", inline=False)
+                                name="Controls",
+                                value="Type `a1` / `A1` to flip the card\nType `q` to quit the game",
+                                inline=False,
+                            )
                             await message.edit(embed=embed)
                     if pair == 8:
                         end = timer()
@@ -2579,33 +3504,49 @@ async def memory(interaction: discord.Interaction):
                         gamestart = False
 
                         id = convert_mention_to_id(interaction.user.mention)
-                        user_object = await interaction.guild.query_members(user_ids=[id])
+                        user_object = await interaction.guild.query_members(
+                            user_ids=[id]
+                        )
                         if user_object[0].nick == None:  # No nickname is found
                             name = str(user_object[0])[:-5]  # Use username
                         else:
                             name = user_object[0].nick  # Use nickname
 
-                        player_coin_after = change_player_coin(
-                            id, name, reward, True)
+                        player_coin_after = change_player_coin(id, name, reward, True)
                         embed = discord.Embed(
-                            color=0xffd700, title="MEMORY GAME :brain:", description=f"{board}\n:tada: **YOU WON** :tada:")
+                            color=0xFFD700,
+                            title="MEMORY GAME :brain:",
+                            description=f"{board}\n:tada: **YOU WON** :tada:",
+                        )
                         embed.add_field(
-                            name="Time", value=f"{time_diff:.2f}s", inline=True)
+                            name="Time", value=f"{time_diff:.2f}s", inline=True
+                        )
                         embed.add_field(
-                            name="Reward", value=f"{reward} <:coin1:910247623787700264>", inline=True)
+                            name="Reward",
+                            value=f"{reward} <:coin1:910247623787700264>",
+                            inline=True,
+                        )
                         embed.add_field(
-                            name="Balance", value=f"{player_coin_after} <:coin1:910247623787700264>", inline=True)
+                            name="Balance",
+                            value=f"{player_coin_after} <:coin1:910247623787700264>",
+                            inline=True,
+                        )
                         await message.edit(embed=embed)
                         break
                     await message.edit(embed=embed)
                 else:
-                    warn3 = await interaction.followup.send(":x: The card has already been flipped :x:")
+                    warn3 = await interaction.followup.send(
+                        ":x: The card has already been flipped :x:"
+                    )
                     await asyncio.sleep(2)
                     await warn3.delete()
             except asyncio.TimeoutError:
                 board = answer
-                embed = discord.Embed(color=discord.Color.red(
-                ), title="MEMORY GAME :brain:", description=f"{board}\nThe game has timed out :hourglass:")
+                embed = discord.Embed(
+                    color=discord.Color.red(),
+                    title="MEMORY GAME :brain:",
+                    description=f"{board}\nThe game has timed out :hourglass:",
+                )
                 await message.edit(embed=embed)
                 break
         break
@@ -2613,12 +3554,14 @@ async def memory(interaction: discord.Interaction):
 
 @tree.command()
 @app_commands.describe(
-    one_star='Number of one-star skin(s) owned',
-    two_star='Number of two-star skin(s) owned',
-    three_star='Number of three-star skin(s) owned'
+    one_star="Number of one-star skin(s) owned",
+    two_star="Number of two-star skin(s) owned",
+    three_star="Number of three-star skin(s) owned",
 )
-async def get_crate_stats(interaction: discord.Interaction, one_star: int, two_star: int, three_star: int):
-    '''Optimize the use of in game crates and Estimate the amount of coins'''
+async def get_crate_stats(
+    interaction: discord.Interaction, one_star: int, two_star: int, three_star: int
+):
+    """Optimize the use of in game crates and Estimate the amount of coins"""
 
     await interaction.response.defer(ephemeral=False, thinking=True)
 
@@ -2626,28 +3569,36 @@ async def get_crate_stats(interaction: discord.Interaction, one_star: int, two_s
     two_star_total = 0
     three_star_total = 0
 
-    for key, value in server_config['awards'].items():
+    for key, value in server_config["awards"].items():
         try:
-            if value['rarity'] == "common":
+            if value["rarity"] == "common":
                 one_star_total += 1
-            elif value['rarity'] == "rare":
+            elif value["rarity"] == "rare":
                 two_star_total += 1
-            elif value['rarity'] == "legendary":
+            elif value["rarity"] == "legendary":
                 three_star_total += 1
         except:
             pass
 
     total = one_star_total + two_star_total + three_star_total
-    one_star_weight, two_star_weight, three_star_weight = server_config[
-        'lootbox_rarity_odds']['common'], server_config['lootbox_rarity_odds'][
-            'rare'], server_config['lootbox_rarity_odds']['legendary']
-    total_weight = one_star_total * one_star_weight + two_star_total * \
-        two_star_weight + three_star_total * three_star_weight
-    one_star_prob, two_star_prob, three_star_prob = one_star_weight / \
-        total_weight, two_star_weight / total_weight, three_star_weight / total_weight
+    one_star_weight, two_star_weight, three_star_weight = (
+        server_config["lootbox_rarity_odds"]["common"],
+        server_config["lootbox_rarity_odds"]["rare"],
+        server_config["lootbox_rarity_odds"]["legendary"],
+    )
+    total_weight = (
+        one_star_total * one_star_weight
+        + two_star_total * two_star_weight
+        + three_star_total * three_star_weight
+    )
+    one_star_prob, two_star_prob, three_star_prob = (
+        one_star_weight / total_weight,
+        two_star_weight / total_weight,
+        three_star_weight / total_weight,
+    )
 
-    basic_crate_price = server_config['lootbox_coin_cost']
-    elite_crate_price = server_config['unique_lootbox_coin_cost']
+    basic_crate_price = server_config["lootbox_coin_cost"]
+    elite_crate_price = server_config["unique_lootbox_coin_cost"]
 
     population_crate = list(range(1, total + 1))
     weights_crate = []
@@ -2659,15 +3610,16 @@ async def get_crate_stats(interaction: discord.Interaction, one_star: int, two_s
         weights_crate.append(three_star_prob)
 
     def basic_or_elite(a, b, c):
-        time = 1 / (1 - one_star_prob * a - two_star_prob * b -
-                    three_star_prob * c)
+        time = 1 / (1 - one_star_prob * a - two_star_prob * b - three_star_prob * c)
         expected_basic_crate_coin = basic_crate_price * time
         if expected_basic_crate_coin < elite_crate_price:
-            return f":one: The **OPTIMAL** way to unlock **A NEW UNIQUE SKIN** is **EXPECTED** by using **{time:.2f} BASIC CRATE" + (
-                "S" if time > 1 else ""
-            ) + f" <:crate:988520294132088892>**, which " + (
-                "are" if time > 1 else "is"
-            ) + f" worth a **TOTAL** of **{expected_basic_crate_coin:,.0f} COINS <:coin:910247623787700264>**\n"
+            return (
+                f":one: The **OPTIMAL** way to unlock **A NEW UNIQUE SKIN** is **EXPECTED** by using **{time:.2f} BASIC CRATE"
+                + ("S" if time > 1 else "")
+                + f" <:crate:988520294132088892>**, which "
+                + ("are" if time > 1 else "is")
+                + f" worth a **TOTAL** of **{expected_basic_crate_coin:,.0f} COINS <:coin:910247623787700264>**\n"
+            )
         else:
             return f":one: The **OPTIMAL** way to unlock **A NEW UNIQUE SKIN** is **EXPECTED** by using **1.00 ELITE CRATE <:elitecrate:989954419846184970>**, which is worth a **TOTAL** of **{elite_crate_price:,.0f} COINS <:coin:910247623787700264>**\n"
 
@@ -2684,8 +3636,10 @@ async def get_crate_stats(interaction: discord.Interaction, one_star: int, two_s
                 collected.add(i)
             for j in range(one_star_total + 1, one_star_total + 1 + b):
                 collected.add(j)
-            for k in range(one_star_total + two_star_total + 1,
-                           one_star_total + two_star_total + 1 + c):
+            for k in range(
+                one_star_total + two_star_total + 1,
+                one_star_total + two_star_total + 1 + c,
+            ):
                 collected.add(k)
 
             while True:
@@ -2698,43 +3652,63 @@ async def get_crate_stats(interaction: discord.Interaction, one_star: int, two_s
                         collected.add(int(i))
                         if 1 <= int(i) <= one_star_total:
                             prob -= one_star_prob
-                        elif (one_star_total + 1) <= int(i) <= (
-                                one_star_total + two_star_total):
+                        elif (
+                            (one_star_total + 1)
+                            <= int(i)
+                            <= (one_star_total + two_star_total)
+                        ):
                             prob -= two_star_prob
                         else:
                             prob -= three_star_prob
             elite_crates = total - len(collected)
-            coins_spent = basic_crates * basic_crate_price + elite_crates * elite_crate_price
+            coins_spent = (
+                basic_crates * basic_crate_price + elite_crates * elite_crate_price
+            )
             expected_basic_crate.append(basic_crates)
             expected_elite_crate.append(elite_crates)
             expected_coins_spent.append(coins_spent)
             remaining = total - a - b - c
             expected_basic_crate_mean = mean(expected_basic_crate)
             expected_elite_crate_mean = mean(expected_elite_crate)
-        return f":two: The **OPTIMAL** way to unlock **ALL {remaining} REMAINING UNIQUE SKIN" + (
-            "S" if remaining > 1 else ""
-        ) + "** is **EXPECTED** by using " + (
-            (f"**{expected_basic_crate_mean:,.2f} BASIC CRATE" +
-             ("S" if expected_basic_crate_mean > 1 else "") +
-             " <:crate:988520294132088892>** and ")
-            if expected_basic_crate_mean != 0 else ""
-        ) + f"**{expected_elite_crate_mean:,.2f} ELITE CRATE" + (
-            "S" if expected_elite_crate_mean > 1 else ""
-        ) + f" <:elitecrate:989954419846184970>**, which " + (
-            "are" if
-            (expected_basic_crate_mean + expected_elite_crate_mean) > 1 else
-            "is"
-        ) + f" worth a **TOTAL** of **{expected_basic_crate_mean * basic_crate_price + expected_elite_crate_mean * elite_crate_price:,.0f} COINS <:coin:910247623787700264>**"
+        return (
+            f":two: The **OPTIMAL** way to unlock **ALL {remaining} REMAINING UNIQUE SKIN"
+            + ("S" if remaining > 1 else "")
+            + "** is **EXPECTED** by using "
+            + (
+                (
+                    f"**{expected_basic_crate_mean:,.2f} BASIC CRATE"
+                    + ("S" if expected_basic_crate_mean > 1 else "")
+                    + " <:crate:988520294132088892>** and "
+                )
+                if expected_basic_crate_mean != 0
+                else ""
+            )
+            + f"**{expected_elite_crate_mean:,.2f} ELITE CRATE"
+            + ("S" if expected_elite_crate_mean > 1 else "")
+            + f" <:elitecrate:989954419846184970>**, which "
+            + (
+                "are"
+                if (expected_basic_crate_mean + expected_elite_crate_mean) > 1
+                else "is"
+            )
+            + f" worth a **TOTAL** of **{expected_basic_crate_mean * basic_crate_price + expected_elite_crate_mean * elite_crate_price:,.0f} COINS <:coin:910247623787700264>**"
+        )
 
     def all(a, b, c):
         total_owned = a + b + c
-        if (1 <= a <= one_star_total) and (0 <= b <= two_star_total) and (
-                0 <= c <= three_star_total):
+        if (
+            (1 <= a <= one_star_total)
+            and (0 <= b <= two_star_total)
+            and (0 <= c <= three_star_total)
+        ):
             if total_owned != total:
-                return f"**1,000 SIMULATIONS** have been done based on the number of **{a} ONE-STAR :star:**, **{b} TWO-STAR :star::star:** and **{c} THREE-STAR :star::star::star: SKIN" + (
-                    "S" if total_owned > 1 else
-                    "") + f"** you have already owned:\n" + basic_or_elite(
-                        a, b, c) + basic_and_elite_simulate(a, b, c)
+                return (
+                    f"**1,000 SIMULATIONS** have been done based on the number of **{a} ONE-STAR :star:**, **{b} TWO-STAR :star::star:** and **{c} THREE-STAR :star::star::star: SKIN"
+                    + ("S" if total_owned > 1 else "")
+                    + f"** you have already owned:\n"
+                    + basic_or_elite(a, b, c)
+                    + basic_and_elite_simulate(a, b, c)
+                )
             else:
                 return f"You have already unlocked **ALL {total} UNIQUE SKINS**! :tada:"
         else:
@@ -2744,11 +3718,9 @@ async def get_crate_stats(interaction: discord.Interaction, one_star: int, two_s
 
 
 @tree.command()
-@app_commands.describe(
-    season='Season 1 or later, default current'
-)
+@app_commands.describe(season="Season 1 or later, default current")
 async def season(interaction: discord.Interaction, season: int = -1):
-    '''Return the season info, default current'''
+    """Return the season info, default current"""
 
     await interaction.response.defer(ephemeral=False, thinking=True)
 
@@ -2756,14 +3728,22 @@ async def season(interaction: discord.Interaction, season: int = -1):
         season = curr_season
     embed = discord.Embed()
     embed.title = "Rocket Bot Royale 🚀"
-    embed.add_field(name="📓 ***Season Info***", value=f"```ansi\n{'Season: ':>10}{str(season)}\n{'Start: ':>10}{season_info(season)[0]}\n{'End: ':>10}{season_info(season)[1]}\n{'Duration: ':>10}{season_info(season)[2]}\n{'Status: ':>10}{season_info(season)[3]}\n" + (
-        f"{'Ends in: ':>10}{season_info(season)[4]}" if season == curr_season else "") + "```")
+    embed.add_field(
+        name="📓 ***Season Info***",
+        value=f"```ansi\n{'Season: ':>10}{str(season)}\n{'Start: ':>10}{season_info(season)[0]}\n{'End: ':>10}{season_info(season)[1]}\n{'Duration: ':>10}{season_info(season)[2]}\n{'Status: ':>10}{season_info(season)[3]}\n"
+        + (
+            f"{'Ends in: ':>10}{season_info(season)[4]}"
+            if season == curr_season
+            else ""
+        )
+        + "```",
+    )
     await interaction.followup.send(embed=embed)
 
 
 @tree.command()
 async def random_bot_name(interaction: discord.Interaction):
-    '''Generate a random bot name.'''
+    """Generate a random bot name."""
 
     adjective = [
         "gray",
@@ -3289,7 +4269,7 @@ async def random_bot_name(interaction: discord.Interaction):
         "bristle",
         "ripple",
         "glow",
-        "zenith"
+        "zenith",
     ]
 
     noun = [
@@ -3651,271 +4631,400 @@ async def random_bot_name(interaction: discord.Interaction):
         "sargent",
         "snagglefoot",
         "carpet",
-        "curtain"
+        "curtain",
     ]
 
-    generated_random_bot_name = random.choice(
-        noun).capitalize() + random.choice(adjective)
+    generated_random_bot_name = random.choice(noun).capitalize() + random.choice(
+        adjective
+    )
     await interaction.response.send_message(generated_random_bot_name)
 
 
 @tree.command()
 @app_commands.describe(
-    article='The article you want to look up. Make sure capitalization is correct!'
+    article="The article you want to look up. Make sure capitalization is correct!"
 )
 async def fandom(interaction: discord.Interaction, article: str):
-    '''Fetch any articles from Rocket Bot Royale fandom wiki here!'''
+    """Fetch any articles from Rocket Bot Royale fandom wiki here!"""
     await interaction.response.defer(ephemeral=False, thinking=True)
     p = rocketbotroyale.page(article)
     try:
         page1 = page(title=article)
-        sent_embed = await interaction.followup.send(embed=discord.Embed(description="Fetching page..."))
+        sent_embed = await interaction.followup.send(
+            embed=discord.Embed(description="Fetching page...")
+        )
         output = discord.Embed(
-            color=0xffd700,
+            color=0xFFD700,
             title=page1.title,
             description=page1.summary,
             url=f"https://rocketbotroyale.fandom.com/wiki/{page1.title}".replace(
-                " ", "_"),
-            timestamp=datetime.datetime.utcnow())
+                " ", "_"
+            ),
+            timestamp=datetime.datetime.utcnow(),
+        )
         list_of_images = p.images
         png_or_gif = [x for x in list_of_images if ".png" in x or ".gif" in x]
-        set_image = "https://static.wikia.nocookie.net/rocketbotroyale/images/c/c4/Slide1_mainpage.png/revision/latest?cb=20220712121433" if len(
-            png_or_gif) == 0 else png_or_gif[0]
+        set_image = (
+            "https://static.wikia.nocookie.net/rocketbotroyale/images/c/c4/Slide1_mainpage.png/revision/latest?cb=20220712121433"
+            if len(png_or_gif) == 0
+            else png_or_gif[0]
+        )
         output.set_image(url=set_image)
         output.set_thumbnail(
-            url="https://static.wikia.nocookie.net/rocketbotroyale/images/e/e6/Site-logo.png")
-        output.set_footer(
-            text="All information is gathered through fandom.com")
+            url="https://static.wikia.nocookie.net/rocketbotroyale/images/e/e6/Site-logo.png"
+        )
+        output.set_footer(text="All information is gathered through fandom.com")
         await sent_embed.edit(embed=output)
     except:
-        await interaction.followup.send(embed=discord.Embed(color=0xff0000, description=f':x: "{article}" is not found. Make sure capitalization is correct!', timestamp=datetime.datetime.utcnow()))
+        await interaction.followup.send(
+            embed=discord.Embed(
+                color=0xFF0000,
+                description=f':x: "{article}" is not found. Make sure capitalization is correct!',
+                timestamp=datetime.datetime.utcnow(),
+            )
+        )
 
 
 @tree.command()
 @app_commands.describe(
-    graph='Type of graph to be plotted. Box Plot: Top 100 players',
-    mode='Trophies or Points',
-    season_start='Trophies: Season 11 or later / Points: Season 1 or later, default all',
-    season_end='same or greater than season_start, default all'
+    graph="Type of graph to be plotted. Box Plot: Top 100 players",
+    mode="Trophies or Points",
+    season_start="Trophies: Season 11 or later / Points: Season 1 or later, default all",
+    season_end="same or greater than season_start, default all",
 )
-async def plot(interaction: discord.Interaction, graph: typing.Literal['Box Plot'], mode: typing.Literal['Trophies', 'Points'], season_start: int = 1, season_end: int = -1):
-  '''Plot statistics graph and table about trophies or points in season(s)'''
+async def plot(
+    interaction: discord.Interaction,
+    graph: typing.Literal["Box Plot"],
+    mode: typing.Literal["Trophies", "Points"],
+    season_start: int = 1,
+    season_end: int = -1,
+):
+    """Plot statistics graph and table about trophies or points in season(s)"""
 
-  await interaction.response.defer(ephemeral=False, thinking=True)
+    await interaction.response.defer(ephemeral=False, thinking=True)
 
-  # For footer and filename
-  current_timestamp = f"{datetime.datetime.utcfromtimestamp(time.time()):%Y-%m-%d %H:%M:%S} UTC"
-  curr_season = server_config['season']
+    # For footer and filename
+    current_timestamp = (
+        f"{datetime.datetime.utcfromtimestamp(time.time()):%Y-%m-%d %H:%M:%S} UTC"
+    )
+    curr_season = server_config["season"]
 
-  # Reassign season_start and season_end if unreasonable
-  if season_start < (11 if mode == "Trophies" else 1):
-    season_start = (11 if mode == "Trophies" else 1)
-  if season_start > curr_season:
-    season_start = curr_season
-  
-  if season_end < (11 if mode == "Trophies" else 1):
-    season_start = (11 if mode == "Trophies" else 1)
-  if season_end > curr_season or season_end == -1:
-    season_end = curr_season
-  if season_end < season_start:
-    season_end = season_start
+    # Reassign season_start and season_end if unreasonable
+    if season_start < (11 if mode == "Trophies" else 1):
+        season_start = 11 if mode == "Trophies" else 1
+    if season_start > curr_season:
+        season_start = curr_season
 
-  # Singular or plural form for legends
-  if (season_start == curr_season - 1 and season_end == curr_season) or (season_start == season_end and season_start != curr_season):
-    one_past_season = True
-  else:
-    one_past_season = False
+    if season_end < (11 if mode == "Trophies" else 1):
+        season_start = 11 if mode == "Trophies" else 1
+    if season_end > curr_season or season_end == -1:
+        season_end = curr_season
+    if season_end < season_start:
+        season_end = season_start
 
-  # Get leaderboard info
-  for season in range(season_start, season_end + 1): # Update replit's database if necessary
-    if str(season) not in db['plot'] or season == curr_season or f"top_100_{mode.lower()}" not in db['plot'][str(season)] or f"top_100_{mode.lower()}_stats" not in db['plot'][str(season)]:
-      if str(season) not in db['plot']:
-        db['plot'][str(season)] = dict()
-        db['plot'][str(season)]['days'] = season_info(season)[2][:-5]
-      response = await rocketbot_client.query_leaderboard(season, f"tankkings_{mode.lower()}", 100)
-      records = json.loads(response['payload'])['records']
-      global not_enough_100_records
-      if len(records) < 100:
-        not_enough_100_records = True
-      else:
-        not_enough_100_records = False
-        season_top_100 = []
-        for record in records:
-          season_top_100.append(record['score'])
-        db['plot'][str(season)][f"top_100_{mode.lower()}"] = season_top_100
-  
-        season_records = db['plot'][str(season)][f"top_100_{mode.lower()}"]
-        db['plot'][str(season)][f"top_100_{mode.lower()}_stats"] = [min(season_records)] + [int(round(boxplot_stats(season_records)[0][i])) for i in ['q1','med','q3']] + [max(season_records)] + [int(round(mean(season_records)))]
+    # Singular or plural form for legends
+    if (season_start == curr_season - 1 and season_end == curr_season) or (
+        season_start == season_end and season_start != curr_season
+    ):
+        one_past_season = True
+    else:
+        one_past_season = False
 
-  if not_enough_100_records == True:
-    season_end = curr_season - 1
-      
-  # Get data
-  data_a = [] # A
-  data_b = [] # B
-  xlabels_a_1 = [] # A
-  xlabels_a_2 = [] # A
-  for season in range(season_start, season_end + 1):
-    data_a.append(db['plot'][str(season)][f"top_100_{mode.lower()}"]) # A
-    xlabels_a_1.append(str(season)) # A
-    xlabels_a_2.append(str(db['plot'][str(season)]['days'])) # A
-    data_b.append([int(season)] + [int(db['plot'][str(season)]['days'])] + list(db['plot'][str(season)][f"top_100_{mode.lower()}_stats"])) # B
-  xlabels_a_2_fix = [xlabels_a_2[-1]] + xlabels_a_2 # A
+    # Get leaderboard info
+    for season in range(
+        season_start, season_end + 1
+    ):  # Update replit's database if necessary
+        if (
+            str(season) not in db["plot"]
+            or season == curr_season
+            or f"top_100_{mode.lower()}" not in db["plot"][str(season)]
+            or f"top_100_{mode.lower()}_stats" not in db["plot"][str(season)]
+        ):
+            if str(season) not in db["plot"]:
+                db["plot"][str(season)] = dict()
+                db["plot"][str(season)]["days"] = season_info(season)[2][:-5]
+            response = await rocketbot_client.query_leaderboard(
+                season, f"tankkings_{mode.lower()}", 100
+            )
+            records = json.loads(response["payload"])["records"]
+            global not_enough_100_records
+            if len(records) < 100:
+                not_enough_100_records = True
+            else:
+                not_enough_100_records = False
+                season_top_100 = []
+                for record in records:
+                    season_top_100.append(record["score"])
+                db["plot"][str(season)][f"top_100_{mode.lower()}"] = season_top_100
 
-  # Split case to avoid number of ticks mismatch
-  if season_end == curr_season:
-      data_a_1 = data_a[:-1]
-      data_a_2 = [[]]*len(data_a_1)
-      data_a_2.append(data_a[-1])
-      data_a_1.append([])
-  else:
-      data_a_1 = data_a
+                season_records = db["plot"][str(season)][f"top_100_{mode.lower()}"]
+                db["plot"][str(season)][f"top_100_{mode.lower()}_stats"] = (
+                    [min(season_records)]
+                    + [
+                        int(round(boxplot_stats(season_records)[0][i]))
+                        for i in ["q1", "med", "q3"]
+                    ]
+                    + [max(season_records)]
+                    + [int(round(mean(season_records)))]
+                )
 
-  # A: Plot graph
-  # Initialize IO
-  data_stream_a = io.BytesIO()
-  
-  # Plot Box Plot chart
-  def box_plot(data, edge_color, fill_color):
-    bp = ax_a_1.boxplot(data, patch_artist=True, flierprops=dict(markerfacecolor=fill_color, markeredgecolor=edge_color, markeredgewidth=1.5))
-    
-    for element in ['boxes', 'whiskers', 'fliers', 'means', 'medians', 'caps']:
-        plt.setp(bp[element], color=edge_color, linewidth=1.5)
+    if not_enough_100_records == True:
+        season_end = curr_season - 1
 
-    for patch in bp['boxes']:
-        patch.set(facecolor=fill_color)       
-        
-    return bp
-  
-  fig, ax_a_1 = plt.subplots(facecolor="#2f3137", figsize=(8, 6), edgecolor='w', linewidth=1)
-  ax_a_1.set_facecolor("#222222")
-  bp1 = box_plot(data_a_1, '#1392E8', '#BBE6FD')
-  if season_end == curr_season:
-    bp2 = box_plot(data_a_2, '#FA4D56', '#FED6D9')
-    if season_start == season_end: # Current Season only
-        ax_a_1.legend([bp2["boxes"][0]], ['Current Season'], loc='upper left', framealpha=1)
-    else: # Past Season(s) and Current Season
-        ax_a_1.legend([bp1["boxes"][0], bp2["boxes"][0]], ['Past Season' + ('' if one_past_season else 's'), 'Current Season'], loc='upper left', framealpha=1)
-  else: # Past Season(s) only
-      ax_a_1.legend([bp1["boxes"][0]], ['Past Season' + ('' if one_past_season else 's')], loc='upper left', framealpha=1)
+    # Get data
+    data_a = []  # A
+    data_b = []  # B
+    xlabels_a_1 = []  # A
+    xlabels_a_2 = []  # A
+    for season in range(season_start, season_end + 1):
+        data_a.append(db["plot"][str(season)][f"top_100_{mode.lower()}"])  # A
+        xlabels_a_1.append(str(season))  # A
+        xlabels_a_2.append(str(db["plot"][str(season)]["days"]))  # A
+        data_b.append(
+            [int(season)]
+            + [int(db["plot"][str(season)]["days"])]
+            + list(db["plot"][str(season)][f"top_100_{mode.lower()}_stats"])
+        )  # B
 
-  # Bottom axis
-  ax_a_1.set_xticklabels(xlabels_a_1 * (2 if season_end == curr_season else 1))
-  ax_a_1.set_title(
-    f"Rocket Bot Royale - Box Plot of Top 100 Players' {mode} by Season" +
-    ('' if one_past_season else 's'),
-    color='w',
-    weight='bold',
-    pad=12)
-  ax_a_1.set_xlabel('Season', color='w', weight='bold')
-  ax_a_1.set_ylabel(f'{mode}', color='w', weight='bold')
-  ax_a_1.tick_params(axis='both', which='both', colors='w')
-  ax_a_1.xaxis.grid(True, alpha=.5)
-  ax_a_1.yaxis.set_major_locator(MultipleLocator(500 if mode == "Trophies" else 100000))
-  ax_a_1.yaxis.set_minor_locator(AutoMinorLocator(5))
-  ax_a_1.yaxis.grid(which='major', alpha=.5)
-  ax_a_1.yaxis.grid(which='minor', alpha=.2)
+    # A: Plot graph
+    # Initialize IO
+    data_stream_a = io.BytesIO()
 
-  # Top axis
-  ax_a_2 = ax_a_1.secondary_xaxis("top")
-  ax_a_2.set_xticks(list(range(0,len(xlabels_a_2_fix * (2 if season_end == curr_season else 1)),1)))
-  ax_a_2.set_xticklabels(xlabels_a_2_fix * (2 if season_end == curr_season else 1))
-  ax_a_2.set_xlabel("Duration (days)", color='w', weight='bold')
-  ax_a_2.tick_params(axis='both', colors='w')
+    # Plot Box Plot chart
+    def box_plot(data, edge_color, fill_color):
+        bp = ax_a_1.boxplot(
+            data,
+            patch_artist=True,
+            flierprops=dict(
+                markerfacecolor=fill_color,
+                markeredgecolor=edge_color,
+                markeredgewidth=1.5,
+            ),
+        )
 
-  # Footer
-  plt.figtext(0.98, 0.03, "Generated at " + current_timestamp, ha="right", color='w', fontsize=8)
+        for element in ["boxes", "whiskers", "fliers", "medians", "caps"]:
+            plt.setp(bp[element], color=edge_color, linewidth=1.5)
+            if season_end == curr_season:
+                plt.setp(bp[element][-1:], color="#FA4D56")
+                if element in ["whiskers", "caps"]:
+                    plt.setp(bp[element][-2], color="#FA4D56")
+                elif element == "fliers":
+                    plt.setp(
+                        bp[element][-1],
+                        markerfacecolor="#FED6D9",
+                        markeredgecolor="#FA4D56",
+                        markeredgewidth=1.5,
+                    )
 
-  plt.tight_layout()
-  plt.savefig(data_stream_a, format='png', dpi=250)
-  plt.close()
+        for patch in bp["boxes"]:
+            patch.set(
+                facecolor="#FED6D9"
+                if season_end == curr_season and patch == bp["boxes"][-1]
+                else fill_color
+            )
 
-  # Send the first graph
-  data_stream_a.seek(0)
-  chart_a = discord.File(data_stream_a, filename=f"Rocket Bot Royale - Box Plot of Top 100 Players' {mode} by Season (Season {season_start} to {season_end}) {current_timestamp}.png")
-  await interaction.followup.send(file=chart_a)
+        return bp
 
-  # B: Plot table
-  # Initialize IO
-  data_stream_b = io.BytesIO()
-  
-  column_headers = ["Season", "Duration (days)", "Min", "Lower Quartile", "Median", "Upper Quartile", "Max", "Mean"]
-  
-  cell_text = []
-  for row in data_b:
-      cell_text.append(row)
-  fig_height = int(ceil((season_end-season_start+1)/3)) # Dynamic height
-  if fig_height < 2:
-    fig_height = 2 # Minimum height
-  plt.figure(linewidth=1, facecolor='#2f3137', tight_layout={'pad':2}, figsize=(8,fig_height), edgecolor='w')
-  
-  table = plt.table(cellText=cell_text, rowLoc='center', colLabels=column_headers, cellLoc='center', loc='center')
-  table.auto_set_font_size(False)
-  
-  # Hide axes
-  ax_b = plt.gca()
-  ax_b.get_xaxis().set_visible(False)
-  ax_b.get_yaxis().set_visible(False)
-  
-  # Customize rows and cells
-  for (row, col), cell in table.get_celld().items():
-      cell.set_edgecolor('w')
-      cell.set_text_props(color='w')
-      cell.set_text_props(fontproperties=FontProperties(weight='bold', size='x-small'))
-      if (row % 2 == 1):
-          cell.set_facecolor("#1155cc") # odd row
-      elif (row == 0):
-          cell.set_facecolor("#222222") # first row
-      else:
-          cell.set_facecolor("#3c78d8") # even row
-      if season_end == curr_season:
-          if (row == (season_end - season_start + 1)):
-              cell.set_facecolor("#cc0000") # current season row
-  
-  ax_b.set_title(f"Rocket Bot Royale - Box Plot of Top 100 Players' {mode} by Seasons\nStats Table", color='w', weight='bold', pad=0) # Title
-  
-  # Hide axes border
-  plt.box(on=None)
+    fig, ax_a_1 = plt.subplots(
+        facecolor="#2F3137", figsize=(8, 6), edgecolor="w", linewidth=1
+    )
+    ax_a_1.set_facecolor("#222222")
+    bp = box_plot(data_a, "#1392E8", "#BBE6FD")
 
-  # Footer
-  plt.figtext(0.98, 0.03, "Generated at " + current_timestamp, ha="right", color='w', fontsize=8)
+    # Legends
+    ax_a_1.legend(
+        [bp["boxes"][0] if season_start != curr_season else []]
+        + [bp["boxes"][-1] if season_end == curr_season else []],
+        [
+            "Past Season" + ("" if one_past_season else "s")
+            if season_start != curr_season
+            else []
+        ]
+        + ["Current Season" if season_end == curr_season else []],
+        loc="upper left",
+        framealpha=1,
+    )
 
-  plt.tight_layout()
+    # Bottom axis
+    ax_a_1.set_xticks(list(range(1, len(xlabels_a_1) + 1)), labels=xlabels_a_1)
+    ax_a_1.set_title(
+        f"Rocket Bot Royale - Box Plot of Top 100 Players' {mode} by Season"
+        + ("" if one_past_season else "s"),
+        color="w",
+        weight="bold",
+        pad=12,
+    )
+    ax_a_1.set_xlabel("Season", color="w", weight="bold")
+    ax_a_1.set_ylabel(f"{mode}", color="w", weight="bold")
+    ax_a_1.tick_params(axis="both", which="both", colors="w")
+    ax_a_1.xaxis.grid(True, alpha=0.5)
+    ax_a_1.yaxis.set_major_locator(
+        MultipleLocator(500 if mode == "Trophies" else 100000)
+    )
+    ax_a_1.yaxis.set_minor_locator(AutoMinorLocator(5))
+    ax_a_1.yaxis.grid(which="major", alpha=0.5)
+    ax_a_1.yaxis.grid(which="minor", alpha=0.2)
 
-  # Legend
-  legends_name = []
-  legends_color = []
+    # Top axis
+    ax_a_2 = ax_a_1.secondary_xaxis("top")
+    ax_a_2.set_xticks(list(range(1, len(xlabels_a_2) + 1)), labels=xlabels_a_2)
+    ax_a_2.set_xlabel("Duration (days)", color="w", weight="bold")
+    ax_a_2.tick_params(axis="both", colors="w")
 
-  # Fix legends x-coordinate
-  if season_end == curr_season:
-    if season_start != season_end: # Past Season(s) and Current Season
-      legends_name.append("Past Season" + ('' if one_past_season else 's'))
-      legends_name.append("Current Season")
-      legends_color.append("#1155cc")
-      legends_color.append("#cc0000")
-      bbox_to_anchor_x = 0.165
-    else: # Current Season only
-      legends_name.append("Current Season")
-      legends_color.append("#cc0000")
-      bbox_to_anchor_x = 0.085
-  else: # Past Season(s) only
-    legends_name.append("Past Season" + ('' if one_past_season else 's'))
-    legends_color.append("#1155cc")
-    bbox_to_anchor_x = 0.085
-  
-  for row in range(len(legends_name)):
-      plt.bar(legends_name, legends_name[row], 0, color=legends_color[::-1][row], label=legends_name[::-1][row]) # Set width 0 to hide the bars
-  
-  handles, labels = ax_b.get_legend_handles_labels()
-  ax_b.legend(handles[::-1], labels[::-1], loc='lower center', bbox_to_anchor=(bbox_to_anchor_x, 0.85), ncol=2, fontsize=8, framealpha=1)
+    # Footer
+    plt.figtext(
+        0.98,
+        0.03,
+        "Generated at " + current_timestamp,
+        ha="right",
+        color="w",
+        fontsize=8,
+    )
 
-  plt.savefig(data_stream_b, format='png', dpi=250)
-  plt.close()
+    plt.tight_layout()
+    plt.savefig(data_stream_a, format="png", dpi=250)
+    plt.close()
 
-  # Send the second graph
-  data_stream_b.seek(0)
-  chart_b = discord.File(data_stream_b, filename=f"Rocket Bot Royale - Box Plot of Top 100 Players' {mode} by Season (Season {season_start} to {season_end}) Stats Table {current_timestamp}.png")
-  await interaction.followup.send(file=chart_b)
+    # Send the first graph
+    data_stream_a.seek(0)
+    chart_a = discord.File(
+        data_stream_a,
+        filename=f"Rocket Bot Royale - Box Plot of Top 100 Players' {mode} by Season (Season {season_start} to {season_end}) {current_timestamp}.png",
+    )
+    await interaction.followup.send(file=chart_a)
+
+    # B: Plot table
+    # Initialize IO
+    data_stream_b = io.BytesIO()
+
+    column_headers = [
+        "Season",
+        "Duration (days)",
+        "Min",
+        "Lower Quartile",
+        "Median",
+        "Upper Quartile",
+        "Max",
+        "Mean",
+    ]
+
+    cell_text = []
+    for row in data_b:
+        cell_text.append(row)
+    fig_height = int(ceil((season_end - season_start + 1) / 3))  # Dynamic height
+    if fig_height < 2:
+        fig_height = 2  # Minimum height
+    plt.figure(
+        linewidth=1,
+        facecolor="#2F3137",
+        tight_layout={"pad": 2},
+        figsize=(8, fig_height),
+        edgecolor="w",
+    )
+
+    table = plt.table(
+        cellText=cell_text,
+        rowLoc="center",
+        colLabels=column_headers,
+        cellLoc="center",
+        loc="center",
+    )
+    table.auto_set_font_size(False)
+
+    # Hide axes
+    ax_b = plt.gca()
+    ax_b.get_xaxis().set_visible(False)
+    ax_b.get_yaxis().set_visible(False)
+
+    # Customize rows and cells
+    for (row, col), cell in table.get_celld().items():
+        cell.set_edgecolor("w")
+        cell.set_text_props(color="w")
+        cell.set_text_props(
+            fontproperties=FontProperties(weight="bold", size="x-small")
+        )
+        if row % 2 == 1:
+            cell.set_facecolor("#1155CC")  # odd row
+        elif row == 0:
+            cell.set_facecolor("#222222")  # first row
+        else:
+            cell.set_facecolor("#3C78D8")  # even row
+        if season_end == curr_season:
+            if row == (season_end - season_start + 1):
+                cell.set_facecolor("#CC0000")  # current season row
+
+    ax_b.set_title(
+        f"Rocket Bot Royale - Box Plot of Top 100 Players' {mode} by Seasons\nStats Table",
+        color="w",
+        weight="bold",
+        pad=0,
+    )  # Title
+
+    # Hide axes border
+    plt.box(on=None)
+
+    # Legends
+    legends_name = []
+    legends_color = []
+
+    # Fix legends x-coordinate
+    if season_end == curr_season:
+        if season_start != season_end:  # Past Season(s) and Current Season
+            legends_name.append("Past Season" + ("" if one_past_season else "s"))
+            legends_name.append("Current Season")
+            legends_color.append("#1155CC")
+            legends_color.append("#CC0000")
+            bbox_to_anchor_x = 0.165
+        else:  # Current Season only
+            legends_name.append("Current Season")
+            legends_color.append("#CC0000")
+            bbox_to_anchor_x = 0.085
+    else:  # Past Season(s) only
+        legends_name.append("Past Season" + ("" if one_past_season else "s"))
+        legends_color.append("#1155CC")
+        bbox_to_anchor_x = 0.085
+
+    for row in range(len(legends_name)):
+        plt.bar(
+            legends_name,
+            legends_name[row],
+            0,
+            color=legends_color[::-1][row],
+            label=legends_name[::-1][row],
+        )  # Set width 0 to hide the bars
+
+    handles, labels = ax_b.get_legend_handles_labels()
+    ax_b.legend(
+        handles[::-1],
+        labels[::-1],
+        loc="lower center",
+        bbox_to_anchor=(bbox_to_anchor_x, 0.85),
+        ncol=2,
+        fontsize=8,
+        framealpha=1,
+    )
+
+    # Footer
+    plt.figtext(
+        0.98,
+        0.03,
+        "Generated at " + current_timestamp,
+        ha="right",
+        color="w",
+        fontsize=8,
+    )
+
+    plt.tight_layout()
+    plt.savefig(data_stream_b, format="png", dpi=250)
+    plt.close()
+
+    # Send the second graph
+    data_stream_b.seek(0)
+    chart_b = discord.File(
+        data_stream_b,
+        filename=f"Rocket Bot Royale - Box Plot of Top 100 Players' {mode} by Season (Season {season_start} to {season_end}) Stats Table {current_timestamp}.png",
+    )
+    await interaction.followup.send(file=chart_b)
 
 
 @tree.command(guild=discord.Object(id=962142361935314996))
@@ -3932,6 +5041,6 @@ def main():
         os.system("kill 1")
 
 
-if (__name__ == "__main__"):
+if __name__ == "__main__":
     main()
 ""
