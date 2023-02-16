@@ -4962,6 +4962,7 @@ async def plot(
 
     # Hide axes border
     plt.box(on=None)
+    plt.tight_layout()
 
     # Legends
     legends_name = []
