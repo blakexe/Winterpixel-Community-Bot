@@ -4813,17 +4813,17 @@ async def plot(
 
         for element in ["boxes", "whiskers", "fliers", "medians", "caps"]:
             plt.setp(bp[element], color=edge_color, linewidth=1.5)
-        if season_end == curr_season:
-            plt.setp(bp[element][-1:], color="#FA4D56")
-            if element in ["whiskers", "caps"]:
-                plt.setp(bp[element][-2], color="#FA4D56")
-            elif element == "fliers":
-                plt.setp(
-                    bp[element][-1],
-                    markerfacecolor="#FED6D9",
-                    markeredgecolor="#FA4D56",
-                    markeredgewidth=1.5,
-                )
+            if season_end == curr_season:
+                plt.setp(bp[element][-1:], color="#FA4D56")
+                if element in ["whiskers", "caps"]:
+                    plt.setp(bp[element][-2], color="#FA4D56")
+                elif element == "fliers":
+                    plt.setp(
+                        bp[element][-1],
+                        markerfacecolor="#FED6D9",
+                        markeredgecolor="#FA4D56",
+                        markeredgewidth=1.5,
+                    )
 
         for patch in bp["boxes"]:
             patch.set(
