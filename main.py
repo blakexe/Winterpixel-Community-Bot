@@ -161,9 +161,9 @@ os.system("clear")
 
 
 def season_info(season):
-    season_durations = []
-    season_start_numbers = []
-    season_start_timestamps = []
+    season_durations, season_start_numbers, season_start_timestamps = (
+        [] for i in range(3)
+    )
     for key in server_config["season_definitions"]:
         season_durations.append(key["season_duration"])
         season_start_numbers.append(key["season_start_number"])
@@ -489,8 +489,7 @@ async def leaderboard_rocket_bot_royale(
             new_key_flag = True
 
         if mode == "Trophies":  # By Tropihes
-            split = []
-            tier = []
+            split, tier = [], []
             for i in range(5):
                 split.append(server_config["trophy_tiers"][i]["maximum_rank"])
                 tier.append(server_config["trophy_tiers"][i]["name"])
@@ -800,8 +799,7 @@ async def leaderboard_rocket_bot_royale(
         if mode == "Trophies":  # By Tropihes
 
             def trophies_hidden(last=True, fifty=False):
-                split = []
-                tier = []
+                split, tier = [], []
                 for i in range(12):
                     split.append(server_config["trophy_tiers"][i]["maximum_rank"])
                     tier.append(server_config["trophy_tiers"][i]["name"])
@@ -3119,9 +3117,7 @@ async def long(interaction: discord.Interaction, length: int, barrel: int = 1):
         barrel = length
 
     def even_space(n, k):
-        a = []
-        for i in range(k):
-            a.append(n // k)
+        a = [n // k for i in range(k)]
         for i in range(n % k):
             a[i] += 1
         b = list(OrderedDict.fromkeys(a))
@@ -3168,9 +3164,7 @@ async def long(interaction: discord.Interaction, length: int, barrel: int = 1):
         else even_space_encode
     )
 
-    even_space_encode_palindrome_decode = []
-    for i in even_space_encode_palindrome:
-        even_space_encode_palindrome_decode.append(i)
+    even_space_encode_palindrome_decode = even_space_encode_palindrome
     for i in range(len(even_space_encode_palindrome_decode)):
         even_space_encode_palindrome_decode[i] = (
             x if even_space_encode_palindrome_decode[i] == "x" else y
@@ -3260,13 +3254,10 @@ async def slot(interaction: discord.Interaction, bet: int):
                 coin[4]: 0.2,
             }
 
-        slots = []
-        for i in range(3):
-            slots.append(
-                random.choices(population=list(events.keys()), weights=events.values())[
-                    0
-                ]
-            )
+        slots = [
+            random.choices(population=list(events.keys()), weights=events.values())[0]
+            for i in range(3)
+        ]
 
         slot_embed = discord.Embed(
             color=0xFFD700,
@@ -4730,41 +4721,61 @@ async def plot(
     else:
         one_past_season = False
 
-    # Get leaderboard info
+    # Get leaderboard info and update replit's database if necessary
     last_update_season = 0
     for season in range(
-        season_start, season_end + 1
-    ):  # Update replit's database if necessary
-        if season in range(db["plot"]["last_update_season"], curr_season + 1):
-            if season > last_update_season:
-                last_update_season = season
-            if str(season) not in db["plot"]:
-                db["plot"][str(season)] = dict()
-                db["plot"][str(season)]["days"] = season_info(season)[2][:-5]
-            response = await rocketbot_client.query_leaderboard(
-                season, f"tankkings_{mode.lower()}", 100
-            )
-            records = json.loads(response["payload"])["records"]
-            global not_enough_100_records
-            if len(records) < 100:
-                not_enough_100_records = True
-            else:
-                not_enough_100_records = False
-                season_top_100 = []
-                for record in records:
-                    season_top_100.append(record["score"])
-                db["plot"][str(season)][f"top_100_{mode.lower()}"] = season_top_100
+        max(season_start, db["plot"]["last_update_season"]),
+        min(season_end, curr_season) + 1,
+    ):
+        if season > last_update_season:
+            last_update_season = season
 
-                season_records = db["plot"][str(season)][f"top_100_{mode.lower()}"]
-                db["plot"][str(season)][f"top_100_{mode.lower()}_stats"] = (
-                    [min(season_records)]
-                    + [
-                        int(round(boxplot_stats(season_records)[0][i]))
-                        for i in ["q1", "med", "q3"]
-                    ]
-                    + [max(season_records)]
-                    + [int(round(mean(season_records)))]
-                )
+        if str(season) not in db["plot"]:
+            db["plot"][str(season)] = dict()
+            db["plot"][str(season)]["days"] = season_info(season)[2][:-5]
+
+        response = await rocketbot_client.query_leaderboard(
+            season, f"tankkings_{mode.lower()}", 100
+        )
+        records = json.loads(response["payload"])["records"]
+
+        global not_enough_100_records
+        if len(records) < 100:
+            not_enough_100_records = True
+        else:
+            not_enough_100_records = False
+
+        # Write both modes for seasons 1 to 10 and trophies mode only for seasons 11 onwards for the first time in case of creating a new database/dictionary
+        update_modes = (
+            ["points", "trophies"]
+            if (season == last_update_season and season != curr_season and season >= 11)
+            else [f"{mode.lower()}"]
+        )
+
+        for update_mode in update_modes:
+            if update_mode != f"{mode.lower()}":
+                all_modes = ["Points", "Trophies"]
+                all_modes.remove(mode)
+                response2 = await rocketbot_client.query_leaderboard(
+                    season, f"tankkings_{all_modes[0].lower()}", 100
+                )  # another mode
+                records2 = json.loads(response2["payload"])["records"]
+                records = records2
+
+            db["plot"][str(season)][f"top_100_{update_mode}"] = [
+                record["score"] for record in records
+            ]
+
+            season_records = db["plot"][str(season)][f"top_100_{update_mode}"]
+            db["plot"][str(season)][f"top_100_{update_mode}_stats"] = (
+                [min(season_records)]
+                + [
+                    int(round(boxplot_stats(season_records)[0][i]))
+                    for i in ["q1", "med", "q3"]
+                ]
+                + [max(season_records)]
+                + [int(round(mean(season_records)))]
+            )
 
     if last_update_season > db["plot"]["last_update_season"]:
         db["plot"]["last_update_season"] = last_update_season
@@ -4773,17 +4784,14 @@ async def plot(
         season_end = curr_season - 1
 
     # Get data
-    data_a = []  # A
-    data_b = []  # B
-    xlabels_a_1 = []  # A
-    xlabels_a_2 = []  # A
+    data_a, data_b, xlabels_a_1, xlabels_a_2 = ([] for i in range(4))  # A and B
     for season in range(season_start, season_end + 1):
         data_a.append(db["plot"][str(season)][f"top_100_{mode.lower()}"])  # A
-        xlabels_a_1.append(str(season))  # A
-        xlabels_a_2.append(str(db["plot"][str(season)]["days"]))  # A
+        xlabels_a_1.append(season)  # A
+        xlabels_a_2.append(db["plot"][str(season)]["days"])  # A
         data_b.append(
-            [int(season)]
-            + [int(db["plot"][str(season)]["days"])]
+            [season]
+            + [db["plot"][str(season)]["days"]]
             + list(db["plot"][str(season)][f"top_100_{mode.lower()}_stats"])
         )  # B
 
@@ -4805,17 +4813,17 @@ async def plot(
 
         for element in ["boxes", "whiskers", "fliers", "medians", "caps"]:
             plt.setp(bp[element], color=edge_color, linewidth=1.5)
-            if season_end == curr_season:
-                plt.setp(bp[element][-1:], color="#FA4D56")
-                if element in ["whiskers", "caps"]:
-                    plt.setp(bp[element][-2], color="#FA4D56")
-                elif element == "fliers":
-                    plt.setp(
-                        bp[element][-1],
-                        markerfacecolor="#FED6D9",
-                        markeredgecolor="#FA4D56",
-                        markeredgewidth=1.5,
-                    )
+        if season_end == curr_season:
+            plt.setp(bp[element][-1:], color="#FA4D56")
+            if element in ["whiskers", "caps"]:
+                plt.setp(bp[element][-2], color="#FA4D56")
+            elif element == "fliers":
+                plt.setp(
+                    bp[element][-1],
+                    markerfacecolor="#FED6D9",
+                    markeredgecolor="#FA4D56",
+                    markeredgewidth=1.5,
+                )
 
         for patch in bp["boxes"]:
             patch.set(
@@ -4909,9 +4917,6 @@ async def plot(
         "Mean",
     ]
 
-    cell_text = []
-    for row in data_b:
-        cell_text.append(row)
     fig_height = int(ceil((season_end - season_start + 1) / 3))  # Dynamic height
     if fig_height < 2:
         fig_height = 2  # Minimum height
@@ -4924,7 +4929,7 @@ async def plot(
     )
 
     table = plt.table(
-        cellText=cell_text,
+        cellText=[row for row in data_b],
         rowLoc="center",
         colLabels=column_headers,
         cellLoc="center",
@@ -4966,19 +4971,19 @@ async def plot(
     plt.tight_layout()
 
     # Legends
-    legends_name = []
-
     # Fix legends x-coordinate
     if season_end == curr_season:
         if season_start != season_end:  # Past Season(s) and Current Season
-            legends_name.append("Past Season" + ("" if one_past_season else "s"))
-            legends_name.append("Current Season")
+            legends_name = [
+                "Past Season" + ("" if one_past_season else "s"),
+                "Current Season",
+            ]
             bbox_to_anchor_x = 0.165
         else:  # Current Season only
-            legends_name.append("Current Season")
+            legends_name = ["Current Season"]
             bbox_to_anchor_x = 0.085
     else:  # Past Season(s) only
-        legends_name.append("Past Season" + ("" if one_past_season else "s"))
+        legends_name = ["Past Season" + ("" if one_past_season else "s")]
         bbox_to_anchor_x = 0.085
 
     for row in range(len(legends_name)):
