@@ -3164,7 +3164,7 @@ async def long(interaction: discord.Interaction, length: int, barrel: int = 1):
         else even_space_encode
     )
 
-    even_space_encode_palindrome_decode = even_space_encode_palindrome
+    even_space_encode_palindrome_decode = [i for i in even_space_encode_palindrome]
     for i in range(len(even_space_encode_palindrome_decode)):
         even_space_encode_palindrome_decode[i] = (
             x if even_space_encode_palindrome_decode[i] == "x" else y
