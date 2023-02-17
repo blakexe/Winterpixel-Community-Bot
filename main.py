@@ -4731,7 +4731,6 @@ async def plot(
         one_past_season = False
 
     # Get leaderboard info
-    db["plot"]["last_update_season"] = 0
     last_update_season = 0
     for season in range(
         season_start, season_end + 1
