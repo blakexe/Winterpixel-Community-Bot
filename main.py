@@ -4731,15 +4731,14 @@ async def plot(
         one_past_season = False
 
     # Get leaderboard info
+    db["plot"]["last_update_season"] = 0
+    last_update_season = 0
     for season in range(
         season_start, season_end + 1
     ):  # Update replit's database if necessary
-        if (
-            str(season) not in db["plot"]
-            or season == curr_season
-            or f"top_100_{mode.lower()}" not in db["plot"][str(season)]
-            or f"top_100_{mode.lower()}_stats" not in db["plot"][str(season)]
-        ):
+        if season in range(db["plot"]["last_update_season"], curr_season + 1):
+            if season > last_update_season:
+                last_update_season = season
             if str(season) not in db["plot"]:
                 db["plot"][str(season)] = dict()
                 db["plot"][str(season)]["days"] = season_info(season)[2][:-5]
@@ -4767,6 +4766,9 @@ async def plot(
                     + [max(season_records)]
                     + [int(round(mean(season_records)))]
                 )
+
+    if last_update_season > db["plot"]["last_update_season"]:
+        db["plot"]["last_update_season"] = last_update_season
 
     if not_enough_100_records == True:
         season_end = curr_season - 1
