@@ -4806,7 +4806,9 @@ async def plot(
         else:  # current season
             limit = 100 if graph == "Box Plot" else 8002
             response = await rocketbot_client.query_leaderboard(
-                season, f"tankkings_{mode.lower()[: (-16 if mode != 'Trophies' else None)]}", limit
+                season,
+                f"tankkings_{mode.lower()[: (-16 if mode != 'Trophies' else None)]}",
+                limit,
             )
             records = json.loads(response["payload"])["records"]
 
@@ -4815,13 +4817,19 @@ async def plot(
 
             if enough_records:
                 if graph == "Box Plot":
-                    db["plot"][str(season)][f"top_100_{mode.lower()}"] = [
-                        record["score"] for record in records
-                    ]
-                    print(f"top_100_{mode.lower()}")
+                    db["plot"][str(season)][
+                        f"top_100_{mode.lower()[: (-16 if mode != 'Trophies' else None)]}"
+                    ] = [record["score"] for record in records]
+                    print(
+                        f"top_100_{mode.lower()[: (-16 if mode != 'Trophies' else None)]}"
+                    )
 
-                    season_records = db["plot"][str(season)][f"top_100_{mode.lower()}"]
-                    db["plot"][str(season)][f"top_100_{mode.lower()}_stats"] = (
+                    season_records = db["plot"][str(season)][
+                        f"top_100_{mode.lower()[: (-16 if mode != 'Trophies' else None)]}"
+                    ]
+                    db["plot"][str(season)][
+                        f"top_100_{mode.lower()[: (-16 if mode != 'Trophies' else None)]}_stats"
+                    ] = (
                         [min(season_records)]
                         + [
                             int(round(boxplot_stats(season_records)[0][i]))
@@ -4830,7 +4838,9 @@ async def plot(
                         + [max(season_records)]
                         + [int(round(mean(season_records)))]
                     )
-                    print(f"top_100_{mode.lower()}_stats")
+                    print(
+                        f"top_100_{mode.lower()[: (-16 if mode != 'Trophies' else None)]}_stats"
+                    )
 
                 if graph == "League Trophies Range":
                     db["plot"][str(season)]["League Trophies Range"] = [
@@ -4869,10 +4879,18 @@ async def plot(
 
     for season in range(start_season, end_season + 1):
         if graph == "Box Plot":  # A and B
-            data_a.append(db["plot"][str(season)][f"top_100_{mode.lower()}"])  # A
+            data_a.append(
+                db["plot"][str(season)][
+                    f"top_100_{mode.lower()[: (-16 if mode != 'Trophies' else None)]}"
+                ]
+            )  # A
             data_b.append(
                 [season, db["plot"][str(season)]["days"]]
-                + list(db["plot"][str(season)][f"top_100_{mode.lower()}_stats"])
+                + list(
+                    db["plot"][str(season)][
+                        f"top_100_{mode.lower()[: (-16 if mode != 'Trophies' else None)]}_stats"
+                    ]
+                )
             )  # B
         if graph == "League Trophies Range":  # C and D
             sd = db["plot"][str(season)]["League Trophies Range"]  # season data
@@ -5356,7 +5374,7 @@ async def plot(
             data_stream_c,
             filename=f"Rocket Bot Royale - League Trophies Range by Season (Season {start_season}"
             + (f" to {end_season}" if start_season != end_season else "")
-            + f") {current_timestamp}.png"
+            + f") {current_timestamp}.png",
         )
         await interaction.followup.send(file=chart_c)
 
