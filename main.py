@@ -5310,7 +5310,7 @@ async def plot(
             pad=12,
         )
         ax_c_1.set_xlabel("Season", color="w", weight="bold")
-        ax_c_1.set_ylabel("🏆 Trophies", color="w", weight="bold")
+        ax_c_1.set_ylabel("Trophies", color="w", weight="bold")
         ax_c_1.tick_params(axis="both", which="both", colors="w")
         ax_c_1.xaxis.grid(True, alpha=0.5)
         ax_c_1.yaxis.set_major_locator(MultipleLocator(500))
