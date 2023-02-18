@@ -4769,39 +4769,39 @@ async def plot(
         ):  # past seasons (store for first time / overwrite for last season)
             update_modes = ["points", "trophies"] if season >= 11 else ["points"]
 
-        for update_mode in update_modes:
-            response = await rocketbot_client.query_leaderboard(
-                season, f"tankkings_{update_mode}", 100
-            )
-            records = json.loads(response["payload"])["records"]
+            for update_mode in update_modes:
+                response = await rocketbot_client.query_leaderboard(
+                    season, f"tankkings_{update_mode}", 100
+                )
+                records = json.loads(response["payload"])["records"]
 
-            db["plot"][str(season)][f"top_100_{update_mode}"] = [
-                record["score"] for record in records
-            ]
-            print(f"top_100_{update_mode}")
-
-            season_records = db["plot"][str(season)][f"top_100_{update_mode}"]
-            db["plot"][str(season)][f"top_100_{update_mode}_stats"] = (
-                [min(season_records)]
-                + [
-                    int(round(boxplot_stats(season_records)[0][i]))
-                    for i in ["q1", "med", "q3"]
+                db["plot"][str(season)][f"top_100_{update_mode}"] = [
+                    record["score"] for record in records
                 ]
-                + [max(season_records)]
-                + [int(round(mean(season_records)))]
-            )
-            print(f"top_100_{update_mode}_stats")
+                print(f"top_100_{update_mode}")
 
-        if season >= 11:
-            response = await rocketbot_client.query_leaderboard(
-                season, "tankkings_trophies", 8002
-            )
-            records = json.loads(response["payload"])["records"]
+                season_records = db["plot"][str(season)][f"top_100_{update_mode}"]
+                db["plot"][str(season)][f"top_100_{update_mode}_stats"] = (
+                    [min(season_records)]
+                    + [
+                        int(round(boxplot_stats(season_records)[0][i]))
+                        for i in ["q1", "med", "q3"]
+                    ]
+                    + [max(season_records)]
+                    + [int(round(mean(season_records)))]
+                )
+                print(f"top_100_{update_mode}_stats")
 
-            db["plot"][str(season)]["League Trophies Range"] = [
-                records[range - 1]["score"] for range in league_range
-            ]
-            print("League Trophies Range")
+            if season >= 11:
+                response = await rocketbot_client.query_leaderboard(
+                    season, "tankkings_trophies", 8002
+                )
+                records = json.loads(response["payload"])["records"]
+
+                db["plot"][str(season)]["League Trophies Range"] = [
+                    records[range - 1]["score"] for range in league_range
+                ]
+                print("League Trophies Range")
 
         else:  # current season
             limit = 100 if graph == "Box Plot" else 8002
