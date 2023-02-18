@@ -15,6 +15,7 @@ import matplotlib.pyplot as plt
 from matplotlib.cbook import boxplot_stats
 from matplotlib.font_manager import FontProperties
 from matplotlib.ticker import MultipleLocator, AutoMinorLocator
+from scipy.interpolate import PchipInterpolator
 from math import ceil
 from collections import defaultdict, OrderedDict, Counter
 from operator import itemgetter
@@ -285,9 +286,26 @@ async def refresh_config():
         response = await rocketbot_client.get_config()
         server_config = json.loads(response["payload"])
 
-        # Remove past season keys
-        global curr_season
+        global curr_season, league_range, league_names, league_colors_orig, league_colors
         curr_season = server_config["season"]
+        f1 = lambda x: (server_config["trophy_tiers"][x]["maximum_rank"])
+        f2 = lambda x: (server_config["trophy_tiers"][x]["maximum_rank"] + 1)
+        league_range = [
+            f(league)
+            for league in range(len(server_config["trophy_tiers"]) - 1)
+            for f in (f1, f2)
+        ]
+        league_names = [
+            server_config["trophy_tiers"][league]["name"]
+            for league in range(len(server_config["trophy_tiers"]))
+        ]
+        league_colors_orig = [
+            f"#{server_config['trophy_tiers'][league]['color']}"
+            for league in range(len(server_config["trophy_tiers"]))
+        ]
+        league_colors = [color for color in league_colors_orig for _ in (0, 1)][1:-1]
+
+        # Remove past season keys
         for i in db.prefix("tankkings"):
             if str(curr_season) not in i:
                 del db[i]
@@ -4676,19 +4694,26 @@ async def fandom(interaction: discord.Interaction, article: str):
         )
 
 
+db["plot_copy"] = db["plot"]
+del db["plot"]
+db["plot"] = dict()
+db["plot"]["last_update_season"] = 0
+db["plot"]["first_10_seasons_added"] = False
+
+
 @tree.command()
 @app_commands.describe(
-    graph="Type of graph to be plotted. Box Plot: Top 100 players",
-    mode="Trophies or Points",
-    season_start="Trophies: Season 11 or later / Points: Season 1 or later, default all",
-    season_end="same or greater than season_start, default all",
+    graph="Box Plot: Top 100 players' records / League Trophies Range",
+    mode="Trophies / Points (Box Plot only)",
+    start_season="Trophies: Season 11 or later / Points: Season 1 or later, default all",
+    end_season=">= start_season, default all",
 )
 async def plot(
     interaction: discord.Interaction,
-    graph: typing.Literal["Box Plot"],
-    mode: typing.Literal["Trophies", "Points"],
-    season_start: int = 1,
-    season_end: int = -1,
+    graph: typing.Literal["Box Plot", "League Trophies Range"],
+    mode: typing.Literal["Trophies", "Points (Box Plot only)"],
+    start_season: int = 1,
+    end_season: int = -1,
 ):
     """Plot statistics graph and table about trophies or points in season(s)"""
 
@@ -4698,24 +4723,26 @@ async def plot(
     current_timestamp = (
         f"{datetime.datetime.utcfromtimestamp(time.time()):%Y-%m-%d %H:%M:%S} UTC"
     )
-    curr_season = server_config["season"]
 
-    # Reassign season_start and season_end if unreasonable
-    if season_start < (11 if mode == "Trophies" else 1):
-        season_start = 11 if mode == "Trophies" else 1
-    if season_start > curr_season:
-        season_start = curr_season
+    # Reassign parameters if unreasonable
+    if graph == "League Trophies Range":
+        mode = "Trophies"
 
-    if season_end < (11 if mode == "Trophies" else 1):
-        season_start = 11 if mode == "Trophies" else 1
-    if season_end > curr_season or season_end == -1:
-        season_end = curr_season
-    if season_end < season_start:
-        season_end = season_start
+    if start_season < (11 if mode == "Trophies" else 1):
+        start_season = 11 if mode == "Trophies" else 1
+    if start_season > curr_season:
+        start_season = curr_season
+
+    if end_season < (11 if mode == "Trophies" else 1):
+        start_season = 11 if mode == "Trophies" else 1
+    if end_season > curr_season or end_season == -1:
+        end_season = curr_season
+    if end_season < start_season:
+        end_season = start_season
 
     # Singular or plural form for legends
-    if (season_start == curr_season - 1 and season_end == curr_season) or (
-        season_start == season_end and season_start != curr_season
+    if (start_season == curr_season - 1 and end_season == curr_season) or (
+        start_season == end_season and start_season != curr_season
     ):
         one_past_season = True
     else:
@@ -4724,47 +4751,34 @@ async def plot(
     # Get leaderboard info and update replit's database if necessary
     last_update_season = 0
     for season in range(
-        max(season_start, db["plot"]["last_update_season"]),
-        min(season_end, curr_season) + 1,
+        max(start_season, db["plot"]["last_update_season"]),
+        min(end_season, curr_season) + 1,
     ):
+        print(season)
+
         if season > last_update_season:
             last_update_season = season
 
         if str(season) not in db["plot"]:
             db["plot"][str(season)] = dict()
             db["plot"][str(season)]["days"] = season_info(season)[2][:-5]
+            print("days")
 
-        response = await rocketbot_client.query_leaderboard(
-            season, f"tankkings_{mode.lower()}", 100
-        )
-        records = json.loads(response["payload"])["records"]
-
-        global not_enough_100_records
-        if len(records) < 100:
-            not_enough_100_records = True
-        else:
-            not_enough_100_records = False
-
-        # Write both modes for seasons 1 to 10 and trophies mode only for seasons 11 onwards for the first time in case of creating a new database/dictionary
-        update_modes = (
-            ["points", "trophies"]
-            if (season == last_update_season and season != curr_season and season >= 11)
-            else [f"{mode.lower()}"]
-        )
+        if (
+            season < curr_season
+        ):  # past seasons (store for first time / overwrite for last season)
+            update_modes = ["points", "trophies"] if season >= 11 else ["points"]
 
         for update_mode in update_modes:
-            if update_mode != f"{mode.lower()}":
-                all_modes = ["Points", "Trophies"]
-                all_modes.remove(mode)
-                response2 = await rocketbot_client.query_leaderboard(
-                    season, f"tankkings_{all_modes[0].lower()}", 100
-                )  # another mode
-                records2 = json.loads(response2["payload"])["records"]
-                records = records2
+            response = await rocketbot_client.query_leaderboard(
+                season, f"tankkings_{update_mode}", 100
+            )
+            records = json.loads(response["payload"])["records"]
 
             db["plot"][str(season)][f"top_100_{update_mode}"] = [
                 record["score"] for record in records
             ]
+            print(f"top_100_{update_mode}")
 
             season_records = db["plot"][str(season)][f"top_100_{update_mode}"]
             db["plot"][str(season)][f"top_100_{update_mode}_stats"] = (
@@ -4776,291 +4790,738 @@ async def plot(
                 + [max(season_records)]
                 + [int(round(mean(season_records)))]
             )
+            print(f"top_100_{update_mode}_stats")
 
-    if last_update_season > db["plot"]["last_update_season"]:
+        if season >= 11:
+            response = await rocketbot_client.query_leaderboard(
+                season, "tankkings_trophies", 8002
+            )
+            records = json.loads(response["payload"])["records"]
+
+            db["plot"][str(season)]["League Trophies Range"] = [
+                records[range - 1]["score"] for range in league_range
+            ]
+            print("League Trophies Range")
+
+        else:  # current season
+            limit = 100 if graph == "Box Plot" else 8002
+            response = await rocketbot_client.query_leaderboard(
+                season, f"tankkings_{mode.lower()}", limit
+            )
+            records = json.loads(response["payload"])["records"]
+
+            global enough_records
+            enough_records = len(records) >= limit
+
+            if enough_records:
+                if graph == "Box Plot":
+                    db["plot"][str(season)][f"top_100_{mode.lower()}"] = [
+                        record["score"] for record in records
+                    ]
+                    print(f"top_100_{mode.lower()}")
+
+                    season_records = db["plot"][str(season)][f"top_100_{mode.lower()}"]
+                    db["plot"][str(season)][f"top_100_{mode.lower()}_stats"] = (
+                        [min(season_records)]
+                        + [
+                            int(round(boxplot_stats(season_records)[0][i]))
+                            for i in ["q1", "med", "q3"]
+                        ]
+                        + [max(season_records)]
+                        + [int(round(mean(season_records)))]
+                    )
+                    print(f"top_100_{mode.lower()}_stats")
+
+                if graph == "League Trophies Range":
+                    db["plot"][str(season)]["League Trophies Range"] = [
+                        records[range - 1]["score"] for range in league_range
+                    ]
+                print("League Trophies Range")
+
+    if db["plot"]["first_10_seasons_added"] == False:
+        db["plot"]["first_10_seasons_added"] = True
+        print("first_10_seasons_added = True")
+
+        for season in range(1, 11):
+            if str(season) not in db["plot"]:
+                db["plot"]["first_10_seasons_added"] = False
+                print("first_10_seasons_added = False")
+                break
+
+    if (
+        db["plot"]["first_10_seasons_added"]
+        and last_update_season > db["plot"]["last_update_season"]
+    ):
         db["plot"]["last_update_season"] = last_update_season
+        print(f"last update season: {last_update_season}")
 
-    if not_enough_100_records == True:
-        season_end = curr_season - 1
+    if not (enough_records):
+        end_season = curr_season - 1
+        if start_season == curr_season:
+            start_season = curr_season - 1
 
     # Get data
-    data_a, data_b, xlabels_a_1, xlabels_a_2 = ([] for i in range(4))  # A and B
-    for season in range(season_start, season_end + 1):
-        data_a.append(db["plot"][str(season)][f"top_100_{mode.lower()}"])  # A
-        xlabels_a_1.append(season)  # A
-        xlabels_a_2.append(db["plot"][str(season)]["days"])  # A
-        data_b.append(
-            [season]
-            + [db["plot"][str(season)]["days"]]
-            + list(db["plot"][str(season)][f"top_100_{mode.lower()}_stats"])
-        )  # B
+    if graph == "Box Plot":
+        data_a, data_b = [], []  # A and B
+    if graph == "League Trophies Range":
+        data_c, data_d = [], []  # C and D
+    xlabels_a_c_1, xlabels_a_c_2 = [], []  # A and C
 
-    # A: Plot graph
-    # Initialize IO
-    data_stream_a = io.BytesIO()
+    for season in range(start_season, end_season + 1):
+        if graph == "Box Plot":  # A and B
+            data_a.append(db["plot"][str(season)][f"top_100_{mode.lower()}"])  # A
+            data_b.append(
+                [season, db["plot"][str(season)]["days"]]
+                + list(db["plot"][str(season)][f"top_100_{mode.lower()}_stats"])
+            )  # B
+        if graph == "League Trophies Range":  # C and D
+            sd = db["plot"][str(season)]["League Trophies Range"]  # season data
+            data_c.append(sd)  # C
+            data_d.append(
+                [season, db["plot"][str(season)]["days"], f"{0:>4}-{sd[::-1][0]:<4}"]
+                + [f"{sd[::-1][i]:>4}-{sd[::-1][i+1]:<4}" for i in range(1, 22, 2)]
+                + [sd[::-1][23]]
+            )  # D
+        xlabels_a_c_1.append(str(season))  # A and C
+        xlabels_a_c_2.append(str(db["plot"][str(season)]["days"]))  # A and C
 
-    # Plot Box Plot chart
-    def box_plot(data, edge_color, fill_color):
-        bp = ax_a_1.boxplot(
-            data,
-            patch_artist=True,
-            flierprops=dict(
-                markerfacecolor=fill_color,
-                markeredgecolor=edge_color,
-                markeredgewidth=1.5,
-            ),
-        )
+    if graph == "Box Plot":
+        # A: Plot graph
+        # Initialize IO
+        data_stream_a = io.BytesIO()
 
-        for element in ["boxes", "whiskers", "fliers", "medians", "caps"]:
-            plt.setp(bp[element], color=edge_color, linewidth=1.5)
-            if season_end == curr_season:
-                plt.setp(bp[element][-1:], color="#FA4D56")
-                if element in ["whiskers", "caps"]:
-                    plt.setp(bp[element][-2], color="#FA4D56")
-                elif element == "fliers":
-                    plt.setp(
-                        bp[element][-1],
-                        markerfacecolor="#FED6D9",
-                        markeredgecolor="#FA4D56",
-                        markeredgewidth=1.5,
-                    )
-
-        for patch in bp["boxes"]:
-            patch.set(
-                facecolor="#FED6D9"
-                if season_end == curr_season and patch == bp["boxes"][-1]
-                else fill_color
+        # Plot Box Plot chart
+        def Box_Plot(data, edge_color, fill_color):
+            bp = ax_a_1.boxplot(
+                data,
+                patch_artist=True,
+                flierprops=dict(
+                    markerfacecolor=fill_color,
+                    markeredgecolor=edge_color,
+                    markeredgewidth=1.5,
+                ),
             )
 
-        return bp
+            for element in ["boxes", "whiskers", "fliers", "medians", "caps"]:
+                plt.setp(bp[element], color=edge_color, linewidth=1.5)
+                if end_season == curr_season:
+                    plt.setp(bp[element][-1:], color="#FA4D56")
+                    if element in ["whiskers", "caps"]:
+                        plt.setp(bp[element][-2], color="#FA4D56")
+                    elif element == "fliers":
+                        plt.setp(
+                            bp[element][-1],
+                            markerfacecolor="#FED6D9",
+                            markeredgecolor="#FA4D56",
+                            markeredgewidth=1.5,
+                        )
 
-    fig, ax_a_1 = plt.subplots(
-        facecolor="#2F3137", figsize=(8, 6), edgecolor="w", linewidth=1
-    )
-    ax_a_1.set_facecolor("#222222")
-    bp = box_plot(data_a, "#1392E8", "#BBE6FD")
+            for patch in bp["boxes"]:
+                patch.set(
+                    facecolor="#FED6D9"
+                    if end_season == curr_season and patch == bp["boxes"][-1]
+                    else fill_color
+                )
 
-    # Legends
-    ax_a_1.legend(
-        [bp["boxes"][0] if season_start != curr_season else []]
-        + [bp["boxes"][-1] if season_end == curr_season else []],
-        [
-            "Past Season" + ("" if one_past_season else "s")
-            if season_start != curr_season
-            else []
-        ]
-        + ["Current Season" if season_end == curr_season else []],
-        loc="upper left",
-        framealpha=1,
-    )
+            return bp
 
-    # Bottom axis
-    ax_a_1.set_xticks(list(range(1, len(xlabels_a_1) + 1)), labels=xlabels_a_1)
-    ax_a_1.set_title(
-        f"Rocket Bot Royale - Box Plot of Top 100 Players' {mode} by Season"
-        + ("" if one_past_season else "s"),
-        color="w",
-        weight="bold",
-        pad=12,
-    )
-    ax_a_1.set_xlabel("Season", color="w", weight="bold")
-    ax_a_1.set_ylabel(f"{mode}", color="w", weight="bold")
-    ax_a_1.tick_params(axis="both", which="both", colors="w")
-    ax_a_1.xaxis.grid(True, alpha=0.5)
-    ax_a_1.yaxis.set_major_locator(
-        MultipleLocator(500 if mode == "Trophies" else 100000)
-    )
-    ax_a_1.yaxis.set_minor_locator(AutoMinorLocator(5))
-    ax_a_1.yaxis.grid(which="major", alpha=0.5)
-    ax_a_1.yaxis.grid(which="minor", alpha=0.2)
-
-    # Top axis
-    ax_a_2 = ax_a_1.secondary_xaxis("top")
-    ax_a_2.set_xticks(list(range(1, len(xlabels_a_2) + 1)), labels=xlabels_a_2)
-    ax_a_2.set_xlabel("Duration (days)", color="w", weight="bold")
-    ax_a_2.tick_params(axis="both", colors="w")
-
-    # Footer
-    plt.figtext(
-        0.98,
-        0.03,
-        "Generated at " + current_timestamp,
-        ha="right",
-        color="w",
-        fontsize=8,
-    )
-
-    plt.tight_layout()
-    plt.savefig(data_stream_a, format="png", dpi=250)
-    plt.close()
-
-    # Send the first graph
-    data_stream_a.seek(0)
-    chart_a = discord.File(
-        data_stream_a,
-        filename=f"Rocket Bot Royale - Box Plot of Top 100 Players' {mode} by Season (Season {season_start} to {season_end}) {current_timestamp}.png",
-    )
-    await interaction.followup.send(file=chart_a)
-
-    # B: Plot table
-    # Initialize IO
-    data_stream_b = io.BytesIO()
-
-    column_headers = [
-        "Season",
-        "Duration (days)",
-        "Min",
-        "Lower Quartile",
-        "Median",
-        "Upper Quartile",
-        "Max",
-        "Mean",
-    ]
-
-    fig_height = int(ceil((season_end - season_start + 1) / 3))  # Dynamic height
-    if fig_height < 2:
-        fig_height = 2  # Minimum height
-    plt.figure(
-        linewidth=1,
-        facecolor="#2F3137",
-        tight_layout={"pad": 2},
-        figsize=(8, fig_height),
-        edgecolor="w",
-    )
-
-    table = plt.table(
-        cellText=[row for row in data_b],
-        rowLoc="center",
-        colLabels=column_headers,
-        cellLoc="center",
-        loc="center",
-    )
-    table.auto_set_font_size(False)
-
-    # Hide axes
-    ax_b = plt.gca()
-    ax_b.get_xaxis().set_visible(False)
-    ax_b.get_yaxis().set_visible(False)
-
-    # Customize rows and cells
-    for (row, col), cell in table.get_celld().items():
-        cell.set_edgecolor("w")
-        cell.set_text_props(color="w")
-        cell.set_text_props(
-            fontproperties=FontProperties(weight="bold", size="x-small")
+        fig, ax_a_1 = plt.subplots(
+            facecolor="#2F3137", figsize=(8, 6), edgecolor="w", linewidth=3
         )
-        if row % 2 == 1:
-            cell.set_facecolor("#1155CC")  # odd row
-        elif row == 0:
-            cell.set_facecolor("#222222")  # first row
-        else:
-            cell.set_facecolor("#3C78D8")  # even row
-        if season_end == curr_season:
-            if row == (season_end - season_start + 1):
-                cell.set_facecolor("#CC0000")  # current season row
+        ax_a_1.set_facecolor("#222222")
+        bp = Box_Plot(data_a, "#1392E8", "#BBE6FD")
 
-    ax_b.set_title(
-        f"Rocket Bot Royale - Box Plot of Top 100 Players' {mode} by Seasons\nStats Table",
-        color="w",
-        weight="bold",
-        pad=0,
-    )  # Title
+        # Legends
+        legends_color = []
+        legends_name = []
 
-    # Hide axes border
-    plt.box(on=None)
-    plt.tight_layout()
+        if end_season != curr_season or (
+            start_season != end_season and end_season == curr_season
+        ):
+            legends_color.append(bp["boxes"][0])
+            legends_name.append("Past Season" + ("" if one_past_season else "s"))
+        if end_season == curr_season:
+            legends_color.append(bp["boxes"][-1])
+            legends_name.append("Current Season")
 
-    # Legends
-    # Fix legends x-coordinate
-    if season_end == curr_season:
-        if season_start != season_end:  # Past Season(s) and Current Season
-            legends_name = [
-                "Past Season" + ("" if one_past_season else "s"),
-                "Current Season",
-            ]
-            bbox_to_anchor_x = 0.165
-        else:  # Current Season only
-            legends_name = ["Current Season"]
-            bbox_to_anchor_x = 0.085
-    else:  # Past Season(s) only
-        legends_name = ["Past Season" + ("" if one_past_season else "s")]
-        bbox_to_anchor_x = 0.085
-
-    for row in range(len(legends_name)):
-        plt.bar(
+        ax_a_1.legend(
+            legends_color,
             legends_name,
-            0,
-            label=legends_name[::-1][row],
-        )  # Set width 0 to hide the bars
+            loc="upper left",
+            framealpha=1,
+        )
 
-    (dark_blue,) = ax_b.plot(
-        [],
-        [],
-        color="#1155CC",
-        marker="s",
-        markersize=8,
-        fillstyle="top",
-        linestyle="none",
-        markeredgecolor="white",
-        markeredgewidth=0,
-    )
+        # Bottom axis
+        ax_a_1.set_xticks(list(range(1, len(xlabels_a_c_1) + 1)), labels=xlabels_a_c_1)
+        ax_a_1.set_title(
+            f"Rocket Bot Royale - Box Plot of Top 100 Players' {mode} by Season"
+            + ("" if one_past_season else "s"),
+            color="w",
+            weight="bold",
+            pad=12,
+        )
+        ax_a_1.set_xlabel("Season", color="w", weight="bold")
+        ax_a_1.set_ylabel(f"{mode}", color="w", weight="bold")
+        ax_a_1.tick_params(axis="both", which="both", colors="w")
+        ax_a_1.xaxis.grid(True, alpha=0.5)
+        ax_a_1.yaxis.set_major_locator(
+            MultipleLocator(500 if mode == "Trophies" else 100000)
+        )
+        ax_a_1.yaxis.set_minor_locator(AutoMinorLocator(5))
+        ax_a_1.yaxis.grid(which="major", alpha=0.5)
+        ax_a_1.yaxis.grid(which="minor", alpha=0.2)
 
-    (light_blue,) = ax_b.plot(
-        [],
-        [],
-        color="#1155CC" if one_past_season == True else "#3C78D8",
-        marker="s",
-        markersize=8,
-        fillstyle="bottom",
-        linestyle="none",
-        markeredgecolor="white",
-        markeredgewidth=0,
-    )
+        # Top axis
+        ax_a_2 = ax_a_1.secondary_xaxis("top")
+        ax_a_2.set_xticks(list(range(1, len(xlabels_a_c_2) + 1)), labels=xlabels_a_c_2)
+        ax_a_2.set_xlabel("Duration (days)", color="w", weight="bold")
+        ax_a_2.tick_params(axis="both", colors="w")
 
-    (red,) = ax_b.plot(
-        [],
-        c="#CC0000",
-        marker="s",
-        markersize=8,
-        linestyle="none",
-        markeredgecolor="white",
-        markeredgewidth=0,
-    )
+        # Footer
+        plt.figtext(
+            0.98,
+            0.03,
+            "Generated at " + current_timestamp,
+            ha="right",
+            color="w",
+            fontsize=8,
+        )
 
-    handles, labels = ax_b.get_legend_handles_labels()
-    ax_b.legend(
-        ((dark_blue, light_blue), (red))[::-1]
-        if season_start == season_end == curr_season
-        else ((dark_blue, light_blue), (red)),
-        labels[::-1],
-        loc="lower center",
-        bbox_to_anchor=(bbox_to_anchor_x, 0.85),
-        ncol=2,
-        fontsize=8,
-        framealpha=1,
-    )
+        plt.tight_layout()
+        plt.savefig(data_stream_a, format="png", dpi=250)
+        plt.close()
 
-    # Footer
-    plt.figtext(
-        0.98,
-        0.03,
-        "Generated at " + current_timestamp,
-        ha="right",
-        color="w",
-        fontsize=8,
-    )
+        # Send the first graph
+        data_stream_a.seek(0)
+        chart_a = discord.File(
+            data_stream_a,
+            filename=f"Rocket Bot Royale - Box Plot of Top 100 Players' {mode} by Season (Season {start_season}"
+            + (f" to {end_season}" if start_season != end_season else "")
+            + f") {current_timestamp}.png",
+        )
+        await interaction.followup.send(file=chart_a)
 
-    plt.tight_layout()
-    plt.savefig(data_stream_b, format="png", dpi=250)
-    plt.close()
+        # B: Plot table
+        # Initialize IO
+        data_stream_b = io.BytesIO()
 
-    # Send the second graph
-    data_stream_b.seek(0)
-    chart_b = discord.File(
-        data_stream_b,
-        filename=f"Rocket Bot Royale - Box Plot of Top 100 Players' {mode} by Season (Season {season_start} to {season_end}) Stats Table {current_timestamp}.png",
-    )
-    await interaction.followup.send(file=chart_b)
+        column_headers = [
+            "Season",
+            "Duration (days)",
+            "Min",
+            "Lower Quartile",
+            "Median",
+            "Upper Quartile",
+            "Max",
+            "Mean",
+        ]
+
+        fig_height = int(ceil((end_season - start_season + 1) / 3))  # Dynamic height
+        if fig_height < 2:
+            fig_height = 2  # Minimum height
+        plt.figure(
+            linewidth=3,
+            facecolor="#2F3137",
+            tight_layout={"pad": 2},
+            figsize=(8, fig_height),
+            edgecolor="w",
+        )
+
+        table = plt.table(
+            cellText=[row for row in data_b],
+            rowLoc="center",
+            colLabels=column_headers,
+            cellLoc="center",
+            loc="center",
+        )
+        table.auto_set_font_size(False)
+
+        # Hide axes
+        ax_b = plt.gca()
+        ax_b.get_xaxis().set_visible(False)
+        ax_b.get_yaxis().set_visible(False)
+
+        # Customize rows and cells
+        for (row, col), cell in table.get_celld().items():
+            cell.set_edgecolor("w")
+            cell.set_text_props(color="w")
+            cell.set_text_props(
+                fontproperties=FontProperties(weight="bold", size="x-small")
+            )
+            if row % 2 == 1:
+                cell.set_facecolor("#1155CC")  # odd row
+            elif row == 0:
+                cell.set_facecolor("#222222")  # first row
+            else:
+                cell.set_facecolor("#3C78D8")  # even row
+            if end_season == curr_season:
+                if row == (end_season - start_season + 1):
+                    cell.set_facecolor("#CC0000")  # current season row
+
+        # Title
+        ax_b.set_title(
+            f"Rocket Bot Royale - Box Plot of Top 100 Players' {mode} by Season\nStats Table",
+            color="w",
+            weight="bold",
+            pad=0,
+        )
+
+        # Hide axes border
+        plt.box(on=None)
+        plt.tight_layout()
+
+        # Legends
+        legends_name = []
+
+        if end_season != curr_season or (
+            start_season != end_season and end_season == curr_season
+        ):
+            legends_name.append("Past Season" + ("" if one_past_season else "s"))
+            bbox_to_anchor_x = 0.085
+        if end_season == curr_season:
+            legends_name.append("Current Season")
+        bbox_to_anchor_x = 0.165 if start_season != end_season else 0.085
+
+        for row in range(len(legends_name)):
+            plt.bar(
+                legends_name,
+                0,
+                label=legends_name[::-1][row],
+            )  # Set width 0 to hide the bars
+
+        (dark_blue,) = ax_b.plot(
+            [],
+            [],
+            color="#1155CC",
+            marker="s",
+            markersize=8,
+            fillstyle="top",
+            linestyle="none",
+            markeredgecolor="white",
+            markeredgewidth=0,
+        )
+
+        (light_blue,) = ax_b.plot(
+            [],
+            [],
+            color="#1155CC" if one_past_season == True else "#3C78D8",
+            marker="s",
+            markersize=8,
+            fillstyle="bottom",
+            linestyle="none",
+            markeredgecolor="white",
+            markeredgewidth=0,
+        )
+
+        (red,) = ax_b.plot(
+            [],
+            c="#CC0000",
+            marker="s",
+            markersize=8,
+            linestyle="none",
+            markeredgecolor="white",
+            markeredgewidth=0,
+        )
+
+        handles, labels = ax_b.get_legend_handles_labels()
+        ax_b.legend(
+            ((dark_blue, light_blue), (red))[::-1]
+            if start_season == end_season == curr_season
+            else ((dark_blue, light_blue), (red)),
+            labels[::-1],
+            loc="lower center",
+            bbox_to_anchor=(bbox_to_anchor_x, 0.85),
+            ncol=2,
+            fontsize=8,
+            framealpha=1,
+        )
+
+        # Footer
+        plt.figtext(
+            0.98,
+            0.03,
+            "Generated at " + current_timestamp,
+            ha="right",
+            color="w",
+            fontsize=8,
+        )
+
+        plt.tight_layout()
+        plt.savefig(data_stream_b, format="png", dpi=250)
+        plt.close()
+
+        # Send the second graph
+        data_stream_b.seek(0)
+        chart_b = discord.File(
+            data_stream_b,
+            filename=f"Rocket Bot Royale - Box Plot of Top 100 Players' {mode} by Season (Season {start_season}"
+            + (f" to {end_season}" if start_season != end_season else "")
+            + f") {current_timestamp}.png",
+        )
+        await interaction.followup.send(file=chart_b)
+
+    if graph == "League Trophies Range":
+        # C: Plot League Trophies Range graph
+        # Initialize IO
+        data_stream_c = io.BytesIO()
+
+        # Data
+        # Use a transposed 2D-array to store range for all leagues in all seasons
+        all_league_range = np.column_stack(tuple(data_c))
+
+        if start_season == end_season:  # special fix for one season
+            all_league_range = np.hstack(
+                (all_league_range, all_league_range, all_league_range)
+            )  # special fix for one season
+
+        # Smooth curve
+        season = np.arange(end_season - start_season + 1)
+        if start_season == end_season:
+            season = np.arange(end_season - start_season + 3)
+
+        x_axis_lower_bound = season.min()
+        x_axis_upper_bound = season.max()
+
+        if start_season == end_season:
+            x_axis_upper_bound += 2
+        if end_season == curr_season:
+            dotted_line_space = np.linspace(
+                x_axis_lower_bound, x_axis_upper_bound, 500
+            )  # 500 = smoothness
+        solid_line_space = np.linspace(
+            x_axis_lower_bound,
+            x_axis_upper_bound - (1 if end_season == curr_season else 0),
+            500,
+        )  # 500 = smoothness
+
+        dot = np.linspace(
+            x_axis_lower_bound + (2 if start_season == end_season else 0),
+            x_axis_upper_bound - (1 if start_season == end_season else 0),
+            end_season - start_season + 1,
+        )
+
+        if end_season == curr_season:
+            dotted_line_smooth = [
+                np.exp(
+                    PchipInterpolator(season, np.log(all_league_range[league]))(
+                        dotted_line_space
+                    )
+                )
+                for league in range(len(league_names) * 2 - 2)
+            ]
+        solid_line_smooth = [
+            np.exp(
+                PchipInterpolator(season, np.log(all_league_range[league]))(
+                    solid_line_space
+                )
+            )
+            for league in range(len(league_names) * 2 - 2)
+        ]
+        dot_smooth = [
+            np.exp(PchipInterpolator(season, np.log(all_league_range[league]))(dot))
+            for league in range(len(league_names) * 2 - 2)
+        ]
+
+        # Initialize figure and axis
+        fig, ax_c_1 = plt.subplots(
+            facecolor="#2F3137", figsize=(8, 6), edgecolor="w", linewidth=3
+        )
+        ax_c_1.set_facecolor("#222222")
+
+        # Plot lines
+        if end_season == curr_season:
+            for league in range(len(league_names) * 2 - 2):
+                ax_c_1.plot(
+                    dotted_line_space,
+                    dotted_line_smooth[::-1][league],
+                    color=league_colors[::-1][league],
+                    linewidth=2,
+                    linestyle="--",
+                    dashes=(3, 3),
+                )  # full-length dotted parts
+        if not (start_season == end_season == curr_season):
+            for league in range(len(league_names) * 2 - 2):
+                ax_c_1.plot(
+                    solid_line_space,
+                    solid_line_smooth[::-1][league],
+                    color=league_colors[::-1][league],
+                    linewidth=2,
+                )  # partial-length solid parts above dotted parts
+
+        # Plot dots
+        for league in range(len(league_names) * 2 - 2):
+            ax_c_1.plot(
+                dot,
+                dot_smooth[::-1][league],
+                ".",
+                color=league_colors[::-1][league],
+                markersize=10,
+            )
+
+        # Fill colors
+        line_space = (
+            dotted_line_space if end_season == curr_season else solid_line_space
+        )
+        line_smooth = (
+            dotted_line_smooth if end_season == curr_season else solid_line_smooth
+        )
+
+        for league in range(len(league_names)):
+            ax_c_1.fill_between(
+                line_space,
+                line_smooth[0 if league == 0 else league * 2 - 1],
+                0 if league == len(league_names) - 1 else line_smooth[league * 2],
+                color=league_colors[0 if league == 0 else league * 2 - 1],
+                alpha=0.5,
+                label=league_names[league],
+                linewidth=0,
+            )
+
+        # Legends
+        leg = ax_c_1.legend(
+            loc="upper center",
+            ncol=7,
+            facecolor="#BBBBBB",
+            labelcolor="black",
+            framealpha=1,
+            fontsize=8,
+        )
+
+        for legobj in leg.legendHandles:
+            legobj.set_linewidth(1)
+
+        # Bottom axis
+        ax_c_1.set_xticks(
+            list(
+                range(
+                    (2 if start_season == end_season else 0),
+                    len(xlabels_a_c_1) + (2 if start_season == end_season else 0),
+                )
+            ),
+            labels=xlabels_a_c_1,
+        )
+        ax_c_1.set_title(
+            "Rocket Bot Royale - League Trophies Range by Season",
+            color="w",
+            weight="bold",
+            pad=12,
+        )
+        ax_c_1.set_xlabel("Season", color="w", weight="bold")
+        ax_c_1.set_ylabel("Trophies", color="w", weight="bold")
+        ax_c_1.tick_params(axis="both", which="both", colors="w")
+        ax_c_1.xaxis.grid(True, alpha=0.5)
+        ax_c_1.yaxis.set_major_locator(MultipleLocator(500))
+        ax_c_1.yaxis.set_minor_locator(AutoMinorLocator(5))
+        ax_c_1.yaxis.grid(which="major", alpha=0.5)
+        ax_c_1.yaxis.grid(which="minor", alpha=0.2)
+
+        # Top axis
+        ax_c_2 = ax_c_1.secondary_xaxis("top")
+        ax_c_2.set_xticks(
+            list(
+                range(
+                    (2 if start_season == end_season else 0),
+                    len(xlabels_a_c_1) + (2 if start_season == end_season else 0),
+                )
+            ),
+            labels=xlabels_a_c_2,
+        )
+        ax_c_2.set_xlabel("Duration (days)", color="w", weight="bold")
+        ax_c_2.tick_params(axis="both", colors="w")
+
+        # Footer
+        plt.figtext(
+            0.98,
+            0.03,
+            "Generated at " + current_timestamp,
+            ha="right",
+            color="w",
+            fontsize=8,
+        )
+        x0, x1, y0, y1 = plt.axis()
+        dynamic_x_adjust = (
+            1 if start_season == end_season else 0.02 * (end_season - start_season + 1)
+        )
+        plt.axis(
+            (x0 + dynamic_x_adjust, x1 - dynamic_x_adjust, y0 + 100, y1 + 250)
+        )  # Adjust margins
+
+        plt.tight_layout()
+        plt.savefig(data_stream_c, format="png", dpi=250)
+        plt.close()
+
+        # Send the first graph
+        data_stream_c.seek(0)
+        chart_c = discord.File(
+            data_stream_c,
+            filename=f"Rocket Bot Royale - League Trophies Range by Season (Season {start_season}"
+            + (f" to {end_season}" if start_season != end_season else "")
+            + f") {current_timestamp}.png"
+        )
+        await interaction.followup.send(file=chart_c)
+
+        # D: Plot League Trophies Range table
+        # Initialize IO
+        data_stream_d = io.BytesIO()
+
+        column_headers = ["Season", "Duration (days)"] + league_names[::-1]
+
+        fig_height = int(ceil((end_season - start_season + 1) / 3))  # Dynamic height
+        if fig_height < 2:
+            fig_height = 2  # Minimum height
+        plt.figure(
+            linewidth=3,
+            facecolor="#2F3137",
+            tight_layout={"pad": 2},
+            figsize=(14, fig_height),
+            edgecolor="w",
+        )
+
+        table = plt.table(
+            cellText=[row for row in data_d],
+            rowLoc="center",
+            colLabels=column_headers,
+            cellLoc="center",
+            loc="center",
+        )
+        table.auto_set_font_size(False)
+
+        # Hide axes
+        ax_d = plt.gca()
+        ax_d.get_xaxis().set_visible(False)
+        ax_d.get_yaxis().set_visible(False)
+
+        # Customize rows and cells
+        for (row, col), cell in table.get_celld().items():
+            cell.set_edgecolor("w")
+            cell.set_text_props(color="w")
+            cell.set_text_props(
+                fontproperties=FontProperties(weight="bold", size="x-small")
+            )
+            if col < 2:  # season and duration (days) columns
+                if row % 2 == 1:
+                    cell.set_facecolor("#1155CC")  # odd row(s)
+                else:
+                    cell.set_facecolor("#3C78D8")  # even row(s)
+                if end_season == curr_season:
+                    if row == (end_season - start_season + 1):
+                        cell.set_facecolor("#CC0000")  # current season row
+            else:  # league columns
+                for i in range(2, 15):
+                    if col == i:
+                        cell.set_facecolor(
+                            league_colors_orig[::-1][i - 2]
+                            + ("88" if row % 2 == 1 else "CC")  # odd and even row(s)
+                        )
+                        if end_season == curr_season:
+                            if row == (end_season - start_season + 1):
+                                cell.set_facecolor(
+                                    league_colors_orig[::-1][i - 2] + ("44")
+                                )  # current season row
+            if row == 0:
+                cell.set_facecolor("#222222")  # first row
+
+        # Title
+        ax_d.set_title(
+            "Rocket Bot Royale - League Trophies Range by Season",
+            color="w",
+            weight="bold",
+            pad=0,
+        )
+
+        # Hide axes border
+        plt.box(on=None)
+        plt.tight_layout()
+
+        # Legends
+        legends_name = []
+
+        if end_season != curr_season or (
+            start_season != end_season and end_season == curr_season
+        ):
+            legends_name.append("Past Season" + ("" if one_past_season else "s"))
+            bbox_to_anchor_x = 0.05
+        if end_season == curr_season:
+            legends_name.append("Current Season")
+            bbox_to_anchor_x = 0.1 if start_season != end_season else 0.05
+
+        for row in range(len(legends_name)):
+            plt.bar(
+                legends_name,
+                0,
+                label=legends_name[::-1][row],
+            )  # Set width 0 to hide the bars
+
+        (dark_blue,) = ax_d.plot(
+            [],
+            [],
+            color="#1155CC",
+            marker="s",
+            markersize=8,
+            fillstyle="top",
+            linestyle="none",
+            markeredgecolor="white",
+            markeredgewidth=0,
+        )
+
+        (light_blue,) = ax_d.plot(
+            [],
+            [],
+            color="#1155CC" if one_past_season == True else "#3C78D8",
+            marker="s",
+            markersize=8,
+            fillstyle="bottom",
+            linestyle="none",
+            markeredgecolor="white",
+            markeredgewidth=0,
+        )
+
+        (red,) = ax_d.plot(
+            [],
+            c="#CC0000",
+            marker="s",
+            markersize=8,
+            linestyle="none",
+            markeredgecolor="white",
+            markeredgewidth=0,
+        )
+
+        handles, labels = ax_d.get_legend_handles_labels()
+        ax_d.legend(
+            ((dark_blue, light_blue), (red))[::-1]
+            if start_season == end_season == curr_season
+            else ((dark_blue, light_blue), (red)),
+            labels[::-1],
+            loc="lower center",
+            bbox_to_anchor=(bbox_to_anchor_x, 0.85),
+            ncol=2,
+            fontsize=8,
+            framealpha=1,
+        )
+
+        # Footer
+        plt.figtext(
+            0.98,
+            0.03,
+            "Generated at " + current_timestamp,
+            ha="right",
+            color="w",
+            fontsize=8,
+        )
+
+        plt.tight_layout()
+        plt.savefig(data_stream_d, format="png", dpi=250)
+        plt.close()
+
+        # Send the first graph
+        data_stream_d.seek(0)
+        chart_d = discord.File(
+            data_stream_d,
+            filename=f"Rocket Bot Royale - League Trophies Range by Season (Season {start_season}"
+            + (f" to {end_season}" if start_season != end_season else "")
+            + f") {current_timestamp}.png",
+        )
+        await interaction.followup.send(file=chart_d)
 
 
 @tree.command(guild=discord.Object(id=962142361935314996))
