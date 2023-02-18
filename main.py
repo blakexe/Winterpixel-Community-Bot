@@ -5516,7 +5516,7 @@ async def plot(
         plt.savefig(data_stream_d, format="png", dpi=250)
         plt.close()
 
-        # Send the first graph
+        # Send the second graph
         data_stream_d.seek(0)
         chart_d = discord.File(
             data_stream_d,
