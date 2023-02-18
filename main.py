@@ -4806,7 +4806,7 @@ async def plot(
         else:  # current season
             limit = 100 if graph == "Box Plot" else 8002
             response = await rocketbot_client.query_leaderboard(
-                season, f"tankkings_{mode.lower()[: (-16 if mode != "Trophies" else None)]}", limit
+                season, f"tankkings_{mode.lower()[: (-16 if mode != 'Trophies' else None)]}", limit
             )
             records = json.loads(response["payload"])["records"]
 
