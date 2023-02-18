@@ -417,13 +417,13 @@ async def double_or_half(interaction: discord.Interaction):
 
 @tree.command()
 @app_commands.describe(
-    mode="Leaderboard by trophies or points",
+    mode="Leaderboard by 🏆 Trophies or 🧊 Points",
     changes="Only available for Top 50 records of current season, changes since last command used",
-    season="Trophies: Season 10 or later / Points: Season 0 or later, default current",
+    season="🏆 Trophies: Season 10 or later / 🧊 Points: Season 0 or later, default current",
 )
 async def leaderboard_rocket_bot_royale(
     interaction: discord.Interaction,
-    mode: typing.Literal["Trophies", "Points"],
+    mode: typing.Literal["🏆 Trophies", "🧊 Points"],
     changes: typing.Literal["Shown", "Hidden"],
     season: int = -1,
 ):
@@ -441,10 +441,10 @@ async def leaderboard_rocket_bot_royale(
         # This makes sure nobody except the command sender can interact with the "menu"
 
     # Reassign season if unreasonable
-    if mode == "Trophies":
+    if mode == "🏆 Trophies":
         if season < 10 or season > curr_season:
             season = curr_season
-    elif mode == "Points":
+    else:
         if season < 0 or season > curr_season:
             season = curr_season
 
@@ -470,11 +470,11 @@ async def leaderboard_rocket_bot_royale(
     elif changes == "Hidden":
         limit = 25
 
-    if mode == "Trophies":
+    if mode == "🏆 Trophies":
         response = await rocketbot_client.query_leaderboard(
             season, "tankkings_trophies", limit
         )
-    elif mode == "Points":
+    else:
         response = await rocketbot_client.query_leaderboard(
             season, "tankkings_points", limit
         )
@@ -493,7 +493,7 @@ async def leaderboard_rocket_bot_royale(
     if changes == "Shown":
         # Add to repl.it's database for new keys
         new_key_flag = False
-        if f"tankkings_{mode.lower()}_{season}" not in db.keys():
+        if f"tankkings_{mode.lower()[2:]}_{season}" not in db.keys():
             value = dict()
             for record in records:
                 value[record["owner_id"]] = {
@@ -506,7 +506,7 @@ async def leaderboard_rocket_bot_royale(
             db[record["leaderboard_id"]] = value
             new_key_flag = True
 
-        if mode == "Trophies":  # By Tropihes
+        if mode == "🏆 Trophies":  # By Tropihes
             split, tier = [], []
             for i in range(5):
                 split.append(server_config["trophy_tiers"][i]["maximum_rank"])
@@ -592,7 +592,7 @@ async def leaderboard_rocket_bot_royale(
                     tier_name_with_space = " " + tier[tier_index] + " "
                     message += f"\u001b[1;{tier_color_code[tier_index]}m{tier_name_with_space.center(45, '─')}\u001b[0m\n"
 
-        elif mode == "Points":  # By Points
+        elif mode == "🧊 Points":  # By Points
             # Using f-string spacing to pretty print the leaderboard labels (bold)
             message = ""
             label = f"{season_info_2}\n📊 ***Leaderboard***:```ansi\n\u001b[1m    {'Rank:':<5} {'Name:':<20} {'Points:'}\u001b[0m\n{'—' * 47}\n"
@@ -665,7 +665,7 @@ async def leaderboard_rocket_bot_royale(
 
         # Split message
         cannot_split = False  # Prevent index out of range error
-        split_line_number = 26 if mode == "Trophies" else 24  # Evenly split message
+        split_line_number = 26 if mode == "🏆 Trophies" else 24  # Evenly split message
         try:  # In case there are not enough records
             message1 = message[
                 : [m.start() for m in re.finditer(r"\n", message)][split_line_number]
@@ -681,7 +681,7 @@ async def leaderboard_rocket_bot_royale(
                 ]
                 + (
                     "\u001b[1;31m———————————————————— RUBY ———————————————————\u001b[0m\n"
-                    if mode == "Trophies"
+                    if mode == "🏆 Trophies"
                     else ""
                 )
                 + "```"
@@ -693,18 +693,18 @@ async def leaderboard_rocket_bot_royale(
         if cannot_split == False:
             cur_page = 1
             embed_init = discord.Embed(
-                title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode}):",
+                title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode[2:]}):",
                 description=label
                 + message1
                 + (
                     "\n\u001b[1;31m———————————————————— RUBY ———————————————————\u001b[0m\n"
-                    if mode == "Trophies"
+                    if mode == "🏆 Trophies"
                     else ""
                 )
                 + "```",
             )
             embed_init.set_footer(
-                text=f"Page 1/2:  1 to 25 | Changes since {db[f'tankkings_{mode.lower()}_{season}']['last_update_time']}"
+                text=f"Page 1/2:  1 to 25 | Changes since {db[f'tankkings_{mode.lower()[2:]}_{season}']['last_update_time']}"
             )
             msg = await interaction.followup.send(embed=embed_init)
             msg2 = await interaction.followup.send(
@@ -724,11 +724,11 @@ async def leaderboard_rocket_bot_royale(
                     if str(reaction.emoji) == "▶️" and cur_page == 1:  # Go to Page 2
                         cur_page += 1
                         embed_first = discord.Embed(
-                            title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode}):",
+                            title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode[2:]}):",
                             description="\n" + label + message2,
                         )
                         embed_first.set_footer(
-                            text=f"Page 2/2: 26 to 50 | Changes since {db[f'tankkings_{mode.lower()}_{season}']['last_update_time']}"
+                            text=f"Page 2/2: 26 to 50 | Changes since {db[f'tankkings_{mode.lower()[2:]}_{season}']['last_update_time']}"
                         )
                         await msg.edit(embed=embed_first)
                         await msg.remove_reaction(reaction, user)
@@ -736,19 +736,19 @@ async def leaderboard_rocket_bot_royale(
                     elif str(reaction.emoji) == "◀️" and cur_page == 2:  # Go to Page 1
                         cur_page -= 1
                         embed_second = discord.Embed(
-                            title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode}):",
+                            title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode[2:]}):",
                             description="\n"
                             + label
                             + message1
                             + (
                                 "\n\u001b[1;31m———————————————————— RUBY ———————————————————\u001b[0m\n"
-                                if mode == "Trophies"
+                                if mode == "🏆 Trophies"
                                 else ""
                             )
                             + "```",
                         )
                         embed_second.set_footer(
-                            text=f"Page 1/2:  1 to 25 | Changes since {db[f'tankkings_{mode.lower()}_{season}']['last_update_time']}"
+                            text=f"Page 1/2:  1 to 25 | Changes since {db[f'tankkings_{mode.lower()[2:]}_{season}']['last_update_time']}"
                         )
                         await msg.edit(embed=embed_second)
                         await msg.remove_reaction(reaction, user)
@@ -756,7 +756,7 @@ async def leaderboard_rocket_bot_royale(
                     elif str(reaction.emoji) == "⏹️":  # Exit page view and end the loop
                         await msg.edit(
                             embed=discord.Embed(
-                                title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode}):",
+                                title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode[2:]}):",
                                 description=label + message1 + "```",
                             )
                         )
@@ -764,7 +764,7 @@ async def leaderboard_rocket_bot_royale(
                             description="```ansi\n" + message2
                         )
                         embed_second_timeout.set_footer(
-                            text=f"Changes since {db[f'tankkings_{mode.lower()}_{season}']['last_update_time']}"
+                            text=f"Changes since {db[f'tankkings_{mode.lower()[2:]}_{season}']['last_update_time']}"
                         )
                         await msg2.edit(embed=embed_second_timeout)
                         await msg.clear_reactions()
@@ -776,7 +776,7 @@ async def leaderboard_rocket_bot_royale(
                 except asyncio.TimeoutError:
                     await msg.edit(
                         embed=discord.Embed(
-                            title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode}):",
+                            title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode[2:]}):",
                             description=label + message1 + "```",
                         )
                     )
@@ -784,7 +784,7 @@ async def leaderboard_rocket_bot_royale(
                         description="```ansi\n" + message2
                     )
                     embed_second_timeout.set_footer(
-                        text=f"Changes since {db[f'tankkings_{mode.lower()}_{season}']['last_update_time']}"
+                        text=f"Changes since {db[f'tankkings_{mode.lower()[2:]}_{season}']['last_update_time']}"
                     )
                     await msg2.edit(embed=embed_second_timeout)
                     await msg.clear_reactions()
@@ -793,13 +793,13 @@ async def leaderboard_rocket_bot_royale(
         elif cannot_split == True:  # Send in 1 message if there are too little records
             await interaction.followup.send(
                 embed=discord.Embed(
-                    title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode}):",
+                    title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode[2:]}):",
                     description=label + message + "```",
                 )
             )
 
         # Update to repl.it's database for old keys
-        if (f"tankkings_{mode.lower()}_{season}" in db.keys()) and (
+        if (f"tankkings_{mode.lower()[2:]}_{season}" in db.keys()) and (
             new_key_flag == False
         ):
             value = dict()
@@ -814,7 +814,7 @@ async def leaderboard_rocket_bot_royale(
             db[record["leaderboard_id"]] = value
 
     elif changes == "Hidden":
-        if mode == "Trophies":  # By Tropihes
+        if mode == "🏆 Trophies":  # By Tropihes
 
             def trophies_hidden(last=True, fifty=False):
                 split, tier = [], []
@@ -886,7 +886,7 @@ async def leaderboard_rocket_bot_royale(
 
             message = f"```ansi\n\u001b[1m{'Rank:':<5} {'Name:':<20} {'Trophies:'}\u001b[0m\n{'─' * 37}\n"
 
-        elif mode == "Points":  # By Points
+        elif mode == "🧊 Points":  # By Points
 
             def points_hidden():
                 # Using f-string spacing to pretty print the leaderboard labels (bold)
@@ -926,8 +926,8 @@ async def leaderboard_rocket_bot_royale(
         # Send
         cur_page = 1
         embed_init = discord.Embed(
-            title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode}):",
-            description=(points_hidden() if mode == "Points" else trophies_hidden()),
+            title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode[2:]}):",
+            description=(points_hidden() if mode == "🧊 Points" else trophies_hidden()),
         )
         embed_init.set_footer(text=f"Page {cur_page:<2}: {start:<4} to {end:<4}")
         msg = await interaction.followup.send(embed=embed_init)
@@ -948,7 +948,7 @@ async def leaderboard_rocket_bot_royale(
                         season,
                         (
                             "tankkings_points"
-                            if mode == "Points"
+                            if mode == "🧊 Points"
                             else "tankkings_trophies"
                         ),
                         25,
@@ -964,9 +964,9 @@ async def leaderboard_rocket_bot_royale(
                     except:
                         next_cursor = False  # Does not exist
                     embed_next = discord.Embed(
-                        title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode}):",
+                        title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode[2:]}):",
                         description=(
-                            points_hidden() if mode == "Points" else trophies_hidden()
+                            points_hidden() if mode == "🧊 Points" else trophies_hidden()
                         ),
                     )
                     embed_next.set_footer(
@@ -981,7 +981,7 @@ async def leaderboard_rocket_bot_royale(
                         season,
                         (
                             "tankkings_points"
-                            if mode == "Points"
+                            if mode == "🧊 Points"
                             else "tankkings_trophies"
                         ),
                         25,
@@ -991,9 +991,9 @@ async def leaderboard_rocket_bot_royale(
                     start = records[0]["rank"]
                     end = records[len(records) - 1]["rank"]
                     embed_prev = discord.Embed(
-                        title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode}):",
+                        title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode[2:]}):",
                         description=(
-                            points_hidden() if mode == "Points" else trophies_hidden()
+                            points_hidden() if mode == "🧊 Points" else trophies_hidden()
                         ),
                     )
                     embed_prev.set_footer(
@@ -1009,7 +1009,7 @@ async def leaderboard_rocket_bot_royale(
                         season,
                         (
                             "tankkings_points"
-                            if mode == "Points"
+                            if mode == "🧊 Points"
                             else "tankkings_trophies"
                         ),
                         25,
@@ -1019,9 +1019,9 @@ async def leaderboard_rocket_bot_royale(
                     start = records[0]["rank"]
                     end = records[len(records) - 1]["rank"]
                     embed_first = discord.Embed(
-                        title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode}):",
+                        title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode[2:]}):",
                         description=(
-                            points_hidden() if mode == "Points" else trophies_hidden()
+                            points_hidden() if mode == "🧊 Points" else trophies_hidden()
                         ),
                     )
                     embed_first.set_footer(
@@ -1035,7 +1035,7 @@ async def leaderboard_rocket_bot_royale(
                         season,
                         (
                             "tankkings_points"
-                            if mode == "Points"
+                            if mode == "🧊 Points"
                             else "tankkings_trophies"
                         ),
                         50,
@@ -1043,10 +1043,10 @@ async def leaderboard_rocket_bot_royale(
                     records = json.loads(response["payload"])["records"]
                     await msg.edit(
                         embed=discord.Embed(
-                            title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode}):",
+                            title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode[2:]}):",
                             description=(
                                 points_hidden()
-                                if mode == "Points"
+                                if mode == "🧊 Points"
                                 else trophies_hidden(False, True)
                             ),
                         )
@@ -1060,16 +1060,20 @@ async def leaderboard_rocket_bot_royale(
             except asyncio.TimeoutError:
                 response = await rocketbot_client.query_leaderboard(
                     season,
-                    ("tankkings_points" if mode == "Points" else "tankkings_trophies"),
+                    (
+                        "tankkings_points"
+                        if mode == "🧊 Points"
+                        else "tankkings_trophies"
+                    ),
                     50,
                 )
                 records = json.loads(response["payload"])["records"]
                 await msg.edit(
                     embed=discord.Embed(
-                        title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode}):",
+                        title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode[2:]}):",
                         description=(
                             points_hidden()
-                            if mode == "Points"
+                            if mode == "🧊 Points"
                             else trophies_hidden(False, True)
                         ),
                     )
@@ -4697,14 +4701,14 @@ async def fandom(interaction: discord.Interaction, article: str):
 @tree.command()
 @app_commands.describe(
     graph="Box Plot: Top 100 players' records / League Trophies Range",
-    mode="Trophies / Points (Box Plot only)",
-    start_season="Trophies: Season 11 or later / Points: Season 1 or later, default all",
+    mode="🏆 Trophies / 🧊 Points (Box Plot only)",
+    start_season="🏆 Trophies: Season 11 or later / 🧊 Points: Season 1 or later, default all",
     end_season=">= start_season, default all",
 )
 async def plot(
     interaction: discord.Interaction,
     graph: typing.Literal["Box Plot", "League Trophies Range"],
-    mode: typing.Literal["Trophies", "Points (Box Plot only)"],
+    mode: typing.Literal["🏆 Trophies", "🧊 Points (Box Plot only)"],
     start_season: int = 1,
     end_season: int = -1,
 ):
@@ -4719,15 +4723,15 @@ async def plot(
 
     # Reassign parameters if unreasonable
     if graph == "League Trophies Range":
-        mode = "Trophies"
+        mode = "🏆 Trophies"
 
-    if start_season < (11 if mode == "Trophies" else 1):
-        start_season = 11 if mode == "Trophies" else 1
+    if start_season < (11 if mode == "🏆 Trophies" else 1):
+        start_season = 11 if mode == "🏆 Trophies" else 1
     if start_season > curr_season:
         start_season = curr_season
 
-    if end_season < (11 if mode == "Trophies" else 1):
-        start_season = 11 if mode == "Trophies" else 1
+    if end_season < (11 if mode == "🏆 Trophies" else 1):
+        start_season = 11 if mode == "🏆 Trophies" else 1
     if end_season > curr_season or end_season == -1:
         end_season = curr_season
     if end_season < start_season:
@@ -4794,7 +4798,7 @@ async def plot(
             limit = 100 if graph == "Box Plot" else 8002
             response = await rocketbot_client.query_leaderboard(
                 season,
-                f"tankkings_{mode.lower()[: (-16 if mode != 'Trophies' else None)]}",
+                f"tankkings_{mode.lower()[2: (-16 if mode != '🏆 Trophies' else None)]}",
                 limit,
             )
             records = json.loads(response["payload"])["records"]
@@ -4805,14 +4809,14 @@ async def plot(
             if enough_records:
                 if graph == "Box Plot":
                     db["plot"][str(season)][
-                        f"top_100_{mode.lower()[: (-16 if mode != 'Trophies' else None)]}"
+                        f"top_100_{mode.lower()[2: (-16 if mode != '🏆 Trophies' else None)]}"
                     ] = [record["score"] for record in records]
 
                     season_records = db["plot"][str(season)][
-                        f"top_100_{mode.lower()[: (-16 if mode != 'Trophies' else None)]}"
+                        f"top_100_{mode.lower()[2: (-16 if mode != '🏆 Trophies' else None)]}"
                     ]
                     db["plot"][str(season)][
-                        f"top_100_{mode.lower()[: (-16 if mode != 'Trophies' else None)]}_stats"
+                        f"top_100_{mode.lower()[2: (-16 if mode != '🏆 Trophies' else None)]}_stats"
                     ] = (
                         [min(season_records)]
                         + [
@@ -4858,14 +4862,14 @@ async def plot(
         if graph == "Box Plot":  # A and B
             data_a.append(
                 db["plot"][str(season)][
-                    f"top_100_{mode.lower()[: (-16 if mode != 'Trophies' else None)]}"
+                    f"top_100_{mode.lower()[2: (-16 if mode != '🏆 Trophies' else None)]}"
                 ]
             )  # A
             data_b.append(
                 [season, db["plot"][str(season)]["days"]]
                 + list(
                     db["plot"][str(season)][
-                        f"top_100_{mode.lower()[: (-16 if mode != 'Trophies' else None)]}_stats"
+                        f"top_100_{mode.lower()[2: (-16 if mode != '🏆 Trophies' else None)]}_stats"
                     ]
                 )
             )  # B
@@ -4949,18 +4953,22 @@ async def plot(
         # Bottom axis
         ax_a_1.set_xticks(list(range(1, len(xlabels_a_c_1) + 1)), labels=xlabels_a_c_1)
         ax_a_1.set_title(
-            f"Rocket Bot Royale - Box Plot of Top 100 Players' {mode} by Season"
+            f"Rocket Bot Royale - Box Plot of Top 100 Players' {mode[2: (-16 if mode != '🏆 Trophies' else None)]} by Season"
             + ("" if one_past_season else "s"),
             color="w",
             weight="bold",
             pad=12,
         )
         ax_a_1.set_xlabel("Season", color="w", weight="bold")
-        ax_a_1.set_ylabel(f"{mode}", color="w", weight="bold")
+        ax_a_1.set_ylabel(
+            f"{mode[2: (-16 if mode != '🏆 Trophies' else None)]}",
+            color="w",
+            weight="bold",
+        )
         ax_a_1.tick_params(axis="both", which="both", colors="w")
         ax_a_1.xaxis.grid(True, alpha=0.5)
         ax_a_1.yaxis.set_major_locator(
-            MultipleLocator(500 if mode == "Trophies" else 100000)
+            MultipleLocator(500 if mode == "🏆 Trophies" else 100000)
         )
         ax_a_1.yaxis.set_minor_locator(AutoMinorLocator(5))
         ax_a_1.yaxis.grid(which="major", alpha=0.5)
@@ -4990,7 +4998,7 @@ async def plot(
         data_stream_a.seek(0)
         chart_a = discord.File(
             data_stream_a,
-            filename=f"Rocket Bot Royale - Box Plot of Top 100 Players' {mode} by Season (Season {start_season}"
+            filename=f"Rocket Bot Royale - Box Plot of Top 100 Players' {mode[2: (-16 if mode != '🏆 Trophies' else None)]} by Season (Season {start_season}"
             + (f" to {end_season}" if start_season != end_season else "")
             + f") {current_timestamp}.png",
         )
@@ -5055,7 +5063,7 @@ async def plot(
 
         # Title
         ax_b.set_title(
-            f"Rocket Bot Royale - Box Plot of Top 100 Players' {mode} by Season\nStats Table",
+            f"Rocket Bot Royale - Box Plot of Top 100 Players' {mode[2: (-16 if mode != '🏆 Trophies' else None)]} by Season\nStats Table",
             color="w",
             weight="bold",
             pad=0,
@@ -5149,7 +5157,7 @@ async def plot(
         data_stream_b.seek(0)
         chart_b = discord.File(
             data_stream_b,
-            filename=f"Rocket Bot Royale - Box Plot of Top 100 Players' {mode} by Season (Season {start_season}"
+            filename=f"Rocket Bot Royale - Box Plot of Top 100 Players' {mode[2: (-16 if mode != '🏆 Trophies' else None)]} by Season (Season {start_season}"
             + (f" to {end_season}" if start_season != end_season else "")
             + f") {current_timestamp}.png",
         )
@@ -5302,7 +5310,7 @@ async def plot(
             pad=12,
         )
         ax_c_1.set_xlabel("Season", color="w", weight="bold")
-        ax_c_1.set_ylabel("Trophies", color="w", weight="bold")
+        ax_c_1.set_ylabel("🏆 Trophies", color="w", weight="bold")
         ax_c_1.tick_params(axis="both", which="both", colors="w")
         ax_c_1.xaxis.grid(True, alpha=0.5)
         ax_c_1.yaxis.set_major_locator(MultipleLocator(500))
