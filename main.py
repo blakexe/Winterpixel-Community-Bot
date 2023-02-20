@@ -894,7 +894,7 @@ async def leaderboard_rocket_bot_royale(
                 message += "```"
                 return message
 
-        message = f"```ansi\n\u001b[1m{'Rank:':<5} {'Name:':<20} {'Trophies:'}\u001b[0m\n{'─' * 37}\n"
+            message = f"```ansi\n\u001b[1m{'Rank:':<5} {'Name:':<20} {'Trophies:'}\u001b[0m\n{'─' * 37}\n"
 
         else:  # By Points/Wins/Kills/Bot Kills
 
