@@ -26,7 +26,7 @@ Join the discord to use the bot!
 | **Command** | **Description** |
 | :--- |:---|
 | **`/bot_info`** | Get info about this bot |
-| **`/leaderboard_rocket_bot_royale`** `mode (Trophies/Points)` `changes (Shown/Hidden)` `season`| Return the specified season leaderboard of Rocket Bot Royale (by trophies/points), default current |
+| **`/leaderboard_rocket_bot_royale`** `mode (Trophies/Points/Wins/Kills/Bot Kills)` `changes (Shown/Hidden)` `season`| Return the specified season leaderboard of Rocket Bot Royale by various modes, default current |
 | **`/leaderboard_moonrock_miners`** `changes (Shown/Hidden)` `season`| Return the specified season leaderboard of Moonrock Miners, default current |
 | **`/get_user`** `user_type (User ID/Friend ID)` `id` `section`| Return info about a specified user |
 | **`/battle`** | Have a battle with a random bot! |
