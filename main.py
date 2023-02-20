@@ -902,7 +902,7 @@ async def leaderboard_rocket_bot_royale(
                 # Using f-string spacing to pretty print the leaderboard labels (bold)
                 message = (
                     (f"{season_info_2}\n📊 ***Leaderboard***:" if season != 0 else "")
-                    + f"```ansi\n\u001b[1m{'Rank:':<5} {'Name:':<20} {mode.replace('_',' ').title()}:\u001b[0m\n{'─' * 37}\n"
+                    + f"```ansi\n\u001b[1m{'Rank:':<5} {'Name:':<20} {mode[2:]}:\u001b[0m\n{'─' * 37}\n"
                 )
 
                 # Using f-string spacing to pretty print the leaderboard
