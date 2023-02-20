@@ -419,19 +419,28 @@ async def double_or_half(interaction: discord.Interaction):
 
 @tree.command()
 @app_commands.describe(
-    mode="Leaderboard by 🏆 Trophies or 🧊 Points",
+    mode="Leaderboard by 🏆 Trophies/🧊 Points/🎉 Wins/☠️ Kills/🤖 Bot Kills",
     changes="Only available for Top 50 records of current season, changes since last command used",
-    season="🏆 Trophies: Season 10 or later / 🧊 Points: Season 0 or later, default current",
+    season="🏆 Trophies: Season 10 or later / Others: Season 0 or later, default current",
 )
 async def leaderboard_rocket_bot_royale(
     interaction: discord.Interaction,
-    mode: typing.Literal["🏆 Trophies", "🧊 Points"],
+    mode: typing.Literal["🏆 Trophies", "🧊 Points", "🎉 Wins", "☠️ Kills", "🤖 Bot Kills"],
     changes: typing.Literal["Shown", "Hidden"],
     season: int = -1,
 ):
     """Return the specified season leaderboard of Rocket Bot Royale (by trophies/points), default current"""
 
     await interaction.response.defer(ephemeral=False, thinking=True)
+
+    # Emojis for different modes
+    emojis = {
+        "trophies": "🏆",
+        "points": "🧊",
+        "wins": "🎉",
+        "kills": "☠️",
+        "bot kills": "🤖",
+    }
 
     def check(reaction, user):
         return user == interaction.user and str(reaction.emoji) in [
@@ -441,6 +450,8 @@ async def leaderboard_rocket_bot_royale(
             "⏹️",
         ]
         # This makes sure nobody except the command sender can interact with the "menu"
+
+    curr_season = server_config["season"]
 
     # Reassign season if unreasonable
     if mode == "🏆 Trophies":
@@ -472,14 +483,9 @@ async def leaderboard_rocket_bot_royale(
     elif changes == "Hidden":
         limit = 25
 
-    if mode == "🏆 Trophies":
-        response = await rocketbot_client.query_leaderboard(
-            season, "tankkings_trophies", limit
-        )
-    else:
-        response = await rocketbot_client.query_leaderboard(
-            season, "tankkings_points", limit
-        )
+    response = await rocketbot_client.query_leaderboard(
+        season, f"tankkings_{mode.lower()[2:]}", limit
+    )
     records = json.loads(response["payload"])["records"]
     start = records[0]["rank"]
     end = records[len(records) - 1]["rank"]
@@ -512,7 +518,7 @@ async def leaderboard_rocket_bot_royale(
             split, tier = [], []
             for i in range(5):
                 split.append(server_config["trophy_tiers"][i]["maximum_rank"])
-                tier.append(server_config["trophy_tiers"][i]["name"])
+                tier.append(server_config["trophy_tiers"][i]["name"].upper())
             tier_color_code = ["35", "36", "33", "34", "31"]
 
             # Using f-string spacing to pretty print the leaderboard labels (bold)
@@ -587,17 +593,17 @@ async def leaderboard_rocket_bot_royale(
                     trophies_diff_2 = f"{'':<5}"
 
                 # Trophies
-                message += f"{'🏆' + '{:<6,.0f}'.format(records[i]['score'])}{trophies_diff_2}\n"
+                message += f"{emojis[mode.lower()[2:]] + '{:<6,.0f}'.format(records[i]['score'])}{trophies_diff_2}\n"
 
                 # Tier separators (bold)
                 if records[i]["rank"] in split and records[i]["rank"] % 25 != 0:
                     tier_name_with_space = " " + tier[tier_index] + " "
                     message += f"\u001b[1;{tier_color_code[tier_index]}m{tier_name_with_space.center(45, '─')}\u001b[0m\n"
 
-        elif mode == "🧊 Points":  # By Points
+        else:  # By Points/Wins/Kills/Bot Kills
             # Using f-string spacing to pretty print the leaderboard labels (bold)
             message = ""
-            label = f"{season_info_2}\n📊 ***Leaderboard***:```ansi\n\u001b[1m    {'Rank:':<5} {'Name:':<20} {'Points:'}\u001b[0m\n{'—' * 47}\n"
+            label = f"{season_info_2}\n📊 ***Leaderboard***:```ansi\n\u001b[1m    {'Rank:':<5} {'Name:':<20} {mode.replace('_', ' ').title()}:\u001b[0m\n{'—' * 47}\n"
 
             # Using f-string spacing to pretty print the leaderboard
             if len(records) < 50:  # Prevent index out of range error
@@ -644,26 +650,26 @@ async def leaderboard_rocket_bot_royale(
                 except:
                     message += f"{records[i]['username']:<20} "  # Name only
 
-                # Points difference
+                # Points/Wins/Kills/Bot Kills difference
                 try:
-                    points_diff = (
+                    non_trophies_diff = (
                         records[i]["score"]
                         - db[records[i]["leaderboard_id"]][records[i]["owner_id"]][
                             "score"
                         ]
                     )
-                    if points_diff > 0:
-                        points_diff_2 = f"\u001b[2;32m+{abs(points_diff):<5}\u001b[0m"
+                    if non_trophies_diff > 0:
+                        non_trophies_diff_2 = (
+                            f"\u001b[2;32m+{abs(non_trophies_diff):<5}\u001b[0m"
+                        )
                     else:
-                        points_diff_2 = f"{'-':^6}"
+                        non_trophies_diff_2 = f"{'-':^6}"
                 except:
                     # Not found ind repl.it's database
-                    points_diff_2 = f"{'':<6}"
+                    non_trophies_diff_2 = f"{'':<6}"
 
                 # Points
-                message += (
-                    f"{'🧊' + '{:<8,.0f}'.format(records[i]['score'])}{points_diff_2}\n"
-                )
+                message += f"{emojis[mode.lower()[2:]] + '{:<8,.0f}'.format(records[i]['score'])}{non_trophies_diff_2}\n"
 
         # Split message
         cannot_split = False  # Prevent index out of range error
@@ -695,7 +701,7 @@ async def leaderboard_rocket_bot_royale(
         if cannot_split == False:
             cur_page = 1
             embed_init = discord.Embed(
-                title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode[2:]}):",
+                title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode.replace('_', ' ').title()}):",
                 description=label
                 + message1
                 + (
@@ -718,7 +724,7 @@ async def leaderboard_rocket_bot_royale(
 
             while True:
                 try:
-                    reaction, user = await client.wait_for(
+                    reaction, user = await tree.wait_for(
                         "reaction_add", timeout=10, check=check
                     )
                     # Waiting for a reaction to be added - times out after 10 seconds
@@ -726,7 +732,7 @@ async def leaderboard_rocket_bot_royale(
                     if str(reaction.emoji) == "▶️" and cur_page == 1:  # Go to Page 2
                         cur_page += 1
                         embed_first = discord.Embed(
-                            title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode[2:]}):",
+                            title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode.replace('_', ' ').title()}):",
                             description="\n" + label + message2,
                         )
                         embed_first.set_footer(
@@ -738,7 +744,7 @@ async def leaderboard_rocket_bot_royale(
                     elif str(reaction.emoji) == "◀️" and cur_page == 2:  # Go to Page 1
                         cur_page -= 1
                         embed_second = discord.Embed(
-                            title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode[2:]}):",
+                            title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode.replace('_', ' ').title()}):",
                             description="\n"
                             + label
                             + message1
@@ -758,7 +764,7 @@ async def leaderboard_rocket_bot_royale(
                     elif str(reaction.emoji) == "⏹️":  # Exit page view and end the loop
                         await msg.edit(
                             embed=discord.Embed(
-                                title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode[2:]}):",
+                                title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode.replace('_', ' ').title()}):",
                                 description=label + message1 + "```",
                             )
                         )
@@ -778,7 +784,7 @@ async def leaderboard_rocket_bot_royale(
                 except asyncio.TimeoutError:
                     await msg.edit(
                         embed=discord.Embed(
-                            title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode[2:]}):",
+                            title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode.replace('_', ' ').title()}):",
                             description=label + message1 + "```",
                         )
                     )
@@ -792,10 +798,10 @@ async def leaderboard_rocket_bot_royale(
                     await msg.clear_reactions()
                     break
                     # Ending the loop if user doesn't react after 10 seconds
-        elif cannot_split == True:  # Send in 1 message if there are too little records
+        else:  # Send in 1 message if there are too little records
             await interaction.followup.send(
                 embed=discord.Embed(
-                    title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode[2:]}):",
+                    title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode.replace('_', ' ').title()}):",
                     description=label + message + "```",
                 )
             )
@@ -822,7 +828,7 @@ async def leaderboard_rocket_bot_royale(
                 split, tier = [], []
                 for i in range(12):
                     split.append(server_config["trophy_tiers"][i]["maximum_rank"])
-                    tier.append(server_config["trophy_tiers"][i]["name"])
+                    tier.append(server_config["trophy_tiers"][i]["name"].upper())
                 tier_color_code = [
                     "35",
                     "36",
@@ -868,7 +874,9 @@ async def leaderboard_rocket_bot_royale(
                         message += f"{record['username']:<20} "  # Name only
 
                     # Trophies
-                    message += f"{'🏆' + '{:,}'.format(record['score'])}\n"
+                    message += (
+                        f"{emojis[mode.lower()[2:]] + '{:,}'.format(record['score'])}\n"
+                    )
 
                     # Tier separators (bold)
                     if (
@@ -886,203 +894,180 @@ async def leaderboard_rocket_bot_royale(
                 message += "```"
                 return message
 
-            message = f"```ansi\n\u001b[1m{'Rank:':<5} {'Name:':<20} {'Trophies:'}\u001b[0m\n{'─' * 37}\n"
+        message = f"```ansi\n\u001b[1m{'Rank:':<5} {'Name:':<20} {'Trophies:'}\u001b[0m\n{'─' * 37}\n"
 
-        elif mode == "🧊 Points":  # By Points
+    else:  # By Points/Wins/Kills/Bot Kills
 
-            def points_hidden():
-                # Using f-string spacing to pretty print the leaderboard labels (bold)
-                message = (
-                    (f"{season_info_2}\n📊 ***Leaderboard***:" if season != 0 else "")
-                    + f"```ansi\n\u001b[1m{'Rank:':<5} {'Name:':<20} {'Points:'}\u001b[0m\n{'─' * 37}\n"
-                )
+        def non_trophies_hidden():
+            # Using f-string spacing to pretty print the leaderboard labels (bold)
+            message = (
+                (f"{season_info_2}\n📊 ***Leaderboard***:" if season != 0 else "")
+                + f"```ansi\n\u001b[1m{'Rank:':<5} {'Name:':<20} {mode.replace('_',' ').title()}:\u001b[0m\n{'─' * 37}\n"
+            )
 
-                # Using f-string spacing to pretty print the leaderboard
-                for record in records:
-                    # Rank (bold)
-                    message += f"\u001b[1m{'#' + str(record['rank']):<5}\u001b[0m "
+            # Using f-string spacing to pretty print the leaderboard
+            for record in records:
+                # Rank (bold)
+                message += f"\u001b[1m{'#' + str(record['rank']):<5}\u001b[0m "
 
-                    # Name and color for players with season pass
-                    try:  # For seasons without 'has season pass' key
-                        message += (
-                            (
-                                "\u001b[1;33m"
-                                if record["metadata"]["has_season_pass"]
-                                else ""
-                            )
-                            + f"{record['username']:<20}"
-                            + (
-                                "\u001b[0m "
-                                if record["metadata"]["has_season_pass"]
-                                else " "
-                            )
+                # Name and color for players with season pass
+                try:  # For seasons without 'has season pass' key
+                    message += (
+                        (
+                            "\u001b[1;33m"
+                            if record["metadata"]["has_season_pass"]
+                            else ""
                         )
-                    except:
-                        message += f"{record['username']:<20} "  # Name only
-
-                    # Points
-                    message += f"{'🧊' + '{:,}'.format(record['score'])}\n"
-                message += "```"
-                return message
-
-        # Send
-        cur_page = 1
-        embed_init = discord.Embed(
-            title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode[2:]}):",
-            description=(points_hidden() if mode == "🧊 Points" else trophies_hidden()),
-        )
-        embed_init.set_footer(text=f"Page {cur_page:<2}: {start:<4} to {end:<4}")
-        msg = await interaction.followup.send(embed=embed_init)
-
-        for reaction_emoji in ["◀️", "▶️", "⏪", "⏹️"]:
-            await msg.add_reaction(reaction_emoji)
-
-        while True:
-            try:
-                reaction, user = await client.wait_for(
-                    "reaction_add", timeout=10, check=check
-                )
-                # Waiting for a reaction to be added - times out after 10 seconds
-
-                if str(reaction.emoji) == "▶️" and next_cursor != False:  # Next page
-                    cur_page += 1
-                    response = await rocketbot_client.query_leaderboard(
-                        season,
-                        (
-                            "tankkings_points"
-                            if mode == "🧊 Points"
-                            else "tankkings_trophies"
-                        ),
-                        25,
-                        cursor_dict[cur_page],
-                    )
-                    records = json.loads(response["payload"])["records"]
-                    start = records[0]["rank"]
-                    end = records[len(records) - 1]["rank"]
-                    try:
-                        cursor_dict[cur_page + 1] = json.loads(response["payload"])[
-                            "next_cursor"
-                        ]
-                    except:
-                        next_cursor = False  # Does not exist
-                    embed_next = discord.Embed(
-                        title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode[2:]}):",
-                        description=(
-                            points_hidden() if mode == "🧊 Points" else trophies_hidden()
-                        ),
-                    )
-                    embed_next.set_footer(
-                        text=f"Page {cur_page:<2}: {start:<4} to {end:<4}"
-                    )
-                    await msg.edit(embed=embed_next)
-                    await msg.remove_reaction(reaction, user)
-
-                elif str(reaction.emoji) == "◀️" and cur_page > 1:  # Previous page
-                    cur_page -= 1
-                    response = await rocketbot_client.query_leaderboard(
-                        season,
-                        (
-                            "tankkings_points"
-                            if mode == "🧊 Points"
-                            else "tankkings_trophies"
-                        ),
-                        25,
-                        cursor_dict[cur_page],
-                    )
-                    records = json.loads(response["payload"])["records"]
-                    start = records[0]["rank"]
-                    end = records[len(records) - 1]["rank"]
-                    embed_prev = discord.Embed(
-                        title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode[2:]}):",
-                        description=(
-                            points_hidden() if mode == "🧊 Points" else trophies_hidden()
-                        ),
-                    )
-                    embed_prev.set_footer(
-                        text=f"Page {cur_page:<2}: {start:<4} to {end:<4}"
-                    )
-                    await msg.edit(embed=embed_prev)
-                    await msg.remove_reaction(reaction, user)
-
-                elif str(reaction.emoji) == "⏪" and cur_page != 1:  # First page
-                    cur_page = 1
-                    next_cursor = True
-                    response = await rocketbot_client.query_leaderboard(
-                        season,
-                        (
-                            "tankkings_points"
-                            if mode == "🧊 Points"
-                            else "tankkings_trophies"
-                        ),
-                        25,
-                        cursor_dict[cur_page],
-                    )
-                    records = json.loads(response["payload"])["records"]
-                    start = records[0]["rank"]
-                    end = records[len(records) - 1]["rank"]
-                    embed_first = discord.Embed(
-                        title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode[2:]}):",
-                        description=(
-                            points_hidden() if mode == "🧊 Points" else trophies_hidden()
-                        ),
-                    )
-                    embed_first.set_footer(
-                        text=f"Page {cur_page:<2}: {start:<4} to {end:<4}"
-                    )
-                    await msg.edit(embed=embed_first)
-                    await msg.remove_reaction(reaction, user)
-
-                elif str(reaction.emoji) == "⏹️":  # Exit page view and end the loop
-                    response = await rocketbot_client.query_leaderboard(
-                        season,
-                        (
-                            "tankkings_points"
-                            if mode == "🧊 Points"
-                            else "tankkings_trophies"
-                        ),
-                        50,
-                    )
-                    records = json.loads(response["payload"])["records"]
-                    await msg.edit(
-                        embed=discord.Embed(
-                            title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode[2:]}):",
-                            description=(
-                                points_hidden()
-                                if mode == "🧊 Points"
-                                else trophies_hidden(False, True)
-                            ),
+                        + f"{record['username']:<20}"
+                        + (
+                            "\u001b[0m "
+                            if record["metadata"]["has_season_pass"]
+                            else " "
                         )
                     )
-                    await msg.clear_reactions()
-                    break
+                except:
+                    message += f"{record['username']:<20} "  # Name only
 
-                else:
-                    await msg.remove_reaction(reaction, user)
-                    # Removes reactions if invalid
-            except asyncio.TimeoutError:
+                # Points
+                message += (
+                    f"{emojis[mode.lower()[2:]] + '{:,}'.format(record['score'])}\n"
+                )
+            message += "```"
+            return message
+
+    # Send
+    cur_page = 1
+    embed_init = discord.Embed(
+        title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode.replace('_', ' ').title()}):",
+        description=(
+            trophies_hidden() if mode == "🏆 Trophies" else non_trophies_hidden()
+        ),
+    )
+    embed_init.set_footer(text=f"Page {cur_page:<2}: {start:<4} to {end:<4}")
+    msg = await interaction.followup.send(embed=embed_init)
+
+    for reaction_emoji in ["◀️", "▶️", "⏪", "⏹️"]:
+        await msg.add_reaction(reaction_emoji)
+
+    while True:
+        try:
+            reaction, user = await tree.wait_for(
+                "reaction_add", timeout=10, check=check
+            )
+            # Waiting for a reaction to be added - times out after 10 seconds
+
+            if str(reaction.emoji) == "▶️" and next_cursor != False:  # Next page
+                cur_page += 1
                 response = await rocketbot_client.query_leaderboard(
-                    season,
-                    (
-                        "tankkings_points"
-                        if mode == "🧊 Points"
-                        else "tankkings_trophies"
+                    season, f"tankkings_{mode.lower()[2:]}", 25, cursor_dict[cur_page]
+                )
+                records = json.loads(response["payload"])["records"]
+                start = records[0]["rank"]
+                end = records[len(records) - 1]["rank"]
+                try:
+                    cursor_dict[cur_page + 1] = json.loads(response["payload"])[
+                        "next_cursor"
+                    ]
+                except:
+                    next_cursor = False  # Does not exist
+                embed_next = discord.Embed(
+                    title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode.replace('_', ' ').title()}):",
+                    description=(
+                        trophies_hidden()
+                        if mode == "🏆 Trophies"
+                        else non_trophies_hidden()
                     ),
-                    50,
+                )
+                embed_next.set_footer(
+                    text=f"Page {cur_page:<2}: {start:<4} to {end:<4}"
+                )
+                await msg.edit(embed=embed_next)
+                await msg.remove_reaction(reaction, user)
+
+            elif str(reaction.emoji) == "◀️" and cur_page > 1:  # Previous page
+                cur_page -= 1
+                response = await rocketbot_client.query_leaderboard(
+                    season, f"tankkings_{mode.lower()[2:]}", 25, cursor_dict[cur_page]
+                )
+                records = json.loads(response["payload"])["records"]
+                start = records[0]["rank"]
+                end = records[len(records) - 1]["rank"]
+                embed_prev = discord.Embed(
+                    title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode.replace('_', ' ').title()}):",
+                    description=(
+                        trophies_hidden()
+                        if mode == "🏆 Trophies"
+                        else non_trophies_hidden()
+                    ),
+                )
+                embed_prev.set_footer(
+                    text=f"Page {cur_page:<2}: {start:<4} to {end:<4}"
+                )
+                await msg.edit(embed=embed_prev)
+                await msg.remove_reaction(reaction, user)
+
+            elif str(reaction.emoji) == "⏪" and cur_page != 1:  # First page
+                cur_page = 1
+                next_cursor = True
+                response = await rocketbot_client.query_leaderboard(
+                    season, f"tankkings_{mode.lower()[2:]}", 25, cursor_dict[cur_page]
+                )
+                records = json.loads(response["payload"])["records"]
+                start = records[0]["rank"]
+                end = records[len(records) - 1]["rank"]
+                embed_first = discord.Embed(
+                    title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode.replace('_', ' ').title()}):",
+                    description=(
+                        trophies_hidden()
+                        if mode == "🏆 Trophies"
+                        else non_trophies_hidden()
+                    ),
+                )
+                embed_first.set_footer(
+                    text=f"Page {cur_page:<2}: {start:<4} to {end:<4}"
+                )
+                await msg.edit(embed=embed_first)
+                await msg.remove_reaction(reaction, user)
+
+            elif str(reaction.emoji) == "⏹️":  # Exit page view and end the loop
+                response = await rocketbot_client.query_leaderboard(
+                    season, f"tankkings_{mode.lower()[2:]}", 50
                 )
                 records = json.loads(response["payload"])["records"]
                 await msg.edit(
                     embed=discord.Embed(
-                        title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode[2:]}):",
+                        title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode.replace('_', ' ').title()}):",
                         description=(
-                            points_hidden()
-                            if mode == "🧊 Points"
-                            else trophies_hidden(False, True)
+                            trophies_hidden(False, True)
+                            if mode == "🏆 Trophies"
+                            else non_trophies_hidden()
                         ),
                     )
                 )
                 await msg.clear_reactions()
                 break
-                # Ending the loop if user doesn't react after 10 seconds
+
+            else:
+                await msg.remove_reaction(reaction, user)
+                # Removes reactions if invalid
+        except asyncio.TimeoutError:
+            response = await rocketbot_client.query_leaderboard(
+                season, f"tankkings_{mode.lower()[2:]}", 50
+            )
+            records = json.loads(response["payload"])["records"]
+            await msg.edit(
+                embed=discord.Embed(
+                    title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode.replace('_', ' ').title()}):",
+                    description=(
+                        trophies_hidden(False, True)
+                        if mode == "🏆 Trophies"
+                        else non_trophies_hidden()
+                    ),
+                )
+            )
+            await msg.clear_reactions()
+            break
+            # Ending the loop if user doesn't react after 10 seconds
 
 
 @tree.command()
@@ -4714,7 +4699,7 @@ async def fandom(interaction: discord.Interaction, article: str):
     start_season="🏆 Trophies: Season 11 or later / 🧊 Points: Season 1 or later, default all",
     end_season=">= start_season, default all",
 )
-async def plot(
+async def plot_season(
     interaction: discord.Interaction,
     graph: typing.Literal["Box Plot", "League Trophies Range"],
     mode: typing.Literal["🏆 Trophies", "🧊 Points (Box Plot only)"],
