@@ -896,44 +896,44 @@ async def leaderboard_rocket_bot_royale(
 
         message = f"```ansi\n\u001b[1m{'Rank:':<5} {'Name:':<20} {'Trophies:'}\u001b[0m\n{'─' * 37}\n"
 
-    else:  # By Points/Wins/Kills/Bot Kills
+        else:  # By Points/Wins/Kills/Bot Kills
 
-        def non_trophies_hidden():
-            # Using f-string spacing to pretty print the leaderboard labels (bold)
-            message = (
-                (f"{season_info_2}\n📊 ***Leaderboard***:" if season != 0 else "")
-                + f"```ansi\n\u001b[1m{'Rank:':<5} {'Name:':<20} {mode.replace('_',' ').title()}:\u001b[0m\n{'─' * 37}\n"
-            )
-
-            # Using f-string spacing to pretty print the leaderboard
-            for record in records:
-                # Rank (bold)
-                message += f"\u001b[1m{'#' + str(record['rank']):<5}\u001b[0m "
-
-                # Name and color for players with season pass
-                try:  # For seasons without 'has season pass' key
-                    message += (
-                        (
-                            "\u001b[1;33m"
-                            if record["metadata"]["has_season_pass"]
-                            else ""
-                        )
-                        + f"{record['username']:<20}"
-                        + (
-                            "\u001b[0m "
-                            if record["metadata"]["has_season_pass"]
-                            else " "
-                        )
-                    )
-                except:
-                    message += f"{record['username']:<20} "  # Name only
-
-                # Points
-                message += (
-                    f"{emojis[mode.lower()[2:]] + '{:,}'.format(record['score'])}\n"
+            def non_trophies_hidden():
+                # Using f-string spacing to pretty print the leaderboard labels (bold)
+                message = (
+                    (f"{season_info_2}\n📊 ***Leaderboard***:" if season != 0 else "")
+                    + f"```ansi\n\u001b[1m{'Rank:':<5} {'Name:':<20} {mode.replace('_',' ').title()}:\u001b[0m\n{'─' * 37}\n"
                 )
-            message += "```"
-            return message
+
+                # Using f-string spacing to pretty print the leaderboard
+                for record in records:
+                    # Rank (bold)
+                    message += f"\u001b[1m{'#' + str(record['rank']):<5}\u001b[0m "
+
+                    # Name and color for players with season pass
+                    try:  # For seasons without 'has season pass' key
+                        message += (
+                            (
+                                "\u001b[1;33m"
+                                if record["metadata"]["has_season_pass"]
+                                else ""
+                            )
+                            + f"{record['username']:<20}"
+                            + (
+                                "\u001b[0m "
+                                if record["metadata"]["has_season_pass"]
+                                else " "
+                            )
+                        )
+                    except:
+                        message += f"{record['username']:<20} "  # Name only
+
+                    # Points
+                    message += (
+                        f"{emojis[mode.lower()[2:]] + '{:,}'.format(record['score'])}\n"
+                    )
+                message += "```"
+                return message
 
     # Send
     cur_page = 1
