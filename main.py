@@ -1625,8 +1625,8 @@ async def get_user(
                 else:
                     trophies_record = True
                     trophies += (
-                        f"{season:^8}{season_info(season)[2][:-5]:<6}{rank_emoji:<1}{record['rank']:<8,}🏆{record['score']:<9,}{league_names[np.searchsorted(league_range_orig, record['rank'])]:<9}{record['num_score']:,}\n"
-                        + (f"{'-'*56}\n" if season == curr_season - 1 else "")
+                        (f"{'-'*56}\n" if season == curr_season else "")
+                        + f"{season:^8}{season_info(season)[2][:-5]:<6}{rank_emoji:<1}{record['rank']:<8,}🏆{record['score']:<9,}{league_names[np.searchsorted(league_range_orig, record['rank'])]:<9}{record['num_score']:,}\n"
                     )
         if points_record == False and trophies_record == False:
             seasons_records_list += "No records found"
