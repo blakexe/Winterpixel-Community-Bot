@@ -44,6 +44,6 @@ Join the discord to use the bot!
 | **`/season`** | Return the current season and remaining time |
 | **`/random_bot_name`** | Generate a random bot name |
 | **`/fandom`** `article` | Fetch any articles from Rocket Bot Royale fandom wiki here |
-| **`/plot`** `graph (Box Plot/League Trophies Range)` `mode (Trophies/Points (Box Plot only))` `season_start` `season_end` | Plot statistics graph and table about trophies or points in season(s) |
+| **`/plot_season`** `graph (Box Plot/League Trophies Range)` `mode (Trophies/Points (Box Plot only))` `season_start` `season_end` | Plot statistics graph and table about trophies or points in season(s) |
 
 Want to suggest something? Shoot a friend request to Blaki#4254. My DMs are open. You may also feel free to make a pull request if you want to implement it on your own.
