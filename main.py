@@ -724,7 +724,7 @@ async def leaderboard_rocket_bot_royale(
 
             while True:
                 try:
-                    reaction, user = await tree.wait_for(
+                    reaction, user = await client.wait_for(
                         "reaction_add", timeout=10, check=check
                     )
                     # Waiting for a reaction to be added - times out after 10 seconds
@@ -951,7 +951,7 @@ async def leaderboard_rocket_bot_royale(
 
     while True:
         try:
-            reaction, user = await tree.wait_for(
+            reaction, user = await client.wait_for(
                 "reaction_add", timeout=10, check=check
             )
             # Waiting for a reaction to be added - times out after 10 seconds
