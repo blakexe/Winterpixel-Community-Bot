@@ -419,13 +419,13 @@ async def double_or_half(interaction: discord.Interaction):
 
 @tree.command()
 @app_commands.describe(
-    mode="Leaderboard by 🏆 Trophies/🧊 Points/🎉 Wins/☠️ Kills/🤖 Bot Kills",
+    mode="Leaderboard by 🏆 Trophies/🧊 Points/🎉 Wins/💀 Kills/🤖 Bot Kills",
     changes="Only available for Top 50 records of current season, changes since last command used",
     season="🏆 Trophies: Season 10 or later / Others: Season 0 or later, default current",
 )
 async def leaderboard_rocket_bot_royale(
     interaction: discord.Interaction,
-    mode: typing.Literal["🏆 Trophies", "🧊 Points", "🎉 Wins", "☠️ Kills", "🤖 Bot Kills"],
+    mode: typing.Literal["🏆 Trophies", "🧊 Points", "🎉 Wins", "💀 Kills", "🤖 Bot Kills"],
     changes: typing.Literal["Shown", "Hidden"],
     season: int = -1,
 ):
@@ -438,7 +438,7 @@ async def leaderboard_rocket_bot_royale(
         "trophies": "🏆",
         "points": "🧊",
         "wins": "🎉",
-        "kills": "☠️",
+        "kills": "💀",
         "bot kills": "🤖",
     }
 
@@ -603,7 +603,7 @@ async def leaderboard_rocket_bot_royale(
         else:  # By Points/Wins/Kills/Bot Kills
             # Using f-string spacing to pretty print the leaderboard labels (bold)
             message = ""
-            label = f"{season_info_2}\n📊 ***Leaderboard***:```ansi\n\u001b[1m    {'Rank:':<5} {'Name:':<20} {mode.replace('_', ' ').title()}:\u001b[0m\n{'—' * 47}\n"
+            label = f"{season_info_2}\n📊 ***Leaderboard***:```ansi\n\u001b[1m    {'Rank:':<5} {'Name:':<20} {mode[2:]}:\u001b[0m\n{'—' * 47}\n"
 
             # Using f-string spacing to pretty print the leaderboard
             if len(records) < 50:  # Prevent index out of range error
@@ -701,7 +701,7 @@ async def leaderboard_rocket_bot_royale(
         if cannot_split == False:
             cur_page = 1
             embed_init = discord.Embed(
-                title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode.replace('_', ' ').title()}):",
+                title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode[2:]}):",
                 description=label
                 + message1
                 + (
@@ -732,7 +732,7 @@ async def leaderboard_rocket_bot_royale(
                     if str(reaction.emoji) == "▶️" and cur_page == 1:  # Go to Page 2
                         cur_page += 1
                         embed_first = discord.Embed(
-                            title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode.replace('_', ' ').title()}):",
+                            title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode[2:]}):",
                             description="\n" + label + message2,
                         )
                         embed_first.set_footer(
@@ -744,7 +744,7 @@ async def leaderboard_rocket_bot_royale(
                     elif str(reaction.emoji) == "◀️" and cur_page == 2:  # Go to Page 1
                         cur_page -= 1
                         embed_second = discord.Embed(
-                            title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode.replace('_', ' ').title()}):",
+                            title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode[2:]}):",
                             description="\n"
                             + label
                             + message1
@@ -764,7 +764,7 @@ async def leaderboard_rocket_bot_royale(
                     elif str(reaction.emoji) == "⏹️":  # Exit page view and end the loop
                         await msg.edit(
                             embed=discord.Embed(
-                                title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode.replace('_', ' ').title()}):",
+                                title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode[2:]}):",
                                 description=label + message1 + "```",
                             )
                         )
@@ -784,7 +784,7 @@ async def leaderboard_rocket_bot_royale(
                 except asyncio.TimeoutError:
                     await msg.edit(
                         embed=discord.Embed(
-                            title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode.replace('_', ' ').title()}):",
+                            title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode[2:]}):",
                             description=label + message1 + "```",
                         )
                     )
@@ -801,7 +801,7 @@ async def leaderboard_rocket_bot_royale(
         else:  # Send in 1 message if there are too little records
             await interaction.followup.send(
                 embed=discord.Embed(
-                    title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode.replace('_', ' ').title()}):",
+                    title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode[2:]}):",
                     description=label + message + "```",
                 )
             )
@@ -938,7 +938,7 @@ async def leaderboard_rocket_bot_royale(
     # Send
     cur_page = 1
     embed_init = discord.Embed(
-        title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode.replace('_', ' ').title()}):",
+        title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode[2:]}):",
         description=(
             trophies_hidden() if mode == "🏆 Trophies" else non_trophies_hidden()
         ),
@@ -971,7 +971,7 @@ async def leaderboard_rocket_bot_royale(
                 except:
                     next_cursor = False  # Does not exist
                 embed_next = discord.Embed(
-                    title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode.replace('_', ' ').title()}):",
+                    title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode[2:]}):",
                     description=(
                         trophies_hidden()
                         if mode == "🏆 Trophies"
@@ -993,7 +993,7 @@ async def leaderboard_rocket_bot_royale(
                 start = records[0]["rank"]
                 end = records[len(records) - 1]["rank"]
                 embed_prev = discord.Embed(
-                    title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode.replace('_', ' ').title()}):",
+                    title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode[2:]}):",
                     description=(
                         trophies_hidden()
                         if mode == "🏆 Trophies"
@@ -1016,7 +1016,7 @@ async def leaderboard_rocket_bot_royale(
                 start = records[0]["rank"]
                 end = records[len(records) - 1]["rank"]
                 embed_first = discord.Embed(
-                    title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode.replace('_', ' ').title()}):",
+                    title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode[2:]}):",
                     description=(
                         trophies_hidden()
                         if mode == "🏆 Trophies"
@@ -1036,7 +1036,7 @@ async def leaderboard_rocket_bot_royale(
                 records = json.loads(response["payload"])["records"]
                 await msg.edit(
                     embed=discord.Embed(
-                        title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode.replace('_', ' ').title()}):",
+                        title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode[2:]}):",
                         description=(
                             trophies_hidden(False, True)
                             if mode == "🏆 Trophies"
@@ -1057,7 +1057,7 @@ async def leaderboard_rocket_bot_royale(
             records = json.loads(response["payload"])["records"]
             await msg.edit(
                 embed=discord.Embed(
-                    title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode.replace('_', ' ').title()}):",
+                    title=f"Rocket Bot Royale 🚀\nSeason {season} Leaderboard (by {mode[2:]}):",
                     description=(
                         trophies_hidden(False, True)
                         if mode == "🏆 Trophies"
