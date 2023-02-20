@@ -286,14 +286,16 @@ async def refresh_config():
         response = await rocketbot_client.get_config()
         server_config = json.loads(response["payload"])
 
-        global curr_season, league_range, league_names, league_colors_orig, league_colors
+        global curr_season, league_range_orig, league_range, league_names, league_colors_orig, league_colors
         curr_season = server_config["season"]
-        f1 = lambda x: (server_config["trophy_tiers"][x]["maximum_rank"])
-        f2 = lambda x: (server_config["trophy_tiers"][x]["maximum_rank"] + 1)
-        league_range = [
-            f(league)
+        league_range_orig = [
+            server_config["trophy_tiers"][league]["maximum_rank"]
             for league in range(len(server_config["trophy_tiers"]) - 1)
-            for f in (f1, f2)
+        ]
+        league_range = [
+            league_range_orig[i] if j == 0 else league_range_orig[i] + 1
+            for i in range(len(league_range_orig))
+            for j in range(min(len(league_range_orig) - i + 1, 2))
         ]
         league_names = [
             server_config["trophy_tiers"][league]["name"]
@@ -1465,7 +1467,7 @@ async def get_user(
     id: str,
     section: typing.Literal[
         "📓 General Info only",
-        "with 📊 Season Top 50 Records",
+        "with 📊 Seasons Records",
         "with 🛡️ Badges",
         "with 🗒️ Stats",
         "with 🥅 Current Goals",
@@ -1585,54 +1587,61 @@ async def get_user(
         embed=discord.Embed(description=message1, color=0x00C6FE)
     )
 
-    if section in {"with 📊 Season Top 50 Records", "All"}:
-        # Create season records list
-        season_top_50_records_list = "```ansi\n"
+    if section in {"with 📊 Seasons Records", "All"}:
+        # Create seasons records list
+        seasons_records_list = "```ansi\n"
 
         points_label = "\u001b[1;2mBy points (Season 1 to 10)\u001b[0m\n"
-        points = f"{'Season:':<8}{'Rank:':<7}{'Points:':<9}\n{'─'*24}\n"
+        points = f"{'Season:':<8}{'Days:':<6}{'Rank:':<10}{'Points:':<10}{'Games Played:'}\n{'─'*47}\n"
         trophies_label = (
-            f"\u001b[1;2mBy trophies (Season 11 to {curr_season - 1})\u001b[0m\n"
+            f"\u001b[1;2mBy trophies (Season 11 to {curr_season})\u001b[0m\n"
         )
-        trophies = f"{'Season:':<8}{'Rank:':<7}{'Trophies:':<9}\n{'─'*24}\n"
+        trophies = f"{'Season:':<8}{'Days:':<6}{'Rank:':<10}{'Trophies:':<10}{'League:':<9}{'Games Played:'}\n{'─'*56}\n"
         points_record = False
         trophies_record = False
 
-        for i in range(1, curr_season):  # From first season to previous season
+        for season in range(1, curr_season + 1):  # From first season to current season
             response = await rocketbot_client.query_leaderboard(
-                i, ("tankkings_points" if i <= 10 else "tankkings_trophies"), 50
+                season,
+                ("tankkings_points" if season <= 10 else "tankkings_trophies"),
+                1,
+                "",
+                id,
             )
-            records = json.loads(response["payload"])["records"]
-            for record in records:
-                if record["owner_id"] == id:  # Records found (Top 50)
-                    if record["rank"] == 1:
-                        rank_emoji = "🥇"
-                    elif record["rank"] == 2:
-                        rank_emoji = "🥈"
-                    elif record["rank"] == 3:
-                        rank_emoji = "🥉"
-                    else:
-                        rank_emoji = "  "
-                    if i <= 10:
-                        points_record = True
-                        points += f"{i:^8}{rank_emoji:<1}{record['rank']:<5}🧊{record['score']:<9,.0f}\n"
-                    else:
-                        trophies_record = True
-                        trophies += f"{i:^8}{rank_emoji:<1}{record['rank']:<5}🏆{record['score']:<9,.0f}\n"
+        records = json.loads(response["payload"])["owner_records"]
+
+        for record in records:
+            if record["rank"] == 1:
+                rank_emoji = "🥇"
+            elif record["rank"] == 2:
+                rank_emoji = "🥈"
+            elif record["rank"] == 3:
+                rank_emoji = "🥉"
+            else:
+                rank_emoji = "  "
+            if season <= 10:
+                points_record = True
+                points += f"{season:^8}{season_info(season)[2][:-5]:<6}{rank_emoji:<1}{record['rank']:<8,}🧊{record['score']:<9,}{record['num_score']:,}\n"
+            else:
+                trophies_record = True
+                trophies += (
+                    f"{season:^8}{season_info(season)[2][:-5]:<6}{rank_emoji:<1}{record['rank']:<8,}🏆{record['score']:<9,}{league_names[np.searchsorted(league_range_orig, record['rank'])]:<9}{record['num_score']:,}\n"
+                    + (f"{'-'*56}\n" if season == curr_season - 1 else "")
+                )
         if points_record == False and trophies_record == False:
-            season_top_50_records_list += "No records found"
+            seasons_records_list += "No records found"
         else:
             if points_record == True:
-                season_top_50_records_list += points_label + points
+                seasons_records_list += points_label + points
             if trophies_record == True:
-                season_top_50_records_list += (
+                seasons_records_list += (
                     ("\n" if points_record == True else "") + trophies_label + trophies
                 )
-        season_top_50_records_list += "```"
+        seasons_records_list += "```"
 
         # Add to embed
         message2 = ""
-        message2 += f"📊 ***Season Top 50 Records***:\n{season_top_50_records_list}\n"
+        message2 += f"📊 ***Seasons Records***:\n{seasons_records_list}\n"
 
         # Send
         await interaction.followup.send(
@@ -4846,7 +4855,7 @@ async def plot(
     ):
         db["plot"]["last_update_season"] = last_update_season
 
-    if not (enough_records):
+    if end_season == curr_season and not (enough_records):
         end_season = curr_season - 1
         if start_season == curr_season:
             start_season = curr_season - 1
