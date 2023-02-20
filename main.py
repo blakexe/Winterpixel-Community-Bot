@@ -1608,26 +1608,26 @@ async def get_user(
                 "",
                 id,
             )
-        records = json.loads(response["payload"])["owner_records"]
+            records = json.loads(response["payload"])["owner_records"]
 
-        for record in records:
-            if record["rank"] == 1:
-                rank_emoji = "🥇"
-            elif record["rank"] == 2:
-                rank_emoji = "🥈"
-            elif record["rank"] == 3:
-                rank_emoji = "🥉"
-            else:
-                rank_emoji = "  "
-            if season <= 10:
-                points_record = True
-                points += f"{season:^8}{season_info(season)[2][:-5]:<6}{rank_emoji:<1}{record['rank']:<8,}🧊{record['score']:<9,}{record['num_score']:,}\n"
-            else:
-                trophies_record = True
-                trophies += (
-                    f"{season:^8}{season_info(season)[2][:-5]:<6}{rank_emoji:<1}{record['rank']:<8,}🏆{record['score']:<9,}{league_names[np.searchsorted(league_range_orig, record['rank'])]:<9}{record['num_score']:,}\n"
-                    + (f"{'-'*56}\n" if season == curr_season - 1 else "")
-                )
+            for record in records:
+                if record["rank"] == 1:
+                    rank_emoji = "🥇"
+                elif record["rank"] == 2:
+                    rank_emoji = "🥈"
+                elif record["rank"] == 3:
+                    rank_emoji = "🥉"
+                else:
+                    rank_emoji = "  "
+                if season <= 10:
+                    points_record = True
+                    points += f"{season:^8}{season_info(season)[2][:-5]:<6}{rank_emoji:<1}{record['rank']:<8,}🧊{record['score']:<9,}{record['num_score']:,}\n"
+                else:
+                    trophies_record = True
+                    trophies += (
+                        f"{season:^8}{season_info(season)[2][:-5]:<6}{rank_emoji:<1}{record['rank']:<8,}🏆{record['score']:<9,}{league_names[np.searchsorted(league_range_orig, record['rank'])]:<9}{record['num_score']:,}\n"
+                        + (f"{'-'*56}\n" if season == curr_season - 1 else "")
+                    )
         if points_record == False and trophies_record == False:
             seasons_records_list += "No records found"
         else:
