@@ -959,7 +959,10 @@ async def leaderboard_rocket_bot_royale(
             if str(reaction.emoji) == "▶️" and next_cursor != False:  # Next page
                 cur_page += 1
                 response = await rocketbot_client.query_leaderboard(
-                    season, f"tankkings_{mode.lower()[2:]}", 25, cursor_dict[cur_page]
+                    season,
+                    f"tankkings_{mode.replace(' ', '_').lower()[2:]}",
+                    25,
+                    cursor_dict[cur_page],
                 )
                 records = json.loads(response["payload"])["records"]
                 start = records[0]["rank"]
@@ -987,7 +990,10 @@ async def leaderboard_rocket_bot_royale(
             elif str(reaction.emoji) == "◀️" and cur_page > 1:  # Previous page
                 cur_page -= 1
                 response = await rocketbot_client.query_leaderboard(
-                    season, f"tankkings_{mode.lower()[2:]}", 25, cursor_dict[cur_page]
+                    season,
+                    f"tankkings_{mode.replace(' ', '_').lower()[2:]}",
+                    25,
+                    cursor_dict[cur_page],
                 )
                 records = json.loads(response["payload"])["records"]
                 start = records[0]["rank"]
@@ -1010,7 +1016,10 @@ async def leaderboard_rocket_bot_royale(
                 cur_page = 1
                 next_cursor = True
                 response = await rocketbot_client.query_leaderboard(
-                    season, f"tankkings_{mode.lower()[2:]}", 25, cursor_dict[cur_page]
+                    season,
+                    f"tankkings_{mode.replace(' ', '_').lower()[2:]}",
+                    25,
+                    cursor_dict[cur_page],
                 )
                 records = json.loads(response["payload"])["records"]
                 start = records[0]["rank"]
@@ -1031,7 +1040,7 @@ async def leaderboard_rocket_bot_royale(
 
             elif str(reaction.emoji) == "⏹️":  # Exit page view and end the loop
                 response = await rocketbot_client.query_leaderboard(
-                    season, f"tankkings_{mode.lower()[2:]}", 50
+                    season, f"tankkings_{mode.replace(' ', '_').lower()[2:]}", 50
                 )
                 records = json.loads(response["payload"])["records"]
                 await msg.edit(
@@ -1052,7 +1061,7 @@ async def leaderboard_rocket_bot_royale(
                 # Removes reactions if invalid
         except asyncio.TimeoutError:
             response = await rocketbot_client.query_leaderboard(
-                season, f"tankkings_{mode.lower()[2:]}", 50
+                season, f"tankkings_{mode.replace(' ', '_').lower()[2:]}", 50
             )
             records = json.loads(response["payload"])["records"]
             await msg.edit(
