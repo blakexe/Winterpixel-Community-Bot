@@ -501,7 +501,7 @@ async def leaderboard_rocket_bot_royale(
     if changes == "Shown":
         # Add to repl.it's database for new keys
         new_key_flag = False
-        if f"tankkings_{mode.lower()[2:]}_{season}" not in db.keys():
+        if f"tankkings_{mode.replace(' ', '_').lower()[2:]}_{season}" not in db.keys():
             value = dict()
             for record in records:
                 value[record["owner_id"]] = {
@@ -712,7 +712,7 @@ async def leaderboard_rocket_bot_royale(
                 + "```",
             )
             embed_init.set_footer(
-                text=f"Page 1/2:  1 to 25 | Changes since {db[f'tankkings_{mode.lower()[2:]}_{season}']['last_update_time']}"
+                text=f"""Page 1/2:  1 to 25 | Changes since {db[f"tankkings_{mode.replace(' ', '_').lower()[2:]}_{season}"]['last_update_time']}"""
             )
             msg = await interaction.followup.send(embed=embed_init)
             msg2 = await interaction.followup.send(
@@ -736,7 +736,7 @@ async def leaderboard_rocket_bot_royale(
                             description="\n" + label + message2,
                         )
                         embed_first.set_footer(
-                            text=f"Page 2/2: 26 to 50 | Changes since {db[f'tankkings_{mode.lower()[2:]}_{season}']['last_update_time']}"
+                            text=f"""Page 2/2: 26 to 50 | Changes since {db[f"tankkings_{mode.replace(' ', '_').lower()[2:]}_{season}"]['last_update_time']}"""
                         )
                         await msg.edit(embed=embed_first)
                         await msg.remove_reaction(reaction, user)
@@ -756,7 +756,7 @@ async def leaderboard_rocket_bot_royale(
                             + "```",
                         )
                         embed_second.set_footer(
-                            text=f"Page 1/2:  1 to 25 | Changes since {db[f'tankkings_{mode.lower()[2:]}_{season}']['last_update_time']}"
+                            text=f"""Page 1/2:  1 to 25 | Changes since {db[f"tankkings_{mode.replace(' ', '_').lower()[2:]}_{season}"]['last_update_time']}"""
                         )
                         await msg.edit(embed=embed_second)
                         await msg.remove_reaction(reaction, user)
@@ -772,7 +772,7 @@ async def leaderboard_rocket_bot_royale(
                             description="```ansi\n" + message2
                         )
                         embed_second_timeout.set_footer(
-                            text=f"Changes since {db[f'tankkings_{mode.lower()[2:]}_{season}']['last_update_time']}"
+                            text=f"""Changes since {db[f"tankkings_{mode.replace(' ', '_').lower()[2:]}_{season}"]['last_update_time']}"""
                         )
                         await msg2.edit(embed=embed_second_timeout)
                         await msg.clear_reactions()
@@ -792,7 +792,7 @@ async def leaderboard_rocket_bot_royale(
                         description="```ansi\n" + message2
                     )
                     embed_second_timeout.set_footer(
-                        text=f"Changes since {db[f'tankkings_{mode.lower()[2:]}_{season}']['last_update_time']}"
+                        text=f"""Changes since {db[f"tankkings_{mode.replace(' ', '_').lower()[2:]}_{season}"]['last_update_time']}"""
                     )
                     await msg2.edit(embed=embed_second_timeout)
                     await msg.clear_reactions()
@@ -807,9 +807,9 @@ async def leaderboard_rocket_bot_royale(
             )
 
         # Update to repl.it's database for old keys
-        if (f"tankkings_{mode.lower()[2:]}_{season}" in db.keys()) and (
-            new_key_flag == False
-        ):
+        if (
+            f"tankkings_{mode.replace(' ', '_').lower()[2:]}_{season}" in db.keys()
+        ) and (new_key_flag == False):
             value = dict()
             for record in records:
                 value[record["owner_id"]] = {
