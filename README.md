@@ -33,7 +33,8 @@ Join the discord to use the bot!
 | **`/build_a_bot`** | Bear the responsibility of creating new life... I mean bot |
 | **`/join_game`** | Join the current game |
 | **`/start_game`**  | Start a game with the people joined |
-| **`/get_money`**  | Find out how much money you have in discord |
+| **`/my_balance`**  | Find out how much coins you have in discord |
+| **`/transfer_coins`** `amount` `recipient`  | Transfer some coins to another user |
 | **`/discord_coins_leaderboard`** `changes (Shown/Hidden)` | Return the discord coins leaderboard |
 | **`/random_tank`** | Get a random tank |
 | **`/long`** `length` `(barrel)`  | Build your supercalifragilisticexpialidocious long tank equipped with as many barrels as you want! |
