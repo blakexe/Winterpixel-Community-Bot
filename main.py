@@ -456,10 +456,10 @@ async def leaderboard_rocket_bot_royale(
     curr_season = server_config["season"]
 
     # Reassign season if unreasonable
-    if mode == "Trophies":
+    if mode == "🏆 Trophies":
         if season < 10 or season > curr_season:
             season = curr_season
-    elif mode == "Points":
+    else:
         if season < 0 or season > curr_season:
             season = curr_season
 
@@ -488,11 +488,8 @@ async def leaderboard_rocket_bot_royale(
     response = await rocketbot_client.query_leaderboard(
         season,
         f"tankkings_{mode.replace('Player ', '').replace(' ', '_').lower()[2:]}",
-        limit
+        limit,
     )
-    temp = f"tankkings_{mode.replace('Player ', '').replace(' ', '_').lower()[2:]}"
-    print(temp == "tankkings_trophies")
-    print(json.loads(response["payload"]))
     records = json.loads(response["payload"])["records"]
     start = records[0]["rank"]
     end = records[len(records) - 1]["rank"]
