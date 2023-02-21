@@ -3316,7 +3316,7 @@ async def slot(interaction: discord.Interaction, bet: int):
 
         if win == True:
             res_2 = "-- **YOU WON** --"
-            net_change = bet * multiplier
+            net_change = -bet + bet * multiplier
         else:
             res_2 = "-- **YOU LOST** --"
             net_change = -bet
