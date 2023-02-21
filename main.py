@@ -2825,8 +2825,8 @@ async def start_game(interaction: discord.Interaction):
 
 
 @tree.command()
-async def get_money(interaction: discord.Interaction):
-    """Find out how much money you have in discord"""
+async def my_balance(interaction: discord.Interaction):
+    """Find out how much coins you have in discord"""
     await interaction.response.defer(ephemeral=False, thinking=True)
 
     id = convert_mention_to_id(interaction.user.mention)
@@ -2837,6 +2837,53 @@ async def get_money(interaction: discord.Interaction):
         name = user_object[0].nick  # Use nickname
     msg = f"{str(interaction.user.mention)} has {str(change_player_coin(id, name, 0, True))} <:coin:910247623787700264>"
     await interaction.followup.send(msg)
+
+
+@tree.command()
+@app_commands.describe(
+    amount="Amount of coins to be transfered", recipient="User who receive the coins"
+)
+async def transfer_coins(interaction: discord.Interaction, amount: int, recipient: str):
+    """Transfer some coins to another user"""
+
+    await interaction.response.defer(ephemeral=False, thinking=True)
+
+    # Check how many coins the sender has
+    id_sender = convert_mention_to_id(interaction.user.mention)
+    user_object = await interaction.guild.query_members(user_ids=[id_sender])
+    if user_object[0].nick == None:  # No nickname is found
+        name = str(user_object[0])[:-5]  # Use username
+    else:
+        name = user_object[0].nick  # Use nickname
+    sender_coin_before = change_player_coin(id_sender, name, 0, True)
+
+    id_recipient = convert_mention_to_id(recipient)
+
+    if id_sender == id_recipient:
+        await interaction.followup.send(
+            "You can't transfer <:coin1:910247623787700264> to yourself"
+        )
+
+    elif amount > sender_coin_before:
+        await interaction.followup.send(
+            "You don't have enough <:coin1:910247623787700264>"
+        )
+
+    else:
+        change_player_coin(id_sender, name, -amount, request=False)
+        try:
+            user_object = await interaction.guild.query_members(user_ids=[id_recipient])
+            if user_object[0].nick == None:  # No nickname is found
+                name = str(user_object[0])[:-5]  # Use username
+            else:
+                name = user_object[0].nick  # Use nickname
+            change_player_coin(id_recipient, name, amount, request=False)
+            await interaction.followup.send(
+                f"You've transfered {amount} <:coin1:910247623787700264> to {recipient}"
+            )
+        except:
+            change_player_coin(id_sender, name, amount, request=False)
+            await interaction.followup.send("Recipient not found")
 
 
 @tree.command()
