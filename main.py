@@ -488,7 +488,7 @@ async def leaderboard_rocket_bot_royale(
     response = await rocketbot_client.query_leaderboard(
         season,
         f"tankkings_{mode.replace('Player ', '').replace(' ', '_').lower()[2:]}",
-        limit,
+        limit
     )
     print(f"tankkings_{mode.replace('Player ', '').replace(' ', '_').lower()[2:]}")
     print(json.loads(response["payload"]))
