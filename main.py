@@ -490,7 +490,8 @@ async def leaderboard_rocket_bot_royale(
         f"tankkings_{mode.replace('Player ', '').replace(' ', '_').lower()[2:]}",
         limit
     )
-    print(f"tankkings_{mode.replace('Player ', '').replace(' ', '_').lower()[2:]}")
+    temp = f"tankkings_{mode.replace('Player ', '').replace(' ', '_').lower()[2:]}"
+    print(temp == "tankkings_trophies")
     print(json.loads(response["payload"]))
     records = json.loads(response["payload"])["records"]
     start = records[0]["rank"]
