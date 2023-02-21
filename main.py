@@ -3312,14 +3312,11 @@ async def slot(interaction: discord.Interaction, bet: int):
                 multiplier = multiplier2[coin.index(slots[0])]
             win = True
         else:
+            multiplier = 0
             win = False
 
-        if win == True:
-            res_2 = "-- **YOU WON** --"
-            net_change = -bet + bet * multiplier
-        else:
-            res_2 = "-- **YOU LOST** --"
-            net_change = -bet
+        res_2 = "-- **YOU WON** --" if win == True else "-- **YOU LOST** --"
+        net_change = -bet + bet * multiplier
 
         player_coin_after = change_player_coin(id, name, net_change, True)
 
@@ -3330,8 +3327,8 @@ async def slot(interaction: discord.Interaction, bet: int):
         )
         embed.add_field(name="Bet", value=f"{bet} {coin[0]}", inline=True)
         embed.add_field(
-            name="Profit/Loss",
-            value=f"{net_change} {coin[0]}" + (f" ({multiplier}x)" if win else ""),
+            name="Multiplier",
+            value=f"{bet * multiplier} {coin[0]} ({multiplier}x)",
             inline=True,
         )
         embed.add_field(
