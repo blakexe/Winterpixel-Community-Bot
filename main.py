@@ -4798,7 +4798,7 @@ db["plot"]["first_10_seasons_added"] = False
 @tree.command()
 @app_commands.describe(
     graph="Box Plot: Top 100 players' records / League Trophies Range",
-    mode="🏆 Trophies / 🧊 Points / 🎉 Wins / 💀 Player Kills / 🤖 Bot Kills"
+    mode="🏆 Trophies / 🧊 Points / 🎉 Wins / 💀 Player Kills / 🤖 Bot Kills",
     start_season="🏆 Trophies: Season 11 or later / Others: Season 1 or later, default all",
     end_season=">= start_season, default all",
 )
