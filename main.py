@@ -4788,13 +4788,6 @@ async def fandom(interaction: discord.Interaction, article: str):
         )
 
 
-db["plot_copy_new_2"] = db["plot"]
-del db["plot"]
-db["plot"] = dict()
-db["plot"]["last_update_season"] = 0
-db["plot"]["first_10_seasons_added"] = False
-
-
 @tree.command()
 @app_commands.describe(
     graph="Box Plot: Top 100 players' records / League Trophies Range",
@@ -4850,14 +4843,12 @@ async def plot_season(
         max(start_season, db["plot"]["last_update_season"]),
         min(end_season, curr_season) + 1,
     ):
-        print(season)
         if season > last_update_season:
             last_update_season = season
 
         if str(season) not in db["plot"]:
             db["plot"][str(season)] = dict()
             db["plot"][str(season)]["days"] = season_info(season)[2][:-5]
-            print("days")
 
         if (
             season < curr_season
@@ -4875,7 +4866,6 @@ async def plot_season(
                 db["plot"][str(season)][f"top_100_{update_mode}"] = [
                     record["score"] for record in records
                 ]
-                print(f"top_100_{update_mode}")
 
                 season_records = db["plot"][str(season)][f"top_100_{update_mode}"]
                 db["plot"][str(season)][f"top_100_{update_mode}_stats"] = (
@@ -4887,7 +4877,6 @@ async def plot_season(
                     + [max(season_records)]
                     + [int(round(mean(season_records)))]
                 )
-                print(f"top_100_{update_mode}_stats")
 
             if season >= 11:
                 response = await rocketbot_client.query_leaderboard(
@@ -4898,7 +4887,6 @@ async def plot_season(
                 db["plot"][str(season)]["League Trophies Range"] = [
                     records[range - 1]["score"] for range in league_range
                 ]
-                print("league_trophies_range")
 
         else:  # current season
             limit = 100 if graph == "Box Plot" else 8002
@@ -4917,9 +4905,6 @@ async def plot_season(
                     db["plot"][str(season)][
                         f"top_100_{mode.replace('Player ', '').replace(' ', '_').lower()[2:]}"
                     ] = [record["score"] for record in records]
-                    print(
-                        f"top_100_{mode.replace('Player ', '').replace(' ', '_').lower()[2:]}"
-                    )
 
                     season_records = db["plot"][str(season)][
                         f"top_100_{mode.replace('Player ', '').replace(' ', '_').lower()[2:]}"
@@ -4935,24 +4920,18 @@ async def plot_season(
                         + [max(season_records)]
                         + [int(round(mean(season_records)))]
                     )
-                    print(
-                        f"top_100_{mode.replace('Player ', '').replace(' ', '_').lower()[2:]}_stats"
-                    )
 
                 if graph == "League Trophies Range":
                     db["plot"][str(season)]["League Trophies Range"] = [
                         records[range - 1]["score"] for range in league_range
                     ]
-                    print("league_trophies_range")
 
     if db["plot"]["first_10_seasons_added"] == False:
         db["plot"]["first_10_seasons_added"] = True
-        print("first_10_seasons_added = True")
 
         for season in range(1, 11):
             if str(season) not in db["plot"]:
                 db["plot"]["first_10_seasons_added"] = False
-                print("first_10_seasons_added = False")
                 break
 
     if (
@@ -4960,7 +4939,6 @@ async def plot_season(
         and last_update_season > db["plot"]["last_update_season"]
     ):
         db["plot"]["last_update_season"] = last_update_season
-        print(f"last update season: {last_update_season}")
 
     if end_season == curr_season and not (enough_records):
         end_season = curr_season - 1
