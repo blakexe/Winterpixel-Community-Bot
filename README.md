@@ -17,7 +17,7 @@ Join the discord to use the bot!
 
 ### 🚀 Rocket Bot Royale:
 - Get user profile either via friend code or user id.
-- List the leaderboard of any season, sorted by trophies (season 10 or later) or points (season 0 or later).
+- List the leaderboard of any season, sorted by trophies (season 10 or later) or points/wins/player kills/bot kills (season 0 or later).
 
 ### 🛸 Moonrock Miners:
 - List the leaderboard of any season, sorted by trophies (beta season 14 or later).
