@@ -521,7 +521,7 @@ async def leaderboard_rocket_bot_royale(
             db[record["leaderboard_id"]] = value
             new_key_flag = True
 
-        if mode == "Trophies":  # By Tropihes
+        if mode == "🏆 Trophies":  # By Tropihes
             split = []
             tier = []
             for i in range(5):
