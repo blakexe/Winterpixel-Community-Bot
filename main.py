@@ -5634,8 +5634,8 @@ async def plot_season(
 async def trophies_calculator(
     interaction: discord.Interaction,
     reason: typing.Literal["Outranked", "Outranked by", "Killed", "Killed by"],
-    player_a_trophies: int,
-    player_b_trophies: int,
+    your_trophies: int,
+    opponents_trophies: int,
 ):
     """Calculate trophies gain/loss by reasons and plot the graph"""
 
@@ -5645,8 +5645,8 @@ async def trophies_calculator(
     def clamp(n, minn, maxn):
       return max(min(maxn, n), minn)
     
-    player_a_trophies = clamp(player_a_trophies, 0, 10000)
-    player_b_trophies = clamp(player_b_trophies, 0, 10000)
+    your_trophies = clamp(your_trophies, 0, 10000)
+    opponents_trophies = clamp(opponents_trophies, 0, 10000)
     
     # Adjust variables depend on reason
     k_factor = 4 if "Outranked" in reason else 16
@@ -5669,10 +5669,10 @@ async def trophies_calculator(
 
     # x, y, z values for contour plot
     extra_x, extra_y = 0, 0
-    if player_a_trophies > 2800:
-        extra_x = player_a_trophies - 2800 + 1400
-    if player_b_trophies > 2800:
-        extra_y = player_b_trophies - 2800 + 1400
+    if your_trophies > 2800:
+        extra_x = your_trophies - 2800 + 1400
+    if opponents_trophies > 2800:
+        extra_y = opponents_trophies - 2800 + 1400
     x, y = np.meshgrid(np.linspace(0+extra_x, 2800+extra_x, 100), np.linspace(0+extra_y, 2800+extra_y, 100))
     v_func = np.vectorize(f)
     cf = ax.contourf(x, y, v_func(x, y), levels, cmap='Reds_r' if "by" in reason else "Greens")
@@ -5695,15 +5695,15 @@ async def trophies_calculator(
     cb.ax.tick_params(axis="both", which="both", colors="w")
 
     # Boost Target vertical dotted line
-    if 'by' in reason and player_a_trophies <= 2800:
+    if 'by' in reason and your_trophies <= 2800:
         plt.axvline(x=400, color='k', ls='--')
         plt.text(200,2600,'Boost Target\n(400)', color='k', ha='center')
 
     # Plot dot and annotate
-    x_adjust = 550 if player_a_trophies>2200 else 0
-    y_adjust = 200 if player_b_trophies>2600 else 0
-    plt.text(player_a_trophies+25-x_adjust, player_b_trophies+75-y_adjust,f'f({player_a_trophies},{player_b_trophies})={f(player_a_trophies, player_b_trophies):.2f}', color='white', bbox=dict(facecolor='black', edgecolor='white', boxstyle='round'), size="10")
-    plt.scatter(player_a_trophies, player_b_trophies, facecolor='black', edgecolor='white', zorder=3)
+    x_adjust = 550 if your_trophies>2200 else 0
+    y_adjust = 200 if opponents_trophies>2600 else 0
+    plt.text(your_trophies+25-x_adjust, opponents_trophies+75-y_adjust,f'f({your_trophies},{opponents_trophies})={f(your_trophies, opponents_trophies):.2f}', color='white', bbox=dict(facecolor='black', edgecolor='white', boxstyle='round'), size="10")
+    plt.scatter(your_trophies, opponents_trophies, facecolor='black', edgecolor='white', zorder=3)
 
     plt.tight_layout()
 
@@ -5716,7 +5716,7 @@ async def trophies_calculator(
     data_stream.seek(0)
     chart = discord.File(
         data_stream,
-        filename=f"{player_a_trophies}_{player_a_trophies}_{player_b_trophies}.png",
+        filename=f"{your_trophies}_{your_trophies}_{opponents_trophies}.png",
     )
     await interaction.followup.send(file=chart)
 
