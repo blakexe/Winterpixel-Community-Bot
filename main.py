@@ -2212,7 +2212,7 @@ async def get_user(
         )
 
         first_title = " General "
-        stat_list += f"\u001b[1;2m{first_title.center(45, '—')}\u001b[0m\n"
+        stat_list += f"\u001b[1;2m{first_title.center(44, '—')}\u001b[0m\n"
         keys = [
             "deaths",
             "snipers",
