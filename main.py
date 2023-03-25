@@ -521,7 +521,7 @@ async def leaderboard_rocket_bot_royale(
             db[record["leaderboard_id"]] = value
             new_key_flag = True
 
-        if mode == "🏆 Trophies":  # By Tropihes
+        if mode == "🏆 Trophies":  # By Trophies
             split = []
             tier = []
             for i in range(5):
@@ -1789,7 +1789,7 @@ async def get_user(
                     labels.append(key.replace("kills_using_", "").title())
                 sizes.append(keys_order[key])
 
-        fig1, ax1 = plt.subplots(facecolor=("#2f3137"), figsize=(5, 6))
+        fig1, ax1 = plt.subplots(facecolor=("#2F3137"), figsize=(5, 6))
         ax1.set_title(
             user_data["display_name"]
             + "'s\n Kills Using Weapons distribution\n(Missiles excluded)",
@@ -5623,6 +5623,102 @@ async def plot_season(
             + f") {current_timestamp}.png",
         )
         await interaction.followup.send(file=chart_d)
+
+
+@tree.command()
+@app_commands.describe(
+    reason="The reason of gain/loss trophies",
+    your_trophies="How many trophies do you have",
+    opponents_trophies="How many trophies does your opponent have",
+)
+async def trophies_calculator(
+    interaction: discord.Interaction,
+    reason: typing.Literal["Outranked", "Outranked by", "Killed", "Killed by"],
+    player_a_trophies: int,
+    player_b_trophies: int,
+):
+    """Calculate trophies gain/loss by reasons and plot the graph"""
+
+    await interaction.response.defer(ephemeral=False, thinking=True)
+    
+    # Limit trophies range
+    def clamp(n, minn, maxn):
+      return max(min(maxn, n), minn)
+    
+    player_a_trophies = clamp(player_a_trophies, 0, 10000)
+    player_b_trophies = clamp(player_b_trophies, 0, 10000)
+    
+    # Adjust variables depend on reason
+    k_factor = 4 if "Outranked" in reason else 16
+    score_a = 0 if "by" in reason else 1
+
+    # Main multivariable-function (f(x,y) = z)
+    def f(x, y):
+        boost_factor = x/400 if x < 400 else 1
+        boosted_k_factor = k_factor * boost_factor if score_a < 1 else k_factor
+        trophies_change = boosted_k_factor*(score_a-(10**(x/800))/(10**(x/800)+10**(y/800)))
+        return trophies_change
+    
+    # Main graph
+    fig, ax = plt.subplots(1, 1, facecolor=("#2F3137"), figsize=(10, 8), edgecolor="w", linewidth=3)
+    division = int(-(k_factor/2)+10)
+    if "by" in reason:
+        levels = [-i/division for i in range(k_factor*division+1)][::-1]
+    else:
+        levels = [i/division for i in range(k_factor*division+1)]
+
+    # x, y, z values for contour plot
+    extra_x, extra_y = 0, 0
+    if player_a_trophies > 2800:
+        extra_x = player_a_trophies - 2800 + 1400
+    if player_b_trophies > 2800:
+        extra_y = player_b_trophies - 2800 + 1400
+    x, y = np.meshgrid(np.linspace(0+extra_x, 2800+extra_x, 100), np.linspace(0+extra_y, 2800+extra_y, 100))
+    v_func = np.vectorize(f)
+    cf = ax.contourf(x, y, v_func(x, y), levels, cmap='Reds_r' if "by" in reason else "Greens")
+    
+    ax.xaxis.set_major_locator(MultipleLocator(400))
+    ax.xaxis.set_minor_locator(AutoMinorLocator(8))
+    ax.yaxis.set_major_locator(MultipleLocator(400))
+    ax.yaxis.set_minor_locator(AutoMinorLocator(8))
+    ax.grid(which="major", alpha=0.5)
+    ax.grid(which="minor", alpha=0.2)
+    ax.set_title(f"Trophies {'Loss' if 'by' in reason else 'Gain'} ({reason})", color="#FFFFFF", weight="bold")
+    ax.set_xlabel('Your Trophies', c="#FFFFFF", weight="bold")
+    ax.set_ylabel("Opponent's Trophies", c="#FFFFFF", weight="bold")
+    ax.tick_params(axis="both", which="both", colors="w")
+
+    # Colorbar graph
+    cb = fig.colorbar(cf)
+    cb.set_label(f"Trophies {'Loss' if 'by' in reason else 'Gain'}", color="w", weight="bold")
+    cb.set_ticks(levels)
+    cb.ax.tick_params(axis="both", which="both", colors="w")
+
+    # Boost Target vertical dotted line
+    if 'by' in reason and player_a_trophies <= 2800:
+        plt.axvline(x=400, color='k', ls='--')
+        plt.text(200,2600,'Boost Target\n(400)', color='k', ha='center')
+
+    # Plot dot and annotate
+    x_adjust = 550 if player_a_trophies>2200 else 0
+    y_adjust = 200 if player_b_trophies>2600 else 0
+    plt.text(player_a_trophies+25-x_adjust, player_b_trophies+75-y_adjust,f'f({player_a_trophies},{player_b_trophies})={f(player_a_trophies, player_b_trophies):.2f}', color='white', bbox=dict(facecolor='black', edgecolor='white', boxstyle='round'), size="10")
+    plt.scatter(player_a_trophies, player_b_trophies, facecolor='black', edgecolor='white', zorder=3)
+
+    plt.tight_layout()
+
+    # Save the graph
+    data_stream = io.BytesIO()
+    plt.savefig(data_stream, format="png", dpi=250)
+    plt.close()
+    
+    # Send the graph
+    data_stream.seek(0)
+    chart = discord.File(
+        data_stream,
+        filename=f"{player_a_trophies}_{player_a_trophies}_{player_b_trophies}.png",
+    )
+    await interaction.followup.send(file=chart)
 
 
 @tree.command(guild=discord.Object(id=962142361935314996))
