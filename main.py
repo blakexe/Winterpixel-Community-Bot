@@ -1775,38 +1775,75 @@ async def get_user(
         # Plot Kills by Weapons pie chart
         data_stream = io.BytesIO()  # Initialize IO
 
-        labels = []
-        sizes = []
+        label_a, sizes_a, label_b, sizes_b = ([] for i in range(4))
         for key in keys_order:
+            if "played" in key and keys_order[key] != 0:
+                if "games" in key:
+                    label_a.append("Solo")
+                elif "deathmatch" in key:
+                    label_a.append("Squads Deathmatch")
+                elif "teams" in key:
+                    label_a.append("Red Vs Blue")
+                else:
+                    label_a.append(key.replace("_played", "").title())
+                sizes_a.append(keys_order[key])
+            
             if "kills_using" in key and keys_order[key] != 0:
                 if "triple-shot" in key:
-                    labels.append(
-                        key.replace("kills_using_", "")
-                        .replace("triple-shot", "rapidfire")
-                        .title()
-                    )
+                    label_b.append(
+                        key.replace("kills_using_", "").replace("triple-shot",
+                                                                "rapidfire").title())
                 else:
-                    labels.append(key.replace("kills_using_", "").title())
-                sizes.append(keys_order[key])
+                    label_b.append(key.replace("kills_using_", "").title())
+                sizes_b.append(keys_order[key])
 
-        fig1, ax1 = plt.subplots(facecolor=("#2F3137"), figsize=(5, 6))
-        ax1.set_title(
-            user_data["display_name"]
-            + "'s\n Kills Using Weapons distribution\n(Missiles excluded)",
+        fig, axes = plt.subplots(facecolor=("#2f3137"), figsize=(10, 6), nrows=1, ncols=2)
+
+        axes[0].set_title(
+            user_data['display_name'] +
+            '\'s\n Games Played by Game Mode',
             color="#FFFFFF",
             fontsize=16,
-            pad=0,
-        )
-        ax1.pie(
-            sizes,
-            labels=labels,
-            autopct=lambda p: "{:.1f}%\n({:.0f})".format(p, p * sum(sizes) / 100),
+            pad=0)
+        axes[0].pie(
+            sizes_a,
+            labels=label_a,
+            autopct=lambda p: '{:.1f}%\n({:.0f})'.format(p, p * sum(sizes_a) / 100),
             startangle=90,
-            textprops={"color": "#FFFFFF", "fontsize": 8},
-            wedgeprops={"edgecolor": "#FFFFFF", "linewidth": 1, "antialiased": True},
-            pctdistance=0.85,
-        )
-        ax1.axis("equal")
+            textprops={
+                'color': "#FFFFFF",
+                'fontsize': 7
+            },
+            wedgeprops={
+                "edgecolor": "#FFFFFF",
+                'linewidth': 1,
+                'antialiased': True
+            },
+            pctdistance=0.9)
+        axes[0].axis('equal')
+        
+        axes[1].set_title(
+            user_data['display_name'] +
+            '\'s\n Kills by Weapon (Missiles excluded)',
+            color="#FFFFFF",
+            fontsize=16,
+            pad=0)
+        axes[1].pie(
+            sizes_b,
+            labels=label_b,
+            autopct=lambda p: '{:.1f}%\n({:.0f})'.format(p, p * sum(sizes_b) / 100),
+            startangle=90,
+            textprops={
+                'color': "#FFFFFF",
+                'fontsize': 7
+            },
+            wedgeprops={
+                "edgecolor": "#FFFFFF",
+                'linewidth': 1,
+                'antialiased': True
+            },
+            pctdistance=0.9)
+        axes[1].axis('equal')
 
         plt.tight_layout()
         plt.savefig(data_stream, format="png", dpi=150)
@@ -2228,7 +2265,7 @@ async def get_user(
         # Send
         embed1 = discord.Embed(description=message4, color=0x00C6FE)
         data_stream.seek(0)
-        chart = discord.File(data_stream, filename="plot.png")
+        chart = discord.File(data_stream, filename=f"{user_data['display_name']}_pie_charts.png")
         embed1.set_image(url="attachment://plot.png")
         await interaction.followup.send(embed=embed1, file=chart)
 
@@ -5716,7 +5753,7 @@ async def trophies_calculator(
     data_stream.seek(0)
     chart = discord.File(
         data_stream,
-        filename=f"{your_trophies}_{your_trophies}_{opponents_trophies}.png",
+        filename=f"{reason.lower()}_{your_trophies}_{opponents_trophies}.png",
     )
     await interaction.followup.send(file=chart)
 
