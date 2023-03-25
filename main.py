@@ -2212,7 +2212,7 @@ async def get_user(
         )
 
         first_title = " General "
-        stat_list += f"\u001b[1;2m{first_title.center(47, '—')}\u001b[0m\n"
+        stat_list += f"\u001b[1;2m{first_title.center(45, '—')}\u001b[0m\n"
         keys = [
             "deaths",
             "snipers",
@@ -2266,7 +2266,7 @@ async def get_user(
         embed1 = discord.Embed(description=message4, color=0x00C6FE)
         data_stream.seek(0)
         chart = discord.File(data_stream, filename=f"{user_data['display_name']}_pie_charts.png")
-        embed1.set_image(url="attachment://plot.png")
+        embed1.set_image(url=f"{user_data['display_name']}_pie_charts.png")
         await interaction.followup.send(embed=embed1, file=chart)
 
     if section in {"with 🥅 Current Goals", "All"}:
