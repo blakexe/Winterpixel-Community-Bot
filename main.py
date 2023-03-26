@@ -1634,7 +1634,7 @@ async def get_user(
         seasons_records_list = "```ansi\n"
 
         points_label = "\u001b[1;2mBy points (Season 1 to 10)\u001b[0m\n"
-        points = f"{'Season:':<8}{'Days:':<6}{'Rank:':<10}{'Points:':<11    }{'Games Played:'}\n{'─'*47}\n"
+        points = f"{'Season:':<8}{'Days:':<6}{'Rank:':<10}{'Points:':<11}{'Games Played:'}\n{'─'*47}\n"
         trophies_label = (
             f"\u001b[1;2mBy trophies (Season 11 to {curr_season})\u001b[0m\n"
         )
