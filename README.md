@@ -46,6 +46,6 @@ Join the discord to use the bot!
 | **`/random_bot_name`** | Generate a random bot name |
 | **`/fandom`** `article` | Fetch any articles from Rocket Bot Royale fandom wiki here |
 | **`/plot_season`** `graph (Box Plot/League Trophies Range)` `mode (Trophies/Points (Box Plot only))` `season_start` `season_end` | Plot statistics graph and table about trophies or points in season(s) |
-| **`/trophies_calculator`** `reason (Outranked / Outranked by / Killed / Killed by)` `your_trophies` `opponents_trophies` | Calculate trophies gain/loss by reasons and plot the graph |
+| **`/trophies_calculator`** `reason (Outranked / Outranked by / Killed / Killed by)` `your_trophies` `opponents_trophies` `format (text / graph)` | Calculate trophies gain/loss by reasons and plot the graph (optional) |
 
 Want to suggest something? Shoot a friend request to Blaki#4254. My DMs are open. You may also feel free to make a pull request if you want to implement it on your own.
