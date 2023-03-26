@@ -2283,8 +2283,8 @@ async def get_user(
         # Send
         embed1 = discord.Embed(description=message4, color=0x00C6FE)
         data_stream.seek(0)
-        chart = discord.File(data_stream, filename=f"{user_data['display_name'].replace(' ','_')}_pie_charts.png")
-        embed1.set_image(url=f"attachment://{user_data['display_name'].replace(' ','_')}_pie_charts.png")
+        chart = discord.File(data_stream, filename=f"{friend_code}_pie_charts.png")
+        embed1.set_image(url=f"attachment://{friend_code}_pie_charts.png")
         await interaction.followup.send(embed=embed1, file=chart)
 
     if section in {"with 🥅 Current Goals", "All"}:
