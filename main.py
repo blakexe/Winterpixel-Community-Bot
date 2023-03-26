@@ -442,11 +442,11 @@ async def leaderboard_rocket_bot_royale(
 
     # Emojis for different modes
     emojis = {
-        "trophies": "🏆",
-        "points": "🧊",
-        "wins": "🎉",
-        "player kills": "💀",
-        "bot kills": "🤖",
+        "trophies": "🏆 ",
+        "points": "🧊 ",
+        "wins": "🎉 ",
+        "player kills": "💀 ",
+        "bot kills": "🤖 ",
     }
 
     def check(reaction, user):
@@ -536,7 +536,7 @@ async def leaderboard_rocket_bot_royale(
 
             # Using f-string spacing to pretty print the leaderboard labels (bold)
             message = ""
-            label = f"{season_info_2}\n📊 ***Leaderboard***:```ansi\n\u001b[1m    {'Rank:':<5} {'Name:':<20} {'Trophies:'}\u001b[0m\n{'—' * 45}\n"
+            label = f"{season_info_2}\n📊 ***Leaderboard***:```ansi\n\u001b[1m    {'Rank:':<5} {'Name:':<20} {'Trophies:'}\u001b[0m\n{'—' * 46}\n"
 
             # Using f-string spacing to pretty print the leaderboard
             if len(records) < 50:  # Prevent index out of range error
@@ -616,7 +616,7 @@ async def leaderboard_rocket_bot_royale(
         else:  # By Points/Wins/Player Kills/Bot Kills
             # Using f-string spacing to pretty print the leaderboard labels (bold)
             message = ""
-            label = f"{season_info_2}\n📊 ***Leaderboard***:```ansi\n\u001b[1m    {'Rank:':<5} {'Name:':<20} {mode[2:]}:\u001b[0m\n{'—' * 47}\n"
+            label = f"{season_info_2}\n📊 ***Leaderboard***:```ansi\n\u001b[1m    {'Rank:':<5} {'Name:':<20} {mode[2:]}:\u001b[0m\n{'—' * 48}\n"
 
             # Using f-string spacing to pretty print the leaderboard
             if len(records) < 50:  # Prevent index out of range error
@@ -922,7 +922,7 @@ async def leaderboard_rocket_bot_royale(
                             if season != 0
                             else ""
                         )
-                        + f"```ansi\n\u001b[1m{'Rank:':<5} {'Name:':<20} {mode[2:]+':'}\u001b[0m\n{'─' * 37}\n"
+                        + f"```ansi\n\u001b[1m{'Rank:':<5} {'Name:':<20} {mode[2:]+':'}\u001b[0m\n{'─' * 35}\n"
                     )
                 else:  # By Points/Player Kills/Bot Kills
                     message = (
@@ -931,7 +931,7 @@ async def leaderboard_rocket_bot_royale(
                             if season != 0
                             else ""
                         )
-                        + f"```ansi\n\u001b[1m{'Rank:':<5} {'Name:':<20} {mode[2:]+':':<9} {'Games:':<7} {'P/G:' if mode == '🧊 Points' else 'K/G:'}\u001b[0m\n{'─' * (53 if mode == '💀 Player Kills' else 51)}\n"
+                        + f"```ansi\n\u001b[1m{'Rank:':<5} {'Name:':<20} {mode[2:]+':':<11} {'Games:':<7} {'P/G:' if mode == '🧊 Points' else 'K/G:'}\u001b[0m\n{'─' * (53 if mode == '💀 Player Kills' else 52)}\n"
                     )
 
                 # Using f-string spacing to pretty print the leaderboard
@@ -963,11 +963,11 @@ async def leaderboard_rocket_bot_royale(
                     else:
                         # Points/Player Kills/Bot Kills
                         if mode == "💀 Player Kills":
-                            message += f"{emojis[mode.lower()[2:]] + '{:,}'.format(record['score']):<15}"
+                            message += f"{emojis[mode.lower()[2:]] + '{:,}'.format(record['score']):<14}"
                         elif mode == "🤖 Bot Kills":
-                            message += f"{emojis[mode.lower()[2:]] + '{:,}'.format(record['score']):<11}"
+                            message += f"{emojis[mode.lower()[2:]] + '{:,}'.format(record['score']):<12}"
                         else:
-                            message += f"{emojis[mode.lower()[2:]] + '{:,}'.format(record['score']):<10}"
+                            message += f"{emojis[mode.lower()[2:]] + '{:,}'.format(record['score']):<11}"
 
                     if mode != "🎉 Wins":
                         # Games Played
@@ -1634,7 +1634,7 @@ async def get_user(
         seasons_records_list = "```ansi\n"
 
         points_label = "\u001b[1;2mBy points (Season 1 to 10)\u001b[0m\n"
-        points = f"{'Season:':<8}{'Days:':<6}{'Rank:':<10}{'Points:':<10}{'Games Played:'}\n{'─'*47}\n"
+        points = f"{'Season:':<8}{'Days:':<6}{'Rank:':<10}{'Points:':<11    }{'Games Played:'}\n{'─'*47}\n"
         trophies_label = (
             f"\u001b[1;2mBy trophies (Season 11 to {curr_season})\u001b[0m\n"
         )
@@ -1663,12 +1663,12 @@ async def get_user(
                     rank_emoji = "  "
                 if season <= 10:
                     points_record = True
-                    points += f"{season:^8}{season_info(season)[2][:-5]:<6}{rank_emoji:<1}{record['rank']:<8,}🧊{record['score']:<9,}{record['num_score']:,}\n"
+                    points += f"{season:^8}{season_info(season)[2][:-5]:<6}{rank_emoji:<1}{record['rank']:<8,}🧊 {record['score']:<9,}{record['num_score']:,}\n"
                 else:
                     trophies_record = True
                     trophies += (
                         (f"{'-'*56}\n" if season == curr_season else "")
-                        + f"{season:^8}{season_info(season)[2][:-5]:<6}{rank_emoji:<1}{record['rank']:<8,}🏆{record['score']:<9,}{league_names[np.searchsorted(league_range_orig, record['rank'])]:<9}{record['num_score']:,}\n"
+                        + f"{season:^8}{season_info(season)[2][:-5]:<6}{rank_emoji:<1}{record['rank']:<8,}🏆 {record['score']:<9,}{league_names[np.searchsorted(league_range_orig, record['rank'])]:<9}{record['num_score']:,}\n"
                     )
         if points_record == False and trophies_record == False:
             seasons_records_list += "No records found"
