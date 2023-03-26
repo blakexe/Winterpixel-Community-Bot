@@ -137,10 +137,10 @@ tanks = [
     "<:16bit_tank:1073329502148644904>",
     "<:32bit_tank:1073329509824204960>",
     "<:8bit_tank:1073329497451008140>",
-    "<:army1_tank:1073329520339329145>",
-    "<:army2_tank:1073329525917765683>",
-    "<:army3_tank:1073329532376989746>",
-    "<:army4_tank:1073329538387423262>",
+    "<a:army1_tank_a:1080827324133539891>",
+    "<a:army2_tank_a:1080827333453303818>",
+    "<a:army3_tank_a:1080827342982750208>",
+    "<a:army4_tank_a:1080827352977776640>",
     "<:champion_s13_tank:1051208428263067728>",
     "<:champion_s14_tank:1063549554798120960>",
     "<:champion_s15_tank:1073329544410443897>",
@@ -156,6 +156,11 @@ tanks = [
     "<:tree_tank:1073329598542123018>",
     "<:viking_evolved_tank:1073329604393173023>",
     "<:viking_tank:1073329612513366087>",
+    "<a:DualMini_HT_tank_a:1080827376960815205>",
+    "<a:DualWide_HT_tank_a:1080827384015634432>",
+    "<a:Evolved_TriLine_tank_a:1080827392785924116>",
+    "<a:TriLine_HT_tank_a:1080827401472331806>",
+    "<a:champion_s16_tank_a:1080827366957400146>",
 ]
 
 os.system("clear")
@@ -1845,6 +1850,19 @@ async def get_user(
             pctdistance=0.9)
         axes[1].axis('equal')
 
+        # Footer
+        current_timestamp = (
+            f"{datetime.datetime.utcfromtimestamp(time.time()):%Y-%m-%d %H:%M:%S} UTC"
+        )
+        plt.figtext(
+            0.98,
+            0.03,
+            "Generated at " + current_timestamp,
+            ha="right",
+            color="w",
+            fontsize=8,
+        )
+
         plt.tight_layout()
         plt.savefig(data_stream, format="png", dpi=150)
         plt.close()
@@ -2265,8 +2283,8 @@ async def get_user(
         # Send
         embed1 = discord.Embed(description=message4, color=0x00C6FE)
         data_stream.seek(0)
-        chart = discord.File(data_stream, filename=f"{user_data['display_name']}_pie_charts.png")
-        embed1.set_image(url=f"attachment://{user_data['display_name']}_pie_charts.png")
+        chart = discord.File(data_stream, filename=f"{user_data['display_name'].replace(' ','_')}_pie_charts.png")
+        embed1.set_image(url=f"attachment://{user_data['display_name'].replace(' ','_')}_pie_charts.png")
         await interaction.followup.send(embed=embed1, file=chart)
 
     if section in {"with 🥅 Current Goals", "All"}:
@@ -3206,6 +3224,14 @@ async def random_tank(interaction: discord.Interaction):
         tank_name = "16bit"
     elif tank_name == "8Bit":
         tank_name = "8bit"
+    elif tank_name == "Dualmini Ht":
+        tank_name = "Dual-Mini HT"
+    elif tank_name == "Dualwide Ht":
+        tank_name = "Dual-Wide HT"
+    elif tank_name == "Evolved Triline":
+        tank_name = "Evolved Tri-Line"
+    elif tank_name == "Triline Ht":
+        tank_name = "Tri-Line HT"
 
     # Get tank info
     awards_config = server_config["awards"]
@@ -5667,14 +5693,16 @@ async def plot_season(
     reason="The reason of gain/loss trophies",
     your_trophies="How many trophies do you have",
     opponents_trophies="How many trophies does your opponent have",
+    format="Ways to present (text/graph)"
 )
 async def trophies_calculator(
     interaction: discord.Interaction,
     reason: typing.Literal["Outranked", "Outranked by", "Killed", "Killed by"],
     your_trophies: int,
     opponents_trophies: int,
+    format: typing.Literal["Text", "Graph"],
 ):
-    """Calculate trophies gain/loss by reasons and plot the graph"""
+    """Calculate trophies gain/loss by reasons and plot the graph (optional)"""
 
     await interaction.response.defer(ephemeral=False, thinking=True)
     
@@ -5697,65 +5725,75 @@ async def trophies_calculator(
         return trophies_change
     
     # Main graph
-    fig, ax = plt.subplots(1, 1, facecolor=("#2F3137"), figsize=(10, 8), edgecolor="w", linewidth=3)
-    division = int(-(k_factor/2)+10)
-    if "by" in reason:
-        levels = [-i/division for i in range(k_factor*division+1)][::-1]
+    if format == "Graph":
+        fig, ax = plt.subplots(1, 1, facecolor=("#2F3137"), figsize=(10, 8), edgecolor="w", linewidth=3)
+        division = int(-(k_factor/2)+10)
+        if "by" in reason:
+            levels = [-i/division for i in range(k_factor*division+1)][::-1]
+        else:
+            levels = [i/division for i in range(k_factor*division+1)]
+
+        # x, y, z values for contour plot
+        extra_x, extra_y = 0, 0
+        if your_trophies > 2800:
+            extra_x = your_trophies - 2800 + 1400
+        if opponents_trophies > 2800:
+            extra_y = opponents_trophies - 2800 + 1400
+        x, y = np.meshgrid(np.linspace(0+extra_x, 2800+extra_x, 100), np.linspace(0+extra_y, 2800+extra_y, 100))
+        v_func = np.vectorize(f)
+        cf = ax.contourf(x, y, v_func(x, y), levels, cmap='Reds_r' if "by" in reason else "Greens")
+        
+        ax.xaxis.set_major_locator(MultipleLocator(400))
+        ax.xaxis.set_minor_locator(AutoMinorLocator(8))
+        ax.yaxis.set_major_locator(MultipleLocator(400))
+        ax.yaxis.set_minor_locator(AutoMinorLocator(8))
+        ax.grid(which="major", alpha=0.5)
+        ax.grid(which="minor", alpha=0.2)
+        ax.set_title(f"Trophies {'Loss' if 'by' in reason else 'Gain'} ({reason})", color="#FFFFFF", weight="bold")
+        ax.set_xlabel('Your Trophies', c="#FFFFFF", weight="bold")
+        ax.set_ylabel("Opponent's Trophies", c="#FFFFFF", weight="bold")
+        ax.tick_params(axis="both", which="both", colors="w")
+
+        # Colorbar graph
+        cb = fig.colorbar(cf)
+        cb.set_label(f"Trophies {'Loss' if 'by' in reason else 'Gain'}", color="w", weight="bold")
+        cb.set_ticks(levels)
+        cb.ax.tick_params(axis="both", which="both", colors="w")
+
+        # Boost Target vertical dotted line
+        if 'by' in reason and your_trophies <= 2800:
+            plt.axvline(x=400, color='k', ls='--')
+            plt.text(200,2600,'Boost Target\n(400)', color='k', ha='center')
+
+        # Plot dot and annotate
+        x_adjust = 550 if your_trophies>2200 else 0
+        y_adjust = 200 if opponents_trophies>2600 else 0
+        plt.text(your_trophies+25-x_adjust, opponents_trophies+75-y_adjust,f'f({your_trophies},{opponents_trophies})={f(your_trophies, opponents_trophies):.2f}', color='white', bbox=dict(facecolor='black', edgecolor='white', boxstyle='round'), size="10")
+        plt.scatter(your_trophies, opponents_trophies, facecolor='black', edgecolor='white', zorder=3)
+
+        plt.tight_layout()
+
+        # Save the graph
+        data_stream = io.BytesIO()
+        plt.savefig(data_stream, format="png", dpi=250)
+        plt.close()
+        
+        # Send the graph
+        data_stream.seek(0)
+        chart = discord.File(
+            data_stream,
+            filename=f"{reason.lower()}_{your_trophies}_{opponents_trophies}.png",
+        )
+        await interaction.followup.send(file=chart)
     else:
-        levels = [i/division for i in range(k_factor*division+1)]
-
-    # x, y, z values for contour plot
-    extra_x, extra_y = 0, 0
-    if your_trophies > 2800:
-        extra_x = your_trophies - 2800 + 1400
-    if opponents_trophies > 2800:
-        extra_y = opponents_trophies - 2800 + 1400
-    x, y = np.meshgrid(np.linspace(0+extra_x, 2800+extra_x, 100), np.linspace(0+extra_y, 2800+extra_y, 100))
-    v_func = np.vectorize(f)
-    cf = ax.contourf(x, y, v_func(x, y), levels, cmap='Reds_r' if "by" in reason else "Greens")
-    
-    ax.xaxis.set_major_locator(MultipleLocator(400))
-    ax.xaxis.set_minor_locator(AutoMinorLocator(8))
-    ax.yaxis.set_major_locator(MultipleLocator(400))
-    ax.yaxis.set_minor_locator(AutoMinorLocator(8))
-    ax.grid(which="major", alpha=0.5)
-    ax.grid(which="minor", alpha=0.2)
-    ax.set_title(f"Trophies {'Loss' if 'by' in reason else 'Gain'} ({reason})", color="#FFFFFF", weight="bold")
-    ax.set_xlabel('Your Trophies', c="#FFFFFF", weight="bold")
-    ax.set_ylabel("Opponent's Trophies", c="#FFFFFF", weight="bold")
-    ax.tick_params(axis="both", which="both", colors="w")
-
-    # Colorbar graph
-    cb = fig.colorbar(cf)
-    cb.set_label(f"Trophies {'Loss' if 'by' in reason else 'Gain'}", color="w", weight="bold")
-    cb.set_ticks(levels)
-    cb.ax.tick_params(axis="both", which="both", colors="w")
-
-    # Boost Target vertical dotted line
-    if 'by' in reason and your_trophies <= 2800:
-        plt.axvline(x=400, color='k', ls='--')
-        plt.text(200,2600,'Boost Target\n(400)', color='k', ha='center')
-
-    # Plot dot and annotate
-    x_adjust = 550 if your_trophies>2200 else 0
-    y_adjust = 200 if opponents_trophies>2600 else 0
-    plt.text(your_trophies+25-x_adjust, opponents_trophies+75-y_adjust,f'f({your_trophies},{opponents_trophies})={f(your_trophies, opponents_trophies):.2f}', color='white', bbox=dict(facecolor='black', edgecolor='white', boxstyle='round'), size="10")
-    plt.scatter(your_trophies, opponents_trophies, facecolor='black', edgecolor='white', zorder=3)
-
-    plt.tight_layout()
-
-    # Save the graph
-    data_stream = io.BytesIO()
-    plt.savefig(data_stream, format="png", dpi=250)
-    plt.close()
-    
-    # Send the graph
-    data_stream.seek(0)
-    chart = discord.File(
-        data_stream,
-        filename=f"{reason.lower()}_{your_trophies}_{opponents_trophies}.png",
-    )
-    await interaction.followup.send(file=chart)
+        embed = discord.Embed()
+        embed.title = "Rocket Bot Royale 🚀"
+        title = "Opponent's Trophies: "
+        embed.add_field(
+            name="🧮 ***Trophies Calculator***",
+            value=f"```ansi\n{'Reason: ':>21}{reason}\n{'Your Trophies: ':>21}{'🏆 '+str(your_trophies)}\n{title:>21}{'🏆 '+str(opponents_trophies)}\n{'Trophies Change: ':>21}\u001b[2;{'31' if 'by' in reason else '32'}m{f(your_trophies, opponents_trophies):.2f}\u001b[0m```"
+        )
+        await interaction.followup.send(embed=embed)
 
 
 @tree.command(guild=discord.Object(id=962142361935314996))
