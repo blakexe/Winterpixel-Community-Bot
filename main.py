@@ -1381,7 +1381,7 @@ async def leaderboard_moonrock_miners(
                 message += f"{record['username']:<20} "
 
                 # Trophies
-                message += f"{'🏆' + '{:,}'.format(record['score'])}\n"
+                message += f"{'🏆 ' + '{:,}'.format(record['score'])}\n"
             message += "```"
             return message
 
