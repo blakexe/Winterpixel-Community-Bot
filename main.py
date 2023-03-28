@@ -9,6 +9,7 @@ import os
 import io
 import datetime
 import time
+import timeago
 import re
 import numpy as np
 import matplotlib.pyplot as plt
@@ -1244,7 +1245,7 @@ async def leaderboard_moonrock_miners(
 
             # Trophies
             message += (
-                f"{'🏆' + '{:<6,.0f}'.format(records[i]['score'])} {trophies_diff_2}\n"
+                f"{'🏆 ' + '{:<6,.0f}'.format(records[i]['score'])} {trophies_diff_2}\n"
             )
 
         # Split message
@@ -1584,12 +1585,12 @@ async def get_user(
     general_info += (
         "Online: \u001b[2;" + ("32" if is_online else "31") + f"m{is_online}\u001b[0m\n"
     )
-    general_info += f"Create Time: {datetime.datetime.fromtimestamp(create_time):%Y-%m-%d %H:%M:%S}\n"
-    general_info += "Timed Bonus Last Collect: " + (
-        f"{datetime.datetime.fromtimestamp(timed_bonus_last_collect):%Y-%m-%d %H:%M:%S}\n"
-        if timed_bonus_last_collect != "N.A."
-        else "N.A.\n"
-    )
+    dt_create_time = f"{datetime.datetime.fromtimestamp(create_time):%Y-%m-%d %H:%M:%S}"
+    general_info += f"Create Time: {dt_create_time} UTC ({timeago.format(dt_create_time, datetime.datetime.now())})\n"
+    dt_timed_bonus = f"{datetime.datetime.fromtimestamp(timed_bonus_last_collect):%Y-%m-%d %H:%M:%S}"
+    general_info += "Last Bonus: " + (
+        f"{dt_timed_bonus} UTC ({timeago.format(dt_timed_bonus, datetime.datetime.now())})\n"
+        if timed_bonus_last_collect != "N.A." else "N.A.\n")
     general_info += f"Current Tank: {current_tank}\n"
     general_info += f"Current Trail: {current_trail}\n"
     general_info += f"Current Parachute: {current_parachute}\n"
