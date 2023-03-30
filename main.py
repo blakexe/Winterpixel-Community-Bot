@@ -11,11 +11,14 @@ import datetime
 import time
 import timeago
 import re
+import itertools
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.cbook import boxplot_stats
 from matplotlib.font_manager import FontProperties
 from matplotlib.ticker import MultipleLocator, AutoMinorLocator
+from matplotlib.gridspec import GridSpec
 from scipy.interpolate import PchipInterpolator
 from math import ceil
 from collections import defaultdict, OrderedDict, Counter
@@ -180,11 +183,13 @@ def season_info(season):
 
     season_start_timestamp = (
         season_start_timestamps[season_index]
-        + (season - season_start_numbers[season_index]) * season_durations[season_index]
+        + (season - season_start_numbers[season_index]
+           ) * season_durations[season_index]
     )
     season_start = f"{datetime.datetime.utcfromtimestamp(season_start_timestamp):%Y-%m-%d %H:%M:%S} UTC"
 
-    season_end_timestamp = season_start_timestamp + season_durations[season_index]
+    season_end_timestamp = season_start_timestamp + \
+        season_durations[season_index]
     season_end = f"{datetime.datetime.utcfromtimestamp(season_end_timestamp):%Y-%m-%d %H:%M:%S} UTC"
 
     season_duration = season_durations[season_index]
@@ -211,7 +216,8 @@ def season_info(season):
     else:
         time_remaining = ""
 
-    all_season_info = [season_start, season_end, season_days, status, time_remaining]
+    all_season_info = [season_start, season_end,
+                       season_days, status, time_remaining]
     return all_season_info
 
 
@@ -251,7 +257,8 @@ def generate_random_name():
         "killing-machine",
     ]
 
-    name = random.choice(adjective).capitalize() + random.choice(noun).capitalize()
+    name = random.choice(adjective).capitalize() + \
+        random.choice(noun).capitalize()
 
     random_number = random.choice([True, False])
 
@@ -311,7 +318,8 @@ async def refresh_config():
             f"#{server_config['trophy_tiers'][league]['color']}"
             for league in range(len(server_config["trophy_tiers"]))
         ]
-        league_colors = [color for color in league_colors_orig for _ in (0, 1)][1:-1]
+        league_colors = [
+            color for color in league_colors_orig for _ in (0, 1)][1:-1]
 
         # Remove past season keys
         for i in db.prefix("tankkings"):
@@ -699,7 +707,7 @@ async def leaderboard_rocket_bot_royale(
                             split_line_number
                         ]
                     )
-                    + 1 :
+                    + 1:
                 ]
                 + (
                     "\u001b[1;31m———————————————————— RUBY ———————————————————\u001b[0m\n"
@@ -843,8 +851,10 @@ async def leaderboard_rocket_bot_royale(
                 split = []
                 tier = []
                 for i in range(12):
-                    split.append(server_config["trophy_tiers"][i]["maximum_rank"])
-                    tier.append(server_config["trophy_tiers"][i]["name"].upper())
+                    split.append(
+                        server_config["trophy_tiers"][i]["maximum_rank"])
+                    tier.append(
+                        server_config["trophy_tiers"][i]["name"].upper())
                 tier_color_code = [
                     "35",
                     "36",
@@ -988,7 +998,8 @@ async def leaderboard_rocket_bot_royale(
                 trophies_hidden() if mode == "🏆 Trophies" else non_trophies_hidden()
             ),
         )
-        embed_init.set_footer(text=f"Page {cur_page:<2}: {start:<4} to {end:<4}")
+        embed_init.set_footer(
+            text=f"Page {cur_page:<2}: {start:<4} to {end:<4}")
         msg = await interaction.followup.send(embed=embed_init)
 
         for reaction_emoji in ["◀️", "▶️", "⏪", "⏹️"]:
@@ -1209,7 +1220,8 @@ async def leaderboard_moonrock_miners(
             try:
                 rank_diff = (
                     records[i]["rank"]
-                    - db[records[i]["leaderboard_id"]][records[i]["owner_id"]]["rank"]
+                    - db[records[i]["leaderboard_id"]
+                         ][records[i]["owner_id"]]["rank"]
                 )
                 if rank_diff < 0:
                     rank_diff_2 = f"\u001b[2;32m▲{abs(rank_diff):<3}\u001b[0m"
@@ -1232,7 +1244,8 @@ async def leaderboard_moonrock_miners(
             try:
                 trophies_diff = (
                     records[i]["score"]
-                    - db[records[i]["leaderboard_id"]][records[i]["owner_id"]]["score"]
+                    - db[records[i]["leaderboard_id"]
+                         ][records[i]["owner_id"]]["score"]
                 )
                 if trophies_diff < 0:
                     trophies_diff_2 = f"\u001b[2;31m-{abs(trophies_diff):<4}\u001b[0m"
@@ -1251,9 +1264,11 @@ async def leaderboard_moonrock_miners(
         # Split message
         cannot_split = False  # Prevent index out of range error
         try:  # In case there are not enough records
-            message1 = message[: [m.start() for m in re.finditer(r"\n", message)][24]]
+            message1 = message[: [m.start()
+                                  for m in re.finditer(r"\n", message)][24]]
             message2 = (
-                message[([m.start() for m in re.finditer(r"\n", message)][24]) + 1 :]
+                message[([m.start()
+                         for m in re.finditer(r"\n", message)][24]) + 1:]
                 + "```"
             )
         except:
@@ -1391,7 +1406,8 @@ async def leaderboard_moonrock_miners(
             title=f"Moonrock Miners 🛸\nBeta Season {season} Leaderboard:",
             description=hidden(),
         )
-        embed_init.set_footer(text=f"Page {cur_page:<2}: {start:<4} to {end:<4}")
+        embed_init.set_footer(
+            text=f"Page {cur_page:<2}: {start:<4} to {end:<4}")
         msg = await interaction.followup.send(embed=embed_init)
 
         for reaction_emoji in ["◀️", "▶️", "⏪", "⏹️"]:
@@ -1510,6 +1526,7 @@ async def get_user(
     id: str,
     section: typing.Literal[
         "📓 General Info only",
+        "🍩 Graphs only"
         "with 📊 Seasons Records",
         "with 🛡️ Badges",
         "with 🗒️ Stats",
@@ -1522,7 +1539,7 @@ async def get_user(
         "All",
     ],
 ):
-    """Return info about a specified user"""
+    """Return info about a specified user with optional section(s)"""
 
     await interaction.response.defer(ephemeral=False, thinking=True)
 
@@ -1539,7 +1556,8 @@ async def get_user(
     except aiohttp.ClientResponseError:
         # The code is wrong, send an error response
         await interaction.followup.send(
-            embed=discord.Embed(color=discord.Color.red(), title="❌ Player not found ❌")
+            embed=discord.Embed(color=discord.Color.red(),
+                                title="❌ Player not found ❌")
         )
         return
 
@@ -1568,7 +1586,8 @@ async def get_user(
         )["name"]
     )
     current_trail = awards_config.get(metadata["trail"], default_award)["name"]
-    current_parachute = awards_config.get(metadata["parachute"], default_award)["name"]
+    current_parachute = awards_config.get(
+        metadata["parachute"], default_award)["name"]
     current_badge = awards_config.get(metadata["badge"], default_award)["name"]
     try:
         has_season_pass = server_config["season"] in metadata["season_passes"]
@@ -1579,56 +1598,58 @@ async def get_user(
     friend_code = metadata["friend_code"]
     id = user_data["user_id"]
 
-    # Add general player info
-    general_info = "```ansi\n"
-    general_info += f"Username: {username}\n"
-    general_info += (
-        "Online: \u001b[2;" + ("32" if is_online else "31") + f"m{is_online}\u001b[0m\n"
-    )
-    dt_create_time = f"{datetime.datetime.fromtimestamp(create_time):%Y-%m-%d %H:%M:%S}"
-    general_info += f"Create Time: {dt_create_time} UTC ({timeago.format(dt_create_time, datetime.datetime.now())})\n"
-    dt_timed_bonus = f"{datetime.datetime.fromtimestamp(timed_bonus_last_collect):%Y-%m-%d %H:%M:%S}"
-    general_info += "Last Bonus: " + (
-        f"{dt_timed_bonus} UTC ({timeago.format(dt_timed_bonus, datetime.datetime.now())})\n"
-        if timed_bonus_last_collect != "N.A." else "N.A.\n")
-    general_info += f"Current Tank: {current_tank}\n"
-    general_info += f"Current Trail: {current_trail}\n"
-    general_info += f"Current Parachute: {current_parachute}\n"
-    general_info += f"Current Badge: {current_badge}\n"
-    general_info += (
-        "Has Season Pass: \u001b[2;"
-        + ("32" if has_season_pass else "31")
-        + f"m{has_season_pass}\u001b[0m\n"
-    )
-    general_info += f"Level: {level}\n"
-    max_level = len(server_config["player_progression"]["xp_levels"])
-    try:
-        XP_target = server_config["player_progression"]["xp_levels"][level][
-            str(level + 1)
-        ]["xp_target"]
-        reach_max_level = False
-    except IndexError:
-        XP_target = server_config["player_progression"]["xp_levels"][-1][
-            str(max_level)
-        ]["xp_target"]
-        reach_max_level = True
-    general_info += (
-        f"XP: {XP}/{XP_target} ("
-        + ("MAX" if reach_max_level else f"{XP/XP_target*100:.0f}%")
-        + ")\n"
-    )
-    general_info += f"Friend Code: {friend_code}\n"
-    general_info += f"User ID: {id}\n"
-    general_info += "```"
+    if section != "🍩 Graphs only":
+        # Add general player info
+        general_info = "```ansi\n"
+        general_info += f"Username: {username}\n"
+        general_info += (
+            "Online: \u001b[2;" + ("32" if is_online else "31") +
+            f"m{is_online}\u001b[0m\n"
+        )
+        dt_create_time = f"{datetime.datetime.fromtimestamp(create_time):%Y-%m-%d %H:%M:%S}"
+        general_info += f"Create Time: {dt_create_time} UTC ({timeago.format(dt_create_time, datetime.datetime.now())})\n"
+        dt_timed_bonus = f"{datetime.datetime.fromtimestamp(timed_bonus_last_collect):%Y-%m-%d %H:%M:%S}"
+        general_info += "Last Bonus: " + (
+            f"{dt_timed_bonus} UTC ({timeago.format(dt_timed_bonus, datetime.datetime.now())})\n"
+            if timed_bonus_last_collect != "N.A." else "N.A.\n")
+        general_info += f"Current Tank: {current_tank}\n"
+        general_info += f"Current Trail: {current_trail}\n"
+        general_info += f"Current Parachute: {current_parachute}\n"
+        general_info += f"Current Badge: {current_badge}\n"
+        general_info += (
+            "Has Season Pass: \u001b[2;"
+            + ("32" if has_season_pass else "31")
+            + f"m{has_season_pass}\u001b[0m\n"
+        )
+        general_info += f"Level: {level}\n"
+        max_level = len(server_config["player_progression"]["xp_levels"])
+        try:
+            XP_target = server_config["player_progression"]["xp_levels"][level][
+                str(level + 1)
+            ]["xp_target"]
+            reach_max_level = False
+        except IndexError:
+            XP_target = server_config["player_progression"]["xp_levels"][-1][
+                str(max_level)
+            ]["xp_target"]
+            reach_max_level = True
+        general_info += (
+            f"XP: {XP}/{XP_target} ("
+            + ("MAX" if reach_max_level else f"{XP/XP_target*100:.0f}%")
+            + ")\n"
+        )
+        general_info += f"Friend Code: {friend_code}\n"
+        general_info += f"User ID: {id}\n"
+        general_info += "```"
 
-    # Add to embed
-    message1 = ""
-    message1 += f"📓 ***General Info***:\n{general_info}\n"
+        # Add to embed
+        message1 = ""
+        message1 += f"📓 ***General Info***:\n{general_info}\n"
 
-    # Send
-    await interaction.followup.send(
-        embed=discord.Embed(description=message1, color=0x00C6FE)
-    )
+        # Send
+        await interaction.followup.send(
+            embed=discord.Embed(description=message1, color=0x00C6FE)
+        )
 
     if section in {"with 📊 Seasons Records", "All"}:
         # Create seasons records list
@@ -1678,7 +1699,8 @@ async def get_user(
                 seasons_records_list += points_label + points
             if trophies_record == True:
                 seasons_records_list += (
-                    ("\n" if points_record == True else "") + trophies_label + trophies
+                    ("\n" if points_record == True else "") +
+                    trophies_label + trophies
                 )
         seasons_records_list += "```"
 
@@ -1712,9 +1734,10 @@ async def get_user(
             embed=discord.Embed(description=message3, color=0x00C6FE)
         )
 
-    if section in {"with 🗒️ Stats", "All"}:
+    if section in {"🍩 Graphs only", "with 🗒️ Stats", "All"}:
         # Create stats
         stat_list = "```ansi\n"
+
         # Rearrange keys
         keys_order = {
             "best_rank": 0,
@@ -1750,6 +1773,7 @@ async def get_user(
             "minemayhem_played": 0,
             "minemayhem_won": 0,
             "total_games_played": 0,
+            "total_games_won": 0,
             "missiles_fired": 0,
             "kills_using_missiles": 0,
             "drills_used": 0,
@@ -1773,520 +1797,829 @@ async def get_user(
             "jetpacks_used": 0,
             "whirlwinds_used": 0,
             "blocks_using_proj": 0,
-            "blocks_using_shield": 0,
+            "blocks_using_shield": 0
         }
-        for key, value in metadata["stats"].items():
+
+        for key, value in metadata['stats'].items():
             keys_order[key] = value
 
         # Plot Kills by Weapons pie chart
         data_stream = io.BytesIO()  # Initialize IO
 
-        label_a, sizes_a, label_b, sizes_b = ([] for i in range(4))
+        # Color codes reference: https://htmlcolorcodes.com/
+        YELLOW, DARK_YELLOW, LIGHT_YELLOW = '#B7950B', '#9A7D0A', '#D4AC0D'
+        RED, DARK_RED, LIGHT_RED = '#B03A2E', '#943126', '#CB4335'
+        BLUE, DARK_BLUE, LIGHT_BLUE = '#2874A6', '#21618C', '#2E86C1'
+        GREEN, DARK_GREEN, LIGHT_GREEN = '#239B56', '#1D8348', '#28B463'
+        PURPLE, DARK_PURPLE, LIGHT_PURPLE = '#76448A', '#633974', '#884EA0'
+        ORANGE, DARK_ORANGE, LIGHT_ORANGE = '#B9770E', '#9C640C', '#D68910'
+        DARKER_GREY, DARK_DARKER_GREY, LIGHT_DARKER_GREY = '#283747', '#212F3C', '#2E4053'
+        BROWN = '#A04000'
+        GREY = '#616A6B'
+        TURQUOISE = '#117A65'
+
+        labels_a_1, sizes_a_1, colors_a_1, sizes_a_2, colors_a_2, labels_b, sizes_b, colors_b, sizes_c, sizes_d = ([
+        ] for i in range(10))
+
+        total_games_played = 0
+        total_games_won = 0
+        kills_not_using_missiles = 0
+
+        games_won_pct = 0
+        deathmatch_won_pct = 0
+        teams_won_pct = 0
+        squads_won_pct = 0
+        minemayhem_won_pct = 0
+
+        kills_using_drill_pct = 0
+        kills_using_flak_pct = 0
+        kills_using_grenade_pct = 0
+        kills_using_homing_pct = 0
+        kills_using_mine_pct = 0
+        kills_using_nuke_pct = 0
+        kills_using_poison_pct = 0
+        kills_using_shield_pct = 0
+        kills_using_triple_shot_pct = 0
+
         for key in keys_order:
-            if "played" in key and keys_order[key] != 0:
-                if "games" in key:
-                    label_a.append("Solo")
-                elif "deathmatch" in key:
-                    label_a.append("Squads Deathmatch")
-                elif "teams" in key:
-                    label_a.append("Red Vs Blue")
-                else:
-                    label_a.append(key.replace("_played", "").title())
-                sizes_a.append(keys_order[key])
-            
-            if "kills_using" in key and keys_order[key] != 0:
-                if "triple-shot" in key:
-                    label_b.append(
-                        key.replace("kills_using_", "").replace("triple-shot",
-                                                                "rapidfire").title())
-                else:
-                    label_b.append(key.replace("kills_using_", "").title())
-                sizes_b.append(keys_order[key])
+            if 'played' in key and keys_order[key] != 0:
+                if key == 'games_played':
+                    labels_a_1.append('Solo')
+                    sizes_a_1.append(keys_order['games_played'])
+                    colors_a_1.append(YELLOW)
+                    sizes_a_2.append(
+                        [keys_order['games_played']-keys_order['games_won'], keys_order['games_won']])
+                    colors_a_2.append([DARK_YELLOW, LIGHT_YELLOW])
+                    games_won_pct = keys_order["games_won"] / \
+                        keys_order["games_played"]
+                    sizes_c.append(float(f"{games_won_pct*100:.1f}"))
+                    total_games_played += keys_order['games_played']
+                    total_games_won += keys_order['games_won']
+                elif key == 'deathmatch_played':
+                    labels_a_1.append('Squads\nDeathmatch')
+                    sizes_a_1.append(keys_order['deathmatch_played'])
+                    colors_a_1.append(RED)
+                    sizes_a_2.append([keys_order['deathmatch_played'] -
+                                      keys_order['deathmatch_won'], keys_order['deathmatch_won']])
+                    colors_a_2.append([DARK_RED, LIGHT_RED])
+                    deathmatch_won_pct = keys_order["deathmatch_won"] / \
+                        keys_order["deathmatch_played"]
+                    sizes_c.append(float(f"{deathmatch_won_pct*100:.1f}"))
+                    total_games_played += keys_order['deathmatch_played']
+                    total_games_won += keys_order['deathmatch_won']
+                elif key == 'teams_played':
+                    labels_a_1.append('Red Vs Blue')
+                    sizes_a_1.append(keys_order['teams_played'])
+                    colors_a_1.append(BLUE)
+                    sizes_a_2.append(
+                        [keys_order['teams_played']-keys_order['teams_won'], keys_order['teams_won']])
+                    colors_a_2.append([DARK_BLUE, LIGHT_BLUE])
+                    teams_won_pct = keys_order["teams_won"] / \
+                        keys_order["teams_played"]
+                    sizes_c.append(float(f"{teams_won_pct*100:.1f}"))
+                    total_games_played += keys_order['teams_played']
+                    total_games_won += keys_order['teams_won']
+                elif key == 'squads_played':
+                    labels_a_1.append('Squads')
+                    sizes_a_1.append(keys_order['squads_played'])
+                    colors_a_1.append(GREEN)
+                    sizes_a_2.append([keys_order['squads_played'] -
+                                      keys_order['squads_won'], keys_order['squads_won']])
+                    colors_a_2.append([DARK_GREEN, LIGHT_GREEN])
+                    squads_won_pct = keys_order["squads_won"] / \
+                        keys_order["squads_played"]
+                    sizes_c.append(float(f"{squads_won_pct*100:.1f}"))
+                    total_games_played += keys_order['squads_played']
+                    total_games_won += keys_order['squads_won']
+                elif key == 'minemayhem_played':
+                    labels_a_1.append('Mine\nMayhem')
+                    sizes_a_1.append(keys_order['minemayhem_played'])
+                    colors_a_1.append(PURPLE)
+                    sizes_a_2.append([keys_order['minemayhem_played'] -
+                                      keys_order['minemayhem_won'], keys_order['minemayhem_won']])
+                    colors_a_2.append([DARK_PURPLE, LIGHT_PURPLE])
+                    minemayhem_won_pct = keys_order["minemayhem_won"] / \
+                        keys_order["minemayhem_played"]
+                    sizes_c.append(float(f"{minemayhem_won_pct*100:.1f}"))
+                    total_games_played += keys_order['minemayhem_played']
+                    total_games_won += keys_order['minemayhem_won']
+                elif key != 'total_games_played':  # In case of new game mode added
+                    labels_a_1.append(key.replace('_played', '').title())
+                    sizes_a_1.append(keys_order[key])
+                    colors_a_1.append(ORANGE)
+                    sizes_a_2.append([keys_order[key]-keys_order[key.replace('_played',
+                                                                             '_won')], keys_order[key.replace('_played', '_won')]])
+                    colors_a_2.append([DARK_ORANGE, LIGHT_ORANGE])
+                    sizes_c.append(
+                        float(f"{keys_order[key.replace('_played', '_won')]/keys_order[key]*100:.1f}"))
+                    total_games_played += keys_order[key]
+                    total_games_won += keys_order[key.replace(
+                        '_played', '_won')]
+            elif 'kills_using' in key and key != 'kills_using_missiles' and keys_order[key] != 0:
+                if key == 'kills_using_drill':
+                    labels_b.append('Drill')
+                    sizes_b.append(keys_order[key])
+                    colors_b.append(BROWN)
+                    kills_using_drill_pct = keys_order["kills_using_drill"] / \
+                        keys_order["drills_used"]
+                    sizes_d.append(float(f"{kills_using_drill_pct*100:.1f}"))
+                    kills_not_using_missiles += keys_order[key]
+                elif key == 'kills_using_flak':
+                    labels_b.append('Flak')
+                    sizes_b.append(keys_order[key])
+                    colors_b.append(YELLOW)
+                    kills_using_flak_pct = keys_order["kills_using_flak"] / \
+                        keys_order["flaks_used"]
+                    sizes_d.append(float(f"{kills_using_flak_pct*100:.1f}"))
+                    kills_not_using_missiles += keys_order[key]
+                elif key == 'kills_using_grenade':
+                    labels_b.append('Grenade')
+                    sizes_b.append(keys_order[key])
+                    colors_b.append(GREY)
+                    kills_using_grenade_pct = keys_order["kills_using_grenade"] / \
+                        keys_order["grenades_used"]
+                    sizes_d.append(float(f"{kills_using_grenade_pct*100:.1f}"))
+                    kills_not_using_missiles += keys_order[key]
+                elif key == 'kills_using_homing':
+                    labels_b.append('Homing')
+                    sizes_b.append(keys_order[key])
+                    colors_b.append(TURQUOISE)
+                    kills_using_homing_pct = keys_order["kills_using_homing"] / \
+                        keys_order["homings_used"]
+                    sizes_d.append(float(f"{kills_using_homing_pct*100:.1f}"))
+                    kills_not_using_missiles += keys_order[key]
+                elif key == 'kills_using_mine':
+                    labels_b.append('Mine')
+                    sizes_b.append(keys_order[key])
+                    colors_b.append(RED)
+                    kills_using_mine_pct = keys_order["kills_using_mine"] / \
+                        keys_order["mines_used"]
+                    sizes_d.append(float(f"{kills_using_mine_pct*100:.1f}"))
+                    kills_not_using_missiles += keys_order[key]
+                elif key == 'kills_using_nuke':
+                    labels_b.append('Nuke')
+                    sizes_b.append(keys_order[key])
+                    colors_b.append(BLUE)
+                    kills_using_nuke_pct = keys_order["kills_using_nuke"] / \
+                        keys_order["nukes_used"]
+                    sizes_d.append(float(f"{kills_using_nuke_pct*100:.1f}"))
+                    kills_not_using_missiles += keys_order[key]
+                elif key == 'kills_using_poison':
+                    labels_b.append('Poison')
+                    sizes_b.append(keys_order[key])
+                    colors_b.append(GREEN)
+                    kills_using_poison_pct = keys_order["kills_using_poison"] / \
+                        keys_order["poisons_used"]
+                    sizes_d.append(float(f"{kills_using_poison_pct*100:.1f}"))
+                    kills_not_using_missiles += keys_order[key]
+                elif key == 'kills_using_shield':
+                    labels_b.append('Shield')
+                    sizes_b.append(keys_order[key])
+                    colors_b.append(PURPLE)
+                    kills_using_shield_pct = keys_order["kills_using_shield"] / \
+                        keys_order["shields_used"]
+                    sizes_d.append(float(f"{kills_using_shield_pct*100:.1f}"))
+                    kills_not_using_missiles += keys_order[key]
+                elif key == 'kills_using_triple-shot':
+                    labels_b.append('Rapidfire')
+                    sizes_b.append(keys_order[key])
+                    colors_b.append(ORANGE)
+                    kills_using_triple_shot_pct = keys_order["kills_using_triple-shot"] / \
+                        keys_order["triple-shots_used"]
+                    sizes_d.append(
+                        float(f"{kills_using_triple_shot_pct*100:.1f}"))
+                    kills_not_using_missiles += keys_order[key]
+                else:  # In case of new weapon added
+                    labels_b.append(key.replace('kills_using_', '').title())
+                    sizes_b.append(keys_order[key])
+                    colors_b.append(DARKER_GREY)
+                    kills_using_pct = keys_order[key] / \
+                        keys_order[key.replace('kills_using_', '')+'_used']
+                    sizes_d.append(float(f"{kills_using_pct*100:.1f}"))
+                    kills_not_using_missiles += keys_order[key]
 
-        fig, axes = plt.subplots(facecolor=("#2f3137"), figsize=(10, 6), nrows=1, ncols=2)
+        keys_order['total_games_played'] = total_games_played
+        keys_order['total_games_won'] = total_games_won
+        try:
+            total_games_won_pct = keys_order["total_games_won"] / \
+                keys_order['total_games_played']
+        except:
+            total_games_won_pct = 0
 
-        axes[0].set_title(
-            user_data['display_name'] +
-            '\'s\n Games Played by Game Mode',
-            color="#FFFFFF",
-            fontsize=16,
-            pad=0)
-        axes[0].pie(
-            sizes_a,
-            labels=label_a,
-            autopct=lambda p: '{:.1f}%\n({:.0f})'.format(p, p * sum(sizes_a) / 100),
-            startangle=90,
-            textprops={
-                'color': "#FFFFFF",
-                'fontsize': 7
-            },
-            wedgeprops={
-                "edgecolor": "#FFFFFF",
-                'linewidth': 1,
-                'antialiased': True
-            },
-            pctdistance=0.9)
-        axes[0].axis('equal')
-        
-        axes[1].set_title(
-            user_data['display_name'] +
-            '\'s\n Kills by Weapon (Missiles excluded)',
-            color="#FFFFFF",
-            fontsize=16,
-            pad=0)
-        axes[1].pie(
-            sizes_b,
-            labels=label_b,
-            autopct=lambda p: '{:.1f}%\n({:.0f})'.format(p, p * sum(sizes_b) / 100),
-            startangle=90,
-            textprops={
-                'color': "#FFFFFF",
-                'fontsize': 7
-            },
-            wedgeprops={
-                "edgecolor": "#FFFFFF",
-                'linewidth': 1,
-                'antialiased': True
-            },
-            pctdistance=0.9)
-        axes[1].axis('equal')
+        keys_order['kills_using_missiles'] = keys_order['total_kills'] - \
+            kills_not_using_missiles
 
-        # Footer
-        current_timestamp = (
-            f"{datetime.datetime.utcfromtimestamp(time.time()):%Y-%m-%d %H:%M:%S} UTC"
-        )
-        plt.figtext(
-            0.98,
-            0.03,
-            "Generated at " + current_timestamp,
-            ha="right",
-            color="w",
-            fontsize=8,
-        )
-
-        plt.tight_layout()
-        plt.savefig(data_stream, format="png", dpi=150)
-        plt.close()
+        if keys_order['kills_using_missiles'] != 0:
+            labels_b.append('Missiles')
+            sizes_b.append(keys_order['kills_using_missiles'])
+            colors_b.append(LIGHT_DARKER_GREY)
+            kills_using_missiles_pct = keys_order["kills_using_missiles"] / \
+                keys_order["missiles_fired"]
+            sizes_d.append(float(f"{kills_using_missiles_pct*100:.1f}"))
 
         # Avoid divided by zero error
         try:
-            total_games_played = (
-                keys_order["games_played"]
-                + keys_order["deathmatch_played"]
-                + keys_order["teams_played"]
-                + keys_order["squads_played"]
-                + keys_order["minemayhem_played"]
-            )
-        except:
-            total_games_played = 0
-        try:
-            five_kills_pct = keys_order["5_kills"] / total_games_played
-        except:
-            five_kills_pct = 0
-        try:
-            player_kills_pct = keys_order["player_kills"] / keys_order["total_kills"]
-        except:
-            player_kills_pct = 0
-        try:
-            bot_kills_pct = keys_order["bot_kills"] / keys_order["total_kills"]
-        except:
-            bot_kills_pct = 0
-        try:
-            KDR = round(keys_order["total_kills"] / keys_order["deaths"], 2)
-        except:
-            KDR = 0
-        try:
-            assists_pct = keys_order["assists"] / total_games_played
-        except:
-            assists_pct = 0
-        try:
-            dunk_tanks_pct = keys_order["dunk_tanks"] / total_games_played
-        except:
-            dunk_tanks_pct = 0
-        try:
-            first_bloods_pct = keys_order["first_bloods"] / total_games_played
-        except:
-            first_bloods_pct = 0
-        try:
-            snipers_pct = keys_order["snipers"] / total_games_played
-        except:
-            snipers_pct = 0
-        try:
-            two_birdss_pct = keys_order["two_birdss"] / total_games_played
-        except:
-            two_birdss_pct = 0
-        try:
-            yardsales_pct = keys_order["yardsales"] / total_games_played
-        except:
-            yardsales_pct = 0
-        try:
-            double_kills_pct = keys_order["double_kills"] / total_games_played
-        except:
-            double_kills_pct = 0
-        try:
-            triple_kills_pct = keys_order["triple_kills"] / total_games_played
-        except:
-            triple_kills_pct = 0
-        try:
-            quad_kills_pct = keys_order["quad_kills"] / total_games_played
-        except:
-            quad_kills_pct = 0
-        try:
-            games_won_pct = keys_order["games_won"] / keys_order["games_played"]
-        except:
-            games_won_pct = 0
-        try:
-            top_5_pct = keys_order["top_5"] / keys_order["games_played"]
-        except:
-            top_5_pct = 0
-        try:
-            deathmatch_won_pct = (
-                keys_order["deathmatch_won"] / keys_order["deathmatch_played"]
-            )
-        except:
-            deathmatch_won_pct = 0
-        try:
-            squads_won_pct = keys_order["squads_won"] / keys_order["squads_played"]
-        except:
-            squads_won_pct = 0
-        try:
-            teams_won_pct = keys_order["teams_won"] / keys_order["teams_played"]
-        except:
-            teams_won_pct = 0
-        try:
-            minemayhem_won_pct = (
-                keys_order["minemayhem_won"] / keys_order["minemayhem_played"]
-            )
-        except:
-            minemayhem_won_pct = 0
-        try:
-            kills_using_drill_pct = (
-                keys_order["kills_using_drill"] / keys_order["drills_used"]
-            )
-        except:
-            kills_using_drill_pct = 0
-        try:
-            kills_using_flak_pct = (
-                keys_order["kills_using_flak"] / keys_order["flaks_used"]
-            )
-        except:
-            kills_using_flak_pct = 0
-        try:
-            kills_using_grenade_pct = (
-                keys_order["kills_using_grenade"] / keys_order["grenades_used"]
-            )
-        except:
-            kills_using_grenade_pct = 0
-        try:
-            kills_using_homing_pct = (
-                keys_order["kills_using_homing"] / keys_order["homings_used"]
-            )
-        except:
-            kills_using_homing_pct = 0
-        try:
-            kills_using_mine_pct = (
-                keys_order["kills_using_mine"] / keys_order["mines_used"]
-            )
-        except:
-            kills_using_mine_pct = 0
-        try:
-            kills_using_nuke_pct = (
-                keys_order["kills_using_nuke"] / keys_order["nukes_used"]
-            )
-        except:
-            kills_using_nuke_pct = 0
-        try:
-            kills_using_poison_pct = (
-                keys_order["kills_using_poison"] / keys_order["poisons_used"]
-            )
-        except:
-            kills_using_poison_pct = 0
-        try:
-            kills_using_shield_pct = (
-                keys_order["kills_using_shield"] / keys_order["shields_used"]
-            )
-        except:
-            kills_using_shield_pct = 0
-        try:
-            kills_using_triple_shot_pct = (
-                keys_order["kills_using_triple-shot"] / keys_order["triple-shots_used"]
-            )
-        except:
-            kills_using_triple_shot_pct = 0
-        try:
-            kills_using_missiles = (
+            kills_using_missiles_ratio = keys_order["kills_using_missiles"] / \
                 keys_order["total_kills"]
-                - keys_order["kills_using_drill"]
-                - keys_order["kills_using_flak"]
-                - keys_order["kills_using_grenade"]
-                - keys_order["kills_using_homing"]
-                - keys_order["kills_using_mine"]
-                - keys_order["kills_using_nuke"]
-                - keys_order["kills_using_poison"]
-                - keys_order["kills_using_shield"]
-                - keys_order["kills_using_triple-shot"]
-            )
         except:
-            kills_using_missiles = 0
+            kills_using_missiles_ratio = 0
         try:
-            kills_using_missiles_pct = (
-                kills_using_missiles / keys_order["missiles_fired"]
-            )
+            kills_not_using_missiles_ratio = kills_not_using_missiles / \
+                keys_order["total_kills"]
         except:
-            kills_using_missiles_pct = 0
-        try:
-            blocks_using_proj_pct = keys_order["blocks_using_proj"] / (
-                keys_order["blocks_using_proj"] + keys_order["blocks_using_shield"]
+            kills_not_using_missiles_ratio = 0
+
+        no_left_graphs = True if total_games_played == 0 else False
+        no_right_graphs = True if kills_not_using_missiles == 0 else False
+
+        # Graph
+        if not (no_left_graphs == True and no_right_graphs == True):
+            fig = plt.figure(facecolor=("#2C2F33"), figsize=(
+                19.2, 10.8), edgecolor="w", linewidth=3 if section == "🍩 Graphs only" else 0)  # 1920x1080 pixels
+
+            # Divide into subplots
+            gs = GridSpec(2, 3, height_ratios=[
+                          2, 1.5], width_ratios=[.45, .45, .1])
+            ax0, ax1, ax2, ax3, ax4 = fig.add_subplot(gs[0]), fig.add_subplot(
+                gs[1]), fig.add_subplot(gs[2]), fig.add_subplot(gs[3]), fig.add_subplot(gs[4])
+
+            # Main title
+            fig.suptitle(username, fontsize=18, color="#FFFFFF", weight='bold')
+
+            # Threshold to hide small percentages and labels in pie charts + show them in legends
+            # a_1 = left_inner; a_2 = left_outer; b = right
+            threshold_a_1, threshold_a_2, threshold_b = 5, 4, 3
+
+            # Sort and calculate
+            if no_left_graphs == False:
+                df_left = pd.DataFrame({
+                    "labels_a_1":  labels_a_1,
+                    "sizes_a_1": sizes_a_1,
+                    "colors_a_1": colors_a_1,
+                    "sizes_a_2": sizes_a_2,
+                    "colors_a_2": colors_a_2,
+                    "sizes_c": sizes_c,
+                })
+
+                df_left_sorted_a = df_left.sort_values(
+                    by=['sizes_a_1']).reset_index(drop=True)
+
+                labels_a_1_sorted = df_left_sorted_a['labels_a_1']
+                sizes_a_1_sorted = df_left_sorted_a['sizes_a_1']
+                colors_a_1_sorted = df_left_sorted_a['colors_a_1']
+                sizes_a_1_normsizes = [
+                    i/total_games_played*100 for i in sizes_a_1_sorted]
+                legends_a_1_sorted = [
+                    f"{8-2*i}*{labels_a_1_sorted[i]}: {sizes_a_1_sorted[i]/total_games_played*100:.1f}% ({sizes_a_1_sorted[i]})" for i in range(len(labels_a_1_sorted))]
+
+                sizes_a_2_sorted = list(
+                    itertools.chain.from_iterable(df_left_sorted_a['sizes_a_2']))
+                colors_a_2_sorted = list(
+                    itertools.chain.from_iterable(df_left_sorted_a['colors_a_2']))
+                sizes_a_2_normsizes = [
+                    i/total_games_played*100 for i in sizes_a_2_sorted]
+                legends_a_2_sorted = []
+                for j, i in enumerate(sizes_a_2_sorted):
+                    index = j
+                    pair_sum = sizes_a_2_sorted[index] + sizes_a_2_sorted[index +
+                                                                          1] if index % 2 == 0 else sizes_a_2_sorted[index-1] + sizes_a_2_sorted[index]
+                    percent = i/pair_sum*100
+                    prefix = '- L: ' if index % 2 == 0 else '- W: '
+                    legends_a_2_sorted.append(
+                        f'{9-index}' + '† ' + prefix +
+                        '{:.1f}% ({:.0f})'.format(percent, i)
+                    )
+
+                df_left_sorted_c = df_left.sort_values(
+                    by=['sizes_c']).reset_index(drop=True)
+
+            if no_right_graphs == False:
+                df_right = pd.DataFrame({
+                    "labels_b":  labels_b,
+                    "sizes_b": sizes_b,
+                    "colors_b": colors_b,
+                    "sizes_d": sizes_d,
+                })
+
+                df_right_sorted_b = df_right.drop(df_right.tail(1).index).sort_values(
+                    by=['sizes_b']).reset_index(drop=True)
+
+                labels_b_sorted = df_right_sorted_b['labels_b']
+                sizes_b_sorted = df_right_sorted_b['sizes_b']
+                colors_b_sorted = df_right_sorted_b['colors_b']
+                sizes_b_normsizes = [
+                    i/kills_not_using_missiles*100 for i in sizes_b_sorted]
+                legends_b_sorted = [
+                    f"{labels_b_sorted[i]}: {sizes_b_sorted[i]/kills_not_using_missiles*100:.1f}% ({sizes_b_sorted[i]})" for i in range(len(labels_b_sorted))]
+
+                df_right_sorted_d = df_right.sort_values(
+                    by=['sizes_d']).reset_index(drop=True)
+
+            # Custom function
+            if no_left_graphs == False:
+                def my_autopct_a_1(pct):
+                    return '{:.1f}%\n({:.0f})'.format(pct, pct * sum(sizes_a_1) / 100) if pct > threshold_a_1 else '*'
+
+                def my_autopct_a_2(pct):
+                    index = sizes_a_2_sorted.index(
+                        round(pct * sum(sizes_a_2_sorted) / 100))
+                    pair_sum = sizes_a_2_sorted[index] + sizes_a_2_sorted[index +
+                                                                          1] if index % 2 == 0 else sizes_a_2_sorted[index-1] + sizes_a_2_sorted[index]
+                    percent = round(
+                        pct * sum(sizes_a_2_sorted) / 100)/pair_sum*100
+                    prefix = 'L: ' if index % 2 == 0 else 'W: '
+                    return prefix + '{:.1f}%\n({:.0f})'.format(percent, pct * sum(sizes_a_2_sorted) / 100) if pct > threshold_a_2 else '*'
+            if no_right_graphs == False:
+                def my_autopct_b(pct):
+                    return '{:.1f}%\n({:.0f})'.format(pct, pct * (sum(sizes_b) - keys_order['kills_using_missiles']) / 100) if pct > threshold_b else '*'
+
+            def get_new_labels(sizes, labels, threshold):
+                new_labels = [
+                    label if size / sum(sizes) * 100 > threshold else '' for size, label in zip(sizes, labels)]
+                return new_labels
+
+            left_ax_a, right_ax_a, right_ax_b, left_ax_b, right_ax_c = ax0, ax1, ax2, ax3, ax4
+
+            if no_left_graphs == False:
+                # A: 'Games Played by Game Mode' - nested donut charts
+                # Left inner
+                left_ax_a.set_title(
+                    "Games Played by Game Mode",
+                    color="#FFFFFF",
+                    fontsize=14,
+                    pad=15,
+                    weight='bold',
+                )
+                wedges_a, texts_a, autotexts_a = left_ax_a.pie(
+                    sizes_a_1_sorted,
+                    labels=get_new_labels(
+                        sizes_a_1_sorted, labels_a_1_sorted, threshold_a_1),
+                    autopct=my_autopct_a_1,
+                    startangle=90,
+                    textprops={
+                        'color': "#FFFFFF",
+                        'fontsize': 9
+                    },
+                    wedgeprops={
+                        "edgecolor": "#FFFFFF",
+                        'linewidth': 1,
+                        'antialiased': True,
+                        'width': .5
+                    },
+                    radius=1,
+                    pctdistance=0.63,
+                    labeldistance=1.05,
+                    colors=colors_a_1_sorted,
+                )
+
+                left_ax_a.axis('equal')
+                left_ax_a.text(
+                    0.5,
+                    0.5,
+                    f'Total Games\n{total_games_played:,}\n\nTotal Wins\n{total_games_won:,}\n({total_games_won/total_games_played*100:.1f}%)',
+                    transform=left_ax_a.transAxes,
+                    va='center',
+                    ha='center',
+                    size=12,
+                    color='white',
+                    weight='bold',
+                )
+
+                # Left outer
+                wedges_a_2, texts_a_2, autotexts_a_2 = left_ax_a.pie(
+                    sizes_a_2_sorted,
+                    autopct=my_autopct_a_2,
+                    startangle=90,
+                    textprops={
+                        'color': "#FFFFFF",
+                        'fontsize': 8
+                    },
+                    wedgeprops={
+                        "edgecolor": "#FFFFFF",
+                        'linewidth': 1,
+                        'antialiased': True,
+                        'width': .25
+                    },
+                    radius=1,
+                    pctdistance=0.87,
+                    colors=colors_a_2_sorted,
+                )
+
+                # Put small values to legends if necessary
+                h_a, l_a = (), ()
+                try:
+                    h_a_1, l_a_1 = zip(*[(h, lab) for h, lab, i in zip(
+                        wedges_a, legends_a_1_sorted, sizes_a_1_normsizes) if i < threshold_a_1][::-1])
+                    h_a += h_a_1
+                    l_a += l_a_1
+                except:
+                    pass
+                try:
+                    h_a_2, l_a_2 = zip(*[(h, lab) for h, lab, i in zip(wedges_a_2,
+                                                                       legends_a_2_sorted, sizes_a_2_normsizes) if i < threshold_a_2][::-1])
+                    h_a += h_a_2
+                    l_a += l_a_2
+                except:
+                    pass
+                try:
+                    l_a_sorted, h_a_sorted = (list(t)
+                                              for t in zip(*sorted(zip(l_a, h_a))))
+                    l_a_sorted = [i[2:].replace('\n', ' ') for i in l_a_sorted]
+
+                    left_ax_a.legend(
+                        h_a_sorted,
+                        l_a_sorted,
+                        loc="upper right",
+                        prop={'size': 9},
+                        bbox_to_anchor=(1.15, 1),
+                        ncol=1,
+                    )
+                except:
+                    pass
+
+                # C: 'Win Rate by Game Mode' - bar chart
+                win_rates, game_modes, colors = df_left_sorted_c[
+                    "sizes_c"], df_left_sorted_c["labels_a_1"], df_left_sorted_c["colors_a_1"]
+                y_index = [i for i in range(len(game_modes))]
+
+                left_ax_b.barh(game_modes, win_rates, height=.8,
+                               align="center", color=colors)
+                left_ax_b.set_facecolor("#222222")
+                left_ax_b.set_xlabel('Win Rate (%)', size=10, color='white')
+                left_ax_b.set_yticks(y_index, color='white')
+                left_ax_b.set_yticklabels(game_modes, size=10, color='white')
+                left_ax_b.tick_params(axis='both', colors='white')
+                left_ax_b.set_axisbelow(True)
+                left_ax_b.grid(axis='x', color='white', lw=1, alpha=.25)
+                left_ax_b.set_title("Win Rate by Game Mode",
+                                    color="#FFFFFF", fontsize=14, weight='bold')
+
+                # Add text
+                for name, count, y_pos in zip(game_modes, win_rates, y_index):
+                    # Threshold to put it outside of bar
+                    x_pos = float(count) + \
+                        1 if float(count) < 7 else float(count)/2-2.5
+                    left_ax_b.text(
+                        x_pos, y_pos, f"{count}%",
+                        color='white', fontsize=10, va='center',
+                    )
+
+            if no_right_graphs == False:
+                # B: 'Kills by Weapon' - donut chart
+                # Right
+                right_ax_a.set_title(
+                    "Kills by Weapon",
+                    color="#FFFFFF",
+                    fontsize=14,
+                    pad=15,
+                    weight='bold',
+                    x=.75
+                )
+                wedges_b, texts_b, autotexts_b = right_ax_a.pie(
+                    sizes_b_sorted,
+                    labels=get_new_labels(
+                        sizes_b_sorted, labels_b_sorted, threshold_b),
+                    autopct=my_autopct_b,
+                    startangle=90,
+                    textprops={
+                        'color': "#FFFFFF",
+                        'fontsize': 10
+                    },
+                    wedgeprops={
+                        "edgecolor": "#FFFFFF",
+                        'linewidth': 1,
+                        'antialiased': True,
+                        'width': .5,
+                    },
+                    pctdistance=0.75,
+                    labeldistance=1.05,
+                    colors=colors_b_sorted
+                )
+
+                # Put small values to legends if necessary
+                try:
+                    h_b, l_b = zip(*[(h, lab) for h, lab, i in zip(wedges_b,
+                                                                   legends_b_sorted, sizes_b_normsizes) if i < threshold_b])
+                    right_ax_a.legend(
+                        h_b,
+                        l_b,
+                        loc="upper right",
+                        prop={'size': 10},
+                        ncol=1,
+                    )
+                except:
+                    pass
+                right_ax_a.axis('equal')
+                right_ax_a.text(
+                    0.5,
+                    0.5,
+                    f"Total Kills\n{keys_order['total_kills']:,}\n\nNon-missile Kills\n{kills_not_using_missiles:,}\n({kills_not_using_missiles_ratio*100:.1f}%)",
+                    transform=right_ax_a.transAxes,
+                    va='center',
+                    ha='center',
+                    size=12,
+                    color='white',
+                    weight='bold',
+                )
+
+                # Missiles/Non-missiles distribution bar chart
+                ratios = [kills_using_missiles_ratio,
+                          kills_not_using_missiles_ratio]
+                labels_inside, labels_legends = [], []
+                if kills_using_missiles_ratio * 100 < 8:
+                    labels_inside.append('*')
+                    labels_legends.append(
+                        f"{kills_using_missiles_ratio*100:.1f}%\n({keys_order['kills_using_missiles']})")
+                else:
+                    labels_inside.append(
+                        f"{kills_using_missiles_ratio*100:.1f}%\n({keys_order['kills_using_missiles']})")
+
+                if kills_not_using_missiles_ratio * 100 < 8:
+                    labels_inside.append('*')
+                    labels_legends.append(
+                        f"{kills_not_using_missiles_ratio*100:.1f}%\n({kills_not_using_missiles})")
+                else:
+                    labels_inside.append(
+                        f"{kills_not_using_missiles_ratio*100:.1f}%\n({kills_not_using_missiles})")
+
+                colors = [LIGHT_DARKER_GREY, DARK_DARKER_GREY]
+                labels_outside = ["Missiles", "Other\nWeapons"]
+                bottom = 1
+
+                for i, (ratio, label_inside, color, label_outside) in enumerate(reversed([*zip(ratios, labels_inside, colors, labels_outside)])):
+                    bottom -= ratio
+                    bc = right_ax_b.bar(0, ratio, .2, bottom=bottom,
+                                        color=color, edgecolor='white', linewidth=1.25, label=labels_legends if label_inside == '*' else '')
+                    right_ax_b.bar_label(
+                        bc, labels=[f"{label_inside}"], label_type='center', color='white', size=10)
+                    right_ax_b.text(-.2, bottom+ratio/2, label_outside,
+                                    ha='center', va='center', size=10, color='white')
+                if labels_legends != []:
+                    right_ax_b.legend(
+                        loc="upper center",
+                        prop={'size': 9},
+                        bbox_to_anchor=(.5, 1.08),
+                        ncol=1,
+                    )
+                right_ax_b.axis('off')
+                right_ax_b.set_xlim(-.2, .2)
+
+                # D: 'Kill Rate by Weapon' - bar chart
+                kill_rates, weapons, colors = df_right_sorted_d[
+                    "sizes_d"], df_right_sorted_d["labels_b"], df_right_sorted_d["colors_b"]
+                y_index = [i for i in range(len(weapons))]
+
+                right_ax_c.barh(weapons, kill_rates, height=.8,
+                                align="center", color=colors)
+                right_ax_c.set_facecolor("#222222")
+                right_ax_c.set_xlabel('Kill Rate (%)', size=10, color='white')
+                right_ax_c.set_yticks(y_index, color='white')
+                right_ax_c.set_yticklabels(weapons, size=10, color='white')
+                right_ax_c.tick_params(axis='both', colors='white')
+                right_ax_c.set_axisbelow(True)
+                right_ax_c.grid(axis='x', color='white', lw=1, alpha=.25)
+                right_ax_c.set_title("Kill Rate by Weapon",
+                                     color="#FFFFFF", fontsize=14, weight='bold')
+
+                # Add text
+                for count, y_pos in zip(kill_rates, y_index):
+                    # Threshold to put it outside of bar
+                    x_pos = float(count) + \
+                        .5 if float(count) < 4 else float(count)/2-1
+                    right_ax_c.text(
+                        x_pos, y_pos, f"{count}%",
+                        color='white', fontsize=10, va='center',
+                    )
+
+            # Footer
+            current_timestamp = (
+                f"{datetime.datetime.utcfromtimestamp(time.time()):%Y-%m-%d %H:%M:%S} UTC"
             )
-        except:
-            blocks_using_proj_pct = 0
-        try:
-            blocks_using_shield_pct = keys_order["blocks_using_shield"] / (
-                keys_order["blocks_using_proj"] + keys_order["blocks_using_shield"]
+            plt.figtext(
+                0.98,
+                0.03,
+                "Generated at " + current_timestamp,
+                ha="right",
+                color="w",
+                fontsize=8,
             )
-        except:
-            blocks_using_shield_pct = 0
-
-        keys_order["meters_driven"] = (
-            "{:.1f}".format(keys_order["meters_driven"] / 1000) + " km"
-        )
-        keys_order["5_kills"] = (
-            "{:<6}".format(keys_order["5_kills"])
-            + "("
-            + f"{five_kills_pct*100:>2.0f}"
-            + "%) †"
-        )
-        keys_order["player_kills"] = (
-            "{:<6}".format(keys_order["player_kills"])
-            + "("
-            + f"{player_kills_pct*100:>2.0f}"
-            + "%)"
-        )
-        keys_order["bot_kills"] = (
-            "{:<6}".format(keys_order["bot_kills"])
-            + "("
-            + f"{bot_kills_pct*100:>2.0f}"
-            + "%)"
-        )
-        keys_order["K/D Ratio"] = KDR
-        keys_order["assists"] = (
-            "{:<6}".format(keys_order["assists"])
-            + "("
-            + f"{assists_pct*100:>2.0f}"
-            + "%) †"
-        )
-        keys_order["dunk_tanks"] = (
-            "{:<6}".format(keys_order["dunk_tanks"])
-            + "("
-            + f"{dunk_tanks_pct*100:>2.0f}"
-            + "%) †"
-        )
-        keys_order["first_bloods"] = (
-            "{:<6}".format(keys_order["first_bloods"])
-            + "("
-            + f"{first_bloods_pct*100:>2.0f}"
-            + "%) †"
-        )
-        keys_order["snipers"] = (
-            "{:<6}".format(keys_order["snipers"])
-            + "("
-            + f"{snipers_pct*100:>2.0f}"
-            + "%) †"
-        )
-        keys_order["two_birdss"] = (
-            "{:<6}".format(keys_order["two_birdss"])
-            + "("
-            + f"{two_birdss_pct*100:>2.0f}"
-            + "%) †"
-        )
-        keys_order["yardsales"] = (
-            "{:<6}".format(keys_order["yardsales"])
-            + "("
-            + f"{yardsales_pct*100:>2.0f}"
-            + "%) †"
-        )
-        keys_order["double_kills"] = (
-            "{:<6}".format(keys_order["double_kills"])
-            + "("
-            + f"{double_kills_pct*100:>2.0f}"
-            + "%) †"
-        )
-        keys_order["triple_kills"] = (
-            "{:<6}".format(keys_order["triple_kills"])
-            + "("
-            + f"{triple_kills_pct*100:>2.0f}"
-            + "%) †"
-        )
-        keys_order["quad_kills"] = (
-            "{:<6}".format(keys_order["quad_kills"])
-            + "("
-            + f"{quad_kills_pct*100:>2.0f}"
-            + "%) †"
-        )
-        keys_order["games_won"] = (
-            "{:<6}".format(keys_order["games_won"])
-            + "("
-            + f"{games_won_pct*100:>2.0f}"
-            + "%)"
-        )
-        keys_order["top_5"] = (
-            "{:<6}".format(keys_order["top_5"]) + "(" + f"{top_5_pct*100:>2.0f}" + "%)"
-        )
-        keys_order["deathmatch_won"] = (
-            "{:<6}".format(keys_order["deathmatch_won"])
-            + "("
-            + f"{deathmatch_won_pct*100:>2.0f}"
-            + "%)"
-        )
-        keys_order["squads_won"] = (
-            "{:<6}".format(keys_order["squads_won"])
-            + "("
-            + f"{squads_won_pct*100:>2.0f}"
-            + "%)"
-        )
-        keys_order["teams_won"] = (
-            "{:<6}".format(keys_order["teams_won"])
-            + "("
-            + f"{teams_won_pct*100:>2.0f}"
-            + "%)"
-        )
-        keys_order["minemayhem_won"] = (
-            "{:<6}".format(keys_order["minemayhem_won"])
-            + "("
-            + f"{minemayhem_won_pct*100:>2.0f}"
-            + "%)"
-        )
-        keys_order["total_games_played"] = f"{total_games_played:<11} †"
-        keys_order["kills_using_drill"] = (
-            "{:<6}".format(keys_order["kills_using_drill"])
-            + "("
-            + f"{kills_using_drill_pct*100:>2.0f}"
-            + "%)"
-        )
-        keys_order["kills_using_flak"] = (
-            "{:<6}".format(keys_order["kills_using_flak"])
-            + "("
-            + f"{kills_using_flak_pct*100:>2.0f}"
-            + "%)"
-        )
-        keys_order["kills_using_grenade"] = (
-            "{:<6}".format(keys_order["kills_using_grenade"])
-            + "("
-            + f"{kills_using_grenade_pct*100:>2.0f}"
-            + "%)"
-        )
-        keys_order["kills_using_homing"] = (
-            "{:<6}".format(keys_order["kills_using_homing"])
-            + "("
-            + f"{kills_using_homing_pct*100:>2.0f}"
-            + "%)"
-        )
-        keys_order["kills_using_mine"] = (
-            "{:<6}".format(keys_order["kills_using_mine"])
-            + "("
-            + f"{kills_using_mine_pct*100:>2.0f}"
-            + "%)"
-        )
-        keys_order["kills_using_nuke"] = (
-            "{:<6}".format(keys_order["kills_using_nuke"])
-            + "("
-            + f"{kills_using_nuke_pct*100:>2.0f}"
-            + "%)"
-        )
-        keys_order["kills_using_poison"] = (
-            "{:<6}".format(keys_order["kills_using_poison"])
-            + "("
-            + f"{kills_using_poison_pct*100:>2.0f}"
-            + "%)"
-        )
-        keys_order["kills_using_shield"] = (
-            "{:<6}".format(keys_order["kills_using_shield"])
-            + "("
-            + f"{kills_using_shield_pct*100:>2.0f}"
-            + "%)"
-        )
-        keys_order["kills_using_triple-shot"] = (
-            "{:<6}".format(keys_order["kills_using_triple-shot"])
-            + "("
-            + f"{kills_using_triple_shot_pct*100:>2.0f}"
-            + "%)"
-        )
-        keys_order["kills_using_missiles"] = (
-            "{:<6}".format(str(kills_using_missiles))
-            + "("
-            + f"{kills_using_missiles_pct*100:>2.0f}"
-            + "%)"
-        )
-        keys_order["blocks_using_proj"] = (
-            "{:<6}".format(keys_order["blocks_using_proj"])
-            + "("
-            + f"{blocks_using_proj_pct*100:>2.0f}"
-            + "%)"
-        )
-        keys_order["blocks_using_shield"] = (
-            "{:<6}".format(keys_order["blocks_using_shield"])
-            + "("
-            + f"{blocks_using_shield_pct*100:>2.0f}"
-            + "%)"
-        )
-
-        first_title = " General "
-        stat_list += f"\u001b[1;2m{first_title.center(44, '—')}\u001b[0m\n"
-        keys = [
-            "deaths",
-            "snipers",
-            "two_birdss",
-            "games_played",
-            "games_won",
-            "top_5",
-            "deathmatch_played",
-            "deathmatch_won",
-            "teams_played",
-            "teams_won",
-            "triple-shots_used",
-            "kills_using_triple-shot",
-            "blocks_using_proj",
-        ]
-        rennamed_keys = [
-            "total_deaths",
-            "long_shot",
-            "two_birdses",
-            "solo_played",
-            "solo_won",
-            "solo_top_5",
-            "squads_deathmatch_played",
-            "squads_deathmatch_won",
-            "Red_VS_Blue_played",
-            "Red_VS_Blue_won",
-            "rapidfire_used",
-            "kills_using_rapidfire",
-            "blocks_using_missile",
-        ]
-        for key in keys_order:
-            if key in keys:
-                renamed_key = rennamed_keys[keys.index(key)]
-            else:
-                renamed_key = key
-            stat_list += (
-                f"{renamed_key.replace('_', ' ').title():>24}: {keys_order[key]}\n"
+            plt.figtext(
+                0.02,
+                0.03,
+                "Friend Code: " + friend_code,
+                ha="left",
+                color="w",
+                fontsize=8,
             )
-            remaining_titles = [" Medals ", " Games Played ", " Weapons "]
-            key_cutoff = ["K/D Ratio", "quad_kills", "total_games_played"]
-            if key in key_cutoff:
-                stat_list += f"\n\u001b[1;2m{remaining_titles[key_cutoff.index(key)].center(44, '—')}\u001b[0m\n"
+            plt.tight_layout()
+            plt.subplots_adjust(left=None, bottom=0.1, right=None,
+                                top=None, wspace=None, hspace=None)
+            plt.savefig(data_stream, format='png', dpi=200)  # 3840x2160 pixels
+            plt.close()
 
-        stat_list += "```"
+        if section != "🍩 Graphs only":
+            # Avoid divided by zero error (continued)
+            try:
+                five_kills_pct = keys_order["5_kills"] / total_games_played
+            except:
+                five_kills_pct = 0
+            try:
+                player_kills_pct = keys_order["player_kills"] / \
+                    keys_order["total_kills"]
+            except:
+                player_kills_pct = 0
+            try:
+                bot_kills_pct = keys_order["bot_kills"] / \
+                    keys_order["total_kills"]
+            except:
+                bot_kills_pct = 0
+            try:
+                KDR = round(keys_order["total_kills"] /
+                            keys_order["deaths"], 2)
+            except:
+                KDR = 0
+            try:
+                assists_pct = keys_order["assists"] / total_games_played
+            except:
+                assists_pct = 0
+            try:
+                dunk_tanks_pct = keys_order["dunk_tanks"] / total_games_played
+            except:
+                dunk_tanks_pct = 0
+            try:
+                first_bloods_pct = keys_order["first_bloods"] / \
+                    total_games_played
+            except:
+                first_bloods_pct = 0
+            try:
+                snipers_pct = keys_order["snipers"] / total_games_played
+            except:
+                snipers_pct = 0
+            try:
+                two_birdss_pct = keys_order["two_birdss"] / total_games_played
+            except:
+                two_birdss_pct = 0
+            try:
+                yardsales_pct = keys_order["yardsales"] / total_games_played
+            except:
+                yardsales_pct = 0
+            try:
+                double_kills_pct = keys_order["double_kills"] / \
+                    total_games_played
+            except:
+                double_kills_pct = 0
+            try:
+                triple_kills_pct = keys_order["triple_kills"] / \
+                    total_games_played
+            except:
+                triple_kills_pct = 0
+            try:
+                quad_kills_pct = keys_order["quad_kills"] / total_games_played
+            except:
+                quad_kills_pct = 0
+            try:
+                top_5_pct = keys_order["top_5"] / keys_order["games_played"]
+            except:
+                top_5_pct = 0
+            try:
+                blocks_using_proj_pct = keys_order["blocks_using_proj"] / (
+                    keys_order["blocks_using_proj"] + keys_order["blocks_using_shield"])
+            except:
+                blocks_using_proj_pct = 0
+            try:
+                blocks_using_shield_pct = keys_order["blocks_using_shield"] / (
+                    keys_order["blocks_using_proj"] + keys_order["blocks_using_shield"])
+            except:
+                blocks_using_shield_pct = 0
 
-        # Add to embed
-        message4 = ""
-        message4 += f"🗒️ ***Stats***:\n{stat_list}\n"
+            keys_order["meters_driven"] = "{:.1f}".format(
+                keys_order["meters_driven"] / 1000) + " km"
+            keys_order["5_kills"] = "{:<6}".format(
+                keys_order["5_kills"]) + "(" + f"{five_kills_pct*100:>2.0f}" + "%) †"
+            keys_order["player_kills"] = "{:<6}".format(
+                keys_order["player_kills"]
+            ) + "(" + f"{player_kills_pct*100:>2.0f}" + "%)"
+            keys_order["bot_kills"] = "{:<6}".format(
+                keys_order["bot_kills"]) + "(" + f"{bot_kills_pct*100:>2.0f}" + "%)"
+            keys_order["K/D Ratio"] = KDR
+            keys_order["assists"] = "{:<6}".format(
+                keys_order["assists"]) + "(" + f"{assists_pct*100:>2.0f}" + "%) †"
+            keys_order["dunk_tanks"] = "{:<6}".format(
+                keys_order["dunk_tanks"]) + "(" + f"{dunk_tanks_pct*100:>2.0f}" + "%) †"
+            keys_order["first_bloods"] = "{:<6}".format(
+                keys_order["first_bloods"]
+            ) + "(" + f"{first_bloods_pct*100:>2.0f}" + "%) †"
+            keys_order["snipers"] = "{:<6}".format(
+                keys_order["snipers"]) + "(" + f"{snipers_pct*100:>2.0f}" + "%) †"
+            keys_order["two_birdss"] = "{:<6}".format(
+                keys_order["two_birdss"]) + "(" + f"{two_birdss_pct*100:>2.0f}" + "%) †"
+            keys_order["yardsales"] = "{:<6}".format(
+                keys_order["yardsales"]) + "(" + f"{yardsales_pct*100:>2.0f}" + "%) †"
+            keys_order["double_kills"] = "{:<6}".format(
+                keys_order["double_kills"]
+            ) + "(" + f"{double_kills_pct*100:>2.0f}" + "%) †"
+            keys_order["triple_kills"] = "{:<6}".format(
+                keys_order["triple_kills"]
+            ) + "(" + f"{triple_kills_pct*100:>2.0f}" + "%) †"
+            keys_order["quad_kills"] = "{:<6}".format(
+                keys_order["quad_kills"]) + "(" + f"{quad_kills_pct*100:>2.0f}" + "%) †"
+            keys_order["games_won"] = "{:<6}".format(
+                keys_order["games_won"]) + "(" + f"{games_won_pct*100:>2.0f}" + "%)"
+            keys_order["top_5"] = "{:<6}".format(
+                keys_order["top_5"]) + "(" + f"{top_5_pct*100:>2.0f}" + "%)"
+            keys_order["deathmatch_won"] = "{:<6}".format(
+                keys_order["deathmatch_won"]
+            ) + "(" + f"{deathmatch_won_pct*100:>2.0f}" + "%)"
+            keys_order["squads_won"] = "{:<6}".format(
+                keys_order["squads_won"]) + "(" + f"{squads_won_pct*100:>2.0f}" + "%)"
+            keys_order["teams_won"] = "{:<6}".format(
+                keys_order["teams_won"]) + "(" + f"{teams_won_pct*100:>2.0f}" + "%)"
+            keys_order["minemayhem_won"] = "{:<6}".format(
+                keys_order["minemayhem_won"]
+            ) + "(" + f"{minemayhem_won_pct*100:>2.0f}" + "%)"
+            keys_order["total_games_played"] = f"{total_games_played:<11} †"
+            keys_order["total_games_won"] = "{:<6}".format(
+                keys_order["total_games_won"]
+            ) + "(" + f"{total_games_won_pct*100:>2.0f}" + "%)"
+            keys_order["kills_using_drill"] = "{:<6}".format(
+                keys_order["kills_using_drill"]
+            ) + "(" + f"{kills_using_drill_pct*100:>2.0f}" + "%)"
+            keys_order["kills_using_flak"] = "{:<6}".format(
+                keys_order["kills_using_flak"]
+            ) + "(" + f"{kills_using_flak_pct*100:>2.0f}" + "%)"
+            keys_order["kills_using_grenade"] = "{:<6}".format(
+                keys_order["kills_using_grenade"]
+            ) + "(" + f"{kills_using_grenade_pct*100:>2.0f}" + "%)"
+            keys_order["kills_using_homing"] = "{:<6}".format(
+                keys_order["kills_using_homing"]
+            ) + "(" + f"{kills_using_homing_pct*100:>2.0f}" + "%)"
+            keys_order["kills_using_mine"] = "{:<6}".format(
+                keys_order["kills_using_mine"]
+            ) + "(" + f"{kills_using_mine_pct*100:>2.0f}" + "%)"
+            keys_order["kills_using_nuke"] = "{:<6}".format(
+                keys_order["kills_using_nuke"]
+            ) + "(" + f"{kills_using_nuke_pct*100:>2.0f}" + "%)"
+            keys_order["kills_using_poison"] = "{:<6}".format(
+                keys_order["kills_using_poison"]
+            ) + "(" + f"{kills_using_poison_pct*100:>2.0f}" + "%)"
+            keys_order["kills_using_shield"] = "{:<6}".format(
+                keys_order["kills_using_shield"]
+            ) + "(" + f"{kills_using_shield_pct*100:>2.0f}" + "%)"
+            keys_order["kills_using_triple-shot"] = "{:<6}".format(
+                keys_order["kills_using_triple-shot"]
+            ) + "(" + f"{kills_using_triple_shot_pct*100:>2.0f}" + "%)"
+            keys_order["kills_using_missiles"] = "{:<6}".format(
+                keys_order['kills_using_missiles']
+            ) + "(" + f"{kills_using_missiles_pct*100:>2.0f}" + "%)"
+            keys_order["blocks_using_proj"] = "{:<6}".format(
+                keys_order["blocks_using_proj"]
+            ) + "(" + f"{blocks_using_proj_pct*100:>2.0f}" + "%)"
+            keys_order["blocks_using_shield"] = "{:<6}".format(
+                keys_order["blocks_using_shield"]
+            ) + "(" + f"{blocks_using_shield_pct*100:>2.0f}" + "%)"
+
+            first_title = " General "
+            stat_list += f"\u001b[1;2m{first_title.center(45, '—')}\u001b[0m\n"
+            keys = [
+                "deaths", "snipers", "two_birdss", "games_played", "games_won", "top_5",
+                "deathmatch_played", "deathmatch_won", "teams_played", "teams_won",
+                "triple-shots_used", "kills_using_triple-shot", "blocks_using_proj"
+            ]
+            rennamed_keys = [
+                "total_deaths", "long_shot", "two_birdses", "solo_played", "solo_won",
+                "solo_top_5", "squads_deathmatch_played", "squads_deathmatch_won",
+                "Red_VS_Blue_played", "Red_VS_Blue_won", "rapidfire_used",
+                "kills_using_rapidfire", "blocks_using_missile"
+            ]
+            for key in keys_order:
+                if key in keys:
+                    renamed_key = rennamed_keys[keys.index(key)]
+                else:
+                    renamed_key = key
+                stat_list += f"{renamed_key.replace('_', ' ').title():>24}: {keys_order[key]}\n"
+                remaining_titles = [" Medals ", " Games Played ", " Weapons "]
+                key_cutoff = ["K/D Ratio", "quad_kills", "total_games_won"]
+                if key in key_cutoff:
+                    stat_list += f"\n\u001b[1;2m{remaining_titles[key_cutoff.index(key)].center(44, '—')}\u001b[0m\n"
+
+            stat_list += "```"
+
+            # Add to embed
+            message4 = ""
+            message4 += f"🗒️ ***Stats***:\n{stat_list}\n"
 
         # Send
-        embed1 = discord.Embed(description=message4, color=0x00C6FE)
         data_stream.seek(0)
-        chart = discord.File(data_stream, filename=f"{friend_code}_pie_charts.png")
-        embed1.set_image(url=f"attachment://{friend_code}_pie_charts.png")
-        await interaction.followup.send(embed=embed1, file=chart)
+        chart = discord.File(
+            data_stream, filename=f"{friend_code}_info_charts.png")
+        if section != "🍩 Graphs only":
+            embed1 = discord.Embed(description=message4, color=0x00C6FE)
+            embed1.set_image(url=f"attachment://{friend_code}_info_charts.png")
+
+        if section == "🍩 Graphs only":
+            await interaction.followup.send(file=chart)
+        else:
+            await interaction.followup.send(embed=embed1, file=chart)
 
     if section in {"with 🥅 Current Goals", "All"}:
         # Create goal list
@@ -2756,10 +3089,12 @@ async def start_game(interaction: discord.Interaction):
         embed = discord.Embed(color=0xA80022)
         if len(players) <= 1:
             embed.add_field(name="Players: ", value=players[0], inline=False)
-            embed.add_field(name="Game:", value=players[0] + " wins!", inline=False)
+            embed.add_field(
+                name="Game:", value=players[0] + " wins!", inline=False)
             money_txt = ""
             for i in moneys.keys():
-                money_txt += i + " " + str(moneys[i]) + "<:coin:910247623787700264>\n"
+                money_txt += i + " " + \
+                    str(moneys[i]) + "<:coin:910247623787700264>\n"
             if money_txt != "":
                 embed.add_field(name="Money:", value=money_txt, inline=False)
             await msg.edit(embed=embed)
@@ -2844,7 +3179,8 @@ async def start_game(interaction: discord.Interaction):
                     user_ids=[player_a_id]
                 )
                 if player_a_object[0].nick == None:  # No nickname is found
-                    player_a_name = str(player_a_object[0])[:-5]  # Use username
+                    player_a_name = str(player_a_object[0])[
+                        :-5]  # Use username
                 else:
                     player_a_name = player_a_object[0].nick  # Use nickname
                 change_player_coin(player_a_id, player_a_name, coin_num)
@@ -2854,7 +3190,8 @@ async def start_game(interaction: discord.Interaction):
                     user_ids=[player_b_id]
                 )
                 if player_b_object[0].nick == None:  # No nickname is found
-                    player_b_name = str(player_b_object[0])[:-5]  # Use username
+                    player_b_name = str(player_b_object[0])[
+                        :-5]  # Use username
                 else:
                     player_b_name = player_b_object[0].nick  # Use nickname
                 change_player_coin(player_b_id, player_b_name, -coin_num)
@@ -2916,7 +3253,8 @@ async def start_game(interaction: discord.Interaction):
         embed.add_field(name="Game:", value=action, inline=False)
         money_txt = ""
         for i in moneys.keys():
-            money_txt += i + " " + str(moneys[i]) + "<:coin:910247623787700264>\n"
+            money_txt += i + " " + \
+                str(moneys[i]) + "<:coin:910247623787700264>\n"
         if money_txt != "":
             embed.add_field(name="Money:", value=money_txt, inline=False)
         await msg.edit(embed=embed)
@@ -3013,7 +3351,8 @@ async def discord_coins_leaderboard(
             rank_dict[id] = db["discord_coins"][id]["coins"]
 
     # Sort the new dictionary
-    sorted_rank_dict = sorted(rank_dict.items(), key=itemgetter(1), reverse=True)
+    sorted_rank_dict = sorted(
+        rank_dict.items(), key=itemgetter(1), reverse=True)
 
     if changes == "Shown":
         # Using f-string spacing to pretty print the leaderboard labels (bold)
@@ -3070,7 +3409,8 @@ async def discord_coins_leaderboard(
             leaderboard += f"\u001b[1m{'#' + str(sorted_rank_dict.index(i) + 1):<6}\u001b[0m{db['discord_coins'][i[0]]['name']:<28}🪙 {i[1]:<6,.0f}\n"
 
     # Split the message every 25 records
-    leaderboard_split = re.compile("(?:^.*$\n?){1,25}", re.M).findall(leaderboard)
+    leaderboard_split = re.compile(
+        "(?:^.*$\n?){1,25}", re.M).findall(leaderboard)
     leaderboard_split_dict = dict()
     for i in leaderboard_split:
         leaderboard_split_dict[leaderboard_split.index(i) + 1] = i
@@ -3158,7 +3498,8 @@ async def discord_coins_leaderboard(
                     description=first_message,
                 )
                 await msg.edit(embed=embed_first)
-                second_message = "```ansi\n" + leaderboard_split_dict[2] + "```"
+                second_message = "```ansi\n" + \
+                    leaderboard_split_dict[2] + "```"
                 embed_second = discord.Embed(description=second_message)
                 embed_second.set_footer(
                     text=f"Changes since {db['discord_coins']['last_update_time']}"
@@ -3203,11 +3544,13 @@ async def random_tank(interaction: discord.Interaction):
     # Png for static emojis and Gif for animated emojis
     if "a:" in chosen_tank:
         emoji_code_split = chosen_tank[3:-1].split(":")
-        img_link = "https://cdn.discordapp.com/emojis/" + emoji_code_split[1] + ".gif"
+        img_link = "https://cdn.discordapp.com/emojis/" + \
+            emoji_code_split[1] + ".gif"
         tank_name = emoji_code_split[0].replace("_", " ")[:-7].title()
     else:
         emoji_code_split = chosen_tank[2:-1].split(":")
-        img_link = "https://cdn.discordapp.com/emojis/" + emoji_code_split[1] + ".png"
+        img_link = "https://cdn.discordapp.com/emojis/" + \
+            emoji_code_split[1] + ".png"
         tank_name = emoji_code_split[0].replace("_", " ")[:-5].title()
 
     # Manual rename to avoid error
@@ -3343,7 +3686,8 @@ async def long(interaction: discord.Interaction, length: int, barrel: int = 1):
         else even_space_encode
     )
 
-    even_space_encode_palindrome_decode = [i for i in even_space_encode_palindrome]
+    even_space_encode_palindrome_decode = [
+        i for i in even_space_encode_palindrome]
     for i in range(len(even_space_encode_palindrome_decode)):
         even_space_encode_palindrome_decode[i] = (
             x if even_space_encode_palindrome_decode[i] == "x" else y
@@ -3352,7 +3696,8 @@ async def long(interaction: discord.Interaction, length: int, barrel: int = 1):
     output_middle = ""
     for i in range(len(even_space_encode_palindrome_decode) - 1):
         output_middle += (
-            long_emoji[1] * even_space_encode_palindrome_decode[i] + long_emoji[2]
+            long_emoji[1] *
+            even_space_encode_palindrome_decode[i] + long_emoji[2]
         )
     output_middle += long_emoji[1] * even_space_encode_palindrome_decode[-1]
     msg = f"{long_emoji[0]}{output_middle}{long_emoji[3]}"
@@ -3434,7 +3779,8 @@ async def slot(interaction: discord.Interaction, bet: int):
             }
 
         slots = [
-            random.choices(population=list(events.keys()), weights=events.values())[0]
+            random.choices(population=list(events.keys()),
+                           weights=events.values())[0]
             for i in range(3)
         ]
 
@@ -3560,7 +3906,8 @@ async def memory(interaction: discord.Interaction):
                 await message.edit(embed=embed)
                 break
             if (
-                (str(msg.content.lower()) == "s") or (str(msg.content.lower()) == "q")
+                (str(msg.content.lower()) == "s") or (
+                    str(msg.content.lower()) == "q")
             ) == False:
                 warn = await interaction.followup.send(
                     ":x: Invalid input has been entered :x:"
@@ -3679,7 +4026,8 @@ async def memory(interaction: discord.Interaction):
                         else:
                             name = user_object[0].nick  # Use nickname
 
-                        player_coin_after = change_player_coin(id, name, reward, True)
+                        player_coin_after = change_player_coin(
+                            id, name, reward, True)
                         embed = discord.Embed(
                             color=0xFFD700,
                             title="MEMORY GAME :brain:",
@@ -3777,7 +4125,8 @@ async def get_crate_stats(
         weights_crate.append(three_star_prob)
 
     def basic_or_elite(a, b, c):
-        time = 1 / (1 - one_star_prob * a - two_star_prob * b - three_star_prob * c)
+        time = 1 / (1 - one_star_prob * a -
+                    two_star_prob * b - three_star_prob * c)
         expected_basic_crate_coin = basic_crate_price * time
         if expected_basic_crate_coin < elite_crate_price:
             return (
@@ -4840,7 +5189,8 @@ async def fandom(interaction: discord.Interaction, article: str):
         output.set_thumbnail(
             url="https://static.wikia.nocookie.net/rocketbotroyale/images/e/e6/Site-logo.png"
         )
-        output.set_footer(text="All information is gathered through fandom.com")
+        output.set_footer(
+            text="All information is gathered through fandom.com")
         await sent_embed.edit(embed=output)
     except:
         await interaction.followup.send(
@@ -4931,7 +5281,8 @@ async def plot_season(
                     record["score"] for record in records
                 ]
 
-                season_records = db["plot"][str(season)][f"top_100_{update_mode}"]
+                season_records = db["plot"][str(
+                    season)][f"top_100_{update_mode}"]
                 db["plot"][str(season)][f"top_100_{update_mode}_stats"] = (
                     [min(season_records)]
                     + [
@@ -5032,10 +5383,12 @@ async def plot_season(
                 )
             )  # B
         if graph == "League Trophies Range":  # C and D
-            sd = db["plot"][str(season)]["League Trophies Range"]  # season data
+            # season data
+            sd = db["plot"][str(season)]["League Trophies Range"]
             data_c.append(sd)  # C
             data_d.append(
-                [season, db["plot"][str(season)]["days"], f"{0:>4}-{sd[::-1][0]:<4}"]
+                [season, db["plot"][str(season)]["days"],
+                 f"{0:>4}-{sd[::-1][0]:<4}"]
                 + [f"{sd[::-1][i]:>4}-{sd[::-1][i+1]:<4}" for i in range(1, 22, 2)]
                 + [sd[::-1][23]]
             )  # D
@@ -5096,7 +5449,8 @@ async def plot_season(
             start_season != end_season and end_season == curr_season
         ):
             legends_color.append(bp["boxes"][0])
-            legends_name.append("Past Season" + ("" if one_past_season else "s"))
+            legends_name.append(
+                "Past Season" + ("" if one_past_season else "s"))
         if end_season == curr_season:
             legends_color.append(bp["boxes"][-1])
             legends_name.append("Current Season")
@@ -5109,7 +5463,8 @@ async def plot_season(
         )
 
         # Bottom axis
-        ax_a_1.set_xticks(list(range(1, len(xlabels_a_c_1) + 1)), labels=xlabels_a_c_1)
+        ax_a_1.set_xticks(
+            list(range(1, len(xlabels_a_c_1) + 1)), labels=xlabels_a_c_1)
         ax_a_1.set_title(
             f"Rocket Bot Royale - Box Plot of Top 100 Players' {mode[2:]} by Season"
             + ("" if one_past_season else "s"),
@@ -5138,7 +5493,8 @@ async def plot_season(
 
         # Top axis
         ax_a_2 = ax_a_1.secondary_xaxis("top")
-        ax_a_2.set_xticks(list(range(1, len(xlabels_a_c_2) + 1)), labels=xlabels_a_c_2)
+        ax_a_2.set_xticks(
+            list(range(1, len(xlabels_a_c_2) + 1)), labels=xlabels_a_c_2)
         ax_a_2.set_xlabel("Duration (days)", color="w", weight="bold")
         ax_a_2.tick_params(axis="both", colors="w")
 
@@ -5181,7 +5537,8 @@ async def plot_season(
             "Mean",
         ]
 
-        fig_height = int(ceil((end_season - start_season + 1) / 3))  # Dynamic height
+        # Dynamic height
+        fig_height = int(ceil((end_season - start_season + 1) / 3))
         if fig_height < 2:
             fig_height = 2  # Minimum height
         plt.figure(
@@ -5241,7 +5598,8 @@ async def plot_season(
         if end_season != curr_season or (
             start_season != end_season and end_season == curr_season
         ):
-            legends_name.append("Past Season" + ("" if one_past_season else "s"))
+            legends_name.append(
+                "Past Season" + ("" if one_past_season else "s"))
             bbox_to_anchor_x = 0.085
         if end_season == curr_season:
             legends_name.append("Current Season")
@@ -5383,7 +5741,8 @@ async def plot_season(
             for league in range(len(league_names) * 2 - 2)
         ]
         dot_smooth = [
-            np.exp(PchipInterpolator(season, np.log(all_league_range[league]))(dot))
+            np.exp(PchipInterpolator(season, np.log(
+                all_league_range[league]))(dot))
             for league in range(len(league_names) * 2 - 2)
         ]
 
@@ -5435,7 +5794,8 @@ async def plot_season(
             ax_c_1.fill_between(
                 line_space,
                 line_smooth[0 if league == 0 else league * 2 - 1],
-                0 if league == len(league_names) - 1 else line_smooth[league * 2],
+                0 if league == len(league_names) -
+                1 else line_smooth[league * 2],
                 color=league_colors[0 if league == 0 else league * 2 - 1],
                 alpha=0.5,
                 label=league_names[league],
@@ -5460,7 +5820,8 @@ async def plot_season(
             list(
                 range(
                     (2 if start_season == end_season else 0),
-                    len(xlabels_a_c_1) + (2 if start_season == end_season else 0),
+                    len(xlabels_a_c_1) +
+                    (2 if start_season == end_season else 0),
                 )
             ),
             labels=xlabels_a_c_1,
@@ -5486,7 +5847,8 @@ async def plot_season(
             list(
                 range(
                     (2 if start_season == end_season else 0),
-                    len(xlabels_a_c_1) + (2 if start_season == end_season else 0),
+                    len(xlabels_a_c_1) +
+                    (2 if start_season == end_season else 0),
                 )
             ),
             labels=xlabels_a_c_2,
@@ -5505,7 +5867,8 @@ async def plot_season(
         )
         x0, x1, y0, y1 = plt.axis()
         dynamic_x_adjust = (
-            1 if start_season == end_season else 0.02 * (end_season - start_season + 1)
+            1 if start_season == end_season else 0.02 *
+            (end_season - start_season + 1)
         )
         plt.axis(
             (x0 + dynamic_x_adjust, x1 - dynamic_x_adjust, y0 + 100, y1 + 250)
@@ -5531,7 +5894,8 @@ async def plot_season(
 
         column_headers = ["Season", "Duration (days)"] + league_names[::-1]
 
-        fig_height = int(ceil((end_season - start_season + 1) / 3))  # Dynamic height
+        # Dynamic height
+        fig_height = int(ceil((end_season - start_season + 1) / 3))
         if fig_height < 2:
             fig_height = 2  # Minimum height
         plt.figure(
@@ -5576,7 +5940,8 @@ async def plot_season(
                     if col == i:
                         cell.set_facecolor(
                             league_colors_orig[::-1][i - 2]
-                            + ("88" if row % 2 == 1 else "CC")  # odd and even row(s)
+                            # odd and even row(s)
+                            + ("88" if row % 2 == 1 else "CC")
                         )
                         if end_season == curr_season:
                             if row == (end_season - start_season + 1):
@@ -5604,7 +5969,8 @@ async def plot_season(
         if end_season != curr_season or (
             start_season != end_season and end_season == curr_season
         ):
-            legends_name.append("Past Season" + ("" if one_past_season else "s"))
+            legends_name.append(
+                "Past Season" + ("" if one_past_season else "s"))
             bbox_to_anchor_x = 0.05
         if end_season == curr_season:
             legends_name.append("Current Season")
@@ -5706,14 +6072,14 @@ async def trophies_calculator(
     """Calculate trophies gain/loss by reasons and plot the graph (optional)"""
 
     await interaction.response.defer(ephemeral=False, thinking=True)
-    
+
     # Limit trophies range
     def clamp(n, minn, maxn):
-      return max(min(maxn, n), minn)
-    
+        return max(min(maxn, n), minn)
+
     your_trophies = clamp(your_trophies, 0, 10000)
     opponents_trophies = clamp(opponents_trophies, 0, 10000)
-    
+
     # Adjust variables depend on reason
     k_factor = 4 if "Outranked" in reason else 16
     score_a = 0 if "by" in reason else 1
@@ -5722,12 +6088,14 @@ async def trophies_calculator(
     def f(x, y):
         boost_factor = x/400 if x < 400 else 1
         boosted_k_factor = k_factor * boost_factor if score_a < 1 else k_factor
-        trophies_change = boosted_k_factor*(score_a-(10**(x/800))/(10**(x/800)+10**(y/800)))
+        trophies_change = boosted_k_factor * \
+            (score_a-(10**(x/800))/(10**(x/800)+10**(y/800)))
         return trophies_change
-    
+
     # Main graph
     if format == "Graph":
-        fig, ax = plt.subplots(1, 1, facecolor=("#2F3137"), figsize=(10, 8), edgecolor="w", linewidth=3)
+        fig, ax = plt.subplots(1, 1, facecolor=(
+            "#2F3137"), figsize=(10, 8), edgecolor="w", linewidth=3)
         division = int(-(k_factor/2)+10)
         if "by" in reason:
             levels = [-i/division for i in range(k_factor*division+1)][::-1]
@@ -5740,37 +6108,43 @@ async def trophies_calculator(
             extra_x = your_trophies - 2800 + 1400
         if opponents_trophies > 2800:
             extra_y = opponents_trophies - 2800 + 1400
-        x, y = np.meshgrid(np.linspace(0+extra_x, 2800+extra_x, 100), np.linspace(0+extra_y, 2800+extra_y, 100))
+        x, y = np.meshgrid(np.linspace(0+extra_x, 2800+extra_x, 100),
+                           np.linspace(0+extra_y, 2800+extra_y, 100))
         v_func = np.vectorize(f)
-        cf = ax.contourf(x, y, v_func(x, y), levels, cmap='Reds_r' if "by" in reason else "Greens")
-        
+        cf = ax.contourf(x, y, v_func(x, y), levels,
+                         cmap='Reds_r' if "by" in reason else "Greens")
+
         ax.xaxis.set_major_locator(MultipleLocator(400))
         ax.xaxis.set_minor_locator(AutoMinorLocator(8))
         ax.yaxis.set_major_locator(MultipleLocator(400))
         ax.yaxis.set_minor_locator(AutoMinorLocator(8))
         ax.grid(which="major", alpha=0.5)
         ax.grid(which="minor", alpha=0.2)
-        ax.set_title(f"Trophies {'Loss' if 'by' in reason else 'Gain'} ({reason})", color="#FFFFFF", weight="bold")
+        ax.set_title(
+            f"Trophies {'Loss' if 'by' in reason else 'Gain'} ({reason})", color="#FFFFFF", weight="bold")
         ax.set_xlabel('Your Trophies', c="#FFFFFF", weight="bold")
         ax.set_ylabel("Opponent's Trophies", c="#FFFFFF", weight="bold")
         ax.tick_params(axis="both", which="both", colors="w")
 
         # Colorbar graph
         cb = fig.colorbar(cf)
-        cb.set_label(f"Trophies {'Loss' if 'by' in reason else 'Gain'}", color="w", weight="bold")
+        cb.set_label(
+            f"Trophies {'Loss' if 'by' in reason else 'Gain'}", color="w", weight="bold")
         cb.set_ticks(levels)
         cb.ax.tick_params(axis="both", which="both", colors="w")
 
         # Boost Target vertical dotted line
         if 'by' in reason and your_trophies <= 2800:
             plt.axvline(x=400, color='k', ls='--')
-            plt.text(200,2600,'Boost Target\n(400)', color='k', ha='center')
+            plt.text(200, 2600, 'Boost Target\n(400)', color='k', ha='center')
 
         # Plot dot and annotate
-        x_adjust = 550 if your_trophies>2200 else 0
-        y_adjust = 200 if opponents_trophies>2600 else 0
-        plt.text(your_trophies+25-x_adjust, opponents_trophies+75-y_adjust,f'f({your_trophies},{opponents_trophies})={f(your_trophies, opponents_trophies):.2f}', color='white', bbox=dict(facecolor='black', edgecolor='white', boxstyle='round'), size="10")
-        plt.scatter(your_trophies, opponents_trophies, facecolor='black', edgecolor='white', zorder=3)
+        x_adjust = 550 if your_trophies > 2200 else 0
+        y_adjust = 200 if opponents_trophies > 2600 else 0
+        plt.text(your_trophies+25-x_adjust, opponents_trophies+75-y_adjust,
+                 f'f({your_trophies},{opponents_trophies})={f(your_trophies, opponents_trophies):.2f}', color='white', bbox=dict(facecolor='black', edgecolor='white', boxstyle='round'), size="10")
+        plt.scatter(your_trophies, opponents_trophies,
+                    facecolor='black', edgecolor='white', zorder=3)
 
         plt.tight_layout()
 
@@ -5778,7 +6152,7 @@ async def trophies_calculator(
         data_stream = io.BytesIO()
         plt.savefig(data_stream, format="png", dpi=250)
         plt.close()
-        
+
         # Send the graph
         data_stream.seek(0)
         chart = discord.File(
