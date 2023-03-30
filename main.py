@@ -1526,7 +1526,7 @@ async def get_user(
     id: str,
     section: typing.Literal[
         "📓 General Info only",
-        "🍩 Graphs only"
+        "🍩 Graphs only",
         "with 📊 Seasons Records",
         "with 🛡️ Badges",
         "with 🗒️ Stats",
