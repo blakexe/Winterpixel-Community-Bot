@@ -4009,9 +4009,9 @@ async def memory(interaction: discord.Interaction):
                     if pair == 8:
                         end = timer()
                         time_diff = end - start
-                        if time_diff < 80:
+                        if time_diff < 360:
                             reward = 20
-                        elif 80 <= time_diff < 100:
+                        elif 360 <= time_diff < 720:
                             reward = 10
                         else:
                             reward = 5
