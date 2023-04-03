@@ -6081,7 +6081,7 @@ async def trophies_calculator(
     opponents_trophies = clamp(opponents_trophies, 0, 10000)
 
     # Adjust variables depend on reason
-    k_factor = 4 if "Outranked" in reason else 16
+    k_factor = 1 if "Outranked" in reason else 16
     score_a = 0 if "by" in reason else 1
 
     # Main multivariable-function (f(x,y) = z)
