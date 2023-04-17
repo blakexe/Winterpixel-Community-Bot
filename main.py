@@ -1525,8 +1525,8 @@ async def get_user(
     user_type: typing.Literal["User ID", "Friend ID"],
     id: str,
     section: typing.Literal[
-        "📓 General Info only",
         "🍩 Graphs only",
+        "📓 General Info only",
         "with 📊 Seasons Records",
         "with 🛡️ Badges",
         "with 🗒️ Stats",
@@ -2907,27 +2907,27 @@ async def get_user(
                         awards_config.get(unique_tank, default_award)["rarity"]
                         == "common"
                     ):
-                        tank_list += f"     ⭐ {awards_config.get(unique_tank, default_award)['name']:<17} {str(tank_list_counter[unique_tank])}\n"
+                        tank_list += f"     ⭐ {awards_config.get(unique_tank, default_award)['name']:<19} {str(tank_list_counter[unique_tank])}\n"
                     elif (
                         awards_config.get(unique_tank, default_award)["rarity"]
                         == "rare"
                     ):
-                        tank_list += f"   ⭐⭐ {awards_config.get(unique_tank, default_award)['name']:<17} {str(tank_list_counter[unique_tank])}\n"
+                        tank_list += f"   ⭐⭐ {awards_config.get(unique_tank, default_award)['name']:<19} {str(tank_list_counter[unique_tank])}\n"
                     elif (
                         awards_config.get(unique_tank, default_award)["rarity"]
                         == "legendary"
                     ):
-                        tank_list += f" ⭐⭐⭐ {awards_config.get(unique_tank, default_award)['name']:<17} {str(tank_list_counter[unique_tank])}\n"
+                        tank_list += f" ⭐⭐⭐ {awards_config.get(unique_tank, default_award)['name']:<19} {str(tank_list_counter[unique_tank])}\n"
                     elif (
                         awards_config.get(unique_tank, default_award)["rarity"]
                         == "purchased"
                     ):
-                        tank_list += f"     💰 {awards_config.get(unique_tank, default_award)['name']:<17} {str(tank_list_counter[unique_tank])}\n"
+                        tank_list += f"     💰 {awards_config.get(unique_tank, default_award)['name']:<19} {str(tank_list_counter[unique_tank])}\n"
                     elif (
                         awards_config.get(unique_tank, default_award)["rarity"]
                         == "earned"
                     ):
-                        tank_list += f"     🏅 {awards_config.get(unique_tank, default_award)['name']:<17} {str(tank_list_counter[unique_tank])}\n"
+                        tank_list += f"     🏅 {awards_config.get(unique_tank, default_award)['name']:<19} {str(tank_list_counter[unique_tank])}\n"
                 except:
                     pass
 
