@@ -386,15 +386,16 @@ async def on_ready():
     print("Winterpixel community bot is ready.")
 
 
-@tree.commamd()
+@tree.command()
 async def tank(interaction: discord.Interaction):
     """tank"""
 
     await interaction.response.defer(ephemeral=False, thinking=True)
+    
     await interaction.followup.send(
-            embed=discord.Embed(
-                description="Dude... your balance isn't negative", color=0xFF0000
-            )
+        embed=discord.Embed(
+            description="Dude... your balance isn't negative", color=0xFF0000
+        )
 
 @tree.command()
 async def double_or_half(interaction: discord.Interaction):
