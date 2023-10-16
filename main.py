@@ -389,13 +389,7 @@ async def on_ready():
 @tree.command()
 async def tank(interaction: discord.Interaction):
     """tank"""
-
-    await interaction.response.defer(ephemeral=False, thinking=True)
-    
-    await interaction.followup.send(
-        embed=discord.Embed(
-            description="Dude... your balance isn't negative", color=0xFF0000
-        )
+    await interaction.response.send_message("Commands synced.")
 
 @tree.command()
 async def double_or_half(interaction: discord.Interaction):
