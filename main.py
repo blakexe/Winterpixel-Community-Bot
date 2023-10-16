@@ -386,6 +386,16 @@ async def on_ready():
     print("Winterpixel community bot is ready.")
 
 
+@tree.commamd()
+async def tank(interaction: discord.Interaction):
+    """tank"""
+
+    await interaction.response.defer(ephemeral=False, thinking=True)
+    await interaction.followup.send(
+            embed=discord.Embed(
+                description="Dude... your balance isn't negative", color=0xFF0000
+            )
+
 @tree.command()
 async def double_or_half(interaction: discord.Interaction):
     """Helps you get out of a rut if your balance is negative."""
@@ -3057,7 +3067,7 @@ async def join_game(interaction: discord.Interaction):
     await interaction.response.send_message(response)
 
 
-@tree.command(guild=discord.Object(id=962142361935314996))
+@tree.command(guild=discord.Object(id=989993645006536704))
 async def get_config(interaction: discord.Interaction):
     file = io.StringIO(json.dumps(server_config))
     await interaction.response.send_message(
@@ -6171,10 +6181,10 @@ async def trophies_calculator(
         await interaction.followup.send(embed=embed)
 
 
-@tree.command(guild=discord.Object(id=962142361935314996))
+@tree.command(guild=discord.Object(id=989993645006536704))
 async def sync_commands(interaction: discord.Interaction):
     await tree.sync()
-    await tree.sync(guild=discord.Object(id=962142361935314996))
+    await tree.sync(guild=discord.Object(id=989993645006536704))
     await interaction.response.send_message("Commands synced.")
 
 
