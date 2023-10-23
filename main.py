@@ -2684,7 +2684,7 @@ async def on_ready():
 
 @tree.command(guild=discord.Object(id=989993645006536704))
 async def sync_commands(interaction: discord.Interaction):
-    """🔴 Synchronizes the slash commands for the bot"""
+    """🔴 Synchronizes the slash commands for the bot test"""
 
     await tree.sync()
     await tree.sync(guild=discord.Object(id=989993645006536704))
