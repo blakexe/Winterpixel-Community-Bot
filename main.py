@@ -8,7 +8,6 @@ import random
 import time
 import re
 import numpy as np
-import keep_alive
 import flag
 import pycountry
 import aiohttp
@@ -27,17 +26,17 @@ from non_reaction_commands.rocketbotroyale_non_reaction_commands import RocketBo
 from non_reaction_commands.server_non_reaction_commands import ServerMisc # Server_NRC
 
 
-# # Attempt to retrieve enviroment from environment.json
-# working_directory = os.path.dirname(os.path.realpath(__file__))
-# try:
-#     with open(os.path.join(working_directory, "environment.json"), "r") as f:
-#         data = json.loads(f.read())
-#         for key, value in data.items():
-#             os.environ[key] = value
-# except IOError:
-#     print("Environment.json not found, switching to default environment.")
-# else:
-#     print("Found environment.json. Starting bot now...")
+# Attempt to retrieve enviroment from environment.json
+working_directory = os.path.dirname(os.path.realpath(__file__))
+try:
+    with open(os.path.join(working_directory, "environment.json"), "r") as f:
+        data = json.loads(f.read())
+        for key, value in data.items():
+            os.environ[key] = value
+except IOError:
+    print("Environment.json not found, switching to default environment.")
+else:
+    print("Found environment.json. Starting bot now...")
 
 
 # Get sensitive info
@@ -2710,6 +2709,5 @@ def main():
 
 
 if __name__ == "__main__":
-    keep_alive.keep_alive()
     main()
 ""
