@@ -363,53 +363,55 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
                 response = await rocket_bot_royale_client.query_leaderboard(
                     season,
                     ("tankkings_points" if season <= 10 else "tankkings_trophies"),
-                    0,
+                    1,
                     "",
                     id,
                 )
                 records = json.loads(response["payload"])["owner_records"]
                 print(records)
-                if records[0]["rank"] == 0:
-                    mode = "points" if season < 11 else "trophies"
-                    df = pd.read_csv(f"old_season_leaderboard/tankkings_{mode}_{season}.csv")
-                    try:
-                        rank = df[df["owner_id"] == id]['rank'].values[0]
-                    except:
-                        pass
-                else:
-                    rank = records[0]["rank"]
 
-                if season >= 6:
-                    try:
-                        if season in metadata["season_passes"]:
-                            season_pass = "\u001b[1;32mTrue\u001b[0m"
-                        else:
+                for record in records:
+                    if record["rank"] == 0:
+                        mode = "points" if season < 11 else "trophies"
+                        df = pd.read_csv(f"old_season_leaderboard/tankkings_{mode}_{season}.csv")
+                        try:
+                            rank = df[df["owner_id"] == id]['rank'].values[0]
+                        except:
+                            pass
+                    else:
+                        rank = record["rank"]
+    
+                    if season >= 6:
+                        try:
+                            if season in metadata["season_passes"]:
+                                season_pass = "\u001b[1;32mTrue\u001b[0m"
+                            else:
+                                season_pass = "\u001b[1;31mFalse\u001b[0m"
+                        except KeyError:
                             season_pass = "\u001b[1;31mFalse\u001b[0m"
-                    except KeyError:
-                        season_pass = "\u001b[1;31mFalse\u001b[0m"
-                else:
-                  season_pass = "N.A."
-
-                rank_emoji = "  "
-                if season != rocket_bot_royale_current_season:
-                    if rank == 1:
-                        rank_emoji = "🥇"
-                    elif rank == 2:
-                        rank_emoji = "🥈"
-                    elif rank == 3:
-                        rank_emoji = "🥉"
-
-                required_season_info = rocket_bot_royale_season_info(season)
-
-                if season <= 10:
-                    points_record = True
-                    points += f"{season:^8}{required_season_info[2][:-5]:<6}{rank_emoji:<1}{rank:<8,}🧊{records[0]['score']:<10,}{records[0]['num_score']:<7,}{season_pass}\n"
-                else:
-                    trophies_record = True
-                    trophies += (
-                        (f"{'CURRENT SEASON'.center(56, '-')}\n" if season == rocket_bot_royale_current_season else "")
-                        + f"{season:^8}{required_season_info[2][:-5]:<6}{rank_emoji:<1}{rank:<8,}🏆{records[0]['score']:<9,}{league_names[np.searchsorted(league_range_orig, rank)]:<9}{records[0]['num_score']:<7,}{season_pass}\n"
-                    )
+                    else:
+                      season_pass = "N.A."
+    
+                    rank_emoji = "  "
+                    if season != rocket_bot_royale_current_season:
+                        if rank == 1:
+                            rank_emoji = "🥇"
+                        elif rank == 2:
+                            rank_emoji = "🥈"
+                        elif rank == 3:
+                            rank_emoji = "🥉"
+    
+                    required_season_info = rocket_bot_royale_season_info(season)
+    
+                    if season <= 10:
+                        points_record = True
+                        points += f"{season:^8}{required_season_info[2][:-5]:<6}{rank_emoji:<1}{rank:<8,}🧊{record['score']:<10,}{record['num_score']:<7,}{season_pass}\n"
+                    else:
+                        trophies_record = True
+                        trophies += (
+                            (f"{'CURRENT SEASON'.center(56, '-')}\n" if season == rocket_bot_royale_current_season else "")
+                            + f"{season:^8}{required_season_info[2][:-5]:<6}{rank_emoji:<1}{rank:<8,}🏆{record['score']:<9,}{league_names[np.searchsorted(league_range_orig, rank)]:<9}{record['num_score']:<7,}{season_pass}\n"
+                        )
 
             if points_record == False and trophies_record == False:
                 seasons_records_list += "No records found"
