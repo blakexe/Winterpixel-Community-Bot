@@ -768,7 +768,7 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
             # Graph
             if not (no_left_graphs == True and no_right_graphs == True):
                 fig = plt.figure(facecolor=("#2C2F33"), figsize=(
-                    19.2, 10.8), edgecolor="w", linewidth=3 if section == "🍩 Graphs only" else 0)  # 1920x1080 pixels
+                    19.2, 10.8), edgecolor="#FFFF00" if section == "🍩 Graphs only" else "w", linewidth=3 if section == "🍩 Graphs only" else 0)  # 1920x1080 pixels
 
                 # Divide into subplots
                 gs = GridSpec(2, 3, height_ratios=[
