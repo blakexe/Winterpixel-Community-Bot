@@ -368,7 +368,7 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
                     id,
                 )
                 records = json.loads(response["payload"])["owner_records"]
-                
+                print(records)
                 if records[0]["rank"] == 0:
                     mode = "points" if season < 11 else "trophies"
                     df = pd.read_csv(f"old_season_leaderboard/tankkings_{mode}_{season}.csv")
