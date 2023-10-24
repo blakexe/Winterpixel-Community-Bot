@@ -2682,12 +2682,12 @@ async def on_ready():
     print("Winterpixel community bot is ready.")
 
 
-@tree.command(guild=discord.Object(id=989993645006536704))
+@tree.command(guild=discord.Object(id=962142361935314996))
 async def sync_commands(interaction: discord.Interaction):
     """🔴 Synchronizes the slash commands for the bot"""
 
     await tree.sync()
-    await tree.sync(guild=discord.Object(id=989993645006536704))
+    await tree.sync(guild=discord.Object(id=962142361935314996))
     await interaction.response.send_message("Commands synced.")
 
 
