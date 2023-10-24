@@ -1,6 +1,7 @@
 {
   "discord_token": "",
-  "rocketbot_username": "",
-  "rocketbot_password": ""
-  "secret": ""
+  "secret": "",
+  "rbr_mm_email_password": "",
+  "gd_email": "",
+  "gd_password": ""
 }
