@@ -368,7 +368,6 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
                     id,
                 )
                 records = json.loads(response["payload"])["owner_records"]
-                print(records)
 
                 for record in records:
                     if record["rank"] == 0:
