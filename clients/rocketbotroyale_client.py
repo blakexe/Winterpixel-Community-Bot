@@ -103,8 +103,8 @@ class RocketBotRoyaleClient(object):
             "season": season,
         }
         
-        if limit == 0:
-            data.pop("limit")
+        # if limit == 0:
+        #     data.pop("limit")
 
         headers = {"authorization": f"Bearer {self.token}"}
 
