@@ -22,7 +22,7 @@ from fandom import set_wiki, page
 from mediawiki import MediaWiki
 from statistics import mean
 from matplotlib.gridspec import GridSpec
-from math import ceil
+from math import ceil, floor
 from collections import Counter
 from discord import app_commands
 from misc.random_tank_get import get_a_random_tank
@@ -90,29 +90,29 @@ def rocket_bot_royale_season_info(season):
         season_durations.append(key["season_duration"])
         season_start_numbers.append(key["season_start_number"])
         season_start_timestamps.append(key["season_start_timestamp"])
-    
+
     season_index = np.searchsorted(season_start_numbers, season + 1) - 1
-    
+
     season_start_timestamp = (
         season_start_timestamps[season_index]
         + (season - season_start_numbers[season_index]
            ) * season_durations[season_index]
     )
     season_start = f"{datetime.datetime.utcfromtimestamp(season_start_timestamp):%Y-%m-%d %H:%M:%S} UTC"
-    
+
     season_end_timestamp = season_start_timestamp + \
         season_durations[season_index]
     season_end = f"{datetime.datetime.utcfromtimestamp(season_end_timestamp):%Y-%m-%d %H:%M:%S} UTC"
-    
+
     season_duration = season_durations[season_index]
     season_days = f"{season_duration/(60*60*24):.0f} days"
-    
+
     current_timestamp = time.time()
     if current_timestamp > season_end_timestamp:
         status = "\u001b[2;31mEnded\u001b[0m"
     else:
         status = f"\u001b[2;32mIn progress\u001b[0m ({((current_timestamp - season_start_timestamp)/season_duration)*100:.0f} %)"
-    
+
     if season == rocket_bot_royale_current_season:
         season_difference = (
             current_timestamp - season_start_timestamp
@@ -127,19 +127,19 @@ def rocket_bot_royale_season_info(season):
         time_remaining = f"{int(day)}d {int(hour)}h {int(minute)}m {int(second)}s"
     else:
         time_remaining = ""
-    
+
     rocket_bot_royale_all_season_info = [season_start, season_end,
                        season_days, status, time_remaining]
     return rocket_bot_royale_all_season_info
-    
+
 
 class RocketBotRoyale(app_commands.Group): # RBR_NRC
     """Rocket Bot Royale non-reaction commands"""
-    
+
     def __init__(self, bot: discord.client):
         super().__init__()
-    
-    
+
+
     # @tree.command()
     # async def dump(self, interaction: discord.Interaction,
     #     mode: typing.Literal[
@@ -152,7 +152,7 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
     #     """🟡 Dump the full Rocket Bot Royale season leaderboard insdie repl"""
 
     #     await refresh_config()
-        
+
     #     await interaction.response.defer(ephemeral=False, thinking=True)
 
     #     if season < 11 and mode == "trophies":
@@ -191,7 +191,7 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
 
     #     await interaction.followup.send("Done. Check inside Repl.")
 
-    
+
     @tree.command()
     @app_commands.describe(
         user_type="Use either User ID or Friend Code of the user",
@@ -221,7 +221,7 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
         """🟡 Return info about a specified Rocket Bot Royale user with optional section(s)"""
 
         await refresh_config()
-        
+
         await interaction.response.defer(ephemeral=False, thinking=True)
 
         # If the user specified a friend code we need to query the server for their ID.
@@ -231,7 +231,7 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
                 id = json.loads(id_response["payload"])["user_id"]
             else:
                 id = id_or_code
-            
+
             # Get user data
             response = await rocket_bot_royale_client.user_info(id)
             user_data = json.loads(response["payload"])[0]
@@ -288,21 +288,21 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
         if section != "🍩 Graphs only":
             # Add general player info
             general_info = "```ansi\n"
-            general_info += f"Username: {username}\n"
+            general_info += f"{'Username: ':>19}{username}\n"
             dt_create_time = f"{datetime.datetime.fromtimestamp(create_time):%Y-%m-%d %H:%M:%S}"
-            general_info += f"Create Time: {dt_create_time} UTC ({timeago.format(dt_create_time, datetime.datetime.now())})\n"
+            general_info += f"{'Create Time: ':>19}{dt_create_time} UTC\n{'':>19}({timeago.format(dt_create_time, datetime.datetime.now())})\n"
             try:
                 dt_timed_bonus = f"{datetime.datetime.fromtimestamp(timed_bonus_last_collect):%Y-%m-%d %H:%M:%S}"
             except Exception:
                 dt_timed_bonus = "N.A."
-            general_info += "Last Bonus: " + (
-                f"{dt_timed_bonus} UTC ({timeago.format(dt_timed_bonus, datetime.datetime.now())})\n"
+            general_info += f"{'Last Timed Bonus: ':>19}" + (
+                f"{dt_timed_bonus} UTC\n{'':>19}({timeago.format(dt_timed_bonus, datetime.datetime.now())})\n"
                 if timed_bonus_last_collect != "N.A." else "N.A.\n")
-            general_info += f"Current Tank: {current_tank}\n"
-            general_info += f"Current Trail: {current_trail}\n"
-            general_info += f"Current Parachute: {current_parachute}\n"
-            general_info += f"Current Badge: {current_badge}\n"
-            general_info += f"Level: {level}\n"
+            general_info += f"{'Current Tank: ':>19}{current_tank}\n"
+            general_info += f"{'Current Trail: ':>19}{current_trail}\n"
+            general_info += f"{'Current Parachute: ':>19}{current_parachute}\n"
+            general_info += f"{'Current Badge: ':>19}{current_badge}\n"
+            general_info += f"{'Level: ':>19}{level}\n"
             max_level = len(rocket_bot_royale_server_config["player_progression"]["xp_levels"])
             try:
                 XP_target = rocket_bot_royale_server_config["player_progression"]["xp_levels"][level][
@@ -315,24 +315,24 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
                 ]["xp_target"]
                 reach_max_level = True
             general_info += (
-                f"XP: {XP}/{XP_target} ("
-                + ("MAX" if reach_max_level else f"{XP/XP_target*100:.0f}%")
+                f"{'XP: ':>19}" + f"{XP}/{XP_target} ("
+                + ("MAX" if reach_max_level else f"{floor(XP/XP_target*100)}%")
                 + ")\n"
             )
-            general_info += f"Friend Code: {friend_code}\n"
-            general_info += f"User ID: {id}\n"
+            general_info += f"{'Friend Code: ':>19}{friend_code}\n"
+            general_info += f"{'User ID: ':>19}{id}\n"
             general_info += (
-                "Has Season Pass: \u001b[2;"
+                f"{'Has Season Pass: ':>19}" + "\u001b[2;"
                 + ("32" if has_season_pass else "31")
                 + f"m{has_season_pass}\u001b[0m\n"
             )
             general_info += (
-                "Monetary Purchase: \u001b[2;"
+                f"{'Monetary Purchase: ':>19}" + "\u001b[2;"
                 + ("32" if has_made_a_purchase else "31")
                 + f"m{has_made_a_purchase}\u001b[0m\n"
             )
             general_info += (
-                "Online: \u001b[2;" + ("32" if is_online else "31") +
+                f"{'Online: ':>19}" + "\u001b[2;" + ("32" if is_online else "31") +
                 f"m{is_online}\u001b[0m\n"
             )
             general_info += "```"
@@ -372,14 +372,14 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
                 for record in records:
                     if record["rank"] == 0:
                         mode = "points" if season < 11 else "trophies"
-                        df = pd.read_csv(f"Winterpixel-Community-Bot/old_season_leaderboard/tankkings_{mode}_{season}.csv")
+                        df = pd.read_csv(f"old_season_leaderboard/tankkings_{mode}_{season}.csv")
                         try:
                             rank = df[df["owner_id"] == id]['rank'].values[0]
                         except:
                             pass
                     else:
                         rank = record["rank"]
-    
+
                     if season >= 6:
                         try:
                             if season in metadata["season_passes"]:
@@ -390,7 +390,7 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
                             season_pass = "\u001b[1;31mFalse\u001b[0m"
                     else:
                       season_pass = "N.A."
-    
+
                     rank_emoji = "  "
                     if season != rocket_bot_royale_current_season:
                         if rank == 1:
@@ -399,17 +399,17 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
                             rank_emoji = "🥈"
                         elif rank == 3:
                             rank_emoji = "🥉"
-    
+
                     required_season_info = rocket_bot_royale_season_info(season)
-    
+
                     if season <= 10:
                         points_record = True
-                        points += f"{season:^8}{required_season_info[2][:-5]:<6}{rank_emoji:<1}{rank:<8,}🧊{record['score']:<10,}{record['num_score']:<7,}{season_pass}\n"
+                        points += f"{season:^8}{required_season_info[2][:-5]:<6}{rank_emoji:<1}{rank:<8,}🧊 {record['score']:<9,}{record['num_score']:<7,}{season_pass}\n"
                     else:
                         trophies_record = True
                         trophies += (
                             (f"{'CURRENT SEASON'.center(56, '-')}\n" if season == rocket_bot_royale_current_season else "")
-                            + f"{season:^8}{required_season_info[2][:-5]:<6}{rank_emoji:<1}{rank:<8,}🏆{record['score']:<9,}{league_names[np.searchsorted(league_range_orig, rank)]:<9}{record['num_score']:<7,}{season_pass}\n"
+                            + f"{season:^8}{required_season_info[2][:-5]:<6}{rank_emoji:<1}{rank:<8,}🏆 {record['score']:<8,}{league_names[np.searchsorted(league_range_orig, rank)]:<9}{record['num_score']:<7,}{season_pass}\n"
                         )
 
             if points_record == False and trophies_record == False:
@@ -506,6 +506,8 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
                 "kills_using_grenade": 0,
                 "homings_used": 0,
                 "kills_using_homing": 0,
+                "lasers_used": 0,
+                "kills_using_laser": 0,
                 "mines_used": 0,
                 "kills_using_mine": 0,
                 "nukes_used": 0,
@@ -539,6 +541,7 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
             BROWN = '#A04000'
             GREY = '#616A6B'
             TURQUOISE = '#117A65'
+            NEON_RED = '#ED2F32'
 
             labels_a_1, sizes_a_1, colors_a_1, sizes_a_2, colors_a_2, labels_b, sizes_b, colors_b, sizes_c, sizes_d = ([
             ] for i in range(10))
@@ -558,6 +561,7 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
             kills_using_flak_pct = 0
             kills_using_grenade_pct = 0
             kills_using_homing_pct = 0
+            kills_using_laser_pct = 0
             kills_using_mine_pct = 0
             kills_using_nuke_pct = 0
             kills_using_poison_pct = 0
@@ -682,6 +686,16 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
                             keys_order["homings_used"]
                         sizes_d.append(float(f"{kills_using_homing_pct*100:.1f}"))
                         kills_not_using_missiles += keys_order[key]
+                        kills_not_using_missiles += keys_order[key]
+                    elif key == 'kills_using_laser':
+                        labels_b.append('Laser')
+                        sizes_b.append(keys_order[key])
+                        colors_b.append(NEON_RED)
+                        kills_using_laser_pct = keys_order["kills_using_laser"] / \
+                            keys_order["lasers_used"]
+                        sizes_d.append(
+                            float(f"{kills_using_laser_pct*100:.1f}"))
+                        kills_not_using_missiles += keys_order[key]
                     elif key == 'kills_using_mine':
                         labels_b.append('Mine')
                         sizes_b.append(keys_order[key])
@@ -722,7 +736,6 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
                             keys_order["triple-shots_used"]
                         sizes_d.append(
                             float(f"{kills_using_triple_shot_pct*100:.1f}"))
-                        kills_not_using_missiles += keys_order[key]
                     else:  # In case of new weapon added
                         labels_b.append(key.replace('kills_using_', '').title())
                         sizes_b.append(keys_order[key])
@@ -1293,6 +1306,9 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
                 keys_order["kills_using_homing"] = "{:<6}".format(
                     keys_order["kills_using_homing"]
                 ) + "(" + f"{kills_using_homing_pct*100:>2.0f}" + "%)"
+                keys_order["kills_using_laser"] = "{:<6}".format(
+                    keys_order["kills_using_laser"]
+                ) + "(" + f"{kills_using_laser_pct*100:>2.0f}" + "%)"
                 keys_order["kills_using_mine"] = "{:<6}".format(
                     keys_order["kills_using_mine"]
                 ) + "(" + f"{kills_using_mine_pct*100:>2.0f}" + "%)"
@@ -1703,7 +1719,7 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
                     embed=discord.Embed(description=message9, color=0xFFFF00)
                 )
 
-    
+
     @tree.command()
     @app_commands.describe(
         one_star="Number of one-star skin(s) owned",
@@ -1716,7 +1732,7 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
         """🟡 Optimize the use of in game crates and Estimate the amount of coins in Rocket Bot Royale"""
 
         await refresh_config()
-        
+
         await interaction.response.defer(ephemeral=False, thinking=True)
 
         one_star_total = 0
@@ -1871,7 +1887,7 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
 
         await interaction.followup.send(all(one_star, two_star, three_star))
 
-    
+
     @tree.command()
     @app_commands.describe(
         graph="Box Plot: Top 100 players' records / League Trophies Range",
@@ -1892,9 +1908,9 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
         """🟡 Plot statistics graph and table by various modes in season(s) in Rocket Bot Royale"""
 
         await refresh_config()
-        
+
         await interaction.response.defer(ephemeral=False, thinking=True)
-        
+
         # For footer and filename
         current_timestamp = (
             f"{datetime.datetime.utcfromtimestamp(time.time()):%Y-%m-%d %H:%M:%S} UTC"
@@ -2727,7 +2743,7 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
             )
             await interaction.followup.send(file=chart_d)
 
-    
+
     @tree.command()
     @app_commands.describe(
         reason="The reason of gain/loss trophies",
@@ -2845,7 +2861,7 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
             )
             await interaction.followup.send(embed=embed)
 
-    
+
     @tree.command()
     @app_commands.describe(
         article="The article you want to look up. Make sure capitalization is correct!"
@@ -2897,7 +2913,7 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
                 )
             )
 
-    
+
     @tree.command()
     async def random_tank(self, interaction: discord.Interaction):
         """🟡 Get a random tank (*outdated)"""
@@ -2983,7 +2999,7 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
         embed.set_image(url=img_link)
         await interaction.followup.send(embed=embed)
 
-    
+
     @tree.command()
     async def get_config(self, interaction: discord.Interaction):
         """🟡 Get the most updated Rocket Bot Royale server config"""
@@ -2994,4 +3010,3 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
         await interaction.response.send_message(
             file=discord.File(fp=file, filename="rocket_bot_royale_server_config.json")
         )
-    
