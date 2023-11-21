@@ -191,17 +191,17 @@ class goober_dash(app_commands.Group): # GD_RC
             map_data = json.loads(response2["payload"])
             if "goober_dash_public_levels_ratings_2" not in db.keys():
                 db["goober_dash_public_levels_ratings_2"] = dict()
-            # try:
-            #     player_count = 8 if map_data["player_count"] == 9 else map_data["player_count"]
-            #     type = map_data["game_mode"] + str(player_count)
-            #     rating = f"{map_data['rating']:.4f}"
-            #     if type not in db["goober_dash_public_levels_ratings_2"]:
-            #         db["goober_dash_public_levels_ratings_2"][type] = dict()
-            #     db["goober_dash_public_levels_ratings_2"][type][level_id] = rating
-            # except:
-            #     if type not in db["goober_dash_public_levels_ratings_2"]:
-            #         db["goober_dash_public_levels_ratings_2"][type] = dict()
-            #     db["goober_dash_public_levels_ratings_2"][type][level_id] = "N.A."
+            try:
+                player_count = 8 if map_data["player_count"] == 9 else map_data["player_count"]
+                type = map_data["game_mode"] + str(player_count)
+                rating = f"{map_data['rating']:.4f}"
+                if type not in db["goober_dash_public_levels_ratings_2"]:
+                    db["goober_dash_public_levels_ratings_2"][type] = dict()
+                db["goober_dash_public_levels_ratings_2"][type][level_id] = rating
+            except:
+                if type not in db["goober_dash_public_levels_ratings_2"]:
+                    db["goober_dash_public_levels_ratings_2"][type] = dict()
+                db["goober_dash_public_levels_ratings_2"][type][level_id] = "N.A."
             time.sleep(2)
 
         await asyncio.sleep(86400)
