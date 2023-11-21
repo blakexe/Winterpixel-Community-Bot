@@ -11,7 +11,6 @@ import numpy as np
 import flag
 import pycountry
 import aiohttp
-import keep_alive
 from timeit import default_timer as timer
 from math import ceil
 from operator import itemgetter
@@ -2789,6 +2788,5 @@ def main():
 
 
 if __name__ == "__main__":
-    keep_alive.keep_alive()
     main()
 ""
