@@ -5,6 +5,7 @@ import io
 import aiohttp
 import datetime
 import timeago
+import typing
 import numpy as np
 import time
 import flag
@@ -96,7 +97,7 @@ def goober_dash_season_info(season, mode):
         season_days = f"{season_duration // (24 * 3600)} days {season_duration % (24 * 3600) // 3600} hours"
     elif mode == "short":
         s = season_duration / (24 * 3600)
-        season_days = f"{'{:.2f}'.format(s) if type(s) == float else s} days"
+        season_days = f"{'{:.2f}'.format(s) if s%1 != 0 else int(s)} days"
     
     current_timestamp = time.time()
     if current_timestamp > season_end_timestamp:
@@ -133,13 +134,18 @@ class GooberDash(app_commands.Group): # RBR_NRC
 
     @tree.command()
     @app_commands.describe(
-        user_id="User ID of the user",
+        user_type="User either User ID or Username of the user",
+        id_or_username="User ID / Username of the user (Not Guest)(Exact Capitalization)('&'='space' if necessary)"
         # section="Section(s) to be shown",
     )
     async def user_info(
         self,
         interaction: discord.Interaction,
-        user_id: str,
+        user_type: typing.Literal[
+            "User ID",
+            "Username"
+        ],
+        id_or_username: str,
         # section: typing.Literal[
         #     "📓 General Info only",
         #     "with 📊 Seasons Records",
@@ -154,25 +160,33 @@ class GooberDash(app_commands.Group): # RBR_NRC
         await refresh_config()
 
         await interaction.response.defer(ephemeral=False, thinking=True)
-        
+
+        # Get User ID (if Username is provided), create time and online status
         try:
-            # Get user data
-            response = await goober_dash_client.user_info(user_id)
-            if response != "invalid_user_id":
-                user_data = json.loads(response)
+            if user_type == "User ID":
+                response = await goober_dash_client.user_info_2(id_or_username)
             else:
-                await interaction.followup.send(
-                  embed=discord.Embed(color=0xFF0000,
-                                      title="❌ Player not found ❌")
-                )
-                return
-        except aiohttp.ClientResponseError:
+                id_or_username = id_or_username.replace("&", " ")
+                response = await goober_dash_client.user_info_2("", id_or_username)
+            user_info_2 = response["users"][0]
+            user_id = user_info_2["id"]
+            username = user_info_2["username"]
+            create_time = user_info_2["create_time"]
+            try:
+                is_online = user_info_2["online"]
+            except:
+                is_online = False
+        except Exception:
             # The code is wrong, send an error response
             await interaction.followup.send(
                 embed=discord.Embed(color=0xFF0000,
                                     title="❌ Player not found ❌")
             )
             return
+
+        # Get user data
+        response = await goober_dash_client.user_info(user_id)
+        user_data = json.loads(response)
 
         # Get medals config
         awards_config = goober_dash_server_config["awards"]["awards"]
@@ -181,37 +195,43 @@ class GooberDash(app_commands.Group): # RBR_NRC
         cosmetics_config = goober_dash_server_config["cosmetics"]
 
         # Get general player info
-        username = user_data["display_name"]
         level = user_data["level"]
 
         cosmetics_type_keys = ["body", "hat", "suit", "hand", "color"]
         cosmetics_dict = dict()
         for cosmetics_type in cosmetics_type_keys:
-            cosmetics_type_all_info = ""
-            cosmetics_type_all_info += f"{str(cosmetics_config.get(user_data['skin'][cosmetics_type])['name']):<20} │ "
-            cosmetics_type_all_info += f"Level {str(cosmetics_config.get(user_data['skin'][cosmetics_type])['level']):<2} │ "
             try:
-                rarity = str(cosmetics_config.get(user_data['skin'][cosmetics_type])['rarity'])
-                if rarity == "rare":
-                    cosmetics_type_all_info += f"\u001b[2;32m{rarity.title()}\u001b[0m"
-                elif rarity == "epic":
-                    cosmetics_type_all_info += f"\u001b[2;35m{rarity.title()}\u001b[0m"
-                elif rarity == "legendary":
-                    cosmetics_type_all_info += f"\u001b[2;33m{rarity.title()}\u001b[0m"
-            except KeyError:
-                cosmetics_type_all_info += "Common"
+                cosmetics_type_all_info = ""
+                cosmetics_type_all_info += f"{str(cosmetics_config.get(user_data['skin'][cosmetics_type])['name']):<20} "
+                cosmetics_type_all_info += f"Level {str(cosmetics_config.get(user_data['skin'][cosmetics_type])['level']):<2} "
+                try:
+                    rarity = str(cosmetics_config.get(user_data['skin'][cosmetics_type])['rarity'])
+                    if rarity == "rare":
+                        cosmetics_type_all_info += f"\u001b[2;32m{rarity.title()}\u001b[0m"
+                    elif rarity == "epic":
+                        cosmetics_type_all_info += f"\u001b[2;35m{rarity.title()}\u001b[0m"
+                    elif rarity == "legendary":
+                        cosmetics_type_all_info += f"\u001b[2;33m{rarity.title()}\u001b[0m"
+                except KeyError:
+                    cosmetics_type_all_info += "Common"
+            except:
+                cosmetics_type_all_info = "N.A."
             cosmetics_dict[cosmetics_type] = cosmetics_type_all_info
+              
                 
         # Add general player info
         general_info = "```ansi\n"
-        general_info += f"{'Username':>13}: {username}\n"
-        general_info += f"{'Level':>13}: {level}\n"
-        general_info += f"{'Current Body':>13}: {cosmetics_dict['body']}\n"
-        general_info += f"{'Current Hat':>13}: {cosmetics_dict['hat']}\n"
-        general_info += f"{'Current Suit':>13}: {cosmetics_dict['suit']}\n"
-        general_info += f"{'Current Hand':>13}: {cosmetics_dict['hand']}\n"
-        general_info += f"{'Current Color':>13}: {cosmetics_dict['color']}\n"
-        general_info += f"{'User ID':>13}: {user_id}\n"
+        general_info += f"{'Username: ':>15}{username}\n"
+        dt_create_time = datetime.datetime.strptime(create_time.translate(':-'), '%Y-%m-%dT%H:%M:%SZ')
+        general_info += f"{'Create Time: ':>15}{dt_create_time} UTC ({timeago.format(dt_create_time, datetime.datetime.now())})\n"
+        general_info += f"{'Level: ':>15}{level}\n"
+        general_info += f"{'Current Body: ':>15}{cosmetics_dict['body']}\n"
+        general_info += f"{'Current Hat: ':>15}{cosmetics_dict['hat']}\n"
+        general_info += f"{'Current Suit: ':>15}{cosmetics_dict['suit']}\n"
+        general_info += f"{'Current Hand: ':>15}{cosmetics_dict['hand']}\n"
+        general_info += f"{'Current Color: ':>15}{cosmetics_dict['color']}\n"
+        general_info += f"{'User ID: ':>15}{user_id}\n"
+        general_info += f"{'Online: ':>15}" + "\u001b[2;" + ("32" if is_online else "31") + f"m{is_online}\u001b[0m\n"
         general_info += "```"
 
         # Add to embed
@@ -229,7 +249,7 @@ class GooberDash(app_commands.Group): # RBR_NRC
         # Create seasons records list
         seasons_records_list = "```ansi\n"
 
-        crowns = f"{'Season:':<8}{'Days:':<6}   {'Local:':<9}{'Global:':<9}{'Crowns:':<8}{'Games:':<7}{'C/G:'}\n{'─'*56}\n"
+        crowns = f"{'Season:':<8}{'Days:':<9}{'Local:':<9}{'Global:':<9}{'Crowns:':<8}{'Games:':<7}{'C/G:'}\n{'─'*56}\n"
         crowns_record = False
 
         for season in range(1, goober_dash_current_season + 1):  # From first season to current season
@@ -278,8 +298,8 @@ class GooberDash(app_commands.Group): # RBR_NRC
             crowns += flag.flagize(f":{country_code}: ") # Country Flag
             crowns += f"{rank_emoji:<1}{'{:,}'.format(int(records_local[0]['rank'])):<7}" # Local Rank
             crowns += f"{rank_emoji:<1}{'{:,}'.format(int(records_global[0]['rank'])):<7}" # Global Rank
-            crowns += f"{'👑' + '{:,}'.format(int(records_global[0]['score'])):<7}" # Crowns
-            crowns += f"{records_global[0]['num_score']:<6}" # Games
+            crowns += f"{'👑 ' + '{:,}'.format(int(records_global[0]['score'])):<7}" # Crowns
+            crowns += f"{records_global[0]['num_score']:<7}" # Games
             crowns += f"{int(records_global[0]['score'])/int(records_global[0]['num_score']):.2f}\n" # Crowns / Games
               
 
@@ -363,7 +383,7 @@ class GooberDash(app_commands.Group): # RBR_NRC
         except KeyError:
             current_winstreak = 0
         try:
-            winrate = f"{games_won/games_played*100:.0f}"
+            winrate = f"{games_won/games_played*100:.2f}"
         except:
             winrate = 0
 
