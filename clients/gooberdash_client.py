@@ -3,6 +3,7 @@ import aiohttp
 import json
 import os
 import websocket
+import requests
 
 class AuthError(BaseException):
     pass
@@ -76,7 +77,7 @@ class GooberDashClient(object):
         ws = websocket.create_connection(
           f"wss://gooberdash-api.winterpixel.io/ws?lang=en&status=true&token={self.token}"
         )
-        player_fetch_data = {"cid": "1", "rpc": {
+        player_fetch_data = {"rpc": {
           "id": "player_fetch_data", "payload": "{}"}}
         ws.send(json.dumps(player_fetch_data).encode())
         ws.recv()
@@ -118,7 +119,7 @@ class GooberDashClient(object):
         ws = websocket.create_connection(
             f"wss://gooberdash-api.winterpixel.io/ws?lang=en&status=true&token={self.token}"
         )
-        query_player_profile = {"cid":"4","rpc":{"id":"query_player_profile","payload":'{\"user_id\": \"'+user_id+'\"}'}}
+        query_player_profile = {"rpc":{"id":"query_player_profile","payload":'{\"user_id\": \"'+user_id+'\"}'}}
       
         ws.send(json.dumps(query_player_profile).encode())
         ws.recv()
@@ -129,7 +130,21 @@ class GooberDashClient(object):
             return "invalid_user_id"
         return player_info
 
-  
+
+    async def user_info_2(self, ids: str, usernames: str = ""):
+        await self.refresh_token()
+    
+        headers = {"authorization": f"Bearer {self.token}"}
+
+        query_url = "https://gooberdash-api.winterpixel.io/v2/user" + (f"?usernames={usernames}" if ids == "" else f"?ids={ids}")
+        return json.loads(
+            await self.get(
+                query_url,
+                headers=headers
+            )
+        )
+
+    
     async def level_info(self, level_id: str):
         await self.refresh_token()
 
@@ -150,10 +165,20 @@ class GooberDashClient(object):
         ws = websocket.create_connection(
             f"wss://gooberdash-api.winterpixel.io/ws?lang=en&status=true&token={self.token}"
         )
-        query_official_levels = {"cid":"5","rpc":{"id":"levels_editor_list_public_templates","payload":"{}"}}
+        query_official_levels = {"rpc":{"id":"levels_editor_list_public_templates","payload":"{}"}}
     
         ws.send(json.dumps(query_official_levels).encode())
         ws.recv()
         msg = ws.recv()
         official_levels = json.loads(msg)["rpc"]["payload"]
         return official_levels
+
+    
+    def non_async_user_info_2(self, ids: str):
+        headers = {"authorization": f"Bearer {self.token}"}
+        query_url = f"https://gooberdash-api.winterpixel.io/v2/user?ids={ids}"
+        response = requests.get(
+                query_url,
+                headers=headers
+        )
+        return json.loads(response.content)
