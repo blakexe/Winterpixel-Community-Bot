@@ -140,55 +140,55 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
         super().__init__()
 
 
-    @tree.command()
-    async def dump(self, interaction: discord.Interaction,
-        mode: typing.Literal[
-             "trophies", "points", "wins", "kills", "bot_kills"
-        ],
-        limit: int = 10000,
-        cursor: str = "",
-        season: int = 1,
-    ):
-        """🟡 Dump the full Rocket Bot Royale season leaderboard insdie repl"""
+    # @tree.command()
+    # async def dump(self, interaction: discord.Interaction,
+    #     mode: typing.Literal[
+    #          "trophies", "points", "wins", "kills", "bot_kills"
+    #     ],
+    #     limit: int = 10000,
+    #     cursor: str = "",
+    #     season: int = 1,
+    # ):
+    #     """🟡 Dump the full Rocket Bot Royale season leaderboard insdie repl"""
 
-        await refresh_config()
+    #     await refresh_config()
 
-        await interaction.response.defer(ephemeral=False, thinking=True)
+    #     await interaction.response.defer(ephemeral=False, thinking=True)
 
-        # Reassign if season is unreasonable
-        if season < 11 and mode == "trophies":
-            season = 11
+    #     # Reassign if season is unreasonable
+    #     if season < 11 and mode == "trophies":
+    #         season = 11
         
-        all_records = []
-        next_cursor = cursor
-        have_next_cursor = True
-        while have_next_cursor == True:
-            response = await rocket_bot_royale_client.query_leaderboard(
-                season,
-                f"tankkings_{mode.lower()}",
-                limit,
-                next_cursor
-            )
-            payload = json.loads(response["payload"])
-            records = payload['records']
-            try:
-                next_cursor = payload["next_cursor"]
-            except:
-                have_next_cursor = False
-            first, last = records[0]['rank'], records[-1]['rank']
-            print(first, last)
-            all_records.append(records)
-            if last >= 999999:
-                break
-        all_records_list = [
-            single_record
-            for grouped_single_records in all_records
-            for single_record in grouped_single_records
-        ]
-        df = pd.read_json(json.dumps(all_records_list))
-        df.to_csv(f"old_season_leaderboard/tankkings_{mode}_{season}.csv")
+    #     all_records = []
+    #     next_cursor = cursor
+    #     have_next_cursor = True
+    #     while have_next_cursor == True:
+    #         response = await rocket_bot_royale_client.query_leaderboard(
+    #             season,
+    #             f"tankkings_{mode.lower()}",
+    #             limit,
+    #             next_cursor
+    #         )
+    #         payload = json.loads(response["payload"])
+    #         records = payload['records']
+    #         try:
+    #             next_cursor = payload["next_cursor"]
+    #         except:
+    #             have_next_cursor = False
+    #         first, last = records[0]['rank'], records[-1]['rank']
+    #         print(first, last)
+    #         all_records.append(records)
+    #         if last >= 999999:
+    #             break
+    #     all_records_list = [
+    #         single_record
+    #         for grouped_single_records in all_records
+    #         for single_record in grouped_single_records
+    #     ]
+    #     df = pd.read_json(json.dumps(all_records_list))
+    #     df.to_csv(f"old_season_leaderboard/tankkings_{mode}_{season}.csv")
 
-        await interaction.followup.send("Done. Check inside Repl.")
+    #     await interaction.followup.send("Done. Check inside Repl.")
 
     
     @tree.command()
