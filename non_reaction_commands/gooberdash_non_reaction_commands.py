@@ -206,13 +206,15 @@ class GooberDash(app_commands.Group): # RBR_NRC
                 cosmetics_type_all_info += f"Level {str(cosmetics_config.get(user_data['skin'][cosmetics_type])['level']):<2} "
                 try:
                     rarity = str(cosmetics_config.get(user_data['skin'][cosmetics_type])['rarity'])
-                    if rarity == "rare":
+                    if rarity == "common":
+                        cosmetics_type_all_info += rarity.title()
+                    elif rarity == "rare":
                         cosmetics_type_all_info += f"\u001b[2;32m{rarity.title()}\u001b[0m"
                     elif rarity == "epic":
                         cosmetics_type_all_info += f"\u001b[2;35m{rarity.title()}\u001b[0m"
                     elif rarity == "legendary":
                         cosmetics_type_all_info += f"\u001b[2;33m{rarity.title()}\u001b[0m"
-                except KeyError:
+                except KeyError: # Default
                     cosmetics_type_all_info += "Common"
             except:
                 cosmetics_type_all_info = "N.A."
