@@ -1758,7 +1758,7 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
             return
 
         # Reassign season if unreasonable
-        if season < 0 or season > rocket_bot_royale_current_season:
+        if season < 1 or season > rocket_bot_royale_current_season:
             season = rocket_bot_royale_current_season
 
         # User Info
