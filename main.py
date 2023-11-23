@@ -25,6 +25,7 @@ from non_reaction_commands.moonrockminers_non_reaction_commands import MoonrockM
 from non_reaction_commands.rocketbotroyale_non_reaction_commands import RocketBotRoyale # RBR_NRC
 from non_reaction_commands.server_non_reaction_commands import ServerMisc # Server_NRC
 
+
 # Attempt to retrieve enviroment from environment.json
 working_directory = os.path.dirname(os.path.realpath(__file__))
 try:
