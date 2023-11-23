@@ -140,58 +140,57 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
         super().__init__()
 
 
-    # @tree.command()
-    # async def dump(self, interaction: discord.Interaction,
-    #     mode: typing.Literal[
-    #          "trophies", "points", "wins", "kills", "bot_kills"
-    #     ],
-    #     limit: int = 10000,
-    #     cursor: str = "",
-    #     season: int = 1,
-    # ):
-    #     """🟡 Dump the full Rocket Bot Royale season leaderboard insdie repl"""
+    @tree.command()
+    async def dump(self, interaction: discord.Interaction,
+        mode: typing.Literal[
+             "trophies", "points", "wins", "kills", "bot_kills"
+        ],
+        limit: int = 10000,
+        cursor: str = "",
+        season: int = 1,
+    ):
+        """🟡 Dump the full Rocket Bot Royale season leaderboard insdie repl"""
 
-    #     await refresh_config()
+        await refresh_config()
 
-    #     await interaction.response.defer(ephemeral=False, thinking=True)
+        await interaction.response.defer(ephemeral=False, thinking=True)
 
-    #     if season < 11 and mode == "trophies":
-    #         mode = "points"
-    #     all_records = []
-    #     next_cursor = cursor
-    #     have_next_cursor = True
-    #     while have_next_cursor == True:
-    #         response = await rocket_bot_royale_client.query_leaderboard(
-    #             season,
-    #             f"tankkings_{mode.lower()}",
-    #             limit,
-    #             next_cursor
-    #         )
-    #         payload = json.loads(response["payload"])
-    #         records = payload['records']
-    #         try:
-    #             next_cursor = payload["next_cursor"]
-    #         except:
-    #             have_next_cursor = False
-    #         first, last = records[0]['rank'], records[-1]['rank']
-    #         print(first, last)
-    #         all_records.append(records)
-    #         if last >= 999999:
-    #             break
-    #     all_records_list = [
-    #         single_record
-    #         for grouped_single_records in all_records
-    #         for single_record in grouped_single_records
-    #     ]
-    #     print(len(all_records_list))
-    #     output_json = open(f"tankkings_{mode}_{season}.json", "w")
-    #     output_json.write(json.dumps(all_records_list))
-    #     df = pd.read_json(f"tankkings_{mode}_{season}.json")
-    #     df.to_csv(f"tankkings_{mode}_{season}.csv")
+        # Reassign if season is unreasonable
+        if season < 11 and mode == "trophies":
+            season = 11
+        
+        all_records = []
+        next_cursor = cursor
+        have_next_cursor = True
+        while have_next_cursor == True:
+            response = await rocket_bot_royale_client.query_leaderboard(
+                season,
+                f"tankkings_{mode.lower()}",
+                limit,
+                next_cursor
+            )
+            payload = json.loads(response["payload"])
+            records = payload['records']
+            try:
+                next_cursor = payload["next_cursor"]
+            except:
+                have_next_cursor = False
+            first, last = records[0]['rank'], records[-1]['rank']
+            print(first, last)
+            all_records.append(records)
+            if last >= 999999:
+                break
+        all_records_list = [
+            single_record
+            for grouped_single_records in all_records
+            for single_record in grouped_single_records
+        ]
+        df = pd.read_json(json.dumps(all_records_list))
+        df.to_csv(f"old_season_leaderboard/tankkings_{mode}_{season}.csv")
 
-    #     await interaction.followup.send("Done. Check inside Repl.")
+        await interaction.followup.send("Done. Check inside Repl.")
 
-
+    
     @tree.command()
     @app_commands.describe(
         user_type="Use either User ID or Friend Code of the user",
@@ -372,7 +371,7 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
                 for record in records:
                     if record["rank"] == 0:
                         mode = "points" if season < 11 else "trophies"
-                        df = pd.read_csv(f"Winterpixel-Community-Bot/old_season_leaderboard/tankkings_{mode}_{season}.csv")
+                        df = pd.read_csv(f"old_season_leaderboard/tankkings_{mode}_{season}.csv")
                         try:
                             rank = df[df["owner_id"] == id]['rank'].values[0]
                         except:
@@ -1719,7 +1718,176 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
                     embed=discord.Embed(description=message9, color=0xFFFF00)
                 )
 
+    
+    @tree.command()
+    @app_commands.describe(
+        user_type="Use either User ID or Friend Code of the user",
+        id_or_code="User ID or Friend Code of the user",
+        season="Season 1 or later, default current season",
+    )
+    async def user_single_season_records(
+        self,
+        interaction: discord.Interaction,
+        user_type: typing.Literal["User ID", "Friend Code"],
+        id_or_code: str,
+        season: int = -1,
+    ):
+        """🟡 Return all types of seasons records in a season about a specified Rocket Bot Royale user"""
 
+        await refresh_config()
+
+        await interaction.response.defer(ephemeral=False, thinking=True)
+
+        # If the user specified a friend code we need to query the server for their ID.
+        try:
+            if user_type == "Friend Code":
+                id_response = await rocket_bot_royale_client.friend_code_to_id(id_or_code)
+                id = json.loads(id_response["payload"])["user_id"]
+            else:
+                id = id_or_code
+            # Get user data
+            response = await rocket_bot_royale_client.user_info(id)
+            user_data = json.loads(response["payload"])[0]
+            metadata = user_data["metadata"]
+        except aiohttp.ClientResponseError:
+            # The code is wrong, send an error response
+            await interaction.followup.send(
+                embed=discord.Embed(color=0xFF0000,
+                                    title="❌ Player not found ❌")
+            )
+            return
+
+        # Reassign season if unreasonable
+        if season < 0 or season > rocket_bot_royale_current_season:
+            season = rocket_bot_royale_current_season
+
+        # User Info
+        username = user_data["display_name"]
+        friend_code = metadata["friend_code"]
+        id = user_data["user_id"]
+        all_user_info = f"{'Username: ':>13}{username}\n{'Friend Code: ':>13}{friend_code}\n{'User ID: ':>13}{id}\n"
+        message = f"🗒️ ***User Info***:\n```ansi\n{all_user_info}```\n"
+      
+        # Season Info
+        required_season_info = rocket_bot_royale_season_info(season)
+        global all_required_season_info
+        all_required_season_info = (
+            f"{'Season: ':>10}{season}\n{'Start: ':>10}{required_season_info[0]}\n{'End: ':>10}{required_season_info[1]}\n{'Duration: ':>10}{required_season_info[2]}\n{'Status: ':>10}{required_season_info[3]}\n"
+            + (
+                f"{'Ends in: ':>10}{required_season_info[4]}\n"
+                if season == rocket_bot_royale_current_season
+                else ""
+            )
+        )
+        message += f"📓 ***Season Info***:\n```ansi\n{all_required_season_info}```\n"
+
+        # Season Records
+        if season < 11:
+            all_season_records = f"\u001b[1m{'Mode':<15}{'Rank':<10}{'Score':<8}{'Games':<6}{'S/G'}\u001b[0m\n{'—'*46}\n"
+        else:
+            all_season_records = f"\u001b[1m{'Mode':<15}{'Rank':<21}{'Score':<8}{'Games':<6}{'S/G'}\u001b[0m\n{'—'*56}\n"
+
+        at_least_one_record = False
+
+        modes = ["trophies", "points", "wins", "kills", "bot_kills"]
+        if season < 11:
+            modes.remove("trophies")
+        
+        modes_dict = {
+          "trophies": "🏆Trophies",
+          "points": "🧊Points",
+          "wins": "🎉Wins",
+          "kills": "💀Player Kills",
+          "bot_kills": "🤖Bot Kills"
+        }
+      
+        for mode in modes:
+            mode_no_records = False
+            try:
+                if season < 20:
+                    df = pd.read_csv(
+                        f"old_season_leaderboard/tankkings_{mode}_{season}.csv")
+                    df_user = df[df["owner_id"] == id]
+    
+                    rank = df_user['rank'].values[0]
+                    score = df_user['score'].values[0]
+                    games = df_user['num_score'].values[0]
+                else:
+                    response = await rocket_bot_royale_client.query_leaderboard(
+                        season,
+                        f"tankkings_{mode}",
+                        1,
+                        "",
+                        id,
+                    )
+                    records = json.loads(response["payload"])["owner_records"]
+                    for record in records:
+                        rank = record["rank"]
+                        score = record["score"]
+                        games = record["num_score"]
+                    no_rank, no_score, no_games = rank, score, games
+                at_least_one_record = True
+            except:
+                mode_no_records = True
+                mode = modes_dict[mode]
+                if season < 11:
+                    all_season_records += f"{mode:<14}{'no records found':^32}\n"
+                else:
+                    all_season_records += f"{mode:<14}{'no records found':^42}\n"
+                continue
+
+            if mode_no_records != True:
+                mode = modes_dict[mode]
+                if mode == "🏆Trophies":
+                    league = f"({league_names[np.searchsorted(league_range_orig, rank)]})"
+                
+                if (season != rocket_bot_royale_current_season) and (mode == "🏆Trophies" or mode == "🧊Points"):
+                    if rank == 1:
+                        rank_emoji = "🥇"
+                    elif rank == 2:
+                        rank_emoji = "🥈"
+                    elif rank == 3:
+                        rank_emoji = "🥉"
+                    else:
+                        rank_emoji = "  "
+                    rank_with_emoji = rank_emoji + f"{rank:<8,}"
+                    
+                    if mode == "🏆Trophies":
+                        rank = f"{rank_with_emoji}{league:<11}"
+                    else:
+                        if season < 11:
+                            rank = f"{rank_with_emoji:<9}"
+                        else:
+                            rank = f"{rank_with_emoji:<21}"  
+                else:
+                    if season < 11:
+                        rank = f"  {rank:<8,}"
+                    else:
+                        if mode == "🏆Trophies":
+                            rank = f"  {rank:<8,}{league:<11}"
+                        else:
+                            rank = f"  {rank:<19,}"
+    
+                if mode == "🎉Wins":
+                    games_played = f"{'-':<7}"
+                    score_per_games_played = '-'
+                else:
+                    games_played = f"{games:<6,}"
+                    score_per_games_played = f"{score/games:.2f}"
+    
+                all_season_records += f"{mode:<14}{rank}{score:<8,}{games_played}{score_per_games_played}\n"
+    
+        if at_least_one_record == False:
+            if season < 11:
+                all_season_records = f"{'no records found':^46}\n"
+            else:
+                all_season_records = f"{'no records found':^56}\n"
+        
+        message += f"📊 ***Season Records***:```ansi\n{all_season_records}```"
+        
+        await interaction.followup.send(embed=discord.Embed(title=f"Rocket Bot Royale <:rocket_mint:910253491019202661>\n{username} - Season {season} Records:", description=message, color=0xFFFF00))
+        
+    
     @tree.command()
     @app_commands.describe(
         one_star="Number of one-star skin(s) owned",
