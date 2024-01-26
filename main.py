@@ -361,14 +361,9 @@ class goober_dash(app_commands.Group): # GD_RC
                           crowns_diff_2 = f"{'':<5}"
 
                       # Crowns
-                      if username == "GoodGoob2":
-                          message += (
-                            f"{'👑 ' + '{:<6,.0f}'.format(572)} {crowns_diff_2}\n"
-                        )
-                      else:
-                          message += (
-                            f"{'👑 ' + '{:<6,.0f}'.format(int(records[i]['score']))} {crowns_diff_2}\n"
-                        )
+                      message += (
+                        f"{'👑 ' + '{:<6,.0f}'.format(int(records[i]['score']))} {crowns_diff_2}\n"
+                      )
 
                   # Split message
                   cannot_split = False  # Prevent index out of range error
@@ -522,22 +517,13 @@ class goober_dash(app_commands.Group): # GD_RC
                           message += f"{username:<21}"
 
                           # Crowns
-                          if username == "GoodGoob2":
-                              message += f"{'👑 ' + '{:,}'.format(572):<8}"
-                          else:
-                              message += f"{'👑 ' + '{:,}'.format(int(record['score'])):<8}"
+                          message += f"{'👑 ' + '{:,}'.format(int(record['score'])):<8}"
 
                           # Rounds
-                          if username == "GoodGoob2":
-                              message += f"{42:<7}"
-                          else:
-                              message += f"{record['num_score']:<7}"
+                          message += f"{record['num_score']:<7}"
 
                           # C/R
-                          if username == "GoodGoob2":
-                              message += f"{572/42:.2f}\n"
-                          else:
-                              message += f"{int(record['score'])/int(record['num_score']):.2f}\n"
+                          message += f"{int(record['score'])/int(record['num_score']):.2f}\n"
                       message += "```"
                       return message
 
