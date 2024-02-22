@@ -371,7 +371,7 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
                 for record in records:
                     if record["rank"] == 0:
                         mode = "points" if season < 11 else "trophies"
-                        df = pd.read_csv(f"tankkings_{mode}_{season}.csv")
+                        df = pd.read_csv(f"old_season_leaderboard/tankkings_{mode}_{season}.csv")
                         try:
                             rank = df[df["owner_id"] == id]['rank'].values[0]
                         except:
