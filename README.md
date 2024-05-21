@@ -61,7 +61,7 @@
 
    Command | Example | Usage | Status |
   | -------- | -------- | -------- | -------- |
-  | **moonrock_miners leaderboard** \<changes\> \<season\> | `/moonrock_miners leaderboard changes: Shown season: 15` | Return the specified season leaderboard of Moonrock Miners, default current season | $${\color{Yellow}\text{Obsolete}}$$ |
+  | **moonrock_miners leaderboard** \<changes\> \<season\> | `/moonrock_miners leaderboard changes: Shown season: 15` | Return the specified season leaderboard of Moonrock Miners, default current season | $${\color{Green}\text{Up to date}}$$ |
   | **moonrock-miners get_config** | `/moonrock-miners get_config` | Get the most updated Moonrock Miners server config | $${\color{Green}\text{Up to date}}$$ |
 </details>
 
