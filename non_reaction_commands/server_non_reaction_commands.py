@@ -145,7 +145,7 @@ class ServerMisc(app_commands.Group): # Server_NRC
     @tree.command()
     @app_commands.describe(bet="The minimum bet is 1 coin")
     async def game_slot_machine(self, interaction: discord.Interaction, bet: int):
-        """⚪ Play the slot machine game!"""
+        """⚪ Play the slot machine game! (*outdated)"""
 
         await interaction.response.defer(ephemeral=False, thinking=True)
         coin = [
