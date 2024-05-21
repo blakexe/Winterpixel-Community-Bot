@@ -1,49 +1,144 @@
-# Winterpixel-Community-Bot
- A discord bot for winterpixel games discord made by the community (This bot is not officially made by Winterpixel)
+<h1 align="center">Winterpixel-Community-Bot</h1>
+<img src="https://github.com/blakexe/Winterpixel-Community-Bot/blob/main/media/banner.png" alt="banner">
 
-## Requirements:
-Run `pip install -r requirements.txt` to install the dependencies.
+<div align="center">
+  <a href="#ℹ️-about">About</a>
+  <span> • </span>
+  <a href="#-requirements">Requirements</a>
+  <span> • </span>
+  <a href="#-usage">Usage</a>
+  <span> • </span>
+  <a href="#-bot-commands">Bot Commands</a>
+  <span> • </span>
+  <a href="#-showcase">Showcase</a>
+  <span> • </span>
+  <a href="#-contributing">Contributing</a>
+  <p></p>
+</div>
 
-## Usage: 
+## ℹ️ About
+<a href="https://replit.com/@kTaNk8k/Winterpixel-Community-Bot-20"><img width="125" src="https://github.com/blakexe/Winterpixel-Community-Bot/blob/main/media/hosted_on_replit_button.png" alt="Hosted On Replit"></a>
+- **A Discord Bot for [Winterpixel Games Discord server](https://discord.gg/kdGuBhXz2r) made by the community.**
+- Made with the newest version of [Rapptz discord.py](https://github.com/Rapptz/discord.py), using [slash commands](https://support.discord.com/hc/en-us/articles/1500000368501-Slash-Commands-FAQ).
 
-Join the discord to use the bot!
+>[!Important]
+>This bot is not officially made by [WinterpixelGames Inc.](https://www.winterpixel.com/)
 
-## Features:
+>[!Note]
+>The bot is in the process of migrating to a web-based application.<br>Thus, the commands may be outdated or with limited functionality.
 
-### Discord Bot Itself:
-- Made with the newest version of Rapptz discord.py, using slash commands.
+<br>
 
-### 🚀 Rocket Bot Royale:
-- Get user profile either via friend code or user id.
-- List the leaderboard of any season, sorted by trophies (season 10 or later) or points/wins/player kills/bot kills (season 0 or later).
+## 📝 Requirements
+- Run `pip install -r requirements.txt` to install the dependencies.
+<br><br>
 
-### 🛸 Moonrock Miners:
-- List the leaderboard of any season, sorted by trophies (beta season 14 or later).
+## 🚀 Usage
+- Join the [Winterpixel Games Discord server](https://discord.gg/kdGuBhXz2r) and try it out in `#bot-commands`!
 
-## Commands:
-| **Command** | **Description** |
-| :--- |:---|
-| **`/bot_info`** | Get info about this bot |
-| **`/leaderboard_rocket_bot_royale`** `mode (Trophies/Points/Wins/Player Kills/Bot Kills)` `changes (Shown/Hidden)` `season`| Return the specified season leaderboard of Rocket Bot Royale by various modes, default current |
-| **`/leaderboard_moonrock_miners`** `changes (Shown/Hidden)` `season`| Return the specified season leaderboard of Moonrock Miners, default current |
-| **`/get_user`** `user_type (User ID/Friend ID)` `id` `section`| Return info about a specified user with optional section(s) |
-| **`/battle`** | Have a battle with a random bot! |
-| **`/build_a_bot`** | Bear the responsibility of creating new life... I mean bot |
-| **`/join_game`** | Join the current game |
-| **`/start_game`**  | Start a game with the people joined |
-| **`/my_balance`**  | Find out how much coins you have in discord |
-| **`/transfer_coins`** `amount` `recipient`  | Transfer some coins to another user |
-| **`/discord_coins_leaderboard`** `changes (Shown/Hidden)` | Return the discord coins leaderboard |
-| **`/random_tank`** | Get a random tank |
-| **`/long`** `length` `(barrel)`  | Build your supercalifragilisticexpialidocious long tank equipped with as many barrels as you want! |
-| **`/get_crate_stats`** `one_star` `two_star` `three_star` | Optimize the use of in game crates and Estimate the amount of coins |
-| **`/slot`** `bet` | Play the slot machine game |
-| **`/memory`** | Test your memory by matching 2 tanks! |
-| **`/double_or_half`** | Helps you get out of a rut if your balance is negative |
-| **`/season`** | Return the current season and remaining time |
-| **`/random_bot_name`** | Generate a random bot name |
-| **`/fandom`** `article` | Fetch any articles from Rocket Bot Royale fandom wiki here |
-| **`/plot_season`** `graph (Box Plot/League Trophies Range)` `mode (Trophies/Points (Box Plot only))` `season_start` `season_end` | Plot statistics graph and table about trophies or points in season(s) |
-| **`/trophies_calculator`** `reason (Outranked / Outranked by / Killed / Killed by)` `your_trophies` `opponents_trophies` `format (text / graph)` | Calculate trophies gain/loss by reasons and plot the graph (optional) |
+<a href="https://discord.gg/mypstDMXP3"><img src="https://github.com/blakexe/Winterpixel-Community-Bot/blob/main/media/join_discord_button.png" alt="Join Discord server"></a>
+<br><br>
 
-Want to suggest something? Open up an issue with the enhancement tag. You may also feel free to make a pull request if you want to implement it on your own.
+## 🤖 Bot Commands
+<img width="60%" src="https://github.com/blakexe/Winterpixel-Community-Bot/blob/main/media/demo_commands_list.gif" alt="demo commands list">
+
+### 🔵 [Goober Dash](https://gooberdash.winterpixel.io/)
+<details>
+<summary>5 commands</summary>
+
+  | Command | Example | Usage | Status |
+  | -------- | -------- | -------- | -------- |
+  | **goober_dash leaderboard** \<type\> \<changes\> \<country_code\> | `/goober_dash leaderboard type: 🏳️ Local changes: Shown country_code: CA` | Return the specified season leaderboard of Goober Dash of current season | $${\color{Green}\text{Up to date}}$$ |
+  | **goober_dash official_levels** \<levels\> \<sorted_by\> \<order\> | `/goober_dash official_levels levels: Knockout Levels only sorted_by: Update Time (Update) order: 🔻 Descending` | Return a list of official levels of Goober Dash, sorted by various values | $${\color{Yellow}\text{Obsolete}}$$ |
+  | **goober-dash get_config** | `/goober-dash get_config` | Get the most updated Goober Dash server config | $${\color{Green}\text{Up to date}}$$ |
+  | **goober-dash level_info** \<level_id\> | `/goober-dash level_info level_id: ef17d73e-cb9b-4bb7-a3a9-4dcc32d9d65f` | Return info about a specified Goober Dash level | $${\color{Red}\text{Not Working}}$$ |
+  | **goober-dash user_info** \<user_type\> \<id_or_username\> | `/goober-dash user_info user_type: Username id_or_username: GoodGoob` | Return info about a specified Goober Dash user | $${\color{Green}\text{Up to date}}$$ |
+</details>
+
+### 🟢 [Moonrock Miners](https://moonrockminers.com/)
+<details>
+  <summary>2 commands</summary>
+
+   Command | Example | Usage | Status |
+  | -------- | -------- | -------- | -------- |
+  | **moonrock_miners leaderboard** \<changes\> \<season\> | `/moonrock_miners leaderboard changes: Shown season: 15` | Return the specified season leaderboard of Moonrock Miners, default current season | $${\color{Yellow}\text{Obsolete}}$$ |
+  | **moonrock-miners get_config** | `/moonrock-miners get_config` | Get the most updated Moonrock Miners server config | $${\color{Green}\text{Up to date}}$$ |
+</details>
+
+### 🟡 [Rocket Bot Royale](https://rocketbotroyale.winterpixel.io/)
+<details>
+  <summary>9 commands</summary>
+
+  | Command | Example | Usage | Status |
+  | -------- | -------- | -------- | -------- |
+  | **rocket_bot_royale leaderboard** \<mode\> \<changes\> \<season\> | `/rocket_bot_royale leaderboard mode: 🏆 Trophies changes: Hidden season: 20` | Return the specified season leaderboard of Rocket Bot Royale by various modes, default current season | $${\color{Green}\text{Up to date}}$$ |
+  | **rocket-bot-royale fandom** | `/rocket-bot-royale fandom article: Weapons` | Fetch any articles from Rocket Bot Royale fandom here! | $${\color{Green}\text{Up to date}}$$ |
+  | **rocket-bot-royale get_config** | `/rocket-bot-royale get_config` | Get the most updated Rocket Bot Royale server config | $${\color{Green}\text{Up to date}}$$ |
+  | **rocket-bot-royale optimize_crate** \<one_star\> \<two_star\> \<three_star\> | `/rocket-bot-royale optimize_crate one_star: 20 two_star: 10 three_star: 2` | Optimize the use of in game crates and Estimate the amount of coins in Rocket Bot Royale | $${\color{Green}\text{Up to date}}$$ |
+  | **rocket-bot-royale plot_season** \<graph\> \<mode\> \<start_season\> \<end_season\> | `/rocket-bot-royale plot_season graph: League Trophies Range mode: 🏆 Trophies start_season: 15 end_season: 19` | Plot statistics graph and table by various modes in season(s) in Rocket Bot Royale | $${\color{Green}\text{Up to date}}$$ |
+  | **rocket-bot-royale random_tank** | `/rocket-bot-royale random_tank` | Get a random tank | $${\color{Yellow}\text{Obsolete}}$$ |
+  | **rocket-bot-royale trophies_calc** \<reason\> \<your_trophies\> \<opponents_trophies]>  \<format\> | `/rocket-bot-royale trophies_calc reason: Outranked by your_trophies: 200 opponents_trophies: 800 format: Text` | Calculate trophies gain/loss by reasons and plot and graph (optional) in Rocket Bot Royale | $${\color{Yellow}\text{Obsolete}}$$ |
+  | **rocket-bot-royale user_info** \<user_type\> \<id_or_code\> \<section\> | `/rocket-bot-royale user_info user_type: Friend Code id_or_code: f030d36f section: All` | Return info about a specified Rocket Bot Royale user with optional sections(s) | $${\color{Yellow}\text{Limited Functionality}}$$ |
+  | **rocket-bot-royale user_single_season_records** \<user_type\> \<id_or_code\> \<season\> | `/rocket-bot-royale user_single_season_records user_type: Friend Code id_or_code: c386f531 season: 4` | Return all types of seasons records in a season about a specified Rocket Bot Royale user | $${\color{Yellow}\text{Limited Functionality}}$$ |
+</details>
+
+### ⚪ [Server/Miscellaneous](https://discord.gg/kdGuBhXz2r)
+<details>
+  <summary>13 commands</summary>
+ 
+  | Command | Example | Usage | Status |
+  | -------- | -------- | -------- | -------- |
+  | **server_misc discord_coins_leaderboard** \<changes\> | `/server_misc discord_coins_leaderboard changes: Hidden` | Return the Discord coins leaderboard | $${\color{Green}\text{Up to date}}$$ |
+  | **server_misc game_memory** | `/server_misc game_memory` | Test your memory by matching 2 tanks! | $${\color{Red}\text{Not Working}}$$ |
+  | **server-misc battle** | `/server-misc battle` | Have a battle with a random bot! | $${\color{Green}\text{Up to date}}$$ |
+  | **server-misc bot_info** | `/server-misc bot_info` | Get info about this Discord bot | $${\color{Green}\text{Up to date}}$$ |
+  | **server-misc build_a_bot** | `/server-misc build_a_bot` | Bear the responsibility of creating new life... I mean bot | $${\color{Green}\text{Up to date}}$$ |
+  | **server-misc double_or_half** | `/server-misc double_or_half` | Helps you get out of a rut if your balance is negative | $${\color{Green}\text{Up to date}}$$ |
+  | **server-misc game_slot_machine** \<bet\> | `/server-misc game_slot_machine bet: 1` | Play the slot machine game! | $${\color{Yellow}\text{Limited Functionality}}$$ |
+  | **server-misc join_game**  | `/server-misc join_game` | Join the current game | $${\color{Green}\text{Up to date}}$$ |
+  | **server-misc long_tank** \<length\> \<barrel\> | `/server-misc long_tank length: 5 barrel: 3` | Build your supercalifragilisticexpialidocious long tank equipped with as many barrels as you want! | $${\color{Green}\text{Up to date}}$$ |
+  | **server-misc my_balance** | `/server-misc my_balance` | Find out how much coins you have on Discord | $${\color{Green}\text{Up to date}}$$ |
+  | **server-misc random_bot_name** | `/server-misc random_bot_name` | Generate a random bot name | $${\color{Green}\text{Up to date}}$$ |
+  | **server-misc start_game** | `/server-misc start_game` | Start a game with the people joined | $${\color{Green}\text{Up to date}}$$ |
+  | **server-misc transfer_coins** \<amount\> \<recipient\> | `/server-misc transfer_coins amount: 5 recipient: <@970784448633258054>` | Transfer some coins to another user on Discord | $${\color{Green}\text{Up to date}}$$ |
+</details>
+
+### 🔴 Bot (For developers only)
+<details>
+  <summary>1 command</summary>
+
+   Command | Example | Usage | Status |
+  | -------- | -------- | -------- | -------- |
+  | **sync_commands** | `/sync_commands` | Synchronizes the slash commands for the bot test | $${\color{Green}\text{Up to date}}$$ |
+</details>
+
+<br>
+
+## 🌟 Showcase
+- `/rocket_bot_royale leaderboard` - A leaderboard with page view showing Rocket Bot Royale players ranking in a season.
+<img width="25%" src="https://github.com/blakexe/Winterpixel-Community-Bot/blob/main/media/demo_rbr_leaderboard.gif" alt="demo rbr leaderboard">
+
+- `/rocket-bot-royale user_info` - A graph showing statistics of a Rocket Bot Royale player which are not shown in game.
+<img width="50%" src="https://github.com/blakexe/Winterpixel-Community-Bot/blob/main/media/demo_get_user.png" alt="demo get user">
+ 
+- `/rocket-bot-royale plot_season` - A graph showing the ranges of trophies of different tiers in all season.
+<img width="50%" src="https://github.com/blakexe/Winterpixel-Community-Bot/blob/main/media/demo_plot_season.png" alt="demo plot season">
+<img width="50%" src="https://github.com/blakexe/Winterpixel-Community-Bot/blob/main/media/demo_plot_season_2.png" alt="demo plot season 2">
+
+And many more!
+<br><br>
+
+## 🤝 Contributing
+- Want to suggest something?
+- Open up an [issue](https://github.com/blakexe/Winterpixel-Community-Bot/issues) with the `enhancement` label.
+- You may also feel free to make a [pull request](https://github.com/blakexe/Winterpixel-Community-Bot/pulls) if you want to implement it on your own.
+
+[![Pull Requests Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat)](http://makeapullrequest.com)
+
+![Alt](https://repobeats.axiom.co/api/embed/8c95b5e144a687c022819adab793b72de979a37d.svg "Repobeats analytics image")
+
+---
+
+<p align="center">
+Developed with 💖 by Community
+</p>
