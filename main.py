@@ -199,7 +199,7 @@ class goober_dash(app_commands.Group): # GD_RC
       type="Global Leaderboard / Country or Region Leaderboard",
       changes="Only available for Top 50 records of current season, changes since last command used",
       country_code="Alpha-2 Country Code (e.g. US = United States)(Local Leaderboard only), default US",
-      season="Season 1 or later, default current season",
+      # season="Season 1 or later, default current season",
   )
   async def leaderboard(
       self,
@@ -207,9 +207,9 @@ class goober_dash(app_commands.Group): # GD_RC
       type: typing.Literal["🌎 Global", "🏳️ Local"],
       changes: typing.Literal["Shown", "Hidden"],
       country_code: str = "US",
-      season: int = -1,
+      # season: int = -1,
   ):
-      """🔵 Return the specified season leaderboard of Goober Dash, default current season"""
+      """🔵 Return the specified season leaderboard of Goober Dash of current season"""
 
       await interaction.response.defer(ephemeral=False, thinking=True)
 
@@ -223,8 +223,8 @@ class goober_dash(app_commands.Group): # GD_RC
           # This makes sure nobody except the command sender can interact with the "menu"
 
       # Reassign season if unreasonable
-      if season < 1 or season > goober_dash_current_season:
-          season = goober_dash_current_season
+      # if season < 1 or season > goober_dash_current_season:
+      season = goober_dash_current_season
 
       # Season Info
       required_season_info = goober_dash_season_info(season, "long")
@@ -240,8 +240,8 @@ class goober_dash(app_commands.Group): # GD_RC
       )
 
       # Hide changes for past seasons
-      if season < goober_dash_current_season:
-          changes = "Hidden"
+      # if season < goober_dash_current_season:
+      #     changes = "Hidden"
 
       # Get leaderboard info
       invalid_country_code = False
