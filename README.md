@@ -78,11 +78,11 @@
   | **rocket-bot-royale plot_season** \<graph\> \<mode\> \<start_season\> \<end_season\> | `/rocket-bot-royale plot_season graph: League Trophies Range mode: 🏆 Trophies start_season: 15 end_season: 19` | Plot statistics graph and table by various modes in season(s) in Rocket Bot Royale | $${\color{Green}\text{Up to date}}$$ |
   | **rocket-bot-royale random_tank** | `/rocket-bot-royale random_tank` | Get a random tank | $${\color{Yellow}\text{Obsolete}}$$ |
   | **rocket-bot-royale trophies_calc** \<reason\> \<your_trophies\> \<opponents_trophies]>  \<format\> | `/rocket-bot-royale trophies_calc reason: Outranked by your_trophies: 200 opponents_trophies: 800 format: Text` | Calculate trophies gain/loss by reasons and plot and graph (optional) in Rocket Bot Royale | $${\color{Yellow}\text{Obsolete}}$$ |
-  | **rocket-bot-royale user_info** \<user_type\> \<id_or_code\> \<section\> | `/rocket-bot-royale user_info user_type: Friend Code id_or_code: f030d36f section: All` | Return info about a specified Rocket Bot Royale user with optional sections(s) | $${\color{Yellow}\text{Limited Functionality}}$$ |
-  | **rocket-bot-royale user_single_season_records** \<user_type\> \<id_or_code\> \<season\> | `/rocket-bot-royale user_single_season_records user_type: Friend Code id_or_code: c386f531 season: 4` | Return all types of seasons records in a season about a specified Rocket Bot Royale user | $${\color{Yellow}\text{Limited Functionality}}$$ |
+  | **rocket-bot-royale user_info** \<user_type\> \<id_or_code\> \<section\> | `/rocket-bot-royale user_info user_type: Friend Code id_or_code: f030d36f section: All` | Return info about a specified Rocket Bot Royale user with optional sections(s) | $${\color{Green}\text{Up to date}}$$ |
+  | **rocket-bot-royale user_single_season_records** \<user_type\> \<id_or_code\> \<season\> | `/rocket-bot-royale user_single_season_records user_type: Friend Code id_or_code: c386f531 season: 4` | Return all types of seasons records in a season about a specified Rocket Bot Royale user | $${\color{Green}\text{Up to date}}$$ |
 </details>
 
-### ⚪ [Server/Miscellaneous](https://discord.gg/kdGuBhXz2r)
+### ⚪ Server/Miscellaneous
 <details>
   <summary>13 commands</summary>
  
