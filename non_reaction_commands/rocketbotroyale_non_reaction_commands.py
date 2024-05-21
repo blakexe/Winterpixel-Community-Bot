@@ -233,8 +233,16 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
 
             # Get user data
             response = await rocket_bot_royale_client.user_info(id)
-            user_data = json.loads(response["payload"])[0]
-            metadata = user_data["metadata"]
+            try:
+                user_data = json.loads(response["payload"])[0]
+                metadata = user_data["metadata"]
+            except Exception:
+                # Deleted account has empty payload
+                await interaction.followup.send(
+                    embed=discord.Embed(color=0xFF0000,
+                                        title="❌ Account deleted ❌")
+                )
+                return
         except aiohttp.ClientResponseError:
             # The code is wrong, send an error response
             await interaction.followup.send(
@@ -520,6 +528,7 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
                 "kills_using_triple-shot": 0,
                 "jetpacks_used": 0,
                 "whirlwinds_used": 0,
+                "smokes_used": 0,
                 "blocks_using_proj": 0,
                 "blocks_using_shield": 0
             }
@@ -1663,27 +1672,27 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
                             awards_config.get(unique_tank, default_award)["rarity"]
                             == "common"
                         ):
-                            tank_list += f"     ⭐ {awards_config.get(unique_tank, default_award)['name']:<19} {str(tank_list_counter[unique_tank])}\n"
+                            tank_list += f"     ⭐ {awards_config.get(unique_tank, default_award)['name']:<21} {str(tank_list_counter[unique_tank])}\n"
                         elif (
                             awards_config.get(unique_tank, default_award)["rarity"]
                             == "rare"
                         ):
-                            tank_list += f"   ⭐⭐ {awards_config.get(unique_tank, default_award)['name']:<19} {str(tank_list_counter[unique_tank])}\n"
+                            tank_list += f"   ⭐⭐ {awards_config.get(unique_tank, default_award)['name']:<21} {str(tank_list_counter[unique_tank])}\n"
                         elif (
                             awards_config.get(unique_tank, default_award)["rarity"]
                             == "legendary"
                         ):
-                            tank_list += f" ⭐⭐⭐ {awards_config.get(unique_tank, default_award)['name']:<19} {str(tank_list_counter[unique_tank])}\n"
+                            tank_list += f" ⭐⭐⭐ {awards_config.get(unique_tank, default_award)['name']:<21} {str(tank_list_counter[unique_tank])}\n"
                         elif (
                             awards_config.get(unique_tank, default_award)["rarity"]
                             == "purchased"
                         ):
-                            tank_list += f"     💰 {awards_config.get(unique_tank, default_award)['name']:<19} {str(tank_list_counter[unique_tank])}\n"
+                            tank_list += f"     💰 {awards_config.get(unique_tank, default_award)['name']:<21} {str(tank_list_counter[unique_tank])}\n"
                         elif (
                             awards_config.get(unique_tank, default_award)["rarity"]
                             == "earned"
                         ):
-                            tank_list += f"     🏅 {awards_config.get(unique_tank, default_award)['name']:<19} {str(tank_list_counter[unique_tank])}\n"
+                            tank_list += f"     🏅 {awards_config.get(unique_tank, default_award)['name']:<21} {str(tank_list_counter[unique_tank])}\n"
                     except:
                         pass
 
@@ -1805,7 +1814,7 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
         for mode in modes:
             mode_no_records = False
             try:
-                if season < 20:
+                if season <= 30:
                     df = pd.read_csv(
                         f"old_season_leaderboard/tankkings_{mode}_{season}.csv")
                     df_user = df[df["owner_id"] == id]
@@ -1826,7 +1835,6 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
                         rank = record["rank"]
                         score = record["score"]
                         games = record["num_score"]
-                    no_rank, no_score, no_games = rank, score, games
                 at_least_one_record = True
             except:
                 mode_no_records = True
