@@ -89,7 +89,7 @@
   | Command | Example | Usage | Status |
   | -------- | -------- | -------- | -------- |
   | **server_misc discord_coins_leaderboard** \<changes\> | `/server_misc discord_coins_leaderboard changes: Hidden` | Return the Discord coins leaderboard | $${\color{Green}\text{Up to date}}$$ |
-  | **server_misc game_memory** | `/server_misc game_memory` | Test your memory by matching 2 tanks! | $${\color{Red}\text{Not Working}}$$ |
+  | **server_misc game_memory** | `/server_misc game_memory` | Test your memory by matching 2 tanks! | $${\color{Yellow}\text{Limited Functionality}}$$ |
   | **server-misc battle** | `/server-misc battle` | Have a battle with a random bot! | $${\color{Green}\text{Up to date}}$$ |
   | **server-misc bot_info** | `/server-misc bot_info` | Get info about this Discord bot | $${\color{Green}\text{Up to date}}$$ |
   | **server-misc build_a_bot** | `/server-misc build_a_bot` | Bear the responsibility of creating new life... I mean bot | $${\color{Green}\text{Up to date}}$$ |
