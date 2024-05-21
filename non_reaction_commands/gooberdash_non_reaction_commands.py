@@ -195,6 +195,7 @@ class GooberDash(app_commands.Group): # RBR_NRC
         cosmetics_config = goober_dash_server_config["cosmetics"]
 
         # Get general player info
+        display_name = user_data["display_name"]
         level = user_data["level"]
 
         cosmetics_type_keys = ["body", "hat", "suit", "hand", "color"]
@@ -224,6 +225,7 @@ class GooberDash(app_commands.Group): # RBR_NRC
         # Add general player info
         general_info = "```ansi\n"
         general_info += f"{'Username: ':>15}{username}\n"
+        general_info += f"{'Display name: ':>15}{display_name}\n"
         dt_create_time = datetime.datetime.strptime(create_time.translate(':-'), '%Y-%m-%dT%H:%M:%SZ')
         general_info += f"{'Create Time: ':>15}{dt_create_time} UTC ({timeago.format(dt_create_time, datetime.datetime.now())})\n"
         general_info += f"{'Level: ':>15}{level}\n"
