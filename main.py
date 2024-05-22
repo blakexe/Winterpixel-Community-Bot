@@ -3,6 +3,7 @@ import json
 import asyncio
 import typing
 import os
+import textwrap
 import datetime
 import random
 import time
@@ -16,14 +17,18 @@ from math import ceil
 from operator import itemgetter
 from replit import db
 from discord import app_commands
-from misc.random_tank_get import get_a_random_tank
+from misc.random_tank_get import get_a_random_tank_emoji
 from clients.gooberdash_client import GooberDashClient
 from clients.moonrockminers_client import MoonrockMinersClient
 from clients.rocketbotroyale_client import RocketBotRoyaleClient
-from non_reaction_commands.gooberdash_non_reaction_commands import GooberDash # GD_NRC
-from non_reaction_commands.moonrockminers_non_reaction_commands import MoonrockMiners # MM_NRC
-from non_reaction_commands.rocketbotroyale_non_reaction_commands import RocketBotRoyale # RBR_NRC
-from non_reaction_commands.server_non_reaction_commands import ServerMisc # Server_NRC
+from non_reaction_commands.gooberdash_non_reaction_commands import GooberDash  # GD_NRC
+from non_reaction_commands.moonrockminers_non_reaction_commands import (
+    MoonrockMiners,
+)  # MM_NRC
+from non_reaction_commands.rocketbotroyale_non_reaction_commands import (
+    RocketBotRoyale,
+)  # RBR_NRC
+from non_reaction_commands.server_non_reaction_commands import ServerMisc  # Server_NRC
 
 # Get sensitive info
 try:
@@ -47,18 +52,27 @@ rocket_bot_royale_server_config = {}
 goober_dash_server_config = {}
 
 # Initialize rocketbot client
-moonrock_miners_client = MoonrockMinersClient(rbr_mm_email_password, rbr_mm_email_password)
-rocket_bot_royale_client = RocketBotRoyaleClient(rbr_mm_email_password, rbr_mm_email_password)
+moonrock_miners_client = MoonrockMinersClient(
+    rbr_mm_email_password, rbr_mm_email_password
+)
+rocket_bot_royale_client = RocketBotRoyaleClient(
+    rbr_mm_email_password, rbr_mm_email_password
+)
 goober_dash_client = GooberDashClient(gd_email, gd_password)
 
 os.system("clear")
 
 
 ###################### GOOBER-DASH REACTION COMMANDS START ######################
+def largest_power_of_2(n):
+    power = 1
+    while power * 2 <= n:
+        power *= 2
+    return power
+
+
 def goober_dash_season_info(season, mode):
-    duration, start_number, start_time = (
-        [] for i in range(3)
-    )
+    duration, start_number, start_time = ([] for i in range(3))
     for key in goober_dash_server_config["metadata"]["seasons"]["season_templates"]:
         duration.append(key["duration"])
         start_number.append(key["start_number"])
@@ -68,13 +82,11 @@ def goober_dash_season_info(season, mode):
 
     season_start_timestamp = (
         start_time[season_index]
-        + (season - start_number[season_index]
-           ) * duration[season_index]
+        + (season - start_number[season_index]) * duration[season_index]
     )
     season_start = f"{datetime.datetime.utcfromtimestamp(season_start_timestamp):%Y-%m-%d %H:%M:%S} UTC"
 
-    season_end_timestamp = season_start_timestamp + \
-        duration[season_index]
+    season_end_timestamp = season_start_timestamp + duration[season_index]
     season_end = f"{datetime.datetime.utcfromtimestamp(season_end_timestamp):%Y-%m-%d %H:%M:%S} UTC"
 
     season_duration = duration[season_index]
@@ -83,7 +95,7 @@ def goober_dash_season_info(season, mode):
         season_days = f"{season_duration // (24 * 3600)} days {season_duration % (24 * 3600) // 3600} hours"
     elif mode == "short":
         s = season_duration / (24 * 3600)
-        season_days = f"{'{:.2f}'.format(s) if type(s) == float else s} days"
+        season_days = f"{'{:.2f}'.format(s) if isinstance(s, float) else s} days"
 
     current_timestamp = time.time()
     if current_timestamp > season_end_timestamp:
@@ -106,803 +118,917 @@ def goober_dash_season_info(season, mode):
     else:
         time_remaining = ""
 
-    goober_dash_all_season_info = [season_start, season_end,
-                       season_days, status, time_remaining]
+    goober_dash_all_season_info = [
+        season_start,
+        season_end,
+        season_days,
+        status,
+        time_remaining,
+    ]
     return goober_dash_all_season_info
 
 
-class goober_dash(app_commands.Group): # GD_RC
-  """Goober Dash reaction commands"""
+class goober_dash(app_commands.Group):  # GD_RC
+    """Goober Dash reaction commands"""
 
-  def __init__(self, bot: discord.client):
-      super().__init__()
+    def __init__(self, bot: discord.client):
+        super().__init__()
 
+    async def refresh_config(self):
+        """Refresh Goober Dash game configuration every 10 minutes"""
 
-  async def refresh_config():
-    """Refresh Goober Dash game configuration every 10 minutes"""
+        global goober_dash_server_config
 
-    global goober_dash_server_config
+        while True:
+            response = await goober_dash_client.get_config()
+            goober_dash_server_config = response
 
-    while True:
-        response = await goober_dash_client.get_config()
-        goober_dash_server_config = response
+            # Remove past season keys
+            global goober_dash_current_season
 
-        # Remove past season keys
-        global goober_dash_current_season
+            duration, start_number, start_time = ([] for i in range(3))
+            for key in goober_dash_server_config["metadata"]["seasons"][
+                "season_templates"
+            ]:
+                duration.append(key["duration"])
+                start_number.append(key["start_number"])
+                start_time.append(key["start_time"])
 
-        duration, start_number, start_time = (
-            [] for i in range(3)
+            def get_current_season(current_timestamp):
+                index = np.searchsorted(start_time, current_timestamp)
+                accumulate_start_time = start_time[index - 1]
+                count = 0
+                while accumulate_start_time <= current_timestamp:
+                    accumulate_start_time += duration[index - 1]
+                    count += 1
+                current_season = start_number[index - 1] + count - 1
+                return current_season
+
+            goober_dash_current_season = get_current_season(time.time())
+
+            for global_leaderboard in db.prefix("global"):
+                if str(goober_dash_current_season) not in global_leaderboard:
+                    del db[global_leaderboard]
+            for local_leaderboard in db.prefix("country"):
+                if str(goober_dash_current_season) not in local_leaderboard:
+                    del db[local_leaderboard]
+
+            await asyncio.sleep(600)
+
+    async def public_levels_ratings_update(self):
+        """Refresh Goober Dash public levels ratings every day"""
+
+        global goober_dash_server_config
+
+        while True:
+            # Get a list of level_ids
+            response = await goober_dash_client.official_levels()
+
+            levels_info = json.loads(response)["levels"]
+            level_ids = [level["id"] for level in levels_info]
+
+            # Get the rating of each level
+            for level_id in level_ids:
+                response2 = await goober_dash_client.level_info(level_id)
+                map_data = json.loads(response2["payload"])
+                if "goober_dash_public_levels_ratings_3" not in db.keys():
+                    db["goober_dash_public_levels_ratings_3"] = dict()
+                db["goober_dash_public_levels_ratings_3"][level_id] = int(
+                    (map_data["rating"] - 1) * 25
+                )
+                time.sleep(1)
+
+            await asyncio.sleep(86400)
+
+    @app_commands.command()
+    @app_commands.describe(
+        type="Global Leaderboard / Country or Region Leaderboard",
+        changes="Only available for Top 50 records of current season, changes since last command used",
+        country_code="Alpha-2 Country Code (e.g. US = United States)(Local Leaderboard only), default US",
+        # season="Season 1 or later, default current season",
+    )
+    async def leaderboard(
+        self,
+        interaction: discord.Interaction,
+        type: typing.Literal["🌎 Global", "🏳️ Local"],
+        changes: typing.Literal["Shown", "Hidden"],
+        country_code: str = "US",
+        # season: int = -1,
+    ):
+        """🔵 Return the specified season leaderboard of Goober Dash of current season"""
+
+        await interaction.response.defer(ephemeral=False, thinking=True)
+
+        def check(reaction, user):
+            return user == interaction.user and str(reaction.emoji) in [
+                "◀️",
+                "▶️",
+                "⏪",
+                "⏹️",
+            ]
+            # This makes sure nobody except the command sender can interact with the "menu"
+
+        # Reassign season if unreasonable
+        # if season < 1 or season > goober_dash_current_season:
+        season = goober_dash_current_season
+
+        # Season Info
+        required_season_info = goober_dash_season_info(season, "long")
+        global all_required_season_info
+        all_required_season_info = (
+            f"📓 ***Season Info***:\n```ansi\n{'Start: ':>10}{required_season_info[0]}\n{'End: ':>10}{required_season_info[1]}\n{'Duration: ':>10}{required_season_info[2]}\n{'Status: ':>10}{required_season_info[3]}\n"
+            + (
+                f"{'Ends in: ':>10}{required_season_info[4]}\n"
+                if season == goober_dash_current_season
+                else ""
+            )
+            + "```"
         )
-        for key in goober_dash_server_config["metadata"]["seasons"]["season_templates"]:
-            duration.append(key["duration"])
-            start_number.append(key["start_number"])
-            start_time.append(key["start_time"])
 
-        def get_current_season(current_timestamp):
-            index = np.searchsorted(start_time, current_timestamp)
-            accumulate_start_time = start_time[index-1]
-            count = 0
-            while accumulate_start_time <= current_timestamp:
-                accumulate_start_time += duration[index-1]
-                count += 1
-            current_season = start_number[index-1] + count - 1
-            return current_season
+        # Hide changes for past seasons
+        # if season < goober_dash_current_season:
+        #     changes = "Hidden"
 
-        goober_dash_current_season = get_current_season(time.time())
+        # Get leaderboard info
+        invalid_country_code = False
+        if type == "🌎 Global":
+            leaderboard_id = "global"
+            embed_title_bracket = type
+        elif type == "🏳️ Local":
+            try:
+                leaderboard_id = f"country.{country_code.upper()}"
+                country_flag = flag.flagize(f":{country_code.upper()}:")
+                country_name = pycountry.countries.get(
+                    alpha_2=f"{country_code.upper()}"
+                ).name
+                embed_title_bracket = (
+                    f"{country_flag} {country_code.upper()} - {country_name}"
+                )
+            except AttributeError:
+                invalid_country_code = True
+        if not invalid_country_code:
+            embed_title = f"Goober Dash <:goober:1146508948325814402>\nSeason {season} Leaderboard ({embed_title_bracket}):"
 
-        for global_leaderboard in db.prefix("global"):
-            if str(goober_dash_current_season) not in global_leaderboard:
-                del db[global_leaderboard]
-        for local_leaderboard in db.prefix("country"):
-            if str(goober_dash_current_season) not in local_leaderboard:
-                del db[local_leaderboard]
+        if changes == "Shown":
+            limit = 100
+        elif changes == "Hidden":
+            limit = 25
 
-        await asyncio.sleep(600)
+        no_records = False
+        try:
+            response = await goober_dash_client.query_leaderboard(
+                season, leaderboard_id, limit
+            )
+            records = response["records"]
+        except aiohttp.ClientResponseError:
+            no_records = True
 
+        if not invalid_country_code:
+            if not no_records:
+                start = records[0]["rank"]
+                end = records[len(records) - 1]["rank"]
+                cursor_dict = dict()
+                cursor_dict[1] = ""
 
-  async def public_levels_ratings_update():
-    """Refresh Goober Dash public levels ratings every day"""
+                try:
+                    cursor_dict[2] = response["next_cursor"]
+                    next_cursor = True
+                except Exception:
+                    next_cursor = False
 
-    global goober_dash_server_config
+                if changes == "Shown":
+                    # Add to replit's database for new keys
+                    new_key_flag = False
+                    if f"{leaderboard_id}.{season}" not in db.keys():
+                        value = dict()
+                        for record in records:
+                            value[record["owner_id"]] = {
+                                "rank": record["rank"],
+                                "score": record["score"],
+                            }
+                        value["last_update_time"] = (
+                            f"{datetime.datetime.utcfromtimestamp(time.time()):%Y-%m-%d %H:%M:%S} UTC"
+                        )
+                        db[record["leaderboard_id"]] = value
+                        new_key_flag = True
 
-    while True:
-        # Get a list of level_ids
+                    # Using f-string spacing to pretty print the leaderboard labels (bold)
+                    message = ""
+                    label = f"{all_required_season_info}\n📊 ***Leaderboard***:```ansi\n\u001b[1m    {'Rank:':<9}{'Name:':<21}{'Crowns:'}\u001b[0m\n{'—' * 50}\n"
+
+                    # Using f-string spacing to pretty print the leaderboard
+                    if len(records) < 50:  # Prevent index out of range error
+                        records_range = len(records)
+                    else:
+                        records_range = 50
+
+                    for i in range(records_range):
+                        # Rank difference
+                        try:
+                            rank_diff = int(records[i]["rank"]) - int(
+                                db[records[i]["leaderboard_id"]][
+                                    records[i]["owner_id"]
+                                ]["rank"]
+                            )
+                            if rank_diff < 0:
+                                rank_diff_2 = (
+                                    f"\u001b[2;32m▲{abs(rank_diff):<3}\u001b[0m"
+                                )
+                            elif rank_diff > 0:
+                                rank_diff_2 = (
+                                    f"\u001b[2;31m▼{abs(rank_diff):<3}\u001b[0m"
+                                )
+                            else:
+                                rank_diff_2 = f"{'-':^4}"
+                        except KeyError:
+                            rank_diff_2 = f"{'':<4}"  # Not found ind repl.it's database
+
+                        # Rank (bold)
+                        message += f"{rank_diff_2}\u001b[1m{'#' + str(records[i]['rank']):<5}\u001b[0m "
+
+                        # Country
+                        message += flag.flagize(
+                            f":{json.loads(records[i]['metadata'])['country']}: "
+                        )
+
+                        # Name
+                        if "\n" in records[i]["username"]:
+                            response = goober_dash_client.non_async_user_info_2(
+                                records[i]["owner_id"]
+                            )
+                            user_info_2 = response["users"][0]
+                            username = user_info_2["username"]
+                        else:
+                            username = records[i]["username"]
+                        message += f"{username:<21}"
+
+                        # Crowns difference
+                        try:
+                            crowns_diff = int(records[i]["score"]) - int(
+                                db[records[i]["leaderboard_id"]][
+                                    records[i]["owner_id"]
+                                ]["score"]
+                            )
+                            if crowns_diff < 0:
+                                crowns_diff_2 = (
+                                    f"\u001b[2;31m-{abs(crowns_diff):<4}\u001b[0m"
+                                )
+                            elif crowns_diff > 0:
+                                crowns_diff_2 = (
+                                    f"\u001b[2;32m+{abs(crowns_diff):<4}\u001b[0m"
+                                )
+                            else:
+                                crowns_diff_2 = f"{'-':^5}"
+                        except Exception:
+                            crowns_diff_2 = f"{'':<5}"
+
+                        # Crowns
+                        message += f"{'👑 ' + '{:<6,.0f}'.format(int(records[i]['score']))} {crowns_diff_2}\n"
+
+                    # Split message
+                    cannot_split = False  # Prevent index out of range error
+                    try:  # In case there are not enough records
+                        message1 = message[
+                            : [m.start() for m in re.finditer(r"\n", message)][24]
+                        ]
+                        message2 = (
+                            message[
+                                ([m.start() for m in re.finditer(r"\n", message)][24])
+                                + 1 :
+                            ]
+                            + "```"
+                        )
+                    except Exception:
+                        cannot_split = True
+
+                    # Send
+                    if not cannot_split:
+                        cur_page = 1
+                        embed_init = discord.Embed(
+                            title=embed_title,
+                            description=label + message1 + "```",
+                            color=0x55D3FD,
+                        )
+                        embed_init.set_footer(
+                            text=f"Page 1/2:  1 to 25 | Changes since {db[f'{leaderboard_id}.{season}']['last_update_time']}"
+                        )
+                        msg = await interaction.followup.send(embed=embed_init)
+                        msg2 = await interaction.followup.send(
+                            embed=discord.Embed(
+                                description="To be edited...", color=0x55D3FD
+                            )
+                        )
+
+                        for reaction_emoji in ["◀️", "▶️", "⏹️"]:
+                            await msg.add_reaction(reaction_emoji)
+
+                        while True:
+                            try:
+                                reaction, user = await client.wait_for(
+                                    "reaction_add", timeout=15, check=check
+                                )
+                                # Waiting for a reaction to be added - times out after 15 seconds
+
+                                if (
+                                    str(reaction.emoji) == "▶️" and cur_page == 1
+                                ):  # Go to Page 2
+                                    cur_page += 1
+                                    embed_first = discord.Embed(
+                                        title=embed_title,
+                                        description="\n" + label + message2,
+                                        color=0x55D3FD,
+                                    )
+                                    embed_first.set_footer(
+                                        text=f"Page 2/2: 26 to 50 | Changes since {db[f'{leaderboard_id}.{season}']['last_update_time']}"
+                                    )
+                                    await msg.edit(embed=embed_first)
+                                    await msg.remove_reaction(reaction, user)
+
+                                elif (
+                                    str(reaction.emoji) == "◀️" and cur_page == 2
+                                ):  # Go to Page 1
+                                    cur_page -= 1
+                                    embed_second = discord.Embed(
+                                        title=embed_title,
+                                        description="\n" + label + message1 + "```",
+                                        color=0x55D3FD,
+                                    )
+                                    embed_second.set_footer(
+                                        text=f"Page 1/2:  1 to 25 | Changes since {db[f'{leaderboard_id}.{season}']['last_update_time']}"
+                                    )
+                                    await msg.edit(embed=embed_second)
+                                    await msg.remove_reaction(reaction, user)
+
+                                elif (
+                                    str(reaction.emoji) == "⏹️"
+                                ):  # Exit page view and end the loop
+                                    await msg.edit(
+                                        embed=discord.Embed(
+                                            title=embed_title,
+                                            description=label + message1 + "```",
+                                            color=0x55D3FD,
+                                        )
+                                    )
+                                    embed_second_timeout = discord.Embed(
+                                        description="```ansi\n" + message2,
+                                        color=0x55D3FD,
+                                    )
+                                    embed_second_timeout.set_footer(
+                                        text=f"Changes since {db[f'{leaderboard_id}.{season}']['last_update_time']}"
+                                    )
+                                    await msg2.edit(embed=embed_second_timeout)
+                                    await msg.clear_reactions()
+                                    break
+
+                                else:
+                                    await msg.remove_reaction(reaction, user)
+                                    # Removes reactions if invalid
+                            except asyncio.TimeoutError:
+                                await msg.edit(
+                                    embed=discord.Embed(
+                                        title=embed_title,
+                                        description=label + message1 + "```",
+                                        color=0x55D3FD,
+                                    )
+                                )
+                                embed_second_timeout = discord.Embed(
+                                    description="```ansi\n" + message2, color=0x55D3FD
+                                )
+                                embed_second_timeout.set_footer(
+                                    text=f"Changes since {db[f'{leaderboard_id}.{season}']['last_update_time']}"
+                                )
+                                await msg2.edit(embed=embed_second_timeout)
+                                await msg.clear_reactions()
+                                break
+                                # Ending the loop if user doesn't react after 15 seconds
+                    elif (
+                        cannot_split
+                    ):  # Send in 1 message if there are too little records
+                        embed = discord.Embed(
+                            title=embed_title,
+                            description=label + message + "```",
+                            color=0x55D3FD,
+                        )
+                        embed.set_footer(
+                            text=f"Changes since {db[f'{leaderboard_id}.{season}']['last_update_time']}"
+                        )
+                        await interaction.followup.send(embed=embed)
+
+                    # Update to replit's database for old keys
+                    if (f"{leaderboard_id}.{season}" in db.keys()) and (
+                        not new_key_flag
+                    ):
+                        value = dict()
+                        for record in records:
+                            value[record["owner_id"]] = {
+                                "rank": record["rank"],
+                                "score": record["score"],
+                            }
+                        value["last_update_time"] = (
+                            f"{datetime.datetime.utcfromtimestamp(time.time()):%Y-%m-%d %H:%M:%S} UTC"
+                        )
+                        db[record["leaderboard_id"]] = value
+
+                elif changes == "Hidden":
+
+                    def hidden():
+                        # Using f-string spacing to pretty print the leaderboard labels (bold)
+                        message = f"{all_required_season_info}\n📊 ***Leaderboard***:```ansi\n\u001b[1m{'Rank:':<9}{'Name:':<21}{'Crowns:':<8}{'Rounds:':<8}{'C/R:'}\u001b[0m\n{'─' * 52}\n"
+
+                        # Using f-string spacing to pretty print the leaderboard
+                        for record in records:
+                            # Rank (bold)
+                            message += (
+                                f"\u001b[1m{'#' + str(record['rank']):<5}\u001b[0m "
+                            )
+
+                            # Country
+                            message += flag.flagize(
+                                f":{json.loads(record['metadata'])['country']}: "
+                            )
+
+                            # Name
+                            if "\n" in record["username"]:
+                                response = goober_dash_client.non_async_user_info_2(
+                                    record["owner_id"]
+                                )
+                                user_info_2 = response["users"][0]
+                                username = user_info_2["username"]
+                            else:
+                                username = record["username"]
+                            message += f"{username:<21}"
+
+                            # Crowns
+                            message += (
+                                f"{'👑 ' + '{:,}'.format(int(record['score'])):<8}"
+                            )
+
+                            # Rounds
+                            message += f"{record['num_score']:<7}"
+
+                            # C/R
+                            message += (
+                                f"{int(record['score'])/int(record['num_score']):.2f}\n"
+                            )
+                        message += "```"
+                        return message
+
+                    # Send
+                    cur_page = 1
+                    embed_init = discord.Embed(
+                        title=embed_title, description=hidden(), color=0x55D3FD
+                    )
+                    embed_init.set_footer(
+                        text=f"Page {cur_page:<2}: {start:<4} to {end:<4}"
+                    )
+                    msg = await interaction.followup.send(embed=embed_init)
+
+                    for reaction_emoji in ["◀️", "▶️", "⏪", "⏹️"]:
+                        await msg.add_reaction(reaction_emoji)
+
+                    while True:
+                        try:
+                            reaction, user = await client.wait_for(
+                                "reaction_add", timeout=15, check=check
+                            )
+                            # Waiting for a reaction to be added - times out after 15 seconds
+
+                            if str(reaction.emoji) == "▶️" and next_cursor:  # Next page
+                                cur_page += 1
+                                response = await goober_dash_client.query_leaderboard(
+                                    season, leaderboard_id, limit, cursor_dict[cur_page]
+                                )
+                                records = response["records"]
+                                start = records[0]["rank"]
+                                end = records[len(records) - 1]["rank"]
+                                try:
+                                    cursor_dict[cur_page + 1] = response["next_cursor"]
+                                except Exception:
+                                    next_cursor = False  # Does not exist
+                                embed_next = discord.Embed(
+                                    title=embed_title,
+                                    description=hidden(),
+                                    color=0x55D3FD,
+                                )
+                                embed_next.set_footer(
+                                    text=f"Page {cur_page:<2}: {start:<4} to {end:<4}"
+                                )
+                                await msg.edit(embed=embed_next)
+                                await msg.remove_reaction(reaction, user)
+
+                            elif (
+                                str(reaction.emoji) == "◀️" and cur_page > 1
+                            ):  # Previous page
+                                cur_page -= 1
+                                response = await goober_dash_client.query_leaderboard(
+                                    season, leaderboard_id, limit, cursor_dict[cur_page]
+                                )
+                                records = response["records"]
+                                start = records[0]["rank"]
+                                end = records[len(records) - 1]["rank"]
+                                embed_prev = discord.Embed(
+                                    title=embed_title,
+                                    description=hidden(),
+                                    color=0x55D3FD,
+                                )
+                                embed_prev.set_footer(
+                                    text=f"Page {cur_page:<2}: {start:<4} to {end:<4}"
+                                )
+                                await msg.edit(embed=embed_prev)
+                                await msg.remove_reaction(reaction, user)
+
+                            elif (
+                                str(reaction.emoji) == "⏪" and cur_page != 1
+                            ):  # First page
+                                cur_page = 1
+                                next_cursor = True
+                                response = await goober_dash_client.query_leaderboard(
+                                    season, leaderboard_id, limit, cursor_dict[cur_page]
+                                )
+                                records = response["records"]
+                                start = records[0]["rank"]
+                                end = records[len(records) - 1]["rank"]
+                                embed_first = discord.Embed(
+                                    title=embed_title,
+                                    description=hidden(),
+                                    color=0x55D3FD,
+                                )
+                                embed_first.set_footer(
+                                    text=f"Page {cur_page:<2}: {start:<4} to {end:<4}"
+                                )
+                                await msg.edit(embed=embed_first)
+                                await msg.remove_reaction(reaction, user)
+
+                            elif (
+                                str(reaction.emoji) == "⏹️"
+                            ):  # Exit page view and end the loop
+                                response = await goober_dash_client.query_leaderboard(
+                                    season, leaderboard_id, 50
+                                )
+                                records = response["records"]
+                                embed = discord.Embed(
+                                    title=embed_title,
+                                    description=hidden(),
+                                    color=0x55D3FD,
+                                )
+                                await msg.edit(embed=embed)
+                                await msg.clear_reactions()
+                                break
+
+                            else:
+                                await msg.remove_reaction(reaction, user)
+                                # Removes reactions if invalid
+                        except asyncio.TimeoutError:
+                            response = await goober_dash_client.query_leaderboard(
+                                season, leaderboard_id, 50
+                            )
+                            records = response["records"]
+                            embed_2 = discord.Embed(
+                                title=embed_title, description=hidden(), color=0x55D3FD
+                            )
+                            await msg.edit(embed=embed_2)
+                            await msg.clear_reactions()
+                            break
+                            # Ending the loop if user doesn't react after 15 seconds
+            else:
+                embed_init = discord.Embed(
+                    title=embed_title,
+                    description="```No records found```",
+                    color=0x55D3FD,
+                )
+                await interaction.followup.send(embed=embed_init)
+        else:
+            await interaction.followup.send(
+                embed=discord.Embed(color=0xFF0000, title="❌ Invalid Country Code ❌")
+            )
+
+    @app_commands.command()
+    @app_commands.describe(
+        levels="View particular group of levels only or All levels",
+        sorted_by="Sort the list of Goober Dash official levels by desired values (Rating updates daily)",
+        order="Sorted by Ascending or Descending order",
+    )
+    async def official_levels(
+        self,
+        interaction: discord.Interaction,
+        levels: typing.Literal[
+            "Lobby Levels only",
+            "32-player Levels only",
+            "16-player Levels only",
+            "8-player Levels only",
+            "Knockout Levels only",
+            "All Levels",
+        ],
+        sorted_by: typing.Literal[
+            "Name",
+            "Game Mode (Mode)",
+            "Player Count (#)",
+            "Theme",
+            "Rating (👍%)",
+            "Update Time (Update)",
+        ],
+        order: typing.Literal["🔺 Ascending", "🔻 Descending"],
+    ):
+        """🔵 Return the a list of offical levels of Goober Dash, sorted by various values"""
+
+        await interaction.response.defer(ephemeral=False, thinking=True)
+
+        def check(reaction, user):
+            return user == interaction.user and str(reaction.emoji) in [
+                "◀️",
+                "▶️",
+                "⏪",
+                "⏹️",
+            ]
+            # This makes sure nobody except the command sender can interact with the "menu"
+
         response = await goober_dash_client.official_levels()
 
-        levels_info = json.loads(response)
-        level_ids = [levels_info[level]["uuid"] for level in levels_info]
-
-        # Get the rating of each level
-        for level_id in level_ids:
-            response2 = await goober_dash_client.level_info(level_id)
-            map_data = json.loads(response2["payload"])
-            if "goober_dash_public_levels_ratings_2" not in db.keys():
-                db["goober_dash_public_levels_ratings_2"] = dict()
-            try:
-                player_count = 8 if map_data["player_count"] == 9 else map_data["player_count"]
-                type = map_data["game_mode"] + str(player_count)
-                rating = f"{map_data['rating']:.4f}"
-                if type not in db["goober_dash_public_levels_ratings_2"]:
-                    db["goober_dash_public_levels_ratings_2"][type] = dict()
-                db["goober_dash_public_levels_ratings_2"][type][level_id] = rating
-            except:
-                if type not in db["goober_dash_public_levels_ratings_2"]:
-                    db["goober_dash_public_levels_ratings_2"][type] = dict()
-                db["goober_dash_public_levels_ratings_2"][type][level_id] = "N.A."
-            time.sleep(2)
-
-        await asyncio.sleep(86400)
-
-
-  @app_commands.command()
-  @app_commands.describe(
-      type="Global Leaderboard / Country or Region Leaderboard",
-      changes="Only available for Top 50 records of current season, changes since last command used",
-      country_code="Alpha-2 Country Code (e.g. US = United States)(Local Leaderboard only), default US",
-      # season="Season 1 or later, default current season",
-  )
-  async def leaderboard(
-      self,
-      interaction: discord.Interaction,
-      type: typing.Literal["🌎 Global", "🏳️ Local"],
-      changes: typing.Literal["Shown", "Hidden"],
-      country_code: str = "US",
-      # season: int = -1,
-  ):
-      """🔵 Return the specified season leaderboard of Goober Dash of current season"""
-
-      await interaction.response.defer(ephemeral=False, thinking=True)
-
-      def check(reaction, user):
-          return user == interaction.user and str(reaction.emoji) in [
-              "◀️",
-              "▶️",
-              "⏪",
-              "⏹️",
-          ]
-          # This makes sure nobody except the command sender can interact with the "menu"
-
-      # Reassign season if unreasonable
-      # if season < 1 or season > goober_dash_current_season:
-      season = goober_dash_current_season
-
-      # Season Info
-      required_season_info = goober_dash_season_info(season, "long")
-      global all_required_season_info
-      all_required_season_info = (
-          f"📓 ***Season Info***:\n```ansi\n{'Start: ':>10}{required_season_info[0]}\n{'End: ':>10}{required_season_info[1]}\n{'Duration: ':>10}{required_season_info[2]}\n{'Status: ':>10}{required_season_info[3]}\n"
-          + (
-              f"{'Ends in: ':>10}{required_season_info[4]}\n"
-              if season == goober_dash_current_season
-              else ""
-          )
-          + "```"
-      )
-
-      # Hide changes for past seasons
-      # if season < goober_dash_current_season:
-      #     changes = "Hidden"
-
-      # Get leaderboard info
-      invalid_country_code = False
-      if type == "🌎 Global":
-          leaderboard_id = "global"
-          embed_title_bracket = type
-      elif type == "🏳️ Local":
-          try:
-              leaderboard_id = f"country.{country_code.upper()}"
-              country_flag = flag.flagize(f":{country_code.upper()}:")
-              country_name = pycountry.countries.get(alpha_2=f"{country_code.upper()}").name
-              embed_title_bracket = f"{country_flag} {country_code.upper()} - {country_name}"
-          except AttributeError:
-              invalid_country_code = True
-      if invalid_country_code == False:
-          embed_title = f"Goober Dash <:goober:1146508948325814402>\nSeason {season} Leaderboard ({embed_title_bracket}):"
-
-      if changes == "Shown":
-          limit = 100
-      elif changes == "Hidden":
-          limit = 25
-
-      no_records = False
-      try:
-          response = await goober_dash_client.query_leaderboard(season, leaderboard_id, limit)
-          records = response["records"]
-      except aiohttp.ClientResponseError:
-          no_records = True
-
-      if invalid_country_code == False:
-          if no_records == False:
-              start = records[0]["rank"]
-              end = records[len(records) - 1]["rank"]
-              cursor_dict = dict()
-              cursor_dict[1] = ""
-
-              try:
-                  cursor_dict[2] = response["next_cursor"]
-                  next_cursor = True
-              except:
-                  next_cursor = False
-
-              if changes == "Shown":
-                  # Add to replit's database for new keys
-                  new_key_flag = False
-                  if f"{leaderboard_id}.{season}" not in db.keys():
-                      value = dict()
-                      for record in records:
-                          value[record["owner_id"]] = {
-                              "rank": record["rank"],
-                              "score": record["score"],
-                          }
-                      value[
-                          "last_update_time"
-                      ] = f"{datetime.datetime.utcfromtimestamp(time.time()):%Y-%m-%d %H:%M:%S} UTC"
-                      db[record["leaderboard_id"]] = value
-                      new_key_flag = True
-
-                  # Using f-string spacing to pretty print the leaderboard labels (bold)
-                  message = ""
-                  label = f"{all_required_season_info}\n📊 ***Leaderboard***:```ansi\n\u001b[1m    {'Rank:':<9}{'Name:':<21}{'Crowns:'}\u001b[0m\n{'—' * 50}\n"
-
-                  # Using f-string spacing to pretty print the leaderboard
-                  if len(records) < 50:  # Prevent index out of range error
-                      records_range = len(records)
-                  else:
-                      records_range = 50
-
-                  for i in range(records_range):
-                      # Rank difference
-                      try:
-                          rank_diff = (
-                              int(records[i]["rank"])
-                              - int(db[records[i]["leaderboard_id"]
-                                   ][records[i]["owner_id"]]["rank"])
-                          )
-                          if rank_diff < 0:
-                              rank_diff_2 = f"\u001b[2;32m▲{abs(rank_diff):<3}\u001b[0m"
-                          elif rank_diff > 0:
-                              rank_diff_2 = f"\u001b[2;31m▼{abs(rank_diff):<3}\u001b[0m"
-                          else:
-                              rank_diff_2 = f"{'-':^4}"
-                      except KeyError:
-                          rank_diff_2 = f"{'':<4}"  # Not found ind repl.it's database
-
-                      # Rank (bold)
-                      message += (
-                          f"{rank_diff_2}\u001b[1m{'#' + str(records[i]['rank']):<5}\u001b[0m "
-                      )
-
-                      # Country
-                      message += flag.flagize(f":{json.loads(records[i]['metadata'])['country']}: ")
-
-                      # Name
-                      if "\n" in records[i]['username']:
-                          response = goober_dash_client.non_async_user_info_2(records[i]['owner_id'])
-                          user_info_2 = response["users"][0]
-                          username = user_info_2["username"]
-                      else:
-                          username = records[i]['username']
-                      message += f"{username:<21}"
-
-                      # Crowns difference
-                      try:
-                          crowns_diff = (
-                              int(records[i]["score"])
-                              - int(db[records[i]["leaderboard_id"]
-                                   ][records[i]["owner_id"]]["score"])
-                          )
-                          if crowns_diff < 0:
-                              crowns_diff_2 = f"\u001b[2;31m-{abs(crowns_diff):<4}\u001b[0m"
-                          elif crowns_diff > 0:
-                              crowns_diff_2 = f"\u001b[2;32m+{abs(crowns_diff):<4}\u001b[0m"
-                          else:
-                              crowns_diff_2 = f"{'-':^5}"
-                      except:
-                          crowns_diff_2 = f"{'':<5}"
-
-                      # Crowns
-                      message += (
-                        f"{'👑 ' + '{:<6,.0f}'.format(int(records[i]['score']))} {crowns_diff_2}\n"
-                      )
-
-                  # Split message
-                  cannot_split = False  # Prevent index out of range error
-                  try:  # In case there are not enough records
-                      message1 = message[: [m.start()
-                                            for m in re.finditer(r"\n", message)][24]]
-                      message2 = (
-                          message[([m.start()
-                                   for m in re.finditer(r"\n", message)][24]) + 1:]
-                          + "```"
-                      )
-                  except:
-                      cannot_split = True
-
-                  # Send
-                  if cannot_split == False:
-                      cur_page = 1
-                      embed_init = discord.Embed(
-                          title=embed_title,
-                          description=label + message1 + "```",
-                          color=0x55D3FD,
-                      )
-                      embed_init.set_footer(
-                          text=f"Page 1/2:  1 to 25 | Changes since {db[f'{leaderboard_id}.{season}']['last_update_time']}"
-                      )
-                      msg = await interaction.followup.send(embed=embed_init)
-                      msg2 = await interaction.followup.send(
-                          embed=discord.Embed(description="To be edited...", color=0x55D3FD)
-                      )
-
-                      for reaction_emoji in ["◀️", "▶️", "⏹️"]:
-                          await msg.add_reaction(reaction_emoji)
-
-                      while True:
-                          try:
-                              reaction, user = await client.wait_for(
-                                  "reaction_add", timeout=15, check=check
-                              )
-                              # Waiting for a reaction to be added - times out after 15 seconds
-
-                              if str(reaction.emoji) == "▶️" and cur_page == 1:  # Go to Page 2
-                                  cur_page += 1
-                                  embed_first = discord.Embed(
-                                      title=embed_title,
-                                      description="\n" + label + message2,
-                                      color=0x55D3FD
-                                  )
-                                  embed_first.set_footer(
-                                      text=f"Page 2/2: 26 to 50 | Changes since {db[f'{leaderboard_id}.{season}']['last_update_time']}"
-                                  )
-                                  await msg.edit(embed=embed_first)
-                                  await msg.remove_reaction(reaction, user)
-
-                              elif str(reaction.emoji) == "◀️" and cur_page == 2:  # Go to Page 1
-                                  cur_page -= 1
-                                  embed_second = discord.Embed(
-                                      title=embed_title,
-                                      description="\n" + label + message1 + "```",
-                                      color=0x55D3FD
-                                  )
-                                  embed_second.set_footer(
-                                      text=f"Page 1/2:  1 to 25 | Changes since {db[f'{leaderboard_id}.{season}']['last_update_time']}"
-                                  )
-                                  await msg.edit(embed=embed_second)
-                                  await msg.remove_reaction(reaction, user)
-
-                              elif str(reaction.emoji) == "⏹️":  # Exit page view and end the loop
-                                  await msg.edit(
-                                      embed=discord.Embed(
-                                          title=embed_title,
-                                          description=label + message1 + "```",
-                                          color=0x55D3FD
-                                      )
-                                  )
-                                  embed_second_timeout = discord.Embed(
-                                      description="```ansi\n" + message2,
-                                      color=0x55D3FD
-                                  )
-                                  embed_second_timeout.set_footer(
-                                      text=f"Changes since {db[f'{leaderboard_id}.{season}']['last_update_time']}"
-                                  )
-                                  await msg2.edit(embed=embed_second_timeout)
-                                  await msg.clear_reactions()
-                                  break
-
-                              else:
-                                  await msg.remove_reaction(reaction, user)
-                                  # Removes reactions if invalid
-                          except asyncio.TimeoutError:
-                              await msg.edit(
-                                  embed=discord.Embed(
-                                      title=embed_title,
-                                      description=label + message1 + "```",
-                                      color=0x55D3FD
-                                  )
-                              )
-                              embed_second_timeout = discord.Embed(
-                                  description="```ansi\n" + message2,
-                                  color=0x55D3FD
-                              )
-                              embed_second_timeout.set_footer(
-                                  text=f"Changes since {db[f'{leaderboard_id}.{season}']['last_update_time']}"
-                              )
-                              await msg2.edit(embed=embed_second_timeout)
-                              await msg.clear_reactions()
-                              break
-                              # Ending the loop if user doesn't react after 15 seconds
-                  elif cannot_split == True:  # Send in 1 message if there are too little records
-                      embed=discord.Embed(
-                          title=embed_title,
-                          description=label + message + "```",
-                          color=0x55D3FD,
-                      )
-                      embed.set_footer(text=f"Changes since {db[f'{leaderboard_id}.{season}']['last_update_time']}")
-                      await interaction.followup.send(embed=embed)
-
-                  # Update to replit's database for old keys
-                  if (f"{leaderboard_id}.{season}" in db.keys()) and (new_key_flag == False):
-                      value = dict()
-                      for record in records:
-                          value[record["owner_id"]] = {
-                              "rank": record["rank"],
-                              "score": record["score"],
-                          }
-                      value[
-                          "last_update_time"
-                      ] = f"{datetime.datetime.utcfromtimestamp(time.time()):%Y-%m-%d %H:%M:%S} UTC"
-                      db[record["leaderboard_id"]] = value
-
-              elif changes == "Hidden":
-
-                  def hidden():
-                      # Using f-string spacing to pretty print the leaderboard labels (bold)
-                      message = f"{all_required_season_info}\n📊 ***Leaderboard***:```ansi\n\u001b[1m{'Rank:':<9}{'Name:':<21}{'Crowns:':<8}{'Rounds:':<8}{'C/R:'}\u001b[0m\n{'─' * 52}\n"
-
-                      # Using f-string spacing to pretty print the leaderboard
-                      for record in records:
-                          # Rank (bold)
-                          message += f"\u001b[1m{'#' + str(record['rank']):<5}\u001b[0m "
-
-                          # Country
-                          message += flag.flagize(f":{json.loads(record['metadata'])['country']}: ")
-
-                          # Name
-                          if "\n" in record['username']:
-                              response = goober_dash_client.non_async_user_info_2(record['owner_id'])
-                              user_info_2 = response["users"][0]
-                              username = user_info_2["username"]
-                          else:
-                              username = record['username']
-                          message += f"{username:<21}"
-
-                          # Crowns
-                          message += f"{'👑 ' + '{:,}'.format(int(record['score'])):<8}"
-
-                          # Rounds
-                          message += f"{record['num_score']:<7}"
-
-                          # C/R
-                          message += f"{int(record['score'])/int(record['num_score']):.2f}\n"
-                      message += "```"
-                      return message
-
-                  # Send
-                  cur_page = 1
-                  embed_init = discord.Embed(
-                      title=embed_title,
-                      description=hidden(),
-                      color=0x55D3FD
-                  )
-                  embed_init.set_footer(
-                      text=f"Page {cur_page:<2}: {start:<4} to {end:<4}")
-                  msg = await interaction.followup.send(embed=embed_init)
-
-                  for reaction_emoji in ["◀️", "▶️", "⏪", "⏹️"]:
-                      await msg.add_reaction(reaction_emoji)
-
-                  while True:
-                      try:
-                          reaction, user = await client.wait_for(
-                              "reaction_add", timeout=15, check=check
-                          )
-                          # Waiting for a reaction to be added - times out after 15 seconds
-
-                          if str(reaction.emoji) == "▶️" and next_cursor != False:  # Next page
-                              cur_page += 1
-                              response = await goober_dash_client.query_leaderboard(
-                                  season, leaderboard_id, limit, cursor_dict[cur_page]
-                              )
-                              records = response["records"]
-                              start = records[0]["rank"]
-                              end = records[len(records) - 1]["rank"]
-                              try:
-                                  cursor_dict[cur_page + 1] = response["next_cursor"]
-                              except:
-                                  next_cursor = False  # Does not exist
-                              embed_next = discord.Embed(
-                                  title=embed_title,
-                                  description=hidden(),
-                                  color=0x55D3FD
-                              )
-                              embed_next.set_footer(
-                                  text=f"Page {cur_page:<2}: {start:<4} to {end:<4}"
-                              )
-                              await msg.edit(embed=embed_next)
-                              await msg.remove_reaction(reaction, user)
-
-                          elif str(reaction.emoji) == "◀️" and cur_page > 1:  # Previous page
-                              cur_page -= 1
-                              response = await goober_dash_client.query_leaderboard(
-                                  season, leaderboard_id, limit, cursor_dict[cur_page]
-                              )
-                              records = response["records"]
-                              start = records[0]["rank"]
-                              end = records[len(records) - 1]["rank"]
-                              embed_prev = discord.Embed(
-                                  title=embed_title,
-                                  description=hidden(),
-                                  color=0x55D3FD
-                              )
-                              embed_prev.set_footer(
-                                  text=f"Page {cur_page:<2}: {start:<4} to {end:<4}"
-                              )
-                              await msg.edit(embed=embed_prev)
-                              await msg.remove_reaction(reaction, user)
-
-                          elif str(reaction.emoji) == "⏪" and cur_page != 1:  # First page
-                              cur_page = 1
-                              next_cursor = True
-                              response = await goober_dash_client.query_leaderboard(
-                                  season, leaderboard_id, limit, cursor_dict[cur_page]
-                              )
-                              records = response["records"]
-                              start = records[0]["rank"]
-                              end = records[len(records) - 1]["rank"]
-                              embed_first = discord.Embed(
-                                  title=embed_title,
-                                  description=hidden(),
-                                  color=0x55D3FD
-                              )
-                              embed_first.set_footer(
-                                  text=f"Page {cur_page:<2}: {start:<4} to {end:<4}"
-                              )
-                              await msg.edit(embed=embed_first)
-                              await msg.remove_reaction(reaction, user)
-
-                          elif str(reaction.emoji) == "⏹️":  # Exit page view and end the loop
-                              response = await goober_dash_client.query_leaderboard(
-                                  season, leaderboard_id, 50
-                              )
-                              records = response["records"]
-                              embed=discord.Embed(
-                                  title=embed_title,
-                                  description=hidden(),
-                                  color=0x55D3FD
-                              )
-                              await msg.edit(embed=embed)
-                              await msg.clear_reactions()
-                              break
-
-                          else:
-                              await msg.remove_reaction(reaction, user)
-                              # Removes reactions if invalid
-                      except asyncio.TimeoutError:
-                          response = await goober_dash_client.query_leaderboard(
-                              season, leaderboard_id, 50
-                          )
-                          records = response["records"]
-                          embed_2=discord.Embed(
-                              title=embed_title,
-                              description=hidden(),
-                              color=0x55D3FD
-                          )
-                          await msg.edit(embed=embed_2)
-                          await msg.clear_reactions()
-                          break
-                          # Ending the loop if user doesn't react after 15 seconds
-          else:
-              embed_init = discord.Embed(
-                  title=embed_title,
-                  description="```No records found```",
-                  color=0x55D3FD
-              )
-              await interaction.followup.send(embed=embed_init)
-      else:
-          await interaction.followup.send(embed=discord.Embed(color=0xFF0000,title="❌ Invalid Country Code ❌"))
-
-
-  @app_commands.command()
-  @app_commands.describe(
-      levels="View particular group of levels only or All levels",
-      sorted_by="Sort the list of Goober Dash official levels by desired values (Rating updates daily)",
-      order="Sorted by Ascending or Descending order"
-  )
-  async def official_levels(
-      self,
-      interaction: discord.Interaction,
-      levels: typing.Literal["Lobby Levels only", "32-player Levels only", "16-player Levels only", "8-player Levels only", "Knockout Levels only", "All Levels"],
-      sorted_by: typing.Literal["Name", "Game Mode (Mode)", "Player Count (#)",
-      "Theme", "Rating (👍%)", "Update Time (Update)"],
-      order: typing.Literal["🔺 Ascending", "🔻 Descending"],
-  ):
-      """🔵 Return the a list of offical levels of Goober Dash, sorted by various values"""
-
-      await interaction.response.defer(ephemeral=False, thinking=True)
-
-      def check(reaction, user):
-          return user == interaction.user and str(reaction.emoji) in [
-              "◀️",
-              "▶️",
-              "⏪",
-              "⏹️",
-          ]
-          # This makes sure nobody except the command sender can interact with the "menu"
-
-      response = await goober_dash_client.official_levels()
-
-      sorted_by_list = ["Name", "Game Mode (Mode)", "Player Count (#)", "Theme", "Rating (👍%)", "Update Time (Update)"]
-      levels_info = json.loads(response)
-      level_ids, names, game_modes, player_counts, themes, ratings, update_times = ([] for i in range(7))
-      for level in levels_info:
-          game_mode = levels_info[level]["game_mode"]
-          player_count = levels_info[level]["player_count"]
-          player_count = 8 if player_count == 9 else player_count
-          type = game_mode + str(player_count)
-          levels_type = {
-              "Lobby Levels only": "Lobby32",
-              "32-player Levels only": "Race32",
-              "16-player Levels only": "Race16",
-              "8-player Levels only": "Race8",
-              "Knockout Levels only": "Knockout4"
-          }
-          if levels != "All Levels" and levels_type[levels] != type:
-              continue
-          else:
-              level_ids.append(levels_info[level]["uuid"])
-              names.append(levels_info[level]["level_name"])
-              game_modes.append(game_mode)
-              player_counts.append(player_count)
-              themes.append(levels_info[level]["level_theme"].title())
-              try:
-                  ratings.append(round((float(db["goober_dash_public_levels_ratings_2"][type][levels_info[level]["uuid"]])-1)*25))
-              except:
-                  ratings.append("-1")
-              update_times.append(levels_info[level]["update_time"])
-    
-      a = np.stack((level_ids, names, game_modes, player_counts, themes, ratings, update_times), axis=1)  # 2d-array which stores all levels_info
-      b = a.astype('object')
-      b[:, 3] = b[:, 3].astype('int')  # fix player_counts data type issue
-      b[:, 5] = b[:, 5].astype('int')  # fix level_rating data type issue
-      column_index = sorted_by_list.index(sorted_by) + 1
-      if levels == "Lobby Levels only": # filter levels
-          b = b[np.in1d(b[:, 2], np.asarray(['Lobby']))]
-      elif levels == "32-player Levels only":
-          b = b[np.in1d(b[:, 2], np.asarray(['Race']))]
-          b = b[np.in1d(b[:, 3], np.asarray([32]))]
-      elif levels == "16-player Levels only":
-          b = b[np.in1d(b[:, 3], np.asarray([16]))]
-      elif levels == "8-player Levels only":
-          b = b[np.in1d(b[:, 3], np.asarray([8]))]
-      elif levels == "Knockout Levels only":
-          b = b[np.in1d(b[:, 2], np.asarray(['Knockout']))]
-      c = b[b[:, column_index].argsort(), :]  # sort by columns
-      c = c[::-1] if order == "🔻 Descending" else c  # reverse order (if necessary)
-      
-      message = ""
-      length = len(c)
-      for i in c: # i = level
-          message += f"{i[1]:<18}{i[2]:<9}{i[3]:<3}{i[4]:<8}"
-          if i[5] != -1:
-              if i[5] >= 0 and i[5] < 33: # Red
-                  color_code = 31
-              elif i[5] >= 33 and i[5] < 67: # Yellow
-                  color_code = 33
-              elif i[5] >= 67 and i[5] <= 100: # Green
-                  color_code = 32
-              message += f"\u001b[2;{color_code}m" + f"{i[5]:<5}" + "\u001b[0m"
-          else:
-              message += f"{'N.A.':<5}"
-          message += f"{datetime.datetime.utcfromtimestamp(int(i[6])).strftime('%Y-%m-%d')}\n"
-      
-      # Split the message every 25 lines to a list
-      message_list_25 = re.findall('((?:[^\n]+\n?){1,25})', message)
-      message_list_25 = [message] if len(message_list_25) == 0 else message_list_25
-      
-      # Split the message every 50 lines to a list
-      message_list_50 = re.findall('((?:[^\n]+\n?){1,50})', message)
-      message_list_50 = [message] if len(message_list_50) == 0 else message_list_50
-      
-      # Title for embed
-      if sorted_by == "Game Mode (Mode)":
-          sorted_by_rennamed = "Game Mode"
-      elif sorted_by == "Player Count (#)":
-          sorted_by_rennamed = "Player Count"
-      elif sorted_by == "Rating (👍%)":
-          sorted_by_rennamed = "Rating"
-      elif sorted_by == "Update Time (Update)":
-          sorted_by_rennamed = "Update Time"
-      else:
-          sorted_by_rennamed = sorted_by
-      embed_title = f"Goober Dash <:goober:1146508948325814402>\nOfficial Levels ({levels})\n(Sorted by {sorted_by_rennamed} - {order} order):"
-
-      # Label for embed
-      # General Info Section
-      type_counts = dict()
-      for key in db["goober_dash_public_levels_ratings_2"]:
-          type_counts[key] = len(db["goober_dash_public_levels_ratings_2"][key])
-      
-      label = f"📓 ***General Info***:```ansi\n\u001b[1m{'Mode':^16}{'Players':^14}{'Number of Levels':^23}\u001b[0m\n{'—' * 53}\n"
-      label += f"{'Lobby':^16}{'32':^14}{type_counts['Lobby32']:^23}\n"
-      label += f"{'Race':^16}{'32':^14}{type_counts['Race32']:^23}\n"
-      label += f"{'Race':^16}{'16':^14}{type_counts['Race16']:^23}\n"
-      label += f"{'Race':^16}{'8':^14}{type_counts['Race8']:^23}\n"
-      label += f"{'Knockout':^16}{'4':^14}{type_counts['Knockout4']:^23}\n"
-      label += f" Total {sum(type_counts.values())} Levels ".center(53, '*')
-      label += "\n```\n"
-
-      # Levels Info Section
-      label += f"🗒️ ***Levels Info***:```ansi\n\u001b[1m{'Name ':<18}{'Mode ':<9}{'# ':<3}{'Theme ':<8}{'👍% ':<4}{'Update '}\u001b[0m\n{'—' * 53}\n"
-      if sorted_by == "Game Mode (Mode)":
-          target = "Mode"
-      elif sorted_by == "Player Count (#)":
-          target = "#"
-      elif sorted_by == "Rating (👍%)":
-          target = "👍%"
-      elif sorted_by == "Update Time (Update)":
-          target = "Update"
-      else:
-          target = sorted_by
-      index = label.index(target) + len(target)
-      arrow = '\u001b[2;31m' + ('▼' if order == "🔻 Descending" else "▲") + '\u001b[0m'
-      label = label[:index] + arrow + label[index + 1:]
-      
-      def hidden(i):
-          # the labels and the genral info section
-          message = label
-          
-          # the official map info list
-          message += message_list_25[i]
-          message += "```"
-
-          return message
-
-      # Send
-      cur_page = 1
-      embed_init = discord.Embed(
-          title=embed_title,
-          description=hidden(cur_page - 1),
-          color=0x55D3FD
+        data = json.loads(response)
+        count_lobby = sum(
+            1 for level in data["levels"] if level["game_mode"] == "Lobby"
         )
-      embed_init.set_footer(text=f"Page {cur_page:<2}: 1 to {length if cur_page*25 > length else cur_page*25}")
-      msg = await interaction.followup.send(embed=embed_init)
+        count_knockout = sum(
+            1 for level in data["levels"] if level["game_mode"] == "Knockout"
+        )
+        count_8 = sum(
+            1
+            for level in data["levels"]
+            if largest_power_of_2(level["player_count"]) == 8
+            and level["game_mode"] == "Race"
+        )
+        count_16 = sum(
+            1
+            for level in data["levels"]
+            if largest_power_of_2(level["player_count"]) == 16
+            and level["game_mode"] == "Race"
+        )
+        count_32 = sum(
+            1
+            for level in data["levels"]
+            if largest_power_of_2(level["player_count"]) == 32
+            and level["game_mode"] == "Race"
+        )
+        count_total = count_lobby + count_knockout + count_8 + count_16 + count_32
 
-      for reaction_emoji in ["◀️", "▶️", "⏪", "⏹️"]:
-          await msg.add_reaction(reaction_emoji)
+        sorted_by_list = [
+            "Name",
+            "Game Mode (Mode)",
+            "Player Count (#)",
+            "Theme",
+            "Rating (👍%)",
+            "Update Time (Update)",
+        ]
+        levels_info = json.loads(response)["levels"]
+        level_ids, names, game_modes, player_counts, themes, ratings, update_times = (
+            [] for i in range(7)
+        )
+        for level in levels_info:
+            game_mode = level["game_mode"]
+            player_count = (
+                4
+                if game_mode == "Knockout"
+                else largest_power_of_2(level["player_count"])
+            )
+            type = game_mode + str(player_count)
+            levels_type = {
+                "Lobby Levels only": "Lobby32",
+                "32-player Levels only": "Race32",
+                "16-player Levels only": "Race16",
+                "8-player Levels only": "Race8",
+                "Knockout Levels only": "Knockout4",
+            }
+            if levels != "All Levels" and levels_type[levels] != type:
+                continue
+            else:
+                level_ids.append(level["id"])
+                names.append(level["name"])
+                game_modes.append(game_mode)
+                player_counts.append(player_count)
+                themes.append(level["theme"].title())
+                try:
+                    ratings.append(
+                        db["goober_dash_public_levels_ratings_3"][level["id"]]
+                    )
+                except Exception:
+                    ratings.append("-1")
+                update_times.append(level["update_time"])
 
-      global next_cursor
-      next_cursor = True
+        a = np.stack(
+            (
+                level_ids,
+                names,
+                game_modes,
+                player_counts,
+                themes,
+                ratings,
+                update_times,
+            ),
+            axis=1,
+        )  # 2d-array which stores all levels_info
+        b = a.astype("object")
+        b[:, 3] = b[:, 3].astype("int")  # fix player_counts data type issue
+        b[:, 5] = b[:, 5].astype("int")  # fix level_rating data type issue
+        column_index = sorted_by_list.index(sorted_by) + 1
+        if levels == "Lobby Levels only":  # filter levels
+            b = b[np.in1d(b[:, 2], np.asarray(["Lobby"]))]
+        elif levels == "32-player Levels only":
+            b = b[np.in1d(b[:, 2], np.asarray(["Race"]))]
+            b = b[np.in1d(b[:, 3], np.asarray([32]))]
+        elif levels == "16-player Levels only":
+            b = b[np.in1d(b[:, 3], np.asarray([16]))]
+        elif levels == "8-player Levels only":
+            b = b[np.in1d(b[:, 3], np.asarray([8]))]
+        elif levels == "Knockout Levels only":
+            b = b[np.in1d(b[:, 2], np.asarray(["Knockout"]))]
+        c = b[b[:, column_index].argsort(), :]  # sort by columns
+        c = c[::-1] if order == "🔻 Descending" else c  # reverse order (if necessary)
 
-      while True:
-          try:
-              reaction, user = await client.wait_for(
-                  "reaction_add", timeout=15, check=check
-              )
-              # Waiting for a reaction to be added - times out after 15 seconds
+        message = ""
+        length = len(c)
 
-              if str(reaction.emoji) == "▶️" and next_cursor != False:  # Next page
-                  cur_page += 1
-                  try:
-                      description = hidden(cur_page - 1)
-                  except IndexError:
-                      cur_page -= 1
-                      next_cursor = False
-                  if next_cursor == True:
-                      embed_next = discord.Embed(
-                          title=embed_title,
-                          description=description,
-                          color=0x55D3FD
-                      )
-                      embed_next.set_footer(text=f"Page {cur_page:<2}: {(cur_page-1)*25+1} to {length if cur_page*25 > length else cur_page*25}")
-                      await msg.edit(embed=embed_next)
-                  await msg.remove_reaction(reaction, user)
+        for i in c:  # i = level
+            lines = textwrap.wrap(i[1], 19, break_long_words=False)
+            message += f"{lines[0]:<20}{i[2]:<9}{i[3]:<3}{i[4]:<8}"
+            if i[5] != -1:
+                if i[5] < 76:  # Yellow
+                    color_code = 33
+                else:  # Green
+                    color_code = 32
+                message += f"\u001b[2;{color_code}m" + f"{i[5]:<5}" + "\u001b[0m"
+            else:
+                message += f"{'N.A.':<5}"
+            message += f"{datetime.datetime.fromisoformat(i[6].replace('Z', '+00:00').split('.')[0]).strftime('%Y-%m-%d')}\n"
+            lines_index = 1
+            while True:
+                try:
+                    message += f"{lines[lines_index]}\n"
+                except IndexError:
+                    break
+                lines_index += 1
 
-              elif str(reaction.emoji) == "◀️" and cur_page > 1:  # Previous page
-                  cur_page -= 1
-                  embed_prev = discord.Embed(
-                      title=embed_title,
-                      description=hidden(cur_page - 1),
-                      color=0x55D3FD
-                  )
-                  embed_prev.set_footer(text=f"Page {cur_page:<2}: {(cur_page-1)*25+1} to {length if cur_page*25 > length else cur_page*25}")
-                  await msg.edit(embed=embed_prev)
-                  await msg.remove_reaction(reaction, user)
+        # Split the message every 25 lines to a list
+        message_list_25 = re.findall("((?:[^\n]+\n?){1,25})", message)
+        message_list_25 = [message] if len(message_list_25) == 0 else message_list_25
 
-              elif str(reaction.emoji) == "⏪" and cur_page != 1:  # First page
-                  cur_page = 1
-                  next_cursor = True
-                  embed_first = discord.Embed(
-                      title=embed_title,
-                      description=hidden(cur_page - 1),
-                      color=0x55D3FD
-                  )
-                  embed_first.set_footer(text=f"Page {cur_page:<2}: {(cur_page-1)*25+1} to {length if cur_page*25 > length else cur_page*25}")
-                  await msg.edit(embed=embed_first)
-                  await msg.remove_reaction(reaction, user)
+        # Split the message every 50 lines to a list
+        message_list_50 = re.findall("((?:[^\n]+\n?){1,50})", message)
+        message_list_50 = [message] if len(message_list_50) == 0 else message_list_50
 
-              elif str(reaction.emoji) == "⏹️":  # Exit page view and end the loop
-                  embed=discord.Embed(
-                      title=embed_title,
-                      description=label+message_list_50[0]+'```',
-                      color=0x55D3FD
-                  )
-                  await msg.edit(embed=embed)
-                  await msg.clear_reactions()
-                  break
-              else:
-                  await msg.remove_reaction(reaction, user)
-                  # Removes reactions if invalid
-          except asyncio.TimeoutError:
-              embed=discord.Embed(
-                  title=embed_title,
-                  description=label+message_list_50[0]+'```',
-                  color=0x55D3FD
-              )
-              await msg.edit(embed=embed)
-              await msg.clear_reactions()
-              break
-              # Ending the loop if user doesn't react after 15 seconds
+        # Title for embed
+        if sorted_by == "Game Mode (Mode)":
+            sorted_by_rennamed = "Game Mode"
+        elif sorted_by == "Player Count (#)":
+            sorted_by_rennamed = "Player Count"
+        elif sorted_by == "Rating (👍%)":
+            sorted_by_rennamed = "Rating"
+        elif sorted_by == "Update Time (Update)":
+            sorted_by_rennamed = "Update Time"
+        else:
+            sorted_by_rennamed = sorted_by
+        embed_title = f"Goober Dash <:goober:1146508948325814402>\nOfficial Levels ({levels})\n(Sorted by {sorted_by_rennamed} - {order} order):"
 
-      # Send the remaining levels (#51 onwards)
-      for i in range(len(message_list_50)):
-          try:
-              embed=discord.Embed(
-                description='```ansi\n' + message_list_50[i+1] + '```',
-                color=0x55D3FD
-              )
-              await interaction.followup.send(embed=embed)
-          except IndexError:
-              break
+        # Label for embed
+        # General Info Section
+        label = f"📓 ***General Info***:```ansi\n\u001b[1m{'Mode':^16}{'Players':^14}{'Number of Levels':^23}\u001b[0m\n{'—' * 53}\n"
+        label += f"{'Lobby':^16}{'32':^14}{count_lobby:^23}\n"
+        label += f"{'Race':^16}{'32':^14}{count_32:^23}\n"
+        label += f"{'Race':^16}{'16':^14}{count_16:^23}\n"
+        label += f"{'Race':^16}{'8':^14}{count_8:^23}\n"
+        label += f"{'Knockout':^16}{'4':^14}{count_knockout:^23}\n"
+        label += f" Total {count_total} Levels ".center(53, "*")
+        label += "\n```\n"
+
+        # Levels Info Section
+        label += f"🗒️ ***Levels Info***:```ansi\n\u001b[1m{'Name ':<20}{'Mode ':<9}{'# ':<3}{'Theme ':<8}{'👍% ':<4}{'Update '}\u001b[0m\n{'—' * 55}\n"
+        if sorted_by == "Game Mode (Mode)":
+            target = "Mode"
+        elif sorted_by == "Player Count (#)":
+            target = "#"
+        elif sorted_by == "Rating (👍%)":
+            target = "👍%"
+        elif sorted_by == "Update Time (Update)":
+            target = "Update"
+        else:
+            target = sorted_by
+        index = label.index(target) + len(target)
+        arrow = (
+            "\u001b[2;31m" + ("▼" if order == "🔻 Descending" else "▲") + "\u001b[0m"
+        )
+        label = label[:index] + arrow + label[index + 1 :]
+
+        def hidden(i):
+            # the labels and the genral info section
+            message = label
+
+            # the official map info list
+            message += message_list_25[i]
+            message += "```"
+
+            return message
+
+        # Send
+        cur_page = 1
+        embed_init = discord.Embed(
+            title=embed_title, description=hidden(cur_page - 1), color=0x55D3FD
+        )
+        embed_init.set_footer(
+            text=f"Page {cur_page:<2}: 1 to {length if cur_page*25 > length else cur_page*25}"
+        )
+        msg = await interaction.followup.send(embed=embed_init)
+
+        for reaction_emoji in ["◀️", "▶️", "⏪", "⏹️"]:
+            await msg.add_reaction(reaction_emoji)
+
+        global next_cursor
+        next_cursor = True
+
+        while True:
+            try:
+                reaction, user = await client.wait_for(
+                    "reaction_add", timeout=15, check=check
+                )
+                # Waiting for a reaction to be added - times out after 15 seconds
+
+                if str(reaction.emoji) == "▶️" and next_cursor:  # Next page
+                    cur_page += 1
+                    try:
+                        description = hidden(cur_page - 1)
+                    except IndexError:
+                        cur_page -= 1
+                        next_cursor = False
+                    if next_cursor:
+                        embed_next = discord.Embed(
+                            title=embed_title, description=description, color=0x55D3FD
+                        )
+                        embed_next.set_footer(
+                            text=f"Page {cur_page:<2}: {(cur_page-1)*25+1} to {length if cur_page*25 > length else cur_page*25}"
+                        )
+                        await msg.edit(embed=embed_next)
+                    await msg.remove_reaction(reaction, user)
+
+                elif str(reaction.emoji) == "◀️" and cur_page > 1:  # Previous page
+                    cur_page -= 1
+                    embed_prev = discord.Embed(
+                        title=embed_title,
+                        description=hidden(cur_page - 1),
+                        color=0x55D3FD,
+                    )
+                    embed_prev.set_footer(
+                        text=f"Page {cur_page:<2}: {(cur_page-1)*25+1} to {length if cur_page*25 > length else cur_page*25}"
+                    )
+                    await msg.edit(embed=embed_prev)
+                    await msg.remove_reaction(reaction, user)
+
+                elif str(reaction.emoji) == "⏪" and cur_page != 1:  # First page
+                    cur_page = 1
+                    next_cursor = True
+                    embed_first = discord.Embed(
+                        title=embed_title,
+                        description=hidden(cur_page - 1),
+                        color=0x55D3FD,
+                    )
+                    embed_first.set_footer(
+                        text=f"Page {cur_page:<2}: {(cur_page-1)*25+1} to {length if cur_page*25 > length else cur_page*25}"
+                    )
+                    await msg.edit(embed=embed_first)
+                    await msg.remove_reaction(reaction, user)
+
+                elif str(reaction.emoji) == "⏹️":  # Exit page view and end the loop
+                    embed = discord.Embed(
+                        title=embed_title,
+                        description=label + message_list_50[0] + "```",
+                        color=0x55D3FD,
+                    )
+                    await msg.edit(embed=embed)
+                    await msg.clear_reactions()
+                    break
+                else:
+                    await msg.remove_reaction(reaction, user)
+                    # Removes reactions if invalid
+            except asyncio.TimeoutError:
+                embed = discord.Embed(
+                    title=embed_title,
+                    description=label + message_list_50[0] + "```",
+                    color=0x55D3FD,
+                )
+                await msg.edit(embed=embed)
+                await msg.clear_reactions()
+                break
+                # Ending the loop if user doesn't react after 15 seconds
+
+        # Send the remaining levels (#51 onwards)
+        for i in range(len(message_list_50)):
+            try:
+                embed = discord.Embed(
+                    description="```ansi\n" + message_list_50[i + 1] + "```",
+                    color=0x55D3FD,
+                )
+                await interaction.followup.send(embed=embed)
+            except IndexError:
+                break
+
+
 ####################### GOOBER-DASH REACTION COMMANDS END #######################
 
 
@@ -911,10 +1037,10 @@ def moonrock_miners_season_info(season):
     start_of_first_season = moonrock_miners_server_config["start_of_first_season"]
     season_duration = moonrock_miners_server_config["season_duration"]
 
-    season_start_timestamp = start_of_first_season+season_duration*(season-1)
+    season_start_timestamp = start_of_first_season + season_duration * (season - 1)
     season_start = f"{datetime.datetime.utcfromtimestamp(season_start_timestamp):%Y-%m-%d %H:%M:%S} UTC"
 
-    season_end_timestamp = start_of_first_season+season_duration*season
+    season_end_timestamp = start_of_first_season + season_duration * season
     season_end = f"{datetime.datetime.utcfromtimestamp(season_end_timestamp):%Y-%m-%d %H:%M:%S} UTC"
 
     season_days = f"{season_duration/(60*60*24):.0f} days"
@@ -940,35 +1066,39 @@ def moonrock_miners_season_info(season):
     else:
         time_remaining = ""
 
-    moonrock_miners_all_season_info = [season_start, season_end,
-                       season_days, status, time_remaining]
+    moonrock_miners_all_season_info = [
+        season_start,
+        season_end,
+        season_days,
+        status,
+        time_remaining,
+    ]
     return moonrock_miners_all_season_info
 
 
-class moonrock_miners(app_commands.Group): # MM_RC
+class moonrock_miners(app_commands.Group):  # MM_RC
     """Moonrock Miners reaction commands"""
 
     def __init__(self, bot: discord.client):
         super().__init__()
 
+    async def refresh_config(self):
+        """Refresh Moonrock Miners game configuration every 10 minutes"""
 
-    async def refresh_config():
-      """Refresh Moonrock Miners game configuration every 10 minutes"""
+        global moonrock_miners_server_config
 
-      global moonrock_miners_server_config
+        while True:
+            response = await moonrock_miners_client.get_config()
+            moonrock_miners_server_config = json.loads(response["payload"])
 
-      while True:
-          response = await moonrock_miners_client.get_config()
-          moonrock_miners_server_config = json.loads(response["payload"])
+            # Remove past season keys
+            global moonrock_miners_current_season
+            moonrock_miners_current_season = moonrock_miners_server_config["season"]
+            for i in db.prefix("trophies"):
+                if str(moonrock_miners_current_season) not in i:
+                    del db[i]
 
-          # Remove past season keys
-          global moonrock_miners_current_season
-          moonrock_miners_current_season = moonrock_miners_server_config["season"]
-          for i in db.prefix("trophies"):
-              if str(moonrock_miners_current_season) not in i:
-                  del db[i]
-
-          await asyncio.sleep(600)
+            await asyncio.sleep(600)
 
     @app_commands.command()
     @app_commands.describe(
@@ -1023,14 +1153,16 @@ class moonrock_miners(app_commands.Group): # MM_RC
         elif changes == "Hidden":
             limit = 25
 
-        response = await moonrock_miners_client.query_leaderboard(season, "trophies", limit)
+        response = await moonrock_miners_client.query_leaderboard(
+            season, "trophies", limit
+        )
         no_records = False
         try:
             records = json.loads(response["payload"])["records"]
         except KeyError:
             no_records = True
 
-        if no_records == False:
+        if not no_records:
             start = records[0]["rank"]
             end = records[len(records) - 1]["rank"]
             cursor_dict = dict()
@@ -1039,7 +1171,7 @@ class moonrock_miners(app_commands.Group): # MM_RC
             try:
                 cursor_dict[2] = json.loads(response["payload"])["next_cursor"]
                 next_cursor = True
-            except:
+            except Exception:
                 next_cursor = False
 
             if changes == "Shown":
@@ -1052,9 +1184,9 @@ class moonrock_miners(app_commands.Group): # MM_RC
                             "rank": record["rank"],
                             "score": record["score"],
                         }
-                    value[
-                        "last_update_time"
-                    ] = f"{datetime.datetime.utcfromtimestamp(time.time()):%Y-%m-%d %H:%M:%S} UTC"
+                    value["last_update_time"] = (
+                        f"{datetime.datetime.utcfromtimestamp(time.time()):%Y-%m-%d %H:%M:%S} UTC"
+                    )
                     db[record["leaderboard_id"]] = value
                     new_key_flag = True
 
@@ -1073,8 +1205,9 @@ class moonrock_miners(app_commands.Group): # MM_RC
                     try:
                         rank_diff = (
                             records[i]["rank"]
-                            - db[records[i]["leaderboard_id"]
-                                 ][records[i]["owner_id"]]["rank"]
+                            - db[records[i]["leaderboard_id"]][records[i]["owner_id"]][
+                                "rank"
+                            ]
                         )
                         if rank_diff < 0:
                             rank_diff_2 = f"\u001b[2;32m▲{abs(rank_diff):<3}\u001b[0m"
@@ -1086,9 +1219,7 @@ class moonrock_miners(app_commands.Group): # MM_RC
                         rank_diff_2 = f"{'':<4}"  # Not found ind repl.it's database
 
                     # Rank (bold)
-                    message += (
-                        f"{rank_diff_2}\u001b[1m{'#' + str(records[i]['rank']):<5}\u001b[0m "
-                    )
+                    message += f"{rank_diff_2}\u001b[1m{'#' + str(records[i]['rank']):<5}\u001b[0m "
 
                     # Name
                     message += f"{records[i]['username']:<20} "
@@ -1097,50 +1228,57 @@ class moonrock_miners(app_commands.Group): # MM_RC
                     try:
                         trophies_diff = (
                             records[i]["score"]
-                            - db[records[i]["leaderboard_id"]
-                                 ][records[i]["owner_id"]]["score"]
+                            - db[records[i]["leaderboard_id"]][records[i]["owner_id"]][
+                                "score"
+                            ]
                         )
                         if trophies_diff < 0:
-                            trophies_diff_2 = f"\u001b[2;31m-{abs(trophies_diff):<4}\u001b[0m"
+                            trophies_diff_2 = (
+                                f"\u001b[2;31m-{abs(trophies_diff):<4}\u001b[0m"
+                            )
                         elif trophies_diff > 0:
-                            trophies_diff_2 = f"\u001b[2;32m+{abs(trophies_diff):<4}\u001b[0m"
+                            trophies_diff_2 = (
+                                f"\u001b[2;32m+{abs(trophies_diff):<4}\u001b[0m"
+                            )
                         else:
                             trophies_diff_2 = f"{'-':^5}"
-                    except:
+                    except Exception:
                         trophies_diff_2 = f"{'':<5}"
 
                     # Trophies
-                    message += (
-                        f"{'🏆 ' + '{:<6,.0f}'.format(records[i]['score'])} {trophies_diff_2}\n"
-                    )
+                    message += f"{'🏆 ' + '{:<6,.0f}'.format(records[i]['score'])} {trophies_diff_2}\n"
 
                 # Split message
                 cannot_split = False  # Prevent index out of range error
                 try:  # In case there are not enough records
-                    message1 = message[: [m.start()
-                                          for m in re.finditer(r"\n", message)][24]]
+                    message1 = message[
+                        : [m.start() for m in re.finditer(r"\n", message)][24]
+                    ]
                     message2 = (
-                        message[([m.start()
-                                 for m in re.finditer(r"\n", message)][24]) + 1:]
+                        message[
+                            ([m.start() for m in re.finditer(r"\n", message)][24]) + 1 :
+                        ]
                         + "```"
                     )
-                except:
+                except Exception:
                     cannot_split = True
 
                 # Send
-                if cannot_split == False:
+                if not cannot_split:
                     cur_page = 1
                     embed_init = discord.Embed(
                         title=f"Moonrock Miners 🛸\nBeta Season {season} Leaderboard:",
                         description=label + message1 + "```",
-                        color=0x00FF00
+                        color=0x00FF00,
                     )
                     embed_init.set_footer(
                         text=f"Page 1/2:  1 to 25 | Changes since {db[f'trophies_{season}']['last_update_time']}"
                     )
                     msg = await interaction.followup.send(embed=embed_init)
                     msg2 = await interaction.followup.send(
-                        embed=discord.Embed(description="To be edited...", color=0x00FF00)
+                        embed=discord.Embed(
+                            description="To be edited...", color=0x00FF00
+                        )
                     )
 
                     for reaction_emoji in ["◀️", "▶️", "⏹️"]:
@@ -1153,12 +1291,14 @@ class moonrock_miners(app_commands.Group): # MM_RC
                             )
                             # Waiting for a reaction to be added - times out after 15 seconds
 
-                            if str(reaction.emoji) == "▶️" and cur_page == 1:  # Go to Page 2
+                            if (
+                                str(reaction.emoji) == "▶️" and cur_page == 1
+                            ):  # Go to Page 2
                                 cur_page += 1
                                 embed_first = discord.Embed(
                                     title=f"Moonrock Miners 🛸\nBeta Season {season} Leaderboard:",
                                     description="\n" + label + message2,
-                                    color=0x00FF00
+                                    color=0x00FF00,
                                 )
                                 embed_first.set_footer(
                                     text=f"Page 2/2: 26 to 50 | Changes since {db[f'trophies_{season}']['last_update_time']}"
@@ -1166,12 +1306,14 @@ class moonrock_miners(app_commands.Group): # MM_RC
                                 await msg.edit(embed=embed_first)
                                 await msg.remove_reaction(reaction, user)
 
-                            elif str(reaction.emoji) == "◀️" and cur_page == 2:  # Go to Page 1
+                            elif (
+                                str(reaction.emoji) == "◀️" and cur_page == 2
+                            ):  # Go to Page 1
                                 cur_page -= 1
                                 embed_second = discord.Embed(
                                     title=f"Moonrock Miners 🛸\nBeta Season {season} Leaderboard:",
                                     description="\n" + label + message1 + "```",
-                                    color=0x00FF00
+                                    color=0x00FF00,
                                 )
                                 embed_second.set_footer(
                                     text=f"Page 1/2:  1 to 25 | Changes since {db[f'trophies_{season}']['last_update_time']}"
@@ -1179,17 +1321,18 @@ class moonrock_miners(app_commands.Group): # MM_RC
                                 await msg.edit(embed=embed_second)
                                 await msg.remove_reaction(reaction, user)
 
-                            elif str(reaction.emoji) == "⏹️":  # Exit page view and end the loop
+                            elif (
+                                str(reaction.emoji) == "⏹️"
+                            ):  # Exit page view and end the loop
                                 await msg.edit(
                                     embed=discord.Embed(
                                         title=f"Moonrock Miners 🛸\nBeta Season {season} Leaderboard:",
                                         description=label + message1 + "```",
-                                        color=0x00FF00
+                                        color=0x00FF00,
                                     )
                                 )
                                 embed_second_timeout = discord.Embed(
-                                    description="```ansi\n" + message2,
-                                    color=0x00FF00
+                                    description="```ansi\n" + message2, color=0x00FF00
                                 )
                                 embed_second_timeout.set_footer(
                                     text=f"Changes since {db[f'trophies_{season}']['last_update_time']}"
@@ -1206,12 +1349,11 @@ class moonrock_miners(app_commands.Group): # MM_RC
                                 embed=discord.Embed(
                                     title=f"Moonrock Miners 🛸\nBeta Season {season} Leaderboard:",
                                     description=label + message1 + "```",
-                                    color=0x00FF00
+                                    color=0x00FF00,
                                 )
                             )
                             embed_second_timeout = discord.Embed(
-                                description="```ansi\n" + message2,
-                                color=0x00FF00
+                                description="```ansi\n" + message2, color=0x00FF00
                             )
                             embed_second_timeout.set_footer(
                                 text=f"Changes since {db[f'trophies_{season}']['last_update_time']}"
@@ -1220,8 +1362,8 @@ class moonrock_miners(app_commands.Group): # MM_RC
                             await msg.clear_reactions()
                             break
                             # Ending the loop if user doesn't react after 15 seconds
-                elif cannot_split == True:  # Send in 1 message if there are too little records
-                    embed=discord.Embed(
+                elif cannot_split:  # Send in 1 message if there are too little records
+                    embed = discord.Embed(
                         title=f"Moonrock Miners 🛸\nBeta Season {season} Leaderboard:",
                         description=label + message + "```",
                         color=0x00FF00,
@@ -1232,16 +1374,16 @@ class moonrock_miners(app_commands.Group): # MM_RC
                     await interaction.followup.send(embed=embed)
 
                 # Update to replit's database for old keys
-                if (f"trophies_{season}" in db.keys()) and (new_key_flag == False):
+                if (f"trophies_{season}" in db.keys()) and (not new_key_flag):
                     value = dict()
                     for record in records:
                         value[record["owner_id"]] = {
                             "rank": record["rank"],
                             "score": record["score"],
                         }
-                    value[
-                        "last_update_time"
-                    ] = f"{datetime.datetime.utcfromtimestamp(time.time()):%Y-%m-%d %H:%M:%S} UTC"
+                    value["last_update_time"] = (
+                        f"{datetime.datetime.utcfromtimestamp(time.time()):%Y-%m-%d %H:%M:%S} UTC"
+                    )
                     db[record["leaderboard_id"]] = value
 
             elif changes == "Hidden":
@@ -1268,10 +1410,11 @@ class moonrock_miners(app_commands.Group): # MM_RC
                 embed_init = discord.Embed(
                     title=f"Moonrock Miners 🛸\nBeta Season {season} Leaderboard:",
                     description=hidden(),
-                    color=0x00FF00
+                    color=0x00FF00,
                 )
                 embed_init.set_footer(
-                    text=f"Page {cur_page:<2}: {start:<4} to {end:<4}")
+                    text=f"Page {cur_page:<2}: {start:<4} to {end:<4}"
+                )
                 msg = await interaction.followup.send(embed=embed_init)
 
                 for reaction_emoji in ["◀️", "▶️", "⏪", "⏹️"]:
@@ -1284,7 +1427,7 @@ class moonrock_miners(app_commands.Group): # MM_RC
                         )
                         # Waiting for a reaction to be added - times out after 15 seconds
 
-                        if str(reaction.emoji) == "▶️" and next_cursor != False:  # Next page
+                        if str(reaction.emoji) == "▶️" and next_cursor:  # Next page
                             cur_page += 1
                             response = await moonrock_miners_client.query_leaderboard(
                                 season, "trophies", 25, cursor_dict[cur_page]
@@ -1293,15 +1436,15 @@ class moonrock_miners(app_commands.Group): # MM_RC
                             start = records[0]["rank"]
                             end = records[len(records) - 1]["rank"]
                             try:
-                                cursor_dict[cur_page + 1] = json.loads(response["payload"])[
-                                    "next_cursor"
-                                ]
-                            except:
+                                cursor_dict[cur_page + 1] = json.loads(
+                                    response["payload"]
+                                )["next_cursor"]
+                            except Exception:
                                 next_cursor = False  # Does not exist
                             embed_next = discord.Embed(
                                 title=f"Moonrock Miners 🛸\nBeta Season {season} Leaderboard:",
                                 description=hidden(),
-                                color=0x00FF00
+                                color=0x00FF00,
                             )
                             embed_next.set_footer(
                                 text=f"Page {cur_page:<2}: {start:<4} to {end:<4}"
@@ -1309,7 +1452,9 @@ class moonrock_miners(app_commands.Group): # MM_RC
                             await msg.edit(embed=embed_next)
                             await msg.remove_reaction(reaction, user)
 
-                        elif str(reaction.emoji) == "◀️" and cur_page > 1:  # Previous page
+                        elif (
+                            str(reaction.emoji) == "◀️" and cur_page > 1
+                        ):  # Previous page
                             cur_page -= 1
                             response = await moonrock_miners_client.query_leaderboard(
                                 season, "trophies", 25, cursor_dict[cur_page]
@@ -1320,7 +1465,7 @@ class moonrock_miners(app_commands.Group): # MM_RC
                             embed_prev = discord.Embed(
                                 title=f"Moonrock Miners 🛸\nBeta Season {season} Leaderboard:",
                                 description=hidden(),
-                                color=0x00FF00
+                                color=0x00FF00,
                             )
                             embed_prev.set_footer(
                                 text=f"Page {cur_page:<2}: {start:<4} to {end:<4}"
@@ -1328,7 +1473,9 @@ class moonrock_miners(app_commands.Group): # MM_RC
                             await msg.edit(embed=embed_prev)
                             await msg.remove_reaction(reaction, user)
 
-                        elif str(reaction.emoji) == "⏪" and cur_page != 1:  # First page
+                        elif (
+                            str(reaction.emoji) == "⏪" and cur_page != 1
+                        ):  # First page
                             cur_page = 1
                             next_cursor = True
                             response = await moonrock_miners_client.query_leaderboard(
@@ -1340,7 +1487,7 @@ class moonrock_miners(app_commands.Group): # MM_RC
                             embed_first = discord.Embed(
                                 title=f"Moonrock Miners 🛸\nBeta Season {season} Leaderboard:",
                                 description=hidden(),
-                                color=0x00FF00
+                                color=0x00FF00,
                             )
                             embed_first.set_footer(
                                 text=f"Page {cur_page:<2}: {start:<4} to {end:<4}"
@@ -1348,18 +1495,19 @@ class moonrock_miners(app_commands.Group): # MM_RC
                             await msg.edit(embed=embed_first)
                             await msg.remove_reaction(reaction, user)
 
-                        elif str(reaction.emoji) == "⏹️":  # Exit page view and end the loop
+                        elif (
+                            str(reaction.emoji) == "⏹️"
+                        ):  # Exit page view and end the loop
                             response = await moonrock_miners_client.query_leaderboard(
                                 season, "trophies", 50
                             )
                             records = json.loads(response["payload"])["records"]
-                            embed=discord.Embed(
+                            embed = discord.Embed(
                                 title=f"Moonrock Miners 🛸\nBeta Season {season} Leaderboard:",
                                 description=hidden(),
-                                color=0x00FF00
+                                color=0x00FF00,
                             )
-                            embed.set_footer(
-                              text=f"RIP Moonrock Miners")
+                            embed.set_footer(text="RIP Moonrock Miners")
                             await msg.edit(embed=embed)
                             await msg.clear_reactions()
                             break
@@ -1372,12 +1520,12 @@ class moonrock_miners(app_commands.Group): # MM_RC
                             season, "trophies", 50
                         )
                         records = json.loads(response["payload"])["records"]
-                        embed_2=discord.Embed(
+                        embed_2 = discord.Embed(
                             title=f"Moonrock Miners 🛸\nBeta Season {season} Leaderboard:",
                             description=hidden(),
-                            color=0x00FF00
+                            color=0x00FF00,
                         )
-                        embed_2.set_footer(text=f"RIP Moonrock Miners")
+                        embed_2.set_footer(text="RIP Moonrock Miners")
                         await msg.edit(embed=embed_2)
                         await msg.clear_reactions()
                         break
@@ -1386,11 +1534,12 @@ class moonrock_miners(app_commands.Group): # MM_RC
             embed_init = discord.Embed(
                 title=f"Moonrock Miners 🛸\nBeta Season {season} Leaderboard:",
                 description="```No records found```",
-                color=0x00FF00
+                color=0x00FF00,
             )
-            embed_init.set_footer(
-                text=f"RIP Moonrock Miners")
+            embed_init.set_footer(text="RIP Moonrock Miners")
             await interaction.followup.send(embed=embed_init)
+
+
 ##################### MOONROCK-MINERS REACTION COMMANDS END #####################
 
 
@@ -1408,13 +1557,11 @@ def rocket_bot_royale_season_info(season):
 
     season_start_timestamp = (
         season_start_timestamps[season_index]
-        + (season - season_start_numbers[season_index]
-           ) * season_durations[season_index]
+        + (season - season_start_numbers[season_index]) * season_durations[season_index]
     )
     season_start = f"{datetime.datetime.utcfromtimestamp(season_start_timestamp):%Y-%m-%d %H:%M:%S} UTC"
 
-    season_end_timestamp = season_start_timestamp + \
-        season_durations[season_index]
+    season_end_timestamp = season_start_timestamp + season_durations[season_index]
     season_end = f"{datetime.datetime.utcfromtimestamp(season_end_timestamp):%Y-%m-%d %H:%M:%S} UTC"
 
     season_duration = season_durations[season_index]
@@ -1441,55 +1588,72 @@ def rocket_bot_royale_season_info(season):
     else:
         time_remaining = ""
 
-    rocket_bot_royale_all_season_info = [season_start, season_end,
-                       season_days, status, time_remaining]
+    rocket_bot_royale_all_season_info = [
+        season_start,
+        season_end,
+        season_days,
+        status,
+        time_remaining,
+    ]
     return rocket_bot_royale_all_season_info
 
 
-class rocket_bot_royale(app_commands.Group): # RBR_RC
+class rocket_bot_royale(app_commands.Group):  # RBR_RC
     """Rocket Bot Royale reaction commands"""
 
     def __init__(self, bot: discord.client):
         super().__init__()
 
-    async def refresh_config():
-      """Refresh Rocket Bot Royale game configuration every 10 minutes"""
+    async def refresh_config(self):
+        """Refresh Rocket Bot Royale game configuration every 10 minutes"""
 
-      global rocket_bot_royale_server_config
+        global rocket_bot_royale_server_config
 
-      while True:
-          response = await rocket_bot_royale_client.get_config()
-          rocket_bot_royale_server_config = json.loads(response["payload"])
+        while True:
+            response = await rocket_bot_royale_client.get_config()
+            rocket_bot_royale_server_config = json.loads(response["payload"])
 
-          global rocket_bot_royale_current_season, league_range_orig, league_range, league_names, league_colors_orig, league_colors
-          rocket_bot_royale_current_season = rocket_bot_royale_server_config["season"]
-          league_range_orig = [
-            rocket_bot_royale_server_config["trophy_tiers"][league]["maximum_rank"]
-              for league in range(len(rocket_bot_royale_server_config["trophy_tiers"]) - 1)
-          ]
-          league_range = [
-              league_range_orig[i] if j == 0 else league_range_orig[i] + 1
-              for i in range(len(league_range_orig))
-              for j in range(min(len(league_range_orig) - i + 1, 2))
-          ]
-          league_names = [
-            rocket_bot_royale_server_config["trophy_tiers"][league]["name"]
-              for league in range(len(rocket_bot_royale_server_config["trophy_tiers"]))
-          ]
-          league_colors_orig = [
-              f"#{rocket_bot_royale_server_config['trophy_tiers'][league]['color']}"
-              for league in range(len(rocket_bot_royale_server_config["trophy_tiers"]))
-          ]
-          league_colors = [
-              color for color in league_colors_orig for _ in (0, 1)][1:-1]
+            global \
+                rocket_bot_royale_current_season, \
+                league_range_orig, \
+                league_range, \
+                league_names, \
+                league_colors_orig, \
+                league_colors
+            rocket_bot_royale_current_season = rocket_bot_royale_server_config["season"]
+            league_range_orig = [
+                rocket_bot_royale_server_config["trophy_tiers"][league]["maximum_rank"]
+                for league in range(
+                    len(rocket_bot_royale_server_config["trophy_tiers"]) - 1
+                )
+            ]
+            league_range = [
+                league_range_orig[i] if j == 0 else league_range_orig[i] + 1
+                for i in range(len(league_range_orig))
+                for j in range(min(len(league_range_orig) - i + 1, 2))
+            ]
+            league_names = [
+                rocket_bot_royale_server_config["trophy_tiers"][league]["name"]
+                for league in range(
+                    len(rocket_bot_royale_server_config["trophy_tiers"])
+                )
+            ]
+            league_colors_orig = [
+                f"#{rocket_bot_royale_server_config['trophy_tiers'][league]['color']}"
+                for league in range(
+                    len(rocket_bot_royale_server_config["trophy_tiers"])
+                )
+            ]
+            league_colors = [color for color in league_colors_orig for _ in (0, 1)][
+                1:-1
+            ]
 
-          # Remove past season keys
-          for i in db.prefix("tankkings"):
-              if str(rocket_bot_royale_current_season) not in i:
-                  del db[i]
+            # Remove past season keys
+            for i in db.prefix("tankkings"):
+                if str(rocket_bot_royale_current_season) not in i:
+                    del db[i]
 
-          await asyncio.sleep(600)
-
+            await asyncio.sleep(600)
 
     @app_commands.command()
     @app_commands.describe(
@@ -1574,7 +1738,7 @@ class rocket_bot_royale(app_commands.Group): # RBR_RC
         try:
             cursor_dict[2] = json.loads(response["payload"])["next_cursor"]
             next_cursor = True
-        except:
+        except Exception:
             next_cursor = False
 
         if changes == "Shown":
@@ -1590,9 +1754,9 @@ class rocket_bot_royale(app_commands.Group): # RBR_RC
                         "rank": record["rank"],
                         "score": record["score"],
                     }
-                value[
-                    "last_update_time"
-                ] = f"{datetime.datetime.utcfromtimestamp(time.time()):%Y-%m-%d %H:%M:%S} UTC"
+                value["last_update_time"] = (
+                    f"{datetime.datetime.utcfromtimestamp(time.time()):%Y-%m-%d %H:%M:%S} UTC"
+                )
                 db[record["leaderboard_id"]] = value
                 new_key_flag = True
 
@@ -1600,8 +1764,16 @@ class rocket_bot_royale(app_commands.Group): # RBR_RC
                 split = []
                 tier = []
                 for i in range(5):
-                    split.append(rocket_bot_royale_server_config["trophy_tiers"][i]["maximum_rank"])
-                    tier.append(rocket_bot_royale_server_config["trophy_tiers"][i]["name"].upper())
+                    split.append(
+                        rocket_bot_royale_server_config["trophy_tiers"][i][
+                            "maximum_rank"
+                        ]
+                    )
+                    tier.append(
+                        rocket_bot_royale_server_config["trophy_tiers"][i][
+                            "name"
+                        ].upper()
+                    )
                 tier_color_code = ["35", "36", "33", "34", "31"]
 
                 # Using f-string spacing to pretty print the leaderboard labels (bold)
@@ -1632,7 +1804,7 @@ class rocket_bot_royale(app_commands.Group): # RBR_RC
                             rank_diff_2 = f"\u001b[2;31m▼{abs(rank_diff):<3}\u001b[0m"
                         else:
                             rank_diff_2 = f"{'-':^4}"
-                    except:
+                    except Exception:
                         rank_diff_2 = f"{'':4}"  # Not found in repl.it's database
 
                     # Rank (bold)
@@ -1671,7 +1843,7 @@ class rocket_bot_royale(app_commands.Group): # RBR_RC
                             )
                         else:
                             trophies_diff_2 = f"{'-':^5}"
-                    except:
+                    except Exception:
                         # Not found in repl.it's database
                         trophies_diff_2 = f"{'':<5}"
 
@@ -1709,20 +1881,25 @@ class rocket_bot_royale(app_commands.Group): # RBR_RC
                             rank_diff_2 = f"\u001b[2;31m▼{abs(rank_diff):<3}\u001b[0m"
                         else:
                             rank_diff_2 = f"{'-':^4}"
-                    except:
+                    except Exception:
                         rank_diff_2 = f"{'':<4}"  # Not found in repl.it's database
 
                     # Rank (bold)
                     message += f"{rank_diff_2}\u001b[1m{'#' + str(records[i]['rank']):<5}\u001b[0m "
 
                     # Name and color for players with season pass
-                    # Random string name bug hard code fix                    
-                    if len(records[i]['username']) == 10 and records[i]['username'].isalpha():
-                        response = rocket_bot_royale_client.non_async_user_info(records[i]['owner_id'])
+                    # Random string name bug hard code fix
+                    if (
+                        len(records[i]["username"]) == 10
+                        and records[i]["username"].isalpha()
+                    ):
+                        response = rocket_bot_royale_client.non_async_user_info(
+                            records[i]["owner_id"]
+                        )
                         user_data = json.loads(response["payload"])[0]
                         username = user_data["display_name"]
                     else:
-                        username = records[i]['username']
+                        username = records[i]["username"]
 
                     try:  # For seasons without 'has season pass' key
                         message += (
@@ -1738,7 +1915,7 @@ class rocket_bot_royale(app_commands.Group): # RBR_RC
                                 else " "
                             )
                         )
-                    except:
+                    except Exception:
                         message += f"{username:<20} "  # Name only
 
                     # Points/Wins/Player Kills/Bot Kills difference
@@ -1764,10 +1941,14 @@ class rocket_bot_royale(app_commands.Group): # RBR_RC
 
             # Split message
             cannot_split = False  # Prevent index out of range error
-            split_line_number = 26 if mode == "🏆 Trophies" else 24  # Evenly split message
+            split_line_number = (
+                26 if mode == "🏆 Trophies" else 24
+            )  # Evenly split message
             try:  # In case there are not enough records
                 message1 = message[
-                    : [m.start() for m in re.finditer(r"\n", message)][split_line_number]
+                    : [m.start() for m in re.finditer(r"\n", message)][
+                        split_line_number
+                    ]
                 ]
                 message2 = (
                     message[
@@ -1776,7 +1957,7 @@ class rocket_bot_royale(app_commands.Group): # RBR_RC
                                 split_line_number
                             ]
                         )
-                        + 1:
+                        + 1 :
                     ]
                     + (
                         "\u001b[1;31m———————————————————— RUBY ———————————————————\u001b[0m\n"
@@ -1785,11 +1966,11 @@ class rocket_bot_royale(app_commands.Group): # RBR_RC
                     )
                     + "```"
                 )
-            except:
+            except Exception:
                 cannot_split = True
 
             # Send
-            if cannot_split == False:
+            if not cannot_split:
                 cur_page = 1
                 embed_init = discord.Embed(
                     title=f"Rocket Bot Royale <:rocket_mint:910253491019202661>\nSeason {season} Leaderboard (by {'Player Kills' if mode == 'Kills' else mode.replace('_', ' ').title()}):",
@@ -1801,7 +1982,7 @@ class rocket_bot_royale(app_commands.Group): # RBR_RC
                         else ""
                     )
                     + "```",
-                    color=0xFFFF00
+                    color=0xFFFF00,
                 )
                 embed_init.set_footer(
                     text=f"""Page 1/2:  1 to 25 | Changes since {db[f"tankkings_{mode.replace('Player ', '').replace(' ', '_').lower()[2:]}_{season}"]["last_update_time"]}"""
@@ -1826,7 +2007,7 @@ class rocket_bot_royale(app_commands.Group): # RBR_RC
                             embed_first = discord.Embed(
                                 title=f"Rocket Bot Royale <:rocket_mint:910253491019202661>\nSeason {season} Leaderboard (by {mode[2:]}):",
                                 description="\n" + label + message2,
-                                color=0xFFFF00
+                                color=0xFFFF00,
                             )
                             embed_first.set_footer(
                                 text=f"""Page 2/2: 26 to 50 | Changes since {db[f"tankkings_{mode.replace('Player ', '').replace(' ', '_').lower()[2:]}_{season}"]["last_update_time"]}"""
@@ -1834,7 +2015,9 @@ class rocket_bot_royale(app_commands.Group): # RBR_RC
                             await msg.edit(embed=embed_first)
                             await msg.remove_reaction(reaction, user)
 
-                        elif str(reaction.emoji) == "◀️" and cur_page == 2:  # Go to Page 1
+                        elif (
+                            str(reaction.emoji) == "◀️" and cur_page == 2
+                        ):  # Go to Page 1
                             cur_page -= 1
                             embed_second = discord.Embed(
                                 title=f"Rocket Bot Royale <:rocket_mint:910253491019202661>\nSeason {season} Leaderboard (by {mode[2:]}):",
@@ -1847,7 +2030,7 @@ class rocket_bot_royale(app_commands.Group): # RBR_RC
                                     else ""
                                 )
                                 + "```",
-                                color=0xFFFF00
+                                color=0xFFFF00,
                             )
                             embed_second.set_footer(
                                 text=f"""Page 1/2:  1 to 25 | Changes since {db[f"tankkings_{mode.replace('Player ', '').replace(' ', '_').lower()[2:]}_{season}"]["last_update_time"]}"""
@@ -1855,17 +2038,18 @@ class rocket_bot_royale(app_commands.Group): # RBR_RC
                             await msg.edit(embed=embed_second)
                             await msg.remove_reaction(reaction, user)
 
-                        elif str(reaction.emoji) == "⏹️":  # Exit page view and end the loop
+                        elif (
+                            str(reaction.emoji) == "⏹️"
+                        ):  # Exit page view and end the loop
                             await msg.edit(
                                 embed=discord.Embed(
                                     title=f"Rocket Bot Royale <:rocket_mint:910253491019202661>\nSeason {season} Leaderboard (by {mode[2:]}):",
                                     description=label + message1 + "```",
-                                    color=0xFFFF00
+                                    color=0xFFFF00,
                                 )
                             )
                             embed_second_timeout = discord.Embed(
-                                description="```ansi\n" + message2,
-                                color=0xFFFF00
+                                description="```ansi\n" + message2, color=0xFFFF00
                             )
                             embed_second_timeout.set_footer(
                                 text=f"""Changes since {db[f"tankkings_{mode.replace('Player ', '').replace(' ', '_').lower()[2:]}_{season}"]["last_update_time"]}"""
@@ -1882,12 +2066,11 @@ class rocket_bot_royale(app_commands.Group): # RBR_RC
                             embed=discord.Embed(
                                 title=f"Rocket Bot Royale <:rocket_mint:910253491019202661>\nSeason {season} Leaderboard (by {mode[2:]}):",
                                 description=label + message1 + "```",
-                                color=0xFFFF00
+                                color=0xFFFF00,
                             )
                         )
                         embed_second_timeout = discord.Embed(
-                            description="```ansi\n" + message2,
-                            color=0xFFFF00
+                            description="```ansi\n" + message2, color=0xFFFF00
                         )
                         embed_second_timeout.set_footer(
                             text=f"""Changes since {db[f"tankkings_{mode.replace('Player ', '').replace(' ', '_').lower()[2:]}_{season}"]["last_update_time"]}"""
@@ -1896,12 +2079,12 @@ class rocket_bot_royale(app_commands.Group): # RBR_RC
                         await msg.clear_reactions()
                         break
                         # Ending the loop if user doesn't react after 15 seconds
-            elif cannot_split == True:  # Send in 1 message if there are too little records
+            elif cannot_split:  # Send in 1 message if there are too little records
                 await interaction.followup.send(
                     embed=discord.Embed(
                         title=f"Rocket Bot Royale <:rocket_mint:910253491019202661>\nSeason {season} Leaderboard (by {mode[2:]}):",
                         description=label + message + "```",
-                        color=0xFFFF00
+                        color=0xFFFF00,
                     )
                 )
 
@@ -1909,16 +2092,16 @@ class rocket_bot_royale(app_commands.Group): # RBR_RC
             if (
                 f"tankkings_{mode.replace('Player ', '').replace(' ', '_').lower()[2:]}_{season}"
                 in db.keys()
-            ) and (new_key_flag == False):
+            ) and (not new_key_flag):
                 value = dict()
                 for record in records:
                     value[record["owner_id"]] = {
                         "rank": record["rank"],
                         "score": record["score"],
                     }
-                value[
-                    "last_update_time"
-                ] = f"{datetime.datetime.utcfromtimestamp(time.time()):%Y-%m-%d %H:%M:%S} UTC"
+                value["last_update_time"] = (
+                    f"{datetime.datetime.utcfromtimestamp(time.time()):%Y-%m-%d %H:%M:%S} UTC"
+                )
                 db[record["leaderboard_id"]] = value
 
         elif changes == "Hidden":
@@ -1929,9 +2112,15 @@ class rocket_bot_royale(app_commands.Group): # RBR_RC
                     tier = []
                     for i in range(12):
                         split.append(
-                            rocket_bot_royale_server_config["trophy_tiers"][i]["maximum_rank"])
+                            rocket_bot_royale_server_config["trophy_tiers"][i][
+                                "maximum_rank"
+                            ]
+                        )
                         tier.append(
-                            rocket_bot_royale_server_config["trophy_tiers"][i]["name"].upper())
+                            rocket_bot_royale_server_config["trophy_tiers"][i][
+                                "name"
+                            ].upper()
+                        )
                     tier_color_code = [
                         "35",
                         "36",
@@ -1973,7 +2162,7 @@ class rocket_bot_royale(app_commands.Group): # RBR_RC
                                     else " "
                                 )
                             )
-                        except:
+                        except Exception:
                             message += f"{record['username']:<20} "  # Name only
 
                         # Trophies
@@ -1988,13 +2177,16 @@ class rocket_bot_royale(app_commands.Group): # RBR_RC
                         # Tier separators (bold)
                         if (
                             (record["rank"] in split and record["rank"] % 25 != 0)
-                            or (last == True and record["rank"] % 25 == 0)
-                            or (len(records) != 25 and record["rank"] % 25 == len(records))
+                            or (last and record["rank"] % 25 == 0)
+                            or (
+                                len(records) != 25
+                                and record["rank"] % 25 == len(records)
+                            )
                         ):
                             tier_name_with_space = " " + tier[tier_index] + " "
                             message += f"\u001b[1;{tier_color_code[tier_index]}m{tier_name_with_space.center(49, '─')}\u001b[0m\n"
 
-                    if fifty == True:
+                    if fifty:
                         message += "\u001b[1;31m────────────────────── RUBY ─────────────────────\u001b[0m\n"
                     message += "```"
                     return message
@@ -2014,11 +2206,7 @@ class rocket_bot_royale(app_commands.Group): # RBR_RC
                         )
                     else:  # By Points/Player Kills/Bot Kills
                         message = (
-                            (
-                                f"{all_required_season_info}\n"
-                                if season != 0
-                                else ""
-                            )
+                            (f"{all_required_season_info}\n" if season != 0 else "")
                             + f"📊 ***Leaderboard***:```ansi\n\u001b[1m{'Rank:':<5} {'Name:':<20} {mode[2:]+':':<11} {'Games:':<7} {'P/G:' if mode == '🧊 Points' else 'K/G:'}\u001b[0m\n{'─' * (53 if mode == '💀 Player Kills' else 52)}\n"
                         )
 
@@ -2028,13 +2216,18 @@ class rocket_bot_royale(app_commands.Group): # RBR_RC
                         message += f"\u001b[1m{'#' + str(record['rank']):<5}\u001b[0m "
 
                         # Name and color for players with season pass
-                        # Random string name bug hard code fix                    
-                        if len(record['username']) == 10 and record['username'].isalpha():
-                            response = rocket_bot_royale_client.non_async_user_info(record['owner_id'])
+                        # Random string name bug hard code fix
+                        if (
+                            len(record["username"]) == 10
+                            and record["username"].isalpha()
+                        ):
+                            response = rocket_bot_royale_client.non_async_user_info(
+                                record["owner_id"]
+                            )
                             user_data = json.loads(response["payload"])[0]
                             username = user_data["display_name"]
                         else:
-                            username = record['username']
+                            username = record["username"]
 
                         try:  # For seasons without 'has season pass' key
                             message += (
@@ -2050,7 +2243,7 @@ class rocket_bot_royale(app_commands.Group): # RBR_RC
                                     else " "
                                 )
                             )
-                        except:
+                        except Exception:
                             message += f"{username:<20} "  # Name only
 
                         if mode == "🎉 Wins":
@@ -2080,12 +2273,13 @@ class rocket_bot_royale(app_commands.Group): # RBR_RC
             embed_init = discord.Embed(
                 title=f"Rocket Bot Royale <:rocket_mint:910253491019202661>\nSeason {season} Leaderboard (by {mode[2:]}):",
                 description=(
-                    trophies_hidden() if mode == "🏆 Trophies" else non_trophies_hidden()
+                    trophies_hidden()
+                    if mode == "🏆 Trophies"
+                    else non_trophies_hidden()
                 ),
-                color=0xFFFF00
+                color=0xFFFF00,
             )
-            embed_init.set_footer(
-                text=f"Page {cur_page:<2}: {start:<4} to {end:<4}")
+            embed_init.set_footer(text=f"Page {cur_page:<2}: {start:<4} to {end:<4}")
             msg = await interaction.followup.send(embed=embed_init)
 
             for reaction_emoji in ["◀️", "▶️", "⏪", "⏹️"]:
@@ -2098,7 +2292,7 @@ class rocket_bot_royale(app_commands.Group): # RBR_RC
                     )
                     # Waiting for a reaction to be added - times out after 15 seconds
 
-                    if str(reaction.emoji) == "▶️" and next_cursor != False:  # Next page
+                    if str(reaction.emoji) == "▶️" and next_cursor:  # Next page
                         cur_page += 1
                         response = await rocket_bot_royale_client.query_leaderboard(
                             season,
@@ -2113,7 +2307,7 @@ class rocket_bot_royale(app_commands.Group): # RBR_RC
                             cursor_dict[cur_page + 1] = json.loads(response["payload"])[
                                 "next_cursor"
                             ]
-                        except:
+                        except Exception:
                             next_cursor = False  # Does not exist
                         embed_next = discord.Embed(
                             title=f"Rocket Bot Royale <:rocket_mint:910253491019202661>\nSeason {season} Leaderboard (by {mode[2:]}):",
@@ -2122,7 +2316,7 @@ class rocket_bot_royale(app_commands.Group): # RBR_RC
                                 if mode == "🏆 Trophies"
                                 else non_trophies_hidden()
                             ),
-                            color=0xFFFF00
+                            color=0xFFFF00,
                         )
                         embed_next.set_footer(
                             text=f"Page {cur_page:<2}: {start:<4} to {end:<4}"
@@ -2148,7 +2342,7 @@ class rocket_bot_royale(app_commands.Group): # RBR_RC
                                 if mode == "🏆 Trophies"
                                 else non_trophies_hidden()
                             ),
-                            color=0xFFFF00
+                            color=0xFFFF00,
                         )
                         embed_prev.set_footer(
                             text=f"Page {cur_page:<2}: {start:<4} to {end:<4}"
@@ -2175,7 +2369,7 @@ class rocket_bot_royale(app_commands.Group): # RBR_RC
                                 if mode == "🏆 Trophies"
                                 else non_trophies_hidden()
                             ),
-                            color=0xFFFF00
+                            color=0xFFFF00,
                         )
                         embed_first.set_footer(
                             text=f"Page {cur_page:<2}: {start:<4} to {end:<4}"
@@ -2198,7 +2392,7 @@ class rocket_bot_royale(app_commands.Group): # RBR_RC
                                     if mode == "🏆 Trophies"
                                     else non_trophies_hidden()
                                 ),
-                                color=0xFFFF00
+                                color=0xFFFF00,
                             )
                         )
                         await msg.clear_reactions()
@@ -2222,17 +2416,19 @@ class rocket_bot_royale(app_commands.Group): # RBR_RC
                                 if mode == "🏆 Trophies"
                                 else non_trophies_hidden()
                             ),
-                            color=0xFFFF00
+                            color=0xFFFF00,
                         )
                     )
                     await msg.clear_reactions()
                     break
                     # Ending the loop if user doesn't react after 15 second
+
+
 ##################### ROCKET-BOT-ROYALE REACTION COMMANDS END ###################
 
 
 ####################### SERVER-MISC REACTION COMMANDS START #####################
-class server_misc(app_commands.Group): # Server_Misc_RC
+class server_misc(app_commands.Group):  # Server_Misc_RC
     """Server Miscellaneous reaction commands"""
 
     def __init__(self, bot: discord.client):
@@ -2243,7 +2439,9 @@ class server_misc(app_commands.Group): # Server_Misc_RC
         changes="Changes since last command used, takes longer to compute"
     )
     async def discord_coins_leaderboard(
-        self, interaction: discord.Interaction, changes: typing.Literal["Shown", "Hidden"]
+        self,
+        interaction: discord.Interaction,
+        changes: typing.Literal["Shown", "Hidden"],
     ):
         """⚪ Return the Discord coins leaderboard"""
 
@@ -2266,8 +2464,7 @@ class server_misc(app_commands.Group): # Server_Misc_RC
                 rank_dict[id] = db["discord_coins"][id]["coins"]
 
         # Sort the new dictionary
-        sorted_rank_dict = sorted(
-            rank_dict.items(), key=itemgetter(1), reverse=True)
+        sorted_rank_dict = sorted(rank_dict.items(), key=itemgetter(1), reverse=True)
 
         if changes == "Shown":
             # Using f-string spacing to pretty print the leaderboard labels (bold)
@@ -2278,16 +2475,16 @@ class server_misc(app_commands.Group): # Server_Misc_RC
             for i in sorted_rank_dict:
                 # Rank difference
                 try:
-                    rank_diff = (sorted_rank_dict.index(i) + 1) - db["discord_coins"][i[0]][
-                        "rank"
-                    ]  # New rank - old rank
+                    rank_diff = (sorted_rank_dict.index(i) + 1) - db["discord_coins"][
+                        i[0]
+                    ]["rank"]  # New rank - old rank
                     if rank_diff > 0:
                         rank_diff_2 = f"\u001b[2;31m▼{abs(rank_diff):<3}\u001b[0m"
                     elif rank_diff < 0:
                         rank_diff_2 = f"\u001b[2;32m▲{abs(rank_diff):<3}\u001b[0m"
                     else:
                         rank_diff_2 = f"{'-':^4}"
-                except:
+                except Exception:
                     rank_diff_2 = f"{'':4}"  # Not found in repl.it's database
 
                 # Coins difference
@@ -2309,9 +2506,9 @@ class server_misc(app_commands.Group): # Server_Misc_RC
                 db["discord_coins"][i[0]]["coins_change"] = 0
 
                 # Store 'last_update_time'
-                db["discord_coins"][
-                    "last_update_time"
-                ] = f"{datetime.datetime.utcfromtimestamp(time.time()):%Y-%m-%d %H:%M:%S} UTC"
+                db["discord_coins"]["last_update_time"] = (
+                    f"{datetime.datetime.utcfromtimestamp(time.time()):%Y-%m-%d %H:%M:%S} UTC"
+                )
 
         elif changes == "Hidden":
             # Using f-string spacing to pretty print the leaderboard labels (bold)
@@ -2324,8 +2521,7 @@ class server_misc(app_commands.Group): # Server_Misc_RC
                 leaderboard += f"\u001b[1m{'#' + str(sorted_rank_dict.index(i) + 1):<6}\u001b[0m{db['discord_coins'][i[0]]['name']:<28}🪙 {i[1]:<6,.0f}\n"
 
         # Split the message every 25 records
-        leaderboard_split = re.compile(
-            "(?:^.*$\n?){1,25}", re.M).findall(leaderboard)
+        leaderboard_split = re.compile("(?:^.*$\n?){1,25}", re.M).findall(leaderboard)
         leaderboard_split_dict = dict()
         for i in leaderboard_split:
             leaderboard_split_dict[leaderboard_split.index(i) + 1] = i
@@ -2336,7 +2532,7 @@ class server_misc(app_commands.Group): # Server_Misc_RC
         embed_first = discord.Embed(
             title="Discord Coins Leaderboard <:coin:910247623787700264>",
             description=message,
-            color=0xFFFFFF
+            color=0xFFFFFF,
         )
         embed_first.set_footer(
             text=f"Page {cur_page:<2}: {'1':<4} to {'25':<4}"
@@ -2369,7 +2565,7 @@ class server_misc(app_commands.Group): # Server_Misc_RC
                     embed_next = discord.Embed(
                         title="Discord Coins Leaderboard <:coin:910247623787700264>",
                         description=next_message,
-                        color=0xFFFFFF
+                        color=0xFFFFFF,
                     )
                     start = 25 * cur_page - 24
                     if cur_page == len(leaderboard_split_dict) - 1:
@@ -2391,7 +2587,7 @@ class server_misc(app_commands.Group): # Server_Misc_RC
                     embed_prev = discord.Embed(
                         title="Discord Coins Leaderboard <:coin:910247623787700264>",
                         description=next_message,
-                        color=0xFFFFFF
+                        color=0xFFFFFF,
                     )
                     start = 25 * cur_page - 24
                     end = 25 * cur_page
@@ -2414,12 +2610,13 @@ class server_misc(app_commands.Group): # Server_Misc_RC
                     embed_first = discord.Embed(
                         title="Discord Coins Leaderboard <:coin:910247623787700264>",
                         description=first_message,
-                        color=0xFFFFFF
+                        color=0xFFFFFF,
                     )
                     await msg.edit(embed=embed_first)
-                    second_message = "```ansi\n" + \
-                        leaderboard_split_dict[2] + "```"
-                    embed_second = discord.Embed(description=second_message, color=0xFFFFFF)
+                    second_message = "```ansi\n" + leaderboard_split_dict[2] + "```"
+                    embed_second = discord.Embed(
+                        description=second_message, color=0xFFFFFF
+                    )
                     embed_second.set_footer(
                         text=f"Changes since {db['discord_coins']['last_update_time']}"
                         if changes == "Shown"
@@ -2436,7 +2633,7 @@ class server_misc(app_commands.Group): # Server_Misc_RC
                 embed_first = discord.Embed(
                     title="Discord Coins Leaderboard <:coin:910247623787700264>",
                     description=first_message,
-                    color=0xFFFFFF
+                    color=0xFFFFFF,
                 )
                 await msg.edit(embed=embed_first)
                 second_message = "```ansi\n" + leaderboard_split_dict[2] + "```"
@@ -2451,36 +2648,32 @@ class server_misc(app_commands.Group): # Server_Misc_RC
                 break
                 # Ending the loop if user doesn't react after 15 seconds
 
-
     @app_commands.command()
     async def game_memory(self, interaction: discord.Interaction):
-        """⚪ Test your memory by matching 2 tanks! (*outdated)"""
+        """⚪ Test your memory by matching 2 tanks!"""
 
         def change_player_coin(id, name, coins, request=False):
-          if id in db["discord_coins"]:  # Old id
-              db["discord_coins"][id]["name"] = name  # Update nickname
-          else:  # New id
-              db["discord_coins"][id] = {  # New record
-                  "name": name,
-                  "coins": 500,
-                  "coins_change": 0,
-                  "inventory": {},
-              }
-          db["discord_coins"][id]["coins"] += coins
-          db["discord_coins"][id]["coins_change"] += coins
-          if request == True:
-              return db["discord_coins"][id]["coins"]
-
+            if id in db["discord_coins"]:  # Old id
+                db["discord_coins"][id]["name"] = name  # Update nickname
+            else:  # New id
+                db["discord_coins"][id] = {  # New record
+                    "name": name,
+                    "coins": 500,
+                    "coins_change": 0,
+                    "inventory": {},
+                }
+            db["discord_coins"][id]["coins"] += coins
+            db["discord_coins"][id]["coins_change"] += coins
+            if request:
+                return db["discord_coins"][id]["coins"]
 
         def convert_mention_to_id(mention):
-          id = mention[2:-1]
-          if id.startswith("!"):
-              id = id[1:]
-          return id
-
+            id = mention[2:-1]
+            if id.startswith("!"):
+                id = id[1:]
+            return id
 
         await interaction.response.defer(ephemeral=False, thinking=True)
-
 
         b = [":white_large_square:" for i in range(16)]
         c = [
@@ -2501,13 +2694,15 @@ class server_misc(app_commands.Group): # Server_Misc_RC
             "c4",
             "d4",
         ]
-        a = random.sample(get_a_random_tank(True), 8) * 2
+        a = random.sample(get_a_random_tank_emoji(), 8) * 2
         random.shuffle(a)
         board = f":black_large_square: :regional_indicator_a: :regional_indicator_b: :regional_indicator_c: :regional_indicator_d:\n:one: {b[0]} {b[1]} {b[2]} {b[3]}\n:two: {b[4]} {b[5]} {b[6]} {b[7]}\n:three: {b[8]} {b[9]} {b[10]} {b[11]}\n:four: {b[12]} {b[13]} {b[14]} {b[15]}\n"
         answer = f":black_large_square: :regional_indicator_a: :regional_indicator_b: :regional_indicator_c: :regional_indicator_d:\n:one: {a[0]} {a[1]} {a[2]} {a[3]}\n:two: {a[4]} {a[5]} {a[6]} {a[7]}\n:three: {a[8]} {a[9]} {a[10]} {a[11]}\n:four: {a[12]} {a[13]} {a[14]} {a[15]}\n"
 
         def check(m):
-            return m.channel.id == interaction.channel.id and m.author == interaction.user
+            return (
+                m.channel.id == interaction.channel.id and m.author == interaction.user
+            )
 
         embed = discord.Embed(
             title="MEMORY GAME :brain:",
@@ -2530,7 +2725,7 @@ class server_misc(app_commands.Group): # Server_Misc_RC
         global gamestart
         gamestart = False
 
-        while gamestart == False:
+        while not gamestart:
             try:
                 msg = await client.wait_for("message", check=check, timeout=15)
                 if str(msg.content.lower()) == "q":
@@ -2541,10 +2736,10 @@ class server_misc(app_commands.Group): # Server_Misc_RC
                     )
                     await message.edit(embed=embed)
                     break
-                if (
-                    (str(msg.content.lower()) == "s") or (
-                        str(msg.content.lower()) == "q")
-                ) == False:
+                if not (
+                    (str(msg.content.lower()) == "s")
+                    or (str(msg.content.lower()) == "q")
+                ):
                     warn = await interaction.followup.send(
                         ":x: Invalid input has been entered :x:"
                     )
@@ -2573,7 +2768,7 @@ class server_misc(app_commands.Group): # Server_Misc_RC
 
             pair = 0
             flag = False
-            while gamestart == True:
+            while gamestart:
                 try:
                     msg = await client.wait_for("message", check=check, timeout=15)
                     if str(msg.content.lower()) == "q":
@@ -2585,14 +2780,14 @@ class server_misc(app_commands.Group): # Server_Misc_RC
                         )
                         await message.edit(embed=embed)
                         break
-                    if (str(msg.content.lower()) in c) == False:
+                    if str(msg.content.lower()) not in c:
                         warn2 = await interaction.followup.send(
                             ":x: Invalid coordinate has been entered :x:"
                         )
                         await asyncio.sleep(2)
                         await warn2.delete()
                     elif b[c.index(str(msg.content.lower()))] == ":white_large_square:":
-                        if flag == False:
+                        if not flag:
                             x = c.index(str(msg.content.lower()))
                             b[x] = a[x]
                             flag = not flag
@@ -2657,13 +2852,14 @@ class server_misc(app_commands.Group): # Server_Misc_RC
                             user_object = await interaction.guild.query_members(
                                 user_ids=[id]
                             )
-                            if user_object[0].nick == None:  # No nickname is found
+                            if user_object[0].nick is None:  # No nickname is found
                                 name = str(user_object[0])[:-5]  # Use username
                             else:
                                 name = user_object[0].nick  # Use nickname
 
                             player_coin_after = change_player_coin(
-                                id, name, reward, True)
+                                id, name, reward, True
+                            )
                             embed = discord.Embed(
                                 color=0xFFFFFF,
                                 title="MEMORY GAME :brain:",
@@ -2701,6 +2897,8 @@ class server_misc(app_commands.Group): # Server_Misc_RC
                     await message.edit(embed=embed)
                     break
             break
+
+
 ######################## SERVER-MISC REACTION COMMANDS END ######################
 
 
@@ -2757,14 +2955,14 @@ async def sync_commands(interaction: discord.Interaction):
     await interaction.response.send_message("Commands synced.")
 
 
-tree.add_command(GooberDash(client)) # GB_NRC
-tree.add_command(goober_dash(client)) # GB_RC
-tree.add_command(MoonrockMiners(client)) # MM_NRC
-tree.add_command(moonrock_miners(client)) # MM_RC
-tree.add_command(RocketBotRoyale(client)) # RBR_NRC
-tree.add_command(rocket_bot_royale(client)) # RBR_RC
-tree.add_command(ServerMisc(client)) # Server_NRC
-tree.add_command(server_misc(client)) # Server_RC
+tree.add_command(GooberDash(client))  # GB_NRC
+tree.add_command(goober_dash(client))  # GB_RC
+tree.add_command(MoonrockMiners(client))  # MM_NRC
+tree.add_command(moonrock_miners(client))  # MM_RC
+tree.add_command(RocketBotRoyale(client))  # RBR_NRC
+tree.add_command(rocket_bot_royale(client))  # RBR_RC
+tree.add_command(ServerMisc(client))  # Server_NRC
+tree.add_command(server_misc(client))  # Server_RC
 
 if __name__ == "__main__":
     client.run(discord_token)
