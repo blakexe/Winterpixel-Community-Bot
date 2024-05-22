@@ -48,38 +48,45 @@ rocket_bot_royale_server_config = {}
 
 
 # Initialize rocket bot royale client
-rocket_bot_royale_client = RocketBotRoyaleClient(rbr_mm_email_password, rbr_mm_email_password)
+rocket_bot_royale_client = RocketBotRoyaleClient(
+    rbr_mm_email_password, rbr_mm_email_password
+)
 
 
 async def refresh_config():
-  """Refresh Rocket Bot Royale game configuration"""
+    """Refresh Rocket Bot Royale game configuration"""
 
-  global rocket_bot_royale_server_config
+    global rocket_bot_royale_server_config
 
-  response = await rocket_bot_royale_client.get_config()
-  rocket_bot_royale_server_config = json.loads(response["payload"])
+    response = await rocket_bot_royale_client.get_config()
+    rocket_bot_royale_server_config = json.loads(response["payload"])
 
-  global rocket_bot_royale_current_season, league_range_orig, league_range, league_names, league_colors_orig, league_colors
-  rocket_bot_royale_current_season = rocket_bot_royale_server_config["season"]
-  league_range_orig = [
-    rocket_bot_royale_server_config["trophy_tiers"][league]["maximum_rank"]
-      for league in range(len(rocket_bot_royale_server_config["trophy_tiers"]) - 1)
-  ]
-  league_range = [
-      league_range_orig[i] if j == 0 else league_range_orig[i] + 1
-      for i in range(len(league_range_orig))
-      for j in range(min(len(league_range_orig) - i + 1, 2))
-  ]
-  league_names = [
-    rocket_bot_royale_server_config["trophy_tiers"][league]["name"]
-      for league in range(len(rocket_bot_royale_server_config["trophy_tiers"]))
-  ]
-  league_colors_orig = [
-      f"#{rocket_bot_royale_server_config['trophy_tiers'][league]['color']}"
-      for league in range(len(rocket_bot_royale_server_config["trophy_tiers"]))
-  ]
-  league_colors = [
-      color for color in league_colors_orig for _ in (0, 1)][1:-1]
+    global \
+        rocket_bot_royale_current_season, \
+        league_range_orig, \
+        league_range, \
+        league_names, \
+        league_colors_orig, \
+        league_colors
+    rocket_bot_royale_current_season = rocket_bot_royale_server_config["season"]
+    league_range_orig = [
+        rocket_bot_royale_server_config["trophy_tiers"][league]["maximum_rank"]
+        for league in range(len(rocket_bot_royale_server_config["trophy_tiers"]) - 1)
+    ]
+    league_range = [
+        league_range_orig[i] if j == 0 else league_range_orig[i] + 1
+        for i in range(len(league_range_orig))
+        for j in range(min(len(league_range_orig) - i + 1, 2))
+    ]
+    league_names = [
+        rocket_bot_royale_server_config["trophy_tiers"][league]["name"]
+        for league in range(len(rocket_bot_royale_server_config["trophy_tiers"]))
+    ]
+    league_colors_orig = [
+        f"#{rocket_bot_royale_server_config['trophy_tiers'][league]['color']}"
+        for league in range(len(rocket_bot_royale_server_config["trophy_tiers"]))
+    ]
+    league_colors = [color for color in league_colors_orig for _ in (0, 1)][1:-1]
 
 
 def rocket_bot_royale_season_info(season):
@@ -95,13 +102,11 @@ def rocket_bot_royale_season_info(season):
 
     season_start_timestamp = (
         season_start_timestamps[season_index]
-        + (season - season_start_numbers[season_index]
-           ) * season_durations[season_index]
+        + (season - season_start_numbers[season_index]) * season_durations[season_index]
     )
     season_start = f"{datetime.datetime.utcfromtimestamp(season_start_timestamp):%Y-%m-%d %H:%M:%S} UTC"
 
-    season_end_timestamp = season_start_timestamp + \
-        season_durations[season_index]
+    season_end_timestamp = season_start_timestamp + season_durations[season_index]
     season_end = f"{datetime.datetime.utcfromtimestamp(season_end_timestamp):%Y-%m-%d %H:%M:%S} UTC"
 
     season_duration = season_durations[season_index]
@@ -128,17 +133,21 @@ def rocket_bot_royale_season_info(season):
     else:
         time_remaining = ""
 
-    rocket_bot_royale_all_season_info = [season_start, season_end,
-                       season_days, status, time_remaining]
+    rocket_bot_royale_all_season_info = [
+        season_start,
+        season_end,
+        season_days,
+        status,
+        time_remaining,
+    ]
     return rocket_bot_royale_all_season_info
 
 
-class RocketBotRoyale(app_commands.Group): # RBR_NRC
+class RocketBotRoyale(app_commands.Group):  # RBR_NRC
     """Rocket Bot Royale non-reaction commands"""
 
     def __init__(self, bot: discord.client):
         super().__init__()
-
 
     # @tree.command()
     # async def dump(self, interaction: discord.Interaction,
@@ -158,7 +167,7 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
     #     # Reassign if season is unreasonable
     #     if season < 11 and mode == "trophies":
     #         season = 11
-        
+
     #     all_records = []
     #     next_cursor = cursor
     #     have_next_cursor = True
@@ -190,7 +199,6 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
 
     #     await interaction.followup.send("Done. Check inside Repl.")
 
-    
     @tree.command()
     @app_commands.describe(
         user_type="Use either User ID or Friend Code of the user",
@@ -226,7 +234,9 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
         # If the user specified a friend code we need to query the server for their ID.
         try:
             if user_type == "Friend Code":
-                id_response = await rocket_bot_royale_client.friend_code_to_id(id_or_code)
+                id_response = await rocket_bot_royale_client.friend_code_to_id(
+                    id_or_code
+                )
                 id = json.loads(id_response["payload"])["user_id"]
             else:
                 id = id_or_code
@@ -239,15 +249,13 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
             except Exception:
                 # Deleted account has empty payload
                 await interaction.followup.send(
-                    embed=discord.Embed(color=0xFF0000,
-                                        title="❌ Account deleted ❌")
+                    embed=discord.Embed(color=0xFF0000, title="❌ Account deleted ❌")
                 )
                 return
         except aiohttp.ClientResponseError:
             # The code is wrong, send an error response
             await interaction.followup.send(
-                embed=discord.Embed(color=0xFF0000,
-                                    title="❌ Player not found ❌")
+                embed=discord.Embed(color=0xFF0000, title="❌ Player not found ❌")
             )
             return
 
@@ -265,7 +273,7 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
         create_time = user_data["create_time"]
         try:
             timed_bonus_last_collect = metadata["timed_bonus_last_collect"]
-        except:
+        except KeyError:
             timed_bonus_last_collect = "N.A."
         current_tank = (
             metadata["skin"].replace("_", " ").split()[0].title()
@@ -276,16 +284,19 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
             )["name"]
         )
         current_trail = awards_config.get(metadata["trail"], default_award)["name"]
-        current_parachute = awards_config.get(
-            metadata["parachute"], default_award)["name"]
+        current_parachute = awards_config.get(metadata["parachute"], default_award)[
+            "name"
+        ]
         current_badge = awards_config.get(metadata["badge"], default_award)["name"]
         try:
-            has_season_pass = rocket_bot_royale_server_config["season"] in metadata["season_passes"]
-        except:
+            has_season_pass = (
+                rocket_bot_royale_server_config["season"] in metadata["season_passes"]
+            )
+        except KeyError:
             has_season_pass = False
         try:
             has_made_a_purchase = metadata["has_made_a_purchase"]
-        except:
+        except KeyError:
             has_made_a_purchase = False
         level = metadata["progress"]["level"]
         XP = metadata["progress"]["xp"]
@@ -296,7 +307,9 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
             # Add general player info
             general_info = "```ansi\n"
             general_info += f"{'Username: ':>19}{username}\n"
-            dt_create_time = f"{datetime.datetime.fromtimestamp(create_time):%Y-%m-%d %H:%M:%S}"
+            dt_create_time = (
+                f"{datetime.datetime.fromtimestamp(create_time):%Y-%m-%d %H:%M:%S}"
+            )
             general_info += f"{'Create Time: ':>19}{dt_create_time} UTC\n{'':>19}({timeago.format(dt_create_time, datetime.datetime.now())})\n"
             try:
                 dt_timed_bonus = f"{datetime.datetime.fromtimestamp(timed_bonus_last_collect):%Y-%m-%d %H:%M:%S}"
@@ -304,43 +317,52 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
                 dt_timed_bonus = "N.A."
             general_info += f"{'Last Timed Bonus: ':>19}" + (
                 f"{dt_timed_bonus} UTC\n{'':>19}({timeago.format(dt_timed_bonus, datetime.datetime.now())})\n"
-                if timed_bonus_last_collect != "N.A." else "N.A.\n")
+                if timed_bonus_last_collect != "N.A."
+                else "N.A.\n"
+            )
             general_info += f"{'Current Tank: ':>19}{current_tank}\n"
             general_info += f"{'Current Trail: ':>19}{current_trail}\n"
             general_info += f"{'Current Parachute: ':>19}{current_parachute}\n"
             general_info += f"{'Current Badge: ':>19}{current_badge}\n"
             general_info += f"{'Level: ':>19}{level}\n"
-            max_level = len(rocket_bot_royale_server_config["player_progression"]["xp_levels"])
+            max_level = len(
+                rocket_bot_royale_server_config["player_progression"]["xp_levels"]
+            )
             try:
-                XP_target = rocket_bot_royale_server_config["player_progression"]["xp_levels"][level][
-                    str(level + 1)
-                ]["xp_target"]
+                XP_target = rocket_bot_royale_server_config["player_progression"][
+                    "xp_levels"
+                ][level][str(level + 1)]["xp_target"]
                 reach_max_level = False
             except IndexError:
-                XP_target = rocket_bot_royale_server_config["player_progression"]["xp_levels"][-1][
-                    str(max_level)
-                ]["xp_target"]
+                XP_target = rocket_bot_royale_server_config["player_progression"][
+                    "xp_levels"
+                ][-1][str(max_level)]["xp_target"]
                 reach_max_level = True
             general_info += (
-                f"{'XP: ':>19}" + f"{XP}/{XP_target} ("
+                f"{'XP: ':>19}"
+                + f"{XP}/{XP_target} ("
                 + ("MAX" if reach_max_level else f"{floor(XP/XP_target*100)}%")
                 + ")\n"
             )
             general_info += f"{'Friend Code: ':>19}{friend_code}\n"
             general_info += f"{'User ID: ':>19}{id}\n"
             general_info += (
-                f"{'Has Season Pass: ':>19}" + "\u001b[2;"
+                f"{'Has Season Pass: ':>19}"
+                + "\u001b[2;"
                 + ("32" if has_season_pass else "31")
                 + f"m{has_season_pass}\u001b[0m\n"
             )
             general_info += (
-                f"{'Monetary Purchase: ':>19}" + "\u001b[2;"
+                f"{'Monetary Purchase: ':>19}"
+                + "\u001b[2;"
                 + ("32" if has_made_a_purchase else "31")
                 + f"m{has_made_a_purchase}\u001b[0m\n"
             )
             general_info += (
-                f"{'Online: ':>19}" + "\u001b[2;" + ("32" if is_online else "31") +
-                f"m{is_online}\u001b[0m\n"
+                f"{'Online: ':>19}"
+                + "\u001b[2;"
+                + ("32" if is_online else "31")
+                + f"m{is_online}\u001b[0m\n"
             )
             general_info += "```"
 
@@ -350,7 +372,11 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
 
             # Send
             await interaction.followup.send(
-                embed=discord.Embed(title="Rocket Bot Royale <:rocket_mint:910253491019202661>\nDetailed Player Info:", description=message1, color=0xFFFF00)
+                embed=discord.Embed(
+                    title="Rocket Bot Royale <:rocket_mint:910253491019202661>\nDetailed Player Info:",
+                    description=message1,
+                    color=0xFFFF00,
+                )
             )
 
         if section in {"with 📊 Seasons Records", "All"}:
@@ -359,14 +385,14 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
 
             points_label = "\u001b[1;2mBy points (Season 1 to 10)\u001b[0m\n"
             points = f"{'Season:':<8}{'Days:':<6}{'Rank:':<10}{'Points:':<12}{'Games:':<7}{'Pass:'}\n{'─'*56}\n"
-            trophies_label = (
-                f"\u001b[1;2mBy trophies (Season 11 to {rocket_bot_royale_current_season})\u001b[0m\n"
-            )
+            trophies_label = f"\u001b[1;2mBy trophies (Season 11 to {rocket_bot_royale_current_season})\u001b[0m\n"
             trophies = f"{'Season:':<8}{'Days:':<6}{'Rank:':<10}{'Trophies:':<10}{'League:':<10}{'Games:':<7}{'Pass:'}\n{'─'*56}\n"
             points_record = False
             trophies_record = False
 
-            for season in range(1, rocket_bot_royale_current_season + 1):  # From first season to current season
+            for season in range(
+                1, rocket_bot_royale_current_season + 1
+            ):  # From first season to current season
                 response = await rocket_bot_royale_client.query_leaderboard(
                     season,
                     ("tankkings_points" if season <= 10 else "tankkings_trophies"),
@@ -380,9 +406,11 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
                     if record["rank"] == 0:
                         mode = "points" if season < 11 else "trophies"
                         try:
-                            df = pd.read_csv(f"old_season_leaderboard/tankkings_{mode}_{season}.csv")
-                            rank = df[df["owner_id"] == id]['rank'].values[0]
-                        except:
+                            df = pd.read_csv(
+                                f"old_season_leaderboard/tankkings_{mode}_{season}.csv"
+                            )
+                            rank = df[df["owner_id"] == id]["rank"].values[0]
+                        except Exception:
                             rank = 0
                             pass
                     else:
@@ -397,7 +425,7 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
                         except KeyError:
                             season_pass = "\u001b[1;31mFalse\u001b[0m"
                     else:
-                      season_pass = "N.A."
+                        season_pass = "N.A."
 
                     rank_emoji = "  "
                     if season != rocket_bot_royale_current_season:
@@ -416,19 +444,22 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
                     else:
                         trophies_record = True
                         trophies += (
-                            (f"{'CURRENT SEASON'.center(56, '-')}\n" if season == rocket_bot_royale_current_season else "")
+                            (
+                                f"{'CURRENT SEASON'.center(56, '-')}\n"
+                                if season == rocket_bot_royale_current_season
+                                else ""
+                            )
                             + f"{season:^8}{required_season_info[2][:-5]:<6}{rank_emoji:<1}{rank:<8,}🏆 {record['score']:<8,}{league_names[np.searchsorted(league_range_orig, rank)]:<9}{record['num_score']:<7,}{season_pass}\n"
                         )
 
-            if points_record == False and trophies_record == False:
+            if (not points_record) and (not trophies_record):
                 seasons_records_list += "No records found"
             else:
-                if points_record == True:
+                if points_record:
                     seasons_records_list += points_label + points
-                if trophies_record == True:
+                if trophies_record:
                     seasons_records_list += (
-                        ("\n" if points_record == True else "") +
-                        trophies_label + trophies
+                        ("\n" if points_record else "") + trophies_label + trophies
                     )
             seasons_records_list += "```"
 
@@ -530,30 +561,44 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
                 "whirlwinds_used": 0,
                 "smokes_used": 0,
                 "blocks_using_proj": 0,
-                "blocks_using_shield": 0
+                "blocks_using_shield": 0,
             }
 
-            for key, value in metadata['stats'].items():
+            for key, value in metadata["stats"].items():
                 keys_order[key] = value
 
             # Plot Kills by Weapons pie chart
             data_stream = io.BytesIO()  # Initialize IO
 
             # Color codes reference: https://htmlcolorcodes.com/
-            YELLOW, DARK_YELLOW, LIGHT_YELLOW = '#B7950B', '#9A7D0A', '#D4AC0D'
-            RED, DARK_RED, LIGHT_RED = '#B03A2E', '#943126', '#CB4335'
-            BLUE, DARK_BLUE, LIGHT_BLUE = '#2874A6', '#21618C', '#2E86C1'
-            GREEN, DARK_GREEN, LIGHT_GREEN = '#239B56', '#1D8348', '#28B463'
-            PURPLE, DARK_PURPLE, LIGHT_PURPLE = '#76448A', '#633974', '#884EA0'
-            ORANGE, DARK_ORANGE, LIGHT_ORANGE = '#B9770E', '#9C640C', '#D68910'
-            DARKER_GREY, DARK_DARKER_GREY, LIGHT_DARKER_GREY = '#283747', '#212F3C', '#2E4053'
-            BROWN = '#A04000'
-            GREY = '#616A6B'
-            TURQUOISE = '#117A65'
-            NEON_RED = '#ED2F32'
+            YELLOW, DARK_YELLOW, LIGHT_YELLOW = "#B7950B", "#9A7D0A", "#D4AC0D"
+            RED, DARK_RED, LIGHT_RED = "#B03A2E", "#943126", "#CB4335"
+            BLUE, DARK_BLUE, LIGHT_BLUE = "#2874A6", "#21618C", "#2E86C1"
+            GREEN, DARK_GREEN, LIGHT_GREEN = "#239B56", "#1D8348", "#28B463"
+            PURPLE, DARK_PURPLE, LIGHT_PURPLE = "#76448A", "#633974", "#884EA0"
+            ORANGE, DARK_ORANGE, LIGHT_ORANGE = "#B9770E", "#9C640C", "#D68910"
+            DARKER_GREY, DARK_DARKER_GREY, LIGHT_DARKER_GREY = (
+                "#283747",
+                "#212F3C",
+                "#2E4053",
+            )
+            BROWN = "#A04000"
+            GREY = "#616A6B"
+            TURQUOISE = "#117A65"
+            NEON_RED = "#ED2F32"
 
-            labels_a_1, sizes_a_1, colors_a_1, sizes_a_2, colors_a_2, labels_b, sizes_b, colors_b, sizes_c, sizes_d = ([
-            ] for i in range(10))
+            (
+                labels_a_1,
+                sizes_a_1,
+                colors_a_1,
+                sizes_a_2,
+                colors_a_2,
+                labels_b,
+                sizes_b,
+                colors_b,
+                sizes_c,
+                sizes_d,
+            ) = ([] for i in range(10))
 
             total_games_played = 0
             total_games_won = 0
@@ -578,325 +623,463 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
             kills_using_triple_shot_pct = 0
 
             for key in keys_order:
-                if 'played' in key and keys_order[key] != 0:
-                    if key == 'games_played':
-                        labels_a_1.append('Solo')
-                        sizes_a_1.append(keys_order['games_played'])
+                if "played" in key and keys_order[key] != 0:
+                    if key == "games_played":
+                        labels_a_1.append("Solo")
+                        sizes_a_1.append(keys_order["games_played"])
                         colors_a_1.append(YELLOW)
                         sizes_a_2.append(
-                            [keys_order['games_played']-keys_order['games_won'], keys_order['games_won']])
+                            [
+                                keys_order["games_played"] - keys_order["games_won"],
+                                keys_order["games_won"],
+                            ]
+                        )
                         colors_a_2.append([DARK_YELLOW, LIGHT_YELLOW])
-                        games_won_pct = keys_order["games_won"] / \
-                            keys_order["games_played"]
+                        games_won_pct = (
+                            keys_order["games_won"] / keys_order["games_played"]
+                        )
                         sizes_c.append(float(f"{games_won_pct*100:.1f}"))
-                        total_games_played += keys_order['games_played']
-                        total_games_won += keys_order['games_won']
-                    elif key == 'deathmatch_played':
-                        labels_a_1.append('Squads\nDeathmatch')
-                        sizes_a_1.append(keys_order['deathmatch_played'])
+                        total_games_played += keys_order["games_played"]
+                        total_games_won += keys_order["games_won"]
+                    elif key == "deathmatch_played":
+                        labels_a_1.append("Squads\nDeathmatch")
+                        sizes_a_1.append(keys_order["deathmatch_played"])
                         colors_a_1.append(RED)
-                        sizes_a_2.append([keys_order['deathmatch_played'] -
-                                          keys_order['deathmatch_won'], keys_order['deathmatch_won']])
+                        sizes_a_2.append(
+                            [
+                                keys_order["deathmatch_played"]
+                                - keys_order["deathmatch_won"],
+                                keys_order["deathmatch_won"],
+                            ]
+                        )
                         colors_a_2.append([DARK_RED, LIGHT_RED])
-                        deathmatch_won_pct = keys_order["deathmatch_won"] / \
-                            keys_order["deathmatch_played"]
+                        deathmatch_won_pct = (
+                            keys_order["deathmatch_won"]
+                            / keys_order["deathmatch_played"]
+                        )
                         sizes_c.append(float(f"{deathmatch_won_pct*100:.1f}"))
-                        total_games_played += keys_order['deathmatch_played']
-                        total_games_won += keys_order['deathmatch_won']
-                    elif key == 'teams_played':
-                        labels_a_1.append('Red Vs Blue')
-                        sizes_a_1.append(keys_order['teams_played'])
+                        total_games_played += keys_order["deathmatch_played"]
+                        total_games_won += keys_order["deathmatch_won"]
+                    elif key == "teams_played":
+                        labels_a_1.append("Red Vs Blue")
+                        sizes_a_1.append(keys_order["teams_played"])
                         colors_a_1.append(BLUE)
                         sizes_a_2.append(
-                            [keys_order['teams_played']-keys_order['teams_won'], keys_order['teams_won']])
+                            [
+                                keys_order["teams_played"] - keys_order["teams_won"],
+                                keys_order["teams_won"],
+                            ]
+                        )
                         colors_a_2.append([DARK_BLUE, LIGHT_BLUE])
-                        teams_won_pct = keys_order["teams_won"] / \
-                            keys_order["teams_played"]
+                        teams_won_pct = (
+                            keys_order["teams_won"] / keys_order["teams_played"]
+                        )
                         sizes_c.append(float(f"{teams_won_pct*100:.1f}"))
-                        total_games_played += keys_order['teams_played']
-                        total_games_won += keys_order['teams_won']
-                    elif key == 'squads_played':
-                        labels_a_1.append('Squads')
-                        sizes_a_1.append(keys_order['squads_played'])
+                        total_games_played += keys_order["teams_played"]
+                        total_games_won += keys_order["teams_won"]
+                    elif key == "squads_played":
+                        labels_a_1.append("Squads")
+                        sizes_a_1.append(keys_order["squads_played"])
                         colors_a_1.append(GREEN)
-                        sizes_a_2.append([keys_order['squads_played'] -
-                                          keys_order['squads_won'], keys_order['squads_won']])
+                        sizes_a_2.append(
+                            [
+                                keys_order["squads_played"] - keys_order["squads_won"],
+                                keys_order["squads_won"],
+                            ]
+                        )
                         colors_a_2.append([DARK_GREEN, LIGHT_GREEN])
-                        squads_won_pct = keys_order["squads_won"] / \
-                            keys_order["squads_played"]
+                        squads_won_pct = (
+                            keys_order["squads_won"] / keys_order["squads_played"]
+                        )
                         sizes_c.append(float(f"{squads_won_pct*100:.1f}"))
-                        total_games_played += keys_order['squads_played']
-                        total_games_won += keys_order['squads_won']
-                    elif key == 'minemayhem_played':
-                        labels_a_1.append('Mine\nMayhem')
-                        sizes_a_1.append(keys_order['minemayhem_played'])
+                        total_games_played += keys_order["squads_played"]
+                        total_games_won += keys_order["squads_won"]
+                    elif key == "minemayhem_played":
+                        labels_a_1.append("Mine\nMayhem")
+                        sizes_a_1.append(keys_order["minemayhem_played"])
                         colors_a_1.append(PURPLE)
-                        sizes_a_2.append([keys_order['minemayhem_played'] -
-                                          keys_order['minemayhem_won'], keys_order['minemayhem_won']])
+                        sizes_a_2.append(
+                            [
+                                keys_order["minemayhem_played"]
+                                - keys_order["minemayhem_won"],
+                                keys_order["minemayhem_won"],
+                            ]
+                        )
                         colors_a_2.append([DARK_PURPLE, LIGHT_PURPLE])
-                        minemayhem_won_pct = keys_order["minemayhem_won"] / \
-                            keys_order["minemayhem_played"]
+                        minemayhem_won_pct = (
+                            keys_order["minemayhem_won"]
+                            / keys_order["minemayhem_played"]
+                        )
                         sizes_c.append(float(f"{minemayhem_won_pct*100:.1f}"))
-                        total_games_played += keys_order['minemayhem_played']
-                        total_games_won += keys_order['minemayhem_won']
-                    elif key == 'ranked_royale_played':
-                        labels_a_1.append('Ranked\nRoyale')
-                        sizes_a_1.append(keys_order['ranked_royale_played'])
+                        total_games_played += keys_order["minemayhem_played"]
+                        total_games_won += keys_order["minemayhem_won"]
+                    elif key == "ranked_royale_played":
+                        labels_a_1.append("Ranked\nRoyale")
+                        sizes_a_1.append(keys_order["ranked_royale_played"])
                         colors_a_1.append(ORANGE)
-                        sizes_a_2.append([keys_order['ranked_royale_played']-keys_order['ranked_royale_won'], keys_order['ranked_royale_won']])
+                        sizes_a_2.append(
+                            [
+                                keys_order["ranked_royale_played"]
+                                - keys_order["ranked_royale_won"],
+                                keys_order["ranked_royale_won"],
+                            ]
+                        )
                         colors_a_2.append([DARK_ORANGE, LIGHT_ORANGE])
-                        ranked_royale_won_pct = keys_order["ranked_royale_won"] / \
-                            keys_order["ranked_royale_played"]
+                        ranked_royale_won_pct = (
+                            keys_order["ranked_royale_won"]
+                            / keys_order["ranked_royale_played"]
+                        )
                         sizes_c.append(float(f"{ranked_royale_won_pct*100:.1f}"))
-                        total_games_played += keys_order['ranked_royale_played']
-                        total_games_won += keys_order['ranked_royale_won']
-                    elif key != 'total_games_played':  # In case of new game mode added
-                        labels_a_1.append(key.replace('_played', '').title())
+                        total_games_played += keys_order["ranked_royale_played"]
+                        total_games_won += keys_order["ranked_royale_won"]
+                    elif key != "total_games_played":  # In case of new game mode added
+                        labels_a_1.append(key.replace("_played", "").title())
                         sizes_a_1.append(keys_order[key])
                         colors_a_1.append(DARKER_GREY)
-                        sizes_a_2.append([keys_order[key]-keys_order[key.replace('_played',
-                                                                                 '_won')], keys_order[key.replace('_played', '_won')]])
+                        sizes_a_2.append(
+                            [
+                                keys_order[key]
+                                - keys_order[key.replace("_played", "_won")],
+                                keys_order[key.replace("_played", "_won")],
+                            ]
+                        )
                         colors_a_2.append([DARK_DARKER_GREY, LIGHT_DARKER_GREY])
                         sizes_c.append(
-                            float(f"{keys_order[key.replace('_played', '_won')]/keys_order[key]*100:.1f}"))
+                            float(
+                                f"{keys_order[key.replace('_played', '_won')]/keys_order[key]*100:.1f}"
+                            )
+                        )
                         total_games_played += keys_order[key]
-                        total_games_won += keys_order[key.replace(
-                            '_played', '_won')]
-                elif 'kills_using' in key and key != 'kills_using_missiles' and keys_order[key] != 0:
-                    if key == 'kills_using_drill':
-                        labels_b.append('Drill')
+                        total_games_won += keys_order[key.replace("_played", "_won")]
+                elif (
+                    "kills_using" in key
+                    and key != "kills_using_missiles"
+                    and keys_order[key] != 0
+                ):
+                    if key == "kills_using_drill":
+                        labels_b.append("Drill")
                         sizes_b.append(keys_order[key])
                         colors_b.append(BROWN)
-                        kills_using_drill_pct = keys_order["kills_using_drill"] / \
-                            keys_order["drills_used"]
+                        kills_using_drill_pct = (
+                            keys_order["kills_using_drill"] / keys_order["drills_used"]
+                        )
                         sizes_d.append(float(f"{kills_using_drill_pct*100:.1f}"))
                         kills_not_using_missiles += keys_order[key]
-                    elif key == 'kills_using_flak':
-                        labels_b.append('Flak')
+                    elif key == "kills_using_flak":
+                        labels_b.append("Flak")
                         sizes_b.append(keys_order[key])
                         colors_b.append(YELLOW)
-                        kills_using_flak_pct = keys_order["kills_using_flak"] / \
-                            keys_order["flaks_used"]
+                        kills_using_flak_pct = (
+                            keys_order["kills_using_flak"] / keys_order["flaks_used"]
+                        )
                         sizes_d.append(float(f"{kills_using_flak_pct*100:.1f}"))
                         kills_not_using_missiles += keys_order[key]
-                    elif key == 'kills_using_grenade':
-                        labels_b.append('Grenade')
+                    elif key == "kills_using_grenade":
+                        labels_b.append("Grenade")
                         sizes_b.append(keys_order[key])
                         colors_b.append(GREY)
-                        kills_using_grenade_pct = keys_order["kills_using_grenade"] / \
-                            keys_order["grenades_used"]
+                        kills_using_grenade_pct = (
+                            keys_order["kills_using_grenade"]
+                            / keys_order["grenades_used"]
+                        )
                         sizes_d.append(float(f"{kills_using_grenade_pct*100:.1f}"))
                         kills_not_using_missiles += keys_order[key]
-                    elif key == 'kills_using_homing':
-                        labels_b.append('Homing')
+                    elif key == "kills_using_homing":
+                        labels_b.append("Homing")
                         sizes_b.append(keys_order[key])
                         colors_b.append(TURQUOISE)
-                        kills_using_homing_pct = keys_order["kills_using_homing"] / \
-                            keys_order["homings_used"]
+                        kills_using_homing_pct = (
+                            keys_order["kills_using_homing"]
+                            / keys_order["homings_used"]
+                        )
                         sizes_d.append(float(f"{kills_using_homing_pct*100:.1f}"))
                         kills_not_using_missiles += keys_order[key]
                         kills_not_using_missiles += keys_order[key]
-                    elif key == 'kills_using_laser':
-                        labels_b.append('Laser')
+                    elif key == "kills_using_laser":
+                        labels_b.append("Laser")
                         sizes_b.append(keys_order[key])
                         colors_b.append(NEON_RED)
-                        kills_using_laser_pct = keys_order["kills_using_laser"] / \
-                            keys_order["lasers_used"]
-                        sizes_d.append(
-                            float(f"{kills_using_laser_pct*100:.1f}"))
+                        kills_using_laser_pct = (
+                            keys_order["kills_using_laser"] / keys_order["lasers_used"]
+                        )
+                        sizes_d.append(float(f"{kills_using_laser_pct*100:.1f}"))
                         kills_not_using_missiles += keys_order[key]
-                    elif key == 'kills_using_mine':
-                        labels_b.append('Mine')
+                    elif key == "kills_using_mine":
+                        labels_b.append("Mine")
                         sizes_b.append(keys_order[key])
                         colors_b.append(RED)
-                        kills_using_mine_pct = keys_order["kills_using_mine"] / \
-                            keys_order["mines_used"]
+                        kills_using_mine_pct = (
+                            keys_order["kills_using_mine"] / keys_order["mines_used"]
+                        )
                         sizes_d.append(float(f"{kills_using_mine_pct*100:.1f}"))
                         kills_not_using_missiles += keys_order[key]
-                    elif key == 'kills_using_nuke':
-                        labels_b.append('Nuke')
+                    elif key == "kills_using_nuke":
+                        labels_b.append("Nuke")
                         sizes_b.append(keys_order[key])
                         colors_b.append(BLUE)
-                        kills_using_nuke_pct = keys_order["kills_using_nuke"] / \
-                            keys_order["nukes_used"]
+                        kills_using_nuke_pct = (
+                            keys_order["kills_using_nuke"] / keys_order["nukes_used"]
+                        )
                         sizes_d.append(float(f"{kills_using_nuke_pct*100:.1f}"))
                         kills_not_using_missiles += keys_order[key]
-                    elif key == 'kills_using_poison':
-                        labels_b.append('Poison')
+                    elif key == "kills_using_poison":
+                        labels_b.append("Poison")
                         sizes_b.append(keys_order[key])
                         colors_b.append(GREEN)
-                        kills_using_poison_pct = keys_order["kills_using_poison"] / \
-                            keys_order["poisons_used"]
+                        kills_using_poison_pct = (
+                            keys_order["kills_using_poison"]
+                            / keys_order["poisons_used"]
+                        )
                         sizes_d.append(float(f"{kills_using_poison_pct*100:.1f}"))
                         kills_not_using_missiles += keys_order[key]
-                    elif key == 'kills_using_shield':
-                        labels_b.append('Shield')
+                    elif key == "kills_using_shield":
+                        labels_b.append("Shield")
                         sizes_b.append(keys_order[key])
                         colors_b.append(PURPLE)
-                        kills_using_shield_pct = keys_order["kills_using_shield"] / \
-                            keys_order["shields_used"]
+                        kills_using_shield_pct = (
+                            keys_order["kills_using_shield"]
+                            / keys_order["shields_used"]
+                        )
                         sizes_d.append(float(f"{kills_using_shield_pct*100:.1f}"))
                         kills_not_using_missiles += keys_order[key]
-                    elif key == 'kills_using_triple-shot':
-                        labels_b.append('Rapidfire')
+                    elif key == "kills_using_triple-shot":
+                        labels_b.append("Rapidfire")
                         sizes_b.append(keys_order[key])
                         colors_b.append(ORANGE)
-                        kills_using_triple_shot_pct = keys_order["kills_using_triple-shot"] / \
-                            keys_order["triple-shots_used"]
-                        sizes_d.append(
-                            float(f"{kills_using_triple_shot_pct*100:.1f}"))
+                        kills_using_triple_shot_pct = (
+                            keys_order["kills_using_triple-shot"]
+                            / keys_order["triple-shots_used"]
+                        )
+                        sizes_d.append(float(f"{kills_using_triple_shot_pct*100:.1f}"))
                     else:  # In case of new weapon added
-                        labels_b.append(key.replace('kills_using_', '').title())
+                        labels_b.append(key.replace("kills_using_", "").title())
                         sizes_b.append(keys_order[key])
                         colors_b.append(DARKER_GREY)
-                        kills_using_pct = keys_order[key] / \
-                            keys_order[key.replace('kills_using_', '')+'_used']
+                        kills_using_pct = (
+                            keys_order[key]
+                            / keys_order[key.replace("kills_using_", "") + "_used"]
+                        )
                         sizes_d.append(float(f"{kills_using_pct*100:.1f}"))
                         kills_not_using_missiles += keys_order[key]
 
-            keys_order['total_games_played'] = total_games_played
-            keys_order['total_games_won'] = total_games_won
+            keys_order["total_games_played"] = total_games_played
+            keys_order["total_games_won"] = total_games_won
             try:
-                total_games_won_pct = keys_order["total_games_won"] / \
-                    keys_order['total_games_played']
-            except:
+                total_games_won_pct = (
+                    keys_order["total_games_won"] / keys_order["total_games_played"]
+                )
+            except Exception:
                 total_games_won_pct = 0
 
-            keys_order['kills_using_missiles'] = keys_order['total_kills'] - \
-                kills_not_using_missiles
+            keys_order["kills_using_missiles"] = (
+                keys_order["total_kills"] - kills_not_using_missiles
+            )
 
-            if keys_order['kills_using_missiles'] != 0:
-                labels_b.append('Missiles')
-                sizes_b.append(keys_order['kills_using_missiles'])
+            if keys_order["kills_using_missiles"] != 0:
+                labels_b.append("Missiles")
+                sizes_b.append(keys_order["kills_using_missiles"])
                 colors_b.append(LIGHT_DARKER_GREY)
-                kills_using_missiles_pct = keys_order["kills_using_missiles"] / \
-                    keys_order["missiles_fired"]
+                kills_using_missiles_pct = (
+                    keys_order["kills_using_missiles"] / keys_order["missiles_fired"]
+                )
                 sizes_d.append(float(f"{kills_using_missiles_pct*100:.1f}"))
 
             # Avoid divided by zero error
             try:
-                kills_using_missiles_ratio = keys_order["kills_using_missiles"] / \
-                    keys_order["total_kills"]
-            except:
+                kills_using_missiles_ratio = (
+                    keys_order["kills_using_missiles"] / keys_order["total_kills"]
+                )
+            except Exception:
                 kills_using_missiles_ratio = 0
             try:
-                kills_not_using_missiles_ratio = kills_not_using_missiles / \
-                    keys_order["total_kills"]
-            except:
+                kills_not_using_missiles_ratio = (
+                    kills_not_using_missiles / keys_order["total_kills"]
+                )
+            except Exception:
                 kills_not_using_missiles_ratio = 0
 
             no_left_graphs = True if total_games_played == 0 else False
             no_right_graphs = True if kills_not_using_missiles == 0 else False
 
             # Graph
-            if not (no_left_graphs == True and no_right_graphs == True):
-                fig = plt.figure(facecolor=("#2C2F33"), figsize=(
-                    19.2, 10.8), edgecolor="#FFFF00" if section == "🍩 Graphs only" else "w", linewidth=3 if section == "🍩 Graphs only" else 0)  # 1920x1080 pixels
+            if not (no_left_graphs and no_right_graphs):
+                fig = plt.figure(
+                    facecolor=("#2C2F33"),
+                    figsize=(19.2, 10.8),
+                    edgecolor="#FFFF00" if section == "🍩 Graphs only" else "w",
+                    linewidth=3 if section == "🍩 Graphs only" else 0,
+                )  # 1920x1080 pixels
 
                 # Divide into subplots
-                gs = GridSpec(2, 3, height_ratios=[
-                              2, 1.5], width_ratios=[.45, .45, .1])
-                ax0, ax1, ax2, ax3, ax4 = fig.add_subplot(gs[0]), fig.add_subplot(
-                    gs[1]), fig.add_subplot(gs[2]), fig.add_subplot(gs[3]), fig.add_subplot(gs[4])
+                gs = GridSpec(
+                    2, 3, height_ratios=[2, 1.5], width_ratios=[0.45, 0.45, 0.1]
+                )
+                ax0, ax1, ax2, ax3, ax4 = (
+                    fig.add_subplot(gs[0]),
+                    fig.add_subplot(gs[1]),
+                    fig.add_subplot(gs[2]),
+                    fig.add_subplot(gs[3]),
+                    fig.add_subplot(gs[4]),
+                )
 
                 # Main title
-                fig.suptitle(username, fontsize=18, color="#FFFFFF", weight='bold')
+                fig.suptitle(username, fontsize=18, color="#FFFFFF", weight="bold")
 
                 # Threshold to hide small percentages and labels in pie charts + show them in legends
                 # a_1 = left_inner; a_2 = left_outer; b = right
                 threshold_a_1, threshold_a_2, threshold_b = 5, 4, 3
 
                 # Sort and calculate
-                if no_left_graphs == False:
-                    df_left = pd.DataFrame({
-                        "labels_a_1":  labels_a_1,
-                        "sizes_a_1": sizes_a_1,
-                        "colors_a_1": colors_a_1,
-                        "sizes_a_2": sizes_a_2,
-                        "colors_a_2": colors_a_2,
-                        "sizes_c": sizes_c,
-                    })
+                if not no_left_graphs:
+                    df_left = pd.DataFrame(
+                        {
+                            "labels_a_1": labels_a_1,
+                            "sizes_a_1": sizes_a_1,
+                            "colors_a_1": colors_a_1,
+                            "sizes_a_2": sizes_a_2,
+                            "colors_a_2": colors_a_2,
+                            "sizes_c": sizes_c,
+                        }
+                    )
 
                     df_left_sorted_a = df_left.sort_values(
-                        by=['sizes_a_1']).reset_index(drop=True)
+                        by=["sizes_a_1"]
+                    ).reset_index(drop=True)
 
-                    labels_a_1_sorted = df_left_sorted_a['labels_a_1']
-                    sizes_a_1_sorted = df_left_sorted_a['sizes_a_1']
-                    colors_a_1_sorted = df_left_sorted_a['colors_a_1']
+                    labels_a_1_sorted = df_left_sorted_a["labels_a_1"]
+                    sizes_a_1_sorted = df_left_sorted_a["sizes_a_1"]
+                    colors_a_1_sorted = df_left_sorted_a["colors_a_1"]
                     sizes_a_1_normsizes = [
-                        i/total_games_played*100 for i in sizes_a_1_sorted]
+                        i / total_games_played * 100 for i in sizes_a_1_sorted
+                    ]
                     legends_a_1_sorted = [
-                        f"{8-2*i}*{labels_a_1_sorted[i]}: {sizes_a_1_sorted[i]/total_games_played*100:.1f}% ({sizes_a_1_sorted[i]})" for i in range(len(labels_a_1_sorted))]
+                        f"{8-2*i}*{labels_a_1_sorted[i]}: {sizes_a_1_sorted[i]/total_games_played*100:.1f}% ({sizes_a_1_sorted[i]})"
+                        for i in range(len(labels_a_1_sorted))
+                    ]
 
                     sizes_a_2_sorted = list(
-                        itertools.chain.from_iterable(df_left_sorted_a['sizes_a_2']))
+                        itertools.chain.from_iterable(df_left_sorted_a["sizes_a_2"])
+                    )
                     colors_a_2_sorted = list(
-                        itertools.chain.from_iterable(df_left_sorted_a['colors_a_2']))
+                        itertools.chain.from_iterable(df_left_sorted_a["colors_a_2"])
+                    )
                     sizes_a_2_normsizes = [
-                        i/total_games_played*100 for i in sizes_a_2_sorted]
+                        i / total_games_played * 100 for i in sizes_a_2_sorted
+                    ]
                     legends_a_2_sorted = []
                     for j, i in enumerate(sizes_a_2_sorted):
                         index = j
-                        pair_sum = sizes_a_2_sorted[index] + sizes_a_2_sorted[index +
-                                                                              1] if index % 2 == 0 else sizes_a_2_sorted[index-1] + sizes_a_2_sorted[index]
-                        percent = i/pair_sum*100
-                        prefix = '- L: ' if index % 2 == 0 else '- W: '
+                        pair_sum = (
+                            sizes_a_2_sorted[index] + sizes_a_2_sorted[index + 1]
+                            if index % 2 == 0
+                            else sizes_a_2_sorted[index - 1] + sizes_a_2_sorted[index]
+                        )
+                        percent = i / pair_sum * 100
+                        prefix = "- L: " if index % 2 == 0 else "- W: "
                         legends_a_2_sorted.append(
-                            f'{9-index}' + '† ' + prefix +
-                            '{:.1f}% ({:.0f})'.format(percent, i)
+                            f"{9-index}"
+                            + "† "
+                            + prefix
+                            + "{:.1f}% ({:.0f})".format(percent, i)
                         )
 
-                    df_left_sorted_c = df_left.sort_values(
-                        by=['sizes_c']).reset_index(drop=True)
+                    df_left_sorted_c = df_left.sort_values(by=["sizes_c"]).reset_index(
+                        drop=True
+                    )
 
-                if no_right_graphs == False:
-                    df_right = pd.DataFrame({
-                        "labels_b":  labels_b,
-                        "sizes_b": sizes_b,
-                        "colors_b": colors_b,
-                        "sizes_d": sizes_d,
-                    })
+                if not no_right_graphs:
+                    df_right = pd.DataFrame(
+                        {
+                            "labels_b": labels_b,
+                            "sizes_b": sizes_b,
+                            "colors_b": colors_b,
+                            "sizes_d": sizes_d,
+                        }
+                    )
 
-                    df_right_sorted_b = df_right.drop(df_right.tail(1).index).sort_values(
-                        by=['sizes_b']).reset_index(drop=True)
+                    df_right_sorted_b = (
+                        df_right.drop(df_right.tail(1).index)
+                        .sort_values(by=["sizes_b"])
+                        .reset_index(drop=True)
+                    )
 
-                    labels_b_sorted = df_right_sorted_b['labels_b']
-                    sizes_b_sorted = df_right_sorted_b['sizes_b']
-                    colors_b_sorted = df_right_sorted_b['colors_b']
+                    labels_b_sorted = df_right_sorted_b["labels_b"]
+                    sizes_b_sorted = df_right_sorted_b["sizes_b"]
+                    colors_b_sorted = df_right_sorted_b["colors_b"]
                     sizes_b_normsizes = [
-                        i/kills_not_using_missiles*100 for i in sizes_b_sorted]
+                        i / kills_not_using_missiles * 100 for i in sizes_b_sorted
+                    ]
                     legends_b_sorted = [
-                        f"{labels_b_sorted[i]}: {sizes_b_sorted[i]/kills_not_using_missiles*100:.1f}% ({sizes_b_sorted[i]})" for i in range(len(labels_b_sorted))]
+                        f"{labels_b_sorted[i]}: {sizes_b_sorted[i]/kills_not_using_missiles*100:.1f}% ({sizes_b_sorted[i]})"
+                        for i in range(len(labels_b_sorted))
+                    ]
 
                     df_right_sorted_d = df_right.sort_values(
-                        by=['sizes_d']).reset_index(drop=True)
+                        by=["sizes_d"]
+                    ).reset_index(drop=True)
 
                 # Custom function
-                if no_left_graphs == False:
+                if not no_left_graphs:
+
                     def my_autopct_a_1(pct):
-                        return '{:.1f}%\n({:.0f})'.format(pct, pct * sum(sizes_a_1) / 100) if pct > threshold_a_1 else '*'
+                        return (
+                            "{:.1f}%\n({:.0f})".format(pct, pct * sum(sizes_a_1) / 100)
+                            if pct > threshold_a_1
+                            else "*"
+                        )
 
                     def my_autopct_a_2(pct):
                         index = sizes_a_2_sorted.index(
-                            round(pct * sum(sizes_a_2_sorted) / 100))
-                        pair_sum = sizes_a_2_sorted[index] + sizes_a_2_sorted[index +
-                                                                              1] if index % 2 == 0 else sizes_a_2_sorted[index-1] + sizes_a_2_sorted[index]
-                        percent = round(
-                            pct * sum(sizes_a_2_sorted) / 100)/pair_sum*100
-                        prefix = 'L: ' if index % 2 == 0 else 'W: '
-                        return prefix + '{:.1f}%\n({:.0f})'.format(percent, pct * sum(sizes_a_2_sorted) / 100) if pct > threshold_a_2 else '*'
-                if no_right_graphs == False:
+                            round(pct * sum(sizes_a_2_sorted) / 100)
+                        )
+                        pair_sum = (
+                            sizes_a_2_sorted[index] + sizes_a_2_sorted[index + 1]
+                            if index % 2 == 0
+                            else sizes_a_2_sorted[index - 1] + sizes_a_2_sorted[index]
+                        )
+                        percent = (
+                            round(pct * sum(sizes_a_2_sorted) / 100) / pair_sum * 100
+                        )
+                        prefix = "L: " if index % 2 == 0 else "W: "
+                        return (
+                            prefix
+                            + "{:.1f}%\n({:.0f})".format(
+                                percent, pct * sum(sizes_a_2_sorted) / 100
+                            )
+                            if pct > threshold_a_2
+                            else "*"
+                        )
+
+                if not no_right_graphs:
+
                     def my_autopct_b(pct):
-                        return '{:.1f}%\n({:.0f})'.format(pct, pct * (sum(sizes_b) - keys_order['kills_using_missiles']) / 100) if pct > threshold_b else '*'
+                        return (
+                            "{:.1f}%\n({:.0f})".format(
+                                pct,
+                                pct
+                                * (sum(sizes_b) - keys_order["kills_using_missiles"])
+                                / 100,
+                            )
+                            if pct > threshold_b
+                            else "*"
+                        )
 
                 def get_new_labels(sizes, labels, threshold):
                     new_labels = [
-                        label if size / sum(sizes) * 100 > threshold else '' for size, label in zip(sizes, labels)]
+                        label if size / sum(sizes) * 100 > threshold else ""
+                        for size, label in zip(sizes, labels)
+                    ]
                     return new_labels
 
-                left_ax_a, right_ax_a, right_ax_b, left_ax_b, right_ax_c = ax0, ax1, ax2, ax3, ax4
+                left_ax_a, right_ax_a, right_ax_b, left_ax_b, right_ax_c = (
+                    ax0,
+                    ax1,
+                    ax2,
+                    ax3,
+                    ax4,
+                )
 
-                if no_left_graphs == False:
+                if not no_left_graphs:
                     # A: 'Games Played by Game Mode' - nested donut charts
                     # Left inner
                     left_ax_a.set_title(
@@ -904,23 +1087,21 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
                         color="#FFFFFF",
                         fontsize=14,
                         pad=15,
-                        weight='bold',
+                        weight="bold",
                     )
                     wedges_a, texts_a, autotexts_a = left_ax_a.pie(
                         sizes_a_1_sorted,
                         labels=get_new_labels(
-                            sizes_a_1_sorted, labels_a_1_sorted, threshold_a_1),
+                            sizes_a_1_sorted, labels_a_1_sorted, threshold_a_1
+                        ),
                         autopct=my_autopct_a_1,
                         startangle=90,
-                        textprops={
-                            'color': "#FFFFFF",
-                            'fontsize': 9
-                        },
+                        textprops={"color": "#FFFFFF", "fontsize": 9},
                         wedgeprops={
                             "edgecolor": "#FFFFFF",
-                            'linewidth': 1,
-                            'antialiased': True,
-                            'width': .5
+                            "linewidth": 1,
+                            "antialiased": True,
+                            "width": 0.5,
                         },
                         radius=1,
                         pctdistance=0.63,
@@ -928,17 +1109,17 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
                         colors=colors_a_1_sorted,
                     )
 
-                    left_ax_a.axis('equal')
+                    left_ax_a.axis("equal")
                     left_ax_a.text(
                         0.5,
                         0.5,
-                        f'Total Games\n{total_games_played:,}\n\nTotal Wins\n{total_games_won:,}\n({total_games_won/total_games_played*100:.1f}%)',
+                        f"Total Games\n{total_games_played:,}\n\nTotal Wins\n{total_games_won:,}\n({total_games_won/total_games_played*100:.1f}%)",
                         transform=left_ax_a.transAxes,
-                        va='center',
-                        ha='center',
+                        va="center",
+                        ha="center",
                         size=12,
-                        color='white',
-                        weight='bold',
+                        color="white",
+                        weight="bold",
                     )
 
                     # Left outer
@@ -946,15 +1127,12 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
                         sizes_a_2_sorted,
                         autopct=my_autopct_a_2,
                         startangle=90,
-                        textprops={
-                            'color': "#FFFFFF",
-                            'fontsize': 8
-                        },
+                        textprops={"color": "#FFFFFF", "fontsize": 8},
                         wedgeprops={
                             "edgecolor": "#FFFFFF",
-                            'linewidth': 1,
-                            'antialiased': True,
-                            'width': .25
+                            "linewidth": 1,
+                            "antialiased": True,
+                            "width": 0.25,
                         },
                         radius=1,
                         pctdistance=0.87,
@@ -964,63 +1142,93 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
                     # Put small values to legends if necessary
                     h_a, l_a = (), ()
                     try:
-                        h_a_1, l_a_1 = zip(*[(h, lab) for h, lab, i in zip(
-                            wedges_a, legends_a_1_sorted, sizes_a_1_normsizes) if i < threshold_a_1][::-1])
+                        h_a_1, l_a_1 = zip(
+                            *[
+                                (h, lab)
+                                for h, lab, i in zip(
+                                    wedges_a, legends_a_1_sorted, sizes_a_1_normsizes
+                                )
+                                if i < threshold_a_1
+                            ][::-1]
+                        )
                         h_a += h_a_1
                         l_a += l_a_1
-                    except:
+                    except Exception:
                         pass
                     try:
-                        h_a_2, l_a_2 = zip(*[(h, lab) for h, lab, i in zip(wedges_a_2,
-                                                                           legends_a_2_sorted, sizes_a_2_normsizes) if i < threshold_a_2][::-1])
+                        h_a_2, l_a_2 = zip(
+                            *[
+                                (h, lab)
+                                for h, lab, i in zip(
+                                    wedges_a_2, legends_a_2_sorted, sizes_a_2_normsizes
+                                )
+                                if i < threshold_a_2
+                            ][::-1]
+                        )
                         h_a += h_a_2
                         l_a += l_a_2
-                    except:
+                    except Exception:
                         pass
                     try:
-                        l_a_sorted, h_a_sorted = (list(t)
-                                                  for t in zip(*sorted(zip(l_a, h_a))))
-                        l_a_sorted = [i[2:].replace('\n', ' ') for i in l_a_sorted]
+                        l_a_sorted, h_a_sorted = (
+                            list(t) for t in zip(*sorted(zip(l_a, h_a)))
+                        )
+                        l_a_sorted = [i[2:].replace("\n", " ") for i in l_a_sorted]
 
                         left_ax_a.legend(
                             h_a_sorted,
                             l_a_sorted,
                             loc="upper right",
-                            prop={'size': 9},
+                            prop={"size": 9},
                             bbox_to_anchor=(1.15, 1),
                             ncol=1,
                         )
-                    except:
+                    except Exception:
                         pass
 
                     # C: 'Win Rate by Game Mode' - bar chart
-                    win_rates, game_modes, colors = df_left_sorted_c[
-                        "sizes_c"], df_left_sorted_c["labels_a_1"], df_left_sorted_c["colors_a_1"]
+                    win_rates, game_modes, colors = (
+                        df_left_sorted_c["sizes_c"],
+                        df_left_sorted_c["labels_a_1"],
+                        df_left_sorted_c["colors_a_1"],
+                    )
                     y_index = [i for i in range(len(game_modes))]
 
-                    left_ax_b.barh(game_modes, win_rates, height=.8,
-                                   align="center", color=colors)
+                    left_ax_b.barh(
+                        game_modes, win_rates, height=0.8, align="center", color=colors
+                    )
                     left_ax_b.set_facecolor("#222222")
-                    left_ax_b.set_xlabel('Win Rate (%)', size=10, color='white')
-                    left_ax_b.set_yticks(y_index, color='white')
-                    left_ax_b.set_yticklabels(game_modes, size=10, color='white')
-                    left_ax_b.tick_params(axis='both', colors='white')
+                    left_ax_b.set_xlabel("Win Rate (%)", size=10, color="white")
+                    left_ax_b.set_yticks(y_index, color="white")
+                    left_ax_b.set_yticklabels(game_modes, size=10, color="white")
+                    left_ax_b.tick_params(axis="both", colors="white")
                     left_ax_b.set_axisbelow(True)
-                    left_ax_b.grid(axis='x', color='white', lw=1, alpha=.25)
-                    left_ax_b.set_title("Win Rate by Game Mode",
-                                        color="#FFFFFF", fontsize=14, weight='bold')
+                    left_ax_b.grid(axis="x", color="white", lw=1, alpha=0.25)
+                    left_ax_b.set_title(
+                        "Win Rate by Game Mode",
+                        color="#FFFFFF",
+                        fontsize=14,
+                        weight="bold",
+                    )
 
                     # Add text
                     for name, count, y_pos in zip(game_modes, win_rates, y_index):
                         # Threshold to put it outside of bar
-                        x_pos = float(count) + \
-                            1 if float(count) < 7 else float(count)/2-2.5
+                        x_pos = (
+                            float(count) + 1
+                            if float(count) < 7
+                            else float(count) / 2 - 2.5
+                        )
                         left_ax_b.text(
-                            x_pos, y_pos, f"{count}%",
-                            color='white', fontsize=10, va='center',
+                            x_pos,
+                            y_pos,
+                            f"{count}%",
+                            color="white",
+                            fontsize=10,
+                            va="center",
                         )
 
-                if no_right_graphs == False:
+                if not no_right_graphs:
                     # B: 'Kills by Weapon' - donut chart
                     # Right
                     right_ax_a.set_title(
@@ -1028,129 +1236,175 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
                         color="#FFFFFF",
                         fontsize=14,
                         pad=15,
-                        weight='bold',
-                        x=.75
+                        weight="bold",
+                        x=0.75,
                     )
                     wedges_b, texts_b, autotexts_b = right_ax_a.pie(
                         sizes_b_sorted,
                         labels=get_new_labels(
-                            sizes_b_sorted, labels_b_sorted, threshold_b),
+                            sizes_b_sorted, labels_b_sorted, threshold_b
+                        ),
                         autopct=my_autopct_b,
                         startangle=90,
-                        textprops={
-                            'color': "#FFFFFF",
-                            'fontsize': 10
-                        },
+                        textprops={"color": "#FFFFFF", "fontsize": 10},
                         wedgeprops={
                             "edgecolor": "#FFFFFF",
-                            'linewidth': 1,
-                            'antialiased': True,
-                            'width': .5,
+                            "linewidth": 1,
+                            "antialiased": True,
+                            "width": 0.5,
                         },
                         pctdistance=0.75,
                         labeldistance=1.05,
-                        colors=colors_b_sorted
+                        colors=colors_b_sorted,
                     )
 
                     # Put small values to legends if necessary
                     try:
-                        h_b, l_b = zip(*[(h, lab) for h, lab, i in zip(wedges_b,
-                                                                       legends_b_sorted, sizes_b_normsizes) if i < threshold_b])
+                        h_b, l_b = zip(
+                            *[
+                                (h, lab)
+                                for h, lab, i in zip(
+                                    wedges_b, legends_b_sorted, sizes_b_normsizes
+                                )
+                                if i < threshold_b
+                            ]
+                        )
                         right_ax_a.legend(
                             h_b,
                             l_b,
                             loc="upper right",
-                            prop={'size': 10},
+                            prop={"size": 10},
                             ncol=1,
                         )
-                    except:
+                    except Exception:
                         pass
-                    right_ax_a.axis('equal')
+                    right_ax_a.axis("equal")
                     right_ax_a.text(
                         0.5,
                         0.5,
                         f"Total Kills\n{keys_order['total_kills']:,}\n\nNon-missile Kills\n{kills_not_using_missiles:,}\n({kills_not_using_missiles_ratio*100:.1f}%)",
                         transform=right_ax_a.transAxes,
-                        va='center',
-                        ha='center',
+                        va="center",
+                        ha="center",
                         size=12,
-                        color='white',
-                        weight='bold',
+                        color="white",
+                        weight="bold",
                     )
 
                     # Missiles/Non-missiles distribution bar chart
-                    ratios = [kills_using_missiles_ratio,
-                              kills_not_using_missiles_ratio]
+                    ratios = [
+                        kills_using_missiles_ratio,
+                        kills_not_using_missiles_ratio,
+                    ]
                     labels_inside, labels_legends = [], []
                     if kills_using_missiles_ratio * 100 < 8:
-                        labels_inside.append('*')
+                        labels_inside.append("*")
                         labels_legends.append(
-                            f"{kills_using_missiles_ratio*100:.1f}%\n({keys_order['kills_using_missiles']})")
+                            f"{kills_using_missiles_ratio*100:.1f}%\n({keys_order['kills_using_missiles']})"
+                        )
                     else:
                         labels_inside.append(
-                            f"{kills_using_missiles_ratio*100:.1f}%\n({keys_order['kills_using_missiles']})")
+                            f"{kills_using_missiles_ratio*100:.1f}%\n({keys_order['kills_using_missiles']})"
+                        )
 
                     if kills_not_using_missiles_ratio * 100 < 8:
-                        labels_inside.append('*')
+                        labels_inside.append("*")
                         labels_legends.append(
-                            f"{kills_not_using_missiles_ratio*100:.1f}%\n({kills_not_using_missiles})")
+                            f"{kills_not_using_missiles_ratio*100:.1f}%\n({kills_not_using_missiles})"
+                        )
                     else:
                         labels_inside.append(
-                            f"{kills_not_using_missiles_ratio*100:.1f}%\n({kills_not_using_missiles})")
+                            f"{kills_not_using_missiles_ratio*100:.1f}%\n({kills_not_using_missiles})"
+                        )
 
                     colors = [LIGHT_DARKER_GREY, DARK_DARKER_GREY]
                     labels_outside = ["Missiles", "Other\nWeapons"]
                     bottom = 1
 
-                    for i, (ratio, label_inside, color, label_outside) in enumerate(reversed([*zip(ratios, labels_inside, colors, labels_outside)])):
+                    for i, (ratio, label_inside, color, label_outside) in enumerate(
+                        reversed([*zip(ratios, labels_inside, colors, labels_outside)])
+                    ):
                         bottom -= ratio
-                        bc = right_ax_b.bar(0, ratio, .2, bottom=bottom,
-                                            color=color, edgecolor='white', linewidth=1.25, label=labels_legends if label_inside == '*' else '')
+                        bc = right_ax_b.bar(
+                            0,
+                            ratio,
+                            0.2,
+                            bottom=bottom,
+                            color=color,
+                            edgecolor="white",
+                            linewidth=1.25,
+                            label=labels_legends if label_inside == "*" else "",
+                        )
                         right_ax_b.bar_label(
-                            bc, labels=[f"{label_inside}"], label_type='center', color='white', size=10)
-                        right_ax_b.text(-.2, bottom+ratio/2, label_outside,
-                                        ha='center', va='center', size=10, color='white')
+                            bc,
+                            labels=[f"{label_inside}"],
+                            label_type="center",
+                            color="white",
+                            size=10,
+                        )
+                        right_ax_b.text(
+                            -0.2,
+                            bottom + ratio / 2,
+                            label_outside,
+                            ha="center",
+                            va="center",
+                            size=10,
+                            color="white",
+                        )
                     if labels_legends != []:
                         right_ax_b.legend(
                             loc="upper center",
-                            prop={'size': 9},
-                            bbox_to_anchor=(.5, 1.08),
+                            prop={"size": 9},
+                            bbox_to_anchor=(0.5, 1.08),
                             ncol=1,
                         )
-                    right_ax_b.axis('off')
-                    right_ax_b.set_xlim(-.2, .2)
+                    right_ax_b.axis("off")
+                    right_ax_b.set_xlim(-0.2, 0.2)
 
                     # D: 'Kill Rate by Weapon' - bar chart
-                    kill_rates, weapons, colors = df_right_sorted_d[
-                        "sizes_d"], df_right_sorted_d["labels_b"], df_right_sorted_d["colors_b"]
+                    kill_rates, weapons, colors = (
+                        df_right_sorted_d["sizes_d"],
+                        df_right_sorted_d["labels_b"],
+                        df_right_sorted_d["colors_b"],
+                    )
                     y_index = [i for i in range(len(weapons))]
 
-                    right_ax_c.barh(weapons, kill_rates, height=.8,
-                                    align="center", color=colors)
+                    right_ax_c.barh(
+                        weapons, kill_rates, height=0.8, align="center", color=colors
+                    )
                     right_ax_c.set_facecolor("#222222")
-                    right_ax_c.set_xlabel('Kill Rate (%)', size=10, color='white')
-                    right_ax_c.set_yticks(y_index, color='white')
-                    right_ax_c.set_yticklabels(weapons, size=10, color='white')
-                    right_ax_c.tick_params(axis='both', colors='white')
+                    right_ax_c.set_xlabel("Kill Rate (%)", size=10, color="white")
+                    right_ax_c.set_yticks(y_index, color="white")
+                    right_ax_c.set_yticklabels(weapons, size=10, color="white")
+                    right_ax_c.tick_params(axis="both", colors="white")
                     right_ax_c.set_axisbelow(True)
-                    right_ax_c.grid(axis='x', color='white', lw=1, alpha=.25)
-                    right_ax_c.set_title("Kill Rate by Weapon",
-                                         color="#FFFFFF", fontsize=14, weight='bold')
+                    right_ax_c.grid(axis="x", color="white", lw=1, alpha=0.25)
+                    right_ax_c.set_title(
+                        "Kill Rate by Weapon",
+                        color="#FFFFFF",
+                        fontsize=14,
+                        weight="bold",
+                    )
 
                     # Add text
                     for count, y_pos in zip(kill_rates, y_index):
                         # Threshold to put it outside of bar
-                        x_pos = float(count) + \
-                            .5 if float(count) < 4 else float(count)/2-1
+                        x_pos = (
+                            float(count) + 0.5
+                            if float(count) < 4
+                            else float(count) / 2 - 1
+                        )
                         right_ax_c.text(
-                            x_pos, y_pos, f"{count}%",
-                            color='white', fontsize=10, va='center',
+                            x_pos,
+                            y_pos,
+                            f"{count}%",
+                            color="white",
+                            fontsize=10,
+                            va="center",
                         )
 
                 # Footer
-                current_timestamp = (
-                    f"{datetime.datetime.utcfromtimestamp(time.time()):%Y-%m-%d %H:%M:%S} UTC"
-                )
+                current_timestamp = f"{datetime.datetime.utcfromtimestamp(time.time()):%Y-%m-%d %H:%M:%S} UTC"
                 plt.figtext(
                     0.98,
                     0.03,
@@ -1168,193 +1422,331 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
                     fontsize=8,
                 )
                 plt.tight_layout()
-                plt.subplots_adjust(left=None, bottom=0.1, right=None,
-                                    top=None, wspace=None, hspace=None)
-                plt.savefig(data_stream, format='png', dpi=200)  # 3840x2160 pixels
+                plt.subplots_adjust(
+                    left=None,
+                    bottom=0.1,
+                    right=None,
+                    top=None,
+                    wspace=None,
+                    hspace=None,
+                )
+                plt.savefig(data_stream, format="png", dpi=200)  # 3840x2160 pixels
                 plt.close()
 
             if section != "🍩 Graphs only":
                 # Avoid divided by zero error (continued)
                 try:
                     five_kills_pct = keys_order["5_kills"] / total_games_played
-                except:
+                except Exception:
                     five_kills_pct = 0
                 try:
-                    player_kills_pct = keys_order["player_kills"] / \
-                        keys_order["total_kills"]
-                except:
+                    player_kills_pct = (
+                        keys_order["player_kills"] / keys_order["total_kills"]
+                    )
+                except Exception:
                     player_kills_pct = 0
                 try:
-                    bot_kills_pct = keys_order["bot_kills"] / \
-                        keys_order["total_kills"]
-                except:
+                    bot_kills_pct = keys_order["bot_kills"] / keys_order["total_kills"]
+                except Exception:
                     bot_kills_pct = 0
                 try:
-                    KDR = round(keys_order["total_kills"] /
-                                keys_order["deaths"], 2)
-                except:
+                    KDR = round(keys_order["total_kills"] / keys_order["deaths"], 2)
+                except Exception:
                     KDR = 0
                 try:
                     assists_pct = keys_order["assists"] / total_games_played
-                except:
+                except Exception:
                     assists_pct = 0
                 try:
                     dunk_tanks_pct = keys_order["dunk_tanks"] / total_games_played
-                except:
+                except Exception:
                     dunk_tanks_pct = 0
                 try:
-                    first_bloods_pct = keys_order["first_bloods"] / \
-                        total_games_played
-                except:
+                    first_bloods_pct = keys_order["first_bloods"] / total_games_played
+                except Exception:
                     first_bloods_pct = 0
                 try:
                     snipers_pct = keys_order["snipers"] / total_games_played
-                except:
+                except Exception:
                     snipers_pct = 0
                 try:
                     two_birdss_pct = keys_order["two_birdss"] / total_games_played
-                except:
+                except Exception:
                     two_birdss_pct = 0
                 try:
                     yardsales_pct = keys_order["yardsales"] / total_games_played
-                except:
+                except Exception:
                     yardsales_pct = 0
                 try:
-                    double_kills_pct = keys_order["double_kills"] / \
-                        total_games_played
-                except:
+                    double_kills_pct = keys_order["double_kills"] / total_games_played
+                except Exception:
                     double_kills_pct = 0
                 try:
-                    triple_kills_pct = keys_order["triple_kills"] / \
-                        total_games_played
-                except:
+                    triple_kills_pct = keys_order["triple_kills"] / total_games_played
+                except Exception:
                     triple_kills_pct = 0
                 try:
                     quad_kills_pct = keys_order["quad_kills"] / total_games_played
-                except:
+                except Exception:
                     quad_kills_pct = 0
                 try:
                     top_5_pct = keys_order["top_5"] / keys_order["games_played"]
-                except:
+                except Exception:
                     top_5_pct = 0
                 try:
                     blocks_using_proj_pct = keys_order["blocks_using_proj"] / (
-                        keys_order["blocks_using_proj"] + keys_order["blocks_using_shield"])
-                except:
+                        keys_order["blocks_using_proj"]
+                        + keys_order["blocks_using_shield"]
+                    )
+                except Exception:
                     blocks_using_proj_pct = 0
                 try:
                     blocks_using_shield_pct = keys_order["blocks_using_shield"] / (
-                        keys_order["blocks_using_proj"] + keys_order["blocks_using_shield"])
-                except:
+                        keys_order["blocks_using_proj"]
+                        + keys_order["blocks_using_shield"]
+                    )
+                except Exception:
                     blocks_using_shield_pct = 0
                 try:
                     kills_using_missiles_pct *= 100
-                except:
+                except Exception:
                     kills_using_missiles_pct = 0
 
-                keys_order["meters_driven"] = "{:.1f}".format(
-                    keys_order["meters_driven"] / 1000) + " km"
-                keys_order["5_kills"] = "{:<6}".format(
-                    keys_order["5_kills"]) + "(" + f"{five_kills_pct*100:>2.0f}" + "%) †"
-                keys_order["player_kills"] = "{:<6}".format(
-                    keys_order["player_kills"]
-                ) + "(" + f"{player_kills_pct*100:>2.0f}" + "%)"
-                keys_order["bot_kills"] = "{:<6}".format(
-                    keys_order["bot_kills"]) + "(" + f"{bot_kills_pct*100:>2.0f}" + "%)"
+                keys_order["meters_driven"] = (
+                    "{:.1f}".format(keys_order["meters_driven"] / 1000) + " km"
+                )
+                keys_order["5_kills"] = (
+                    "{:<6}".format(keys_order["5_kills"])
+                    + "("
+                    + f"{five_kills_pct*100:>2.0f}"
+                    + "%) †"
+                )
+                keys_order["player_kills"] = (
+                    "{:<6}".format(keys_order["player_kills"])
+                    + "("
+                    + f"{player_kills_pct*100:>2.0f}"
+                    + "%)"
+                )
+                keys_order["bot_kills"] = (
+                    "{:<6}".format(keys_order["bot_kills"])
+                    + "("
+                    + f"{bot_kills_pct*100:>2.0f}"
+                    + "%)"
+                )
                 keys_order["K/D Ratio"] = KDR
-                keys_order["assists"] = "{:<6}".format(
-                    keys_order["assists"]) + "(" + f"{assists_pct*100:>2.0f}" + "%) †"
-                keys_order["dunk_tanks"] = "{:<6}".format(
-                    keys_order["dunk_tanks"]) + "(" + f"{dunk_tanks_pct*100:>2.0f}" + "%) †"
-                keys_order["first_bloods"] = "{:<6}".format(
-                    keys_order["first_bloods"]
-                ) + "(" + f"{first_bloods_pct*100:>2.0f}" + "%) †"
-                keys_order["snipers"] = "{:<6}".format(
-                    keys_order["snipers"]) + "(" + f"{snipers_pct*100:>2.0f}" + "%) †"
-                keys_order["two_birdss"] = "{:<6}".format(
-                    keys_order["two_birdss"]) + "(" + f"{two_birdss_pct*100:>2.0f}" + "%) †"
-                keys_order["yardsales"] = "{:<6}".format(
-                    keys_order["yardsales"]) + "(" + f"{yardsales_pct*100:>2.0f}" + "%) †"
-                keys_order["double_kills"] = "{:<6}".format(
-                    keys_order["double_kills"]
-                ) + "(" + f"{double_kills_pct*100:>2.0f}" + "%) †"
-                keys_order["triple_kills"] = "{:<6}".format(
-                    keys_order["triple_kills"]
-                ) + "(" + f"{triple_kills_pct*100:>2.0f}" + "%) †"
-                keys_order["quad_kills"] = "{:<6}".format(
-                    keys_order["quad_kills"]) + "(" + f"{quad_kills_pct*100:>2.0f}" + "%) †"
-                keys_order["games_won"] = "{:<6}".format(
-                    keys_order["games_won"]) + "(" + f"{games_won_pct*100:>2.0f}" + "%)"
-                keys_order["top_5"] = "{:<6}".format(
-                    keys_order["top_5"]) + "(" + f"{top_5_pct*100:>2.0f}" + "%)"
-                keys_order["deathmatch_won"] = "{:<6}".format(
-                    keys_order["deathmatch_won"]
-                ) + "(" + f"{deathmatch_won_pct*100:>2.0f}" + "%)"
-                keys_order["squads_won"] = "{:<6}".format(
-                    keys_order["squads_won"]) + "(" + f"{squads_won_pct*100:>2.0f}" + "%)"
-                keys_order["ranked_royale_won"] = "{:<6}".format(
-                    keys_order["ranked_royale_won"]) + "(" + f"{ranked_royale_won_pct*100:>2.0f}" + "%)"
-                keys_order["teams_won"] = "{:<6}".format(
-                    keys_order["teams_won"]) + "(" + f"{teams_won_pct*100:>2.0f}" + "%)"
-                keys_order["minemayhem_won"] = "{:<6}".format(
-                    keys_order["minemayhem_won"]
-                ) + "(" + f"{minemayhem_won_pct*100:>2.0f}" + "%)"
+                keys_order["assists"] = (
+                    "{:<6}".format(keys_order["assists"])
+                    + "("
+                    + f"{assists_pct*100:>2.0f}"
+                    + "%) †"
+                )
+                keys_order["dunk_tanks"] = (
+                    "{:<6}".format(keys_order["dunk_tanks"])
+                    + "("
+                    + f"{dunk_tanks_pct*100:>2.0f}"
+                    + "%) †"
+                )
+                keys_order["first_bloods"] = (
+                    "{:<6}".format(keys_order["first_bloods"])
+                    + "("
+                    + f"{first_bloods_pct*100:>2.0f}"
+                    + "%) †"
+                )
+                keys_order["snipers"] = (
+                    "{:<6}".format(keys_order["snipers"])
+                    + "("
+                    + f"{snipers_pct*100:>2.0f}"
+                    + "%) †"
+                )
+                keys_order["two_birdss"] = (
+                    "{:<6}".format(keys_order["two_birdss"])
+                    + "("
+                    + f"{two_birdss_pct*100:>2.0f}"
+                    + "%) †"
+                )
+                keys_order["yardsales"] = (
+                    "{:<6}".format(keys_order["yardsales"])
+                    + "("
+                    + f"{yardsales_pct*100:>2.0f}"
+                    + "%) †"
+                )
+                keys_order["double_kills"] = (
+                    "{:<6}".format(keys_order["double_kills"])
+                    + "("
+                    + f"{double_kills_pct*100:>2.0f}"
+                    + "%) †"
+                )
+                keys_order["triple_kills"] = (
+                    "{:<6}".format(keys_order["triple_kills"])
+                    + "("
+                    + f"{triple_kills_pct*100:>2.0f}"
+                    + "%) †"
+                )
+                keys_order["quad_kills"] = (
+                    "{:<6}".format(keys_order["quad_kills"])
+                    + "("
+                    + f"{quad_kills_pct*100:>2.0f}"
+                    + "%) †"
+                )
+                keys_order["games_won"] = (
+                    "{:<6}".format(keys_order["games_won"])
+                    + "("
+                    + f"{games_won_pct*100:>2.0f}"
+                    + "%)"
+                )
+                keys_order["top_5"] = (
+                    "{:<6}".format(keys_order["top_5"])
+                    + "("
+                    + f"{top_5_pct*100:>2.0f}"
+                    + "%)"
+                )
+                keys_order["deathmatch_won"] = (
+                    "{:<6}".format(keys_order["deathmatch_won"])
+                    + "("
+                    + f"{deathmatch_won_pct*100:>2.0f}"
+                    + "%)"
+                )
+                keys_order["squads_won"] = (
+                    "{:<6}".format(keys_order["squads_won"])
+                    + "("
+                    + f"{squads_won_pct*100:>2.0f}"
+                    + "%)"
+                )
+                keys_order["ranked_royale_won"] = (
+                    "{:<6}".format(keys_order["ranked_royale_won"])
+                    + "("
+                    + f"{ranked_royale_won_pct*100:>2.0f}"
+                    + "%)"
+                )
+                keys_order["teams_won"] = (
+                    "{:<6}".format(keys_order["teams_won"])
+                    + "("
+                    + f"{teams_won_pct*100:>2.0f}"
+                    + "%)"
+                )
+                keys_order["minemayhem_won"] = (
+                    "{:<6}".format(keys_order["minemayhem_won"])
+                    + "("
+                    + f"{minemayhem_won_pct*100:>2.0f}"
+                    + "%)"
+                )
                 keys_order["total_games_played"] = f"{total_games_played:<11} †"
-                keys_order["total_games_won"] = "{:<6}".format(
-                    keys_order["total_games_won"]
-                ) + "(" + f"{total_games_won_pct*100:>2.0f}" + "%)"
-                keys_order["kills_using_drill"] = "{:<6}".format(
-                    keys_order["kills_using_drill"]
-                ) + "(" + f"{kills_using_drill_pct*100:>2.0f}" + "%)"
-                keys_order["kills_using_flak"] = "{:<6}".format(
-                    keys_order["kills_using_flak"]
-                ) + "(" + f"{kills_using_flak_pct*100:>2.0f}" + "%)"
-                keys_order["kills_using_grenade"] = "{:<6}".format(
-                    keys_order["kills_using_grenade"]
-                ) + "(" + f"{kills_using_grenade_pct*100:>2.0f}" + "%)"
-                keys_order["kills_using_homing"] = "{:<6}".format(
-                    keys_order["kills_using_homing"]
-                ) + "(" + f"{kills_using_homing_pct*100:>2.0f}" + "%)"
-                keys_order["kills_using_laser"] = "{:<6}".format(
-                    keys_order["kills_using_laser"]
-                ) + "(" + f"{kills_using_laser_pct*100:>2.0f}" + "%)"
-                keys_order["kills_using_mine"] = "{:<6}".format(
-                    keys_order["kills_using_mine"]
-                ) + "(" + f"{kills_using_mine_pct*100:>2.0f}" + "%)"
-                keys_order["kills_using_nuke"] = "{:<6}".format(
-                    keys_order["kills_using_nuke"]
-                ) + "(" + f"{kills_using_nuke_pct*100:>2.0f}" + "%)"
-                keys_order["kills_using_poison"] = "{:<6}".format(
-                    keys_order["kills_using_poison"]
-                ) + "(" + f"{kills_using_poison_pct*100:>2.0f}" + "%)"
-                keys_order["kills_using_shield"] = "{:<6}".format(
-                    keys_order["kills_using_shield"]
-                ) + "(" + f"{kills_using_shield_pct*100:>2.0f}" + "%)"
-                keys_order["kills_using_triple-shot"] = "{:<6}".format(
-                    keys_order["kills_using_triple-shot"]
-                ) + "(" + f"{kills_using_triple_shot_pct*100:>2.0f}" + "%)"
-                keys_order["kills_using_missiles"] = "{:<6}".format(
-                    keys_order['kills_using_missiles']
-                ) + "(" + f"{kills_using_missiles_pct:>2.0f}" + "%)"
-                keys_order["blocks_using_proj"] = "{:<6}".format(
-                    keys_order["blocks_using_proj"]
-                ) + "(" + f"{blocks_using_proj_pct*100:>2.0f}" + "%)"
-                keys_order["blocks_using_shield"] = "{:<6}".format(
-                    keys_order["blocks_using_shield"]
-                ) + "(" + f"{blocks_using_shield_pct*100:>2.0f}" + "%)"
+                keys_order["total_games_won"] = (
+                    "{:<6}".format(keys_order["total_games_won"])
+                    + "("
+                    + f"{total_games_won_pct*100:>2.0f}"
+                    + "%)"
+                )
+                keys_order["kills_using_drill"] = (
+                    "{:<6}".format(keys_order["kills_using_drill"])
+                    + "("
+                    + f"{kills_using_drill_pct*100:>2.0f}"
+                    + "%)"
+                )
+                keys_order["kills_using_flak"] = (
+                    "{:<6}".format(keys_order["kills_using_flak"])
+                    + "("
+                    + f"{kills_using_flak_pct*100:>2.0f}"
+                    + "%)"
+                )
+                keys_order["kills_using_grenade"] = (
+                    "{:<6}".format(keys_order["kills_using_grenade"])
+                    + "("
+                    + f"{kills_using_grenade_pct*100:>2.0f}"
+                    + "%)"
+                )
+                keys_order["kills_using_homing"] = (
+                    "{:<6}".format(keys_order["kills_using_homing"])
+                    + "("
+                    + f"{kills_using_homing_pct*100:>2.0f}"
+                    + "%)"
+                )
+                keys_order["kills_using_laser"] = (
+                    "{:<6}".format(keys_order["kills_using_laser"])
+                    + "("
+                    + f"{kills_using_laser_pct*100:>2.0f}"
+                    + "%)"
+                )
+                keys_order["kills_using_mine"] = (
+                    "{:<6}".format(keys_order["kills_using_mine"])
+                    + "("
+                    + f"{kills_using_mine_pct*100:>2.0f}"
+                    + "%)"
+                )
+                keys_order["kills_using_nuke"] = (
+                    "{:<6}".format(keys_order["kills_using_nuke"])
+                    + "("
+                    + f"{kills_using_nuke_pct*100:>2.0f}"
+                    + "%)"
+                )
+                keys_order["kills_using_poison"] = (
+                    "{:<6}".format(keys_order["kills_using_poison"])
+                    + "("
+                    + f"{kills_using_poison_pct*100:>2.0f}"
+                    + "%)"
+                )
+                keys_order["kills_using_shield"] = (
+                    "{:<6}".format(keys_order["kills_using_shield"])
+                    + "("
+                    + f"{kills_using_shield_pct*100:>2.0f}"
+                    + "%)"
+                )
+                keys_order["kills_using_triple-shot"] = (
+                    "{:<6}".format(keys_order["kills_using_triple-shot"])
+                    + "("
+                    + f"{kills_using_triple_shot_pct*100:>2.0f}"
+                    + "%)"
+                )
+                keys_order["kills_using_missiles"] = (
+                    "{:<6}".format(keys_order["kills_using_missiles"])
+                    + "("
+                    + f"{kills_using_missiles_pct:>2.0f}"
+                    + "%)"
+                )
+                keys_order["blocks_using_proj"] = (
+                    "{:<6}".format(keys_order["blocks_using_proj"])
+                    + "("
+                    + f"{blocks_using_proj_pct*100:>2.0f}"
+                    + "%)"
+                )
+                keys_order["blocks_using_shield"] = (
+                    "{:<6}".format(keys_order["blocks_using_shield"])
+                    + "("
+                    + f"{blocks_using_shield_pct*100:>2.0f}"
+                    + "%)"
+                )
 
                 first_title = " General "
                 stat_list += f"\u001b[1;2m{first_title.center(45, '—')}\u001b[0m\n"
                 keys = [
-                    "deaths", "snipers", "two_birdss", "games_played", "games_won", "top_5",
-                    "deathmatch_played", "deathmatch_won", "teams_played", "teams_won",
-                    "triple-shots_used", "kills_using_triple-shot", "blocks_using_proj"
+                    "deaths",
+                    "snipers",
+                    "two_birdss",
+                    "games_played",
+                    "games_won",
+                    "top_5",
+                    "deathmatch_played",
+                    "deathmatch_won",
+                    "teams_played",
+                    "teams_won",
+                    "triple-shots_used",
+                    "kills_using_triple-shot",
+                    "blocks_using_proj",
                 ]
                 rennamed_keys = [
-                    "total_deaths", "long_shot", "two_birdses", "solo_played", "solo_won",
-                    "solo_top_5", "squads_deathmatch_played", "squads_deathmatch_won",
-                    "Red_VS_Blue_played", "Red_VS_Blue_won", "rapidfire_used",
-                    "kills_using_rapidfire", "blocks_using_missile"
+                    "total_deaths",
+                    "long_shot",
+                    "two_birdses",
+                    "solo_played",
+                    "solo_won",
+                    "solo_top_5",
+                    "squads_deathmatch_played",
+                    "squads_deathmatch_won",
+                    "Red_VS_Blue_played",
+                    "Red_VS_Blue_won",
+                    "rapidfire_used",
+                    "kills_using_rapidfire",
+                    "blocks_using_missile",
                 ]
                 for key in keys_order:
                     if key in keys:
@@ -1375,8 +1767,7 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
 
             # Send
             data_stream.seek(0)
-            chart = discord.File(
-                data_stream, filename=f"{friend_code}_info_charts.png")
+            chart = discord.File(data_stream, filename=f"{friend_code}_info_charts.png")
             if section != "🍩 Graphs only":
                 embed1 = discord.Embed(description=message4, color=0xFFFF00)
                 embed1.set_image(url=f"attachment://{friend_code}_info_charts.png")
@@ -1398,9 +1789,7 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
 
                 if len(goal_name) > 34:
                     lines = textwrap.wrap(goal_name, 34, break_long_words=False)
-                    goal_list += (
-                        f"- {lines[0]:<34} {goal_progress:<9}{goal_xp:>6}\n  {lines[1]}\n"
-                    )
+                    goal_list += f"- {lines[0]:<34} {goal_progress:<9}{goal_xp:>6}\n  {lines[1]}\n"
                 else:
                     goal_list += f"- {goal_name:<34} {goal_progress:<9}{goal_xp:>6}\n"
             goal_list += "```"
@@ -1458,13 +1847,13 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
             for key, value in awards_config.items():
                 try:
                     try:
-                        if value["hidden"] != True:
+                        if not value["hidden"]:
                             pass
                         else:
                             if value["name"] == "Moai":
                                 tank_legendary_total += 1
 
-                    except:
+                    except Exception:
                         if value["type"] == "skin_set":
                             if value["rarity"] == "common":
                                 tank_common_total += 1
@@ -1498,7 +1887,7 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
                                 trail_purchased_total += 1
                             elif value["rarity"] == "earned":
                                 trail_earned_total += 1
-                except:
+                except Exception:
                     pass
 
             tank_list_duplicated = []
@@ -1522,7 +1911,7 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
                         tank_purchased_owned += 1
                     elif awards_config.get(unique_tank)["rarity"] == "earned":
                         tank_earned_owned += 1
-                except:
+                except Exception:
                     pass
 
             # Create parachute list
@@ -1572,14 +1961,18 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
                             elif rarity == "earned":
                                 trail_earned_owned += 1
                                 trail_list += "     🏅 " + skin["name"] + "\n"
-                except:
+                except Exception:
                     pass
 
             parachute_list += "```"
             trail_list += "```"
 
-            common_owned = tank_common_owned + parachute_common_owned + trail_common_owned
-            common_total = tank_common_total + parachute_common_total + trail_common_total
+            common_owned = (
+                tank_common_owned + parachute_common_owned + trail_common_owned
+            )
+            common_total = (
+                tank_common_total + parachute_common_total + trail_common_total
+            )
             rare_owned = tank_rare_owned + parachute_rare_owned + trail_rare_owned
             rare_total = tank_rare_total + parachute_rare_total + trail_rare_total
             legendary_owned = (
@@ -1594,8 +1987,12 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
             purchased_total = (
                 tank_purchased_total + parachute_purchased_total + trail_purchased_total
             )
-            earned_owned = tank_earned_owned + parachute_earned_owned + trail_earned_owned
-            earned_total = tank_earned_total + parachute_earned_total + trail_earned_total
+            earned_owned = (
+                tank_earned_owned + parachute_earned_owned + trail_earned_owned
+            )
+            earned_total = (
+                tank_earned_total + parachute_earned_total + trail_earned_total
+            )
 
             tank_owned = (
                 tank_common_owned
@@ -1664,7 +2061,9 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
 
             if section in {"with 🪖 Tanks", "with All Cosmetics", "All"}:
                 # Create tank list
-                tank_list = f"```\n{'Rarity:':<7} {'Name:':<17} {'Colors:':}\n{'—'*33}\n"
+                tank_list = (
+                    f"```\n{'Rarity:':<7} {'Name:':<17} {'Colors:':}\n{'—'*33}\n"
+                )
 
                 for unique_tank in tank_list_counter:
                     try:
@@ -1693,7 +2092,7 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
                             == "earned"
                         ):
                             tank_list += f"     🏅 {awards_config.get(unique_tank, default_award)['name']:<21} {str(tank_list_counter[unique_tank])}\n"
-                    except:
+                    except Exception:
                         pass
 
                 tank_list += "```"
@@ -1728,7 +2127,6 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
                     embed=discord.Embed(description=message9, color=0xFFFF00)
                 )
 
-    
     @tree.command()
     @app_commands.describe(
         user_type="Use either User ID or Friend Code of the user",
@@ -1751,7 +2149,9 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
         # If the user specified a friend code we need to query the server for their ID.
         try:
             if user_type == "Friend Code":
-                id_response = await rocket_bot_royale_client.friend_code_to_id(id_or_code)
+                id_response = await rocket_bot_royale_client.friend_code_to_id(
+                    id_or_code
+                )
                 id = json.loads(id_response["payload"])["user_id"]
             else:
                 id = id_or_code
@@ -1762,8 +2162,7 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
         except aiohttp.ClientResponseError:
             # The code is wrong, send an error response
             await interaction.followup.send(
-                embed=discord.Embed(color=0xFF0000,
-                                    title="❌ Player not found ❌")
+                embed=discord.Embed(color=0xFF0000, title="❌ Player not found ❌")
             )
             return
 
@@ -1777,7 +2176,7 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
         id = user_data["user_id"]
         all_user_info = f"{'Username: ':>13}{username}\n{'Friend Code: ':>13}{friend_code}\n{'User ID: ':>13}{id}\n"
         message = f"🗒️ ***User Info***:\n```ansi\n{all_user_info}```\n"
-      
+
         # Season Info
         required_season_info = rocket_bot_royale_season_info(season)
         global all_required_season_info
@@ -1802,26 +2201,27 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
         modes = ["trophies", "points", "wins", "kills", "bot_kills"]
         if season < 11:
             modes.remove("trophies")
-        
+
         modes_dict = {
-          "trophies": "🏆Trophies",
-          "points": "🧊Points",
-          "wins": "🎉Wins",
-          "kills": "💀Player Kills",
-          "bot_kills": "🤖Bot Kills"
+            "trophies": "🏆Trophies",
+            "points": "🧊Points",
+            "wins": "🎉Wins",
+            "kills": "💀Player Kills",
+            "bot_kills": "🤖Bot Kills",
         }
-      
+
         for mode in modes:
             mode_no_records = False
             try:
                 if season <= 30:
                     df = pd.read_csv(
-                        f"old_season_leaderboard/tankkings_{mode}_{season}.csv")
+                        f"old_season_leaderboard/tankkings_{mode}_{season}.csv"
+                    )
                     df_user = df[df["owner_id"] == id]
-    
-                    rank = df_user['rank'].values[0]
-                    score = df_user['score'].values[0]
-                    games = df_user['num_score'].values[0]
+
+                    rank = df_user["rank"].values[0]
+                    score = df_user["score"].values[0]
+                    games = df_user["num_score"].values[0]
                 else:
                     response = await rocket_bot_royale_client.query_leaderboard(
                         season,
@@ -1836,7 +2236,7 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
                         score = record["score"]
                         games = record["num_score"]
                 at_least_one_record = True
-            except:
+            except Exception:
                 mode_no_records = True
                 mode = modes_dict[mode]
                 if season < 11:
@@ -1845,12 +2245,16 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
                     all_season_records += f"{mode:<14}{'no records found':^42}\n"
                 continue
 
-            if mode_no_records != True:
+            if not mode_no_records:
                 mode = modes_dict[mode]
                 if mode == "🏆Trophies":
-                    league = f"({league_names[np.searchsorted(league_range_orig, rank)]})"
-                
-                if (season != rocket_bot_royale_current_season) and (mode == "🏆Trophies" or mode == "🧊Points"):
+                    league = (
+                        f"({league_names[np.searchsorted(league_range_orig, rank)]})"
+                    )
+
+                if (season != rocket_bot_royale_current_season) and (
+                    mode == "🏆Trophies" or mode == "🧊Points"
+                ):
                     if rank == 1:
                         rank_emoji = "🥇"
                     elif rank == 2:
@@ -1860,14 +2264,14 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
                     else:
                         rank_emoji = "  "
                     rank_with_emoji = rank_emoji + f"{rank:<8,}"
-                    
+
                     if mode == "🏆Trophies":
                         rank = f"{rank_with_emoji}{league:<11}"
                     else:
                         if season < 11:
                             rank = f"{rank_with_emoji:<9}"
                         else:
-                            rank = f"{rank_with_emoji:<21}"  
+                            rank = f"{rank_with_emoji:<21}"
                 else:
                     if season < 11:
                         rank = f"  {rank:<8,}"
@@ -1876,27 +2280,32 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
                             rank = f"  {rank:<8,}{league:<11}"
                         else:
                             rank = f"  {rank:<19,}"
-    
+
                 if mode == "🎉Wins":
                     games_played = f"{'-':<7}"
-                    score_per_games_played = '-'
+                    score_per_games_played = "-"
                 else:
                     games_played = f"{games:<6,}"
                     score_per_games_played = f"{score/games:.2f}"
-    
+
                 all_season_records += f"{mode:<14}{rank}{score:<8,}{games_played}{score_per_games_played}\n"
-    
-        if at_least_one_record == False:
+
+        if not at_least_one_record:
             if season < 11:
                 all_season_records = f"{'no records found':^46}\n"
             else:
                 all_season_records = f"{'no records found':^56}\n"
-        
+
         message += f"📊 ***Season Records***:```ansi\n{all_season_records}```"
-        
-        await interaction.followup.send(embed=discord.Embed(title=f"Rocket Bot Royale <:rocket_mint:910253491019202661>\n{username} - Season {season} Records:", description=message, color=0xFFFF00))
-        
-    
+
+        await interaction.followup.send(
+            embed=discord.Embed(
+                title=f"Rocket Bot Royale <:rocket_mint:910253491019202661>\n{username} - Season {season} Records:",
+                description=message,
+                color=0xFFFF00,
+            )
+        )
+
     @tree.command()
     @app_commands.describe(
         one_star="Number of one-star skin(s) owned",
@@ -1904,7 +2313,11 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
         three_star="Number of three-star skin(s) owned",
     )
     async def optimize_crate(
-        self, interaction: discord.Interaction, one_star: int, two_star: int, three_star: int
+        self,
+        interaction: discord.Interaction,
+        one_star: int,
+        two_star: int,
+        three_star: int,
     ):
         """🟡 Optimize the use of in game crates and Estimate the amount of coins in Rocket Bot Royale"""
 
@@ -1924,7 +2337,7 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
                     two_star_total += 1
                 elif value["rarity"] == "legendary":
                     three_star_total += 1
-            except:
+            except Exception:
                 pass
 
         total = one_star_total + two_star_total + three_star_total
@@ -1957,14 +2370,13 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
             weights_crate.append(three_star_prob)
 
         def basic_or_elite(a, b, c):
-            time = 1 / (1 - one_star_prob * a -
-                        two_star_prob * b - three_star_prob * c)
+            time = 1 / (1 - one_star_prob * a - two_star_prob * b - three_star_prob * c)
             expected_basic_crate_coin = basic_crate_price * time
             if expected_basic_crate_coin < elite_crate_price:
                 return (
                     f":one: The **OPTIMAL** way to unlock **A NEW UNIQUE SKIN** is **EXPECTED** by using **{time:.2f} BASIC CRATE"
                     + ("S" if time > 1 else "")
-                    + f" <:crate:988520294132088892>**, which "
+                    + " <:crate:988520294132088892>**, which "
                     + ("are" if time > 1 else "is")
                     + f" worth a **TOTAL** of **{expected_basic_crate_coin:,.0f} COINS <:coin:910247623787700264>**\n"
                 )
@@ -2033,7 +2445,7 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
                 )
                 + f"**{expected_elite_crate_mean:,.2f} ELITE CRATE"
                 + ("S" if expected_elite_crate_mean > 1 else "")
-                + f" <:elitecrate:989954419846184970>**, which "
+                + " <:elitecrate:989954419846184970>**, which "
                 + (
                     "are"
                     if (expected_basic_crate_mean + expected_elite_crate_mean) > 1
@@ -2053,7 +2465,7 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
                     return (
                         f"**1,000 SIMULATIONS** have been done based on the number of **{a} ONE-STAR :star:**, **{b} TWO-STAR :star::star:** and **{c} THREE-STAR :star::star::star: SKIN"
                         + ("S" if total_owned > 1 else "")
-                        + f"** you have already owned:\n"
+                        + "** you have already owned:\n"
                         + basic_or_elite(a, b, c)
                         + basic_and_elite_simulate(a, b, c)
                     )
@@ -2063,7 +2475,6 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
                 return ":x: **INVALID** data has been entered. Please try again. :x:"
 
         await interaction.followup.send(all(one_star, two_star, three_star))
-
 
     @tree.command()
     @app_commands.describe(
@@ -2110,8 +2521,12 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
             end_season = start_season
 
         # Singular or plural form for legends
-        if (start_season == rocket_bot_royale_current_season - 1 and end_season == rocket_bot_royale_current_season) or (
-            start_season == end_season and start_season != rocket_bot_royale_current_season
+        if (
+            start_season == rocket_bot_royale_current_season - 1
+            and end_season == rocket_bot_royale_current_season
+        ) or (
+            start_season == end_season
+            and start_season != rocket_bot_royale_current_season
         ):
             one_past_season = True
         else:
@@ -2128,7 +2543,9 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
 
             if str(season) not in db["plot"]:
                 db["plot"][str(season)] = dict()
-                db["plot"][str(season)]["days"] = rocket_bot_royale_season_info(season)[2][:-5]
+                db["plot"][str(season)]["days"] = rocket_bot_royale_season_info(season)[
+                    2
+                ][:-5]
 
             if (
                 season < rocket_bot_royale_current_season
@@ -2147,8 +2564,7 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
                         record["score"] for record in records
                     ]
 
-                    season_records = db["plot"][str(
-                        season)][f"top_100_{update_mode}"]
+                    season_records = db["plot"][str(season)][f"top_100_{update_mode}"]
                     db["plot"][str(season)][f"top_100_{update_mode}_stats"] = (
                         [min(season_records)]
                         + [
@@ -2207,7 +2623,7 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
                             records[range - 1]["score"] for range in league_range
                         ]
 
-        if db["plot"]["first_10_seasons_added"] == False:
+        if not db["plot"]["first_10_seasons_added"]:
             db["plot"]["first_10_seasons_added"] = True
 
             for season in range(1, 11):
@@ -2253,8 +2669,11 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
                 sd = db["plot"][str(season)]["League Trophies Range"]
                 data_c.append(sd)  # C
                 data_d.append(
-                    [season, db["plot"][str(season)]["days"],
-                     f"{0:>4}-{sd[::-1][0]:<4}"]
+                    [
+                        season,
+                        db["plot"][str(season)]["days"],
+                        f"{0:>4}-{sd[::-1][0]:<4}",
+                    ]
                     + [f"{sd[::-1][i]:>4}-{sd[::-1][i+1]:<4}" for i in range(1, 22, 2)]
                     + [sd[::-1][23]]
                 )  # D
@@ -2295,7 +2714,8 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
                 for patch in bp["boxes"]:
                     patch.set(
                         facecolor="#FED6D9"
-                        if end_season == rocket_bot_royale_current_season and patch == bp["boxes"][-1]
+                        if end_season == rocket_bot_royale_current_season
+                        and patch == bp["boxes"][-1]
                         else fill_color
                     )
 
@@ -2312,11 +2732,11 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
             legends_name = []
 
             if end_season != rocket_bot_royale_current_season or (
-                start_season != end_season and end_season == rocket_bot_royale_current_season
+                start_season != end_season
+                and end_season == rocket_bot_royale_current_season
             ):
                 legends_color.append(bp["boxes"][0])
-                legends_name.append(
-                    "Past Season" + ("" if one_past_season else "s"))
+                legends_name.append("Past Season" + ("" if one_past_season else "s"))
             if end_season == rocket_bot_royale_current_season:
                 legends_color.append(bp["boxes"][-1])
                 legends_name.append("Current Season")
@@ -2330,7 +2750,8 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
 
             # Bottom axis
             ax_a_1.set_xticks(
-                list(range(1, len(xlabels_a_c_1) + 1)), labels=xlabels_a_c_1)
+                list(range(1, len(xlabels_a_c_1) + 1)), labels=xlabels_a_c_1
+            )
             ax_a_1.set_title(
                 f"Rocket Bot Royale - Box Plot of Top 100 Players' {mode[2:]} by Season"
                 + ("" if one_past_season else "s"),
@@ -2360,7 +2781,8 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
             # Top axis
             ax_a_2 = ax_a_1.secondary_xaxis("top")
             ax_a_2.set_xticks(
-                list(range(1, len(xlabels_a_c_2) + 1)), labels=xlabels_a_c_2)
+                list(range(1, len(xlabels_a_c_2) + 1)), labels=xlabels_a_c_2
+            )
             ax_a_2.set_xlabel("Duration (days)", color="w", weight="bold")
             ax_a_2.tick_params(axis="both", colors="w")
 
@@ -2462,10 +2884,10 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
             legends_name = []
 
             if end_season != rocket_bot_royale_current_season or (
-                start_season != end_season and end_season == rocket_bot_royale_current_season
+                start_season != end_season
+                and end_season == rocket_bot_royale_current_season
             ):
-                legends_name.append(
-                    "Past Season" + ("" if one_past_season else "s"))
+                legends_name.append("Past Season" + ("" if one_past_season else "s"))
                 bbox_to_anchor_x = 0.085
             if end_season == rocket_bot_royale_current_season:
                 legends_name.append("Current Season")
@@ -2493,7 +2915,7 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
             (light_blue,) = ax_b.plot(
                 [],
                 [],
-                color="#1155CC" if one_past_season == True else "#3C78D8",
+                color="#1155CC" if one_past_season else "#3C78D8",
                 marker="s",
                 markersize=8,
                 fillstyle="bottom",
@@ -2579,7 +3001,8 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
                 )  # 500 = smoothness
             solid_line_space = np.linspace(
                 x_axis_lower_bound,
-                x_axis_upper_bound - (1 if end_season == rocket_bot_royale_current_season else 0),
+                x_axis_upper_bound
+                - (1 if end_season == rocket_bot_royale_current_season else 0),
                 500,
             )  # 500 = smoothness
 
@@ -2607,8 +3030,7 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
                 for league in range(len(league_names) * 2 - 2)
             ]
             dot_smooth = [
-                np.exp(PchipInterpolator(season, np.log(
-                    all_league_range[league]))(dot))
+                np.exp(PchipInterpolator(season, np.log(all_league_range[league]))(dot))
                 for league in range(len(league_names) * 2 - 2)
             ]
 
@@ -2650,18 +3072,21 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
 
             # Fill colors
             line_space = (
-                dotted_line_space if end_season == rocket_bot_royale_current_season else solid_line_space
+                dotted_line_space
+                if end_season == rocket_bot_royale_current_season
+                else solid_line_space
             )
             line_smooth = (
-                dotted_line_smooth if end_season == rocket_bot_royale_current_season else solid_line_smooth
+                dotted_line_smooth
+                if end_season == rocket_bot_royale_current_season
+                else solid_line_smooth
             )
 
             for league in range(len(league_names)):
                 ax_c_1.fill_between(
                     line_space,
                     line_smooth[0 if league == 0 else league * 2 - 1],
-                    0 if league == len(league_names) -
-                    1 else line_smooth[league * 2],
+                    0 if league == len(league_names) - 1 else line_smooth[league * 2],
                     color=league_colors[0 if league == 0 else league * 2 - 1],
                     alpha=0.5,
                     label=league_names[league],
@@ -2686,8 +3111,7 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
                 list(
                     range(
                         (2 if start_season == end_season else 0),
-                        len(xlabels_a_c_1) +
-                        (2 if start_season == end_season else 0),
+                        len(xlabels_a_c_1) + (2 if start_season == end_season else 0),
                     )
                 ),
                 labels=xlabels_a_c_1,
@@ -2713,8 +3137,7 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
                 list(
                     range(
                         (2 if start_season == end_season else 0),
-                        len(xlabels_a_c_1) +
-                        (2 if start_season == end_season else 0),
+                        len(xlabels_a_c_1) + (2 if start_season == end_season else 0),
                     )
                 ),
                 labels=xlabels_a_c_2,
@@ -2733,8 +3156,9 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
             )
             x0, x1, y0, y1 = plt.axis()
             dynamic_x_adjust = (
-                1 if start_season == end_season else 0.02 *
-                (end_season - start_season + 1)
+                1
+                if start_season == end_season
+                else 0.02 * (end_season - start_season + 1)
             )
             plt.axis(
                 (x0 + dynamic_x_adjust, x1 - dynamic_x_adjust, y0 + 100, y1 + 250)
@@ -2833,10 +3257,10 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
             legends_name = []
 
             if end_season != rocket_bot_royale_current_season or (
-                start_season != end_season and end_season == rocket_bot_royale_current_season
+                start_season != end_season
+                and end_season == rocket_bot_royale_current_season
             ):
-                legends_name.append(
-                    "Past Season" + ("" if one_past_season else "s"))
+                legends_name.append("Past Season" + ("" if one_past_season else "s"))
                 bbox_to_anchor_x = 0.05
             if end_season == rocket_bot_royale_current_season:
                 legends_name.append("Current Season")
@@ -2864,7 +3288,7 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
             (light_blue,) = ax_d.plot(
                 [],
                 [],
-                color="#1155CC" if one_past_season == True else "#3C78D8",
+                color="#1155CC" if one_past_season else "#3C78D8",
                 marker="s",
                 markersize=8,
                 fillstyle="bottom",
@@ -2920,13 +3344,12 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
             )
             await interaction.followup.send(file=chart_d)
 
-
     @tree.command()
     @app_commands.describe(
         reason="The reason of gain/loss trophies",
         your_trophies="How many trophies do you have",
         opponents_trophies="How many trophies does your opponent have",
-        format="Ways to present (text/graph)"
+        format="Ways to present (text/graph)",
     )
     async def trophies_calc(
         self,
@@ -2953,21 +3376,28 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
 
         # Main multivariable-function (f(x,y) = z)
         def f(x, y):
-            boost_factor = x/400 if x < 400 else 1
+            boost_factor = x / 400 if x < 400 else 1
             boosted_k_factor = k_factor * boost_factor if score_a < 1 else k_factor
-            trophies_change = boosted_k_factor * \
-                (score_a-(10**(x/800))/(10**(x/800)+10**(y/800)))
+            trophies_change = boosted_k_factor * (
+                score_a - (10 ** (x / 800)) / (10 ** (x / 800) + 10 ** (y / 800))
+            )
             return trophies_change
 
         # Main graph
         if format == "Graph":
-            fig, ax = plt.subplots(1, 1, facecolor=(
-                "#2F3137"), figsize=(10, 8), edgecolor="#FFFF00", linewidth=3)
-            division = int(-(k_factor/2)+10)
+            fig, ax = plt.subplots(
+                1,
+                1,
+                facecolor=("#2F3137"),
+                figsize=(10, 8),
+                edgecolor="#FFFF00",
+                linewidth=3,
+            )
+            division = int(-(k_factor / 2) + 10)
             if "by" in reason:
-                levels = [-i/division for i in range(k_factor*division+1)][::-1]
+                levels = [-i / division for i in range(k_factor * division + 1)][::-1]
             else:
-                levels = [i/division for i in range(k_factor*division+1)]
+                levels = [i / division for i in range(k_factor * division + 1)]
 
             # x, y, z values for contour plot
             extra_x, extra_y = 0, 0
@@ -2975,11 +3405,18 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
                 extra_x = your_trophies - 2800 + 1400
             if opponents_trophies > 2800:
                 extra_y = opponents_trophies - 2800 + 1400
-            x, y = np.meshgrid(np.linspace(0+extra_x, 2800+extra_x, 100),
-                               np.linspace(0+extra_y, 2800+extra_y, 100))
+            x, y = np.meshgrid(
+                np.linspace(0 + extra_x, 2800 + extra_x, 100),
+                np.linspace(0 + extra_y, 2800 + extra_y, 100),
+            )
             v_func = np.vectorize(f)
-            cf = ax.contourf(x, y, v_func(x, y), levels,
-                             cmap='Reds_r' if "by" in reason else "Greens")
+            cf = ax.contourf(
+                x,
+                y,
+                v_func(x, y),
+                levels,
+                cmap="Reds_r" if "by" in reason else "Greens",
+            )
 
             ax.xaxis.set_major_locator(MultipleLocator(400))
             ax.xaxis.set_minor_locator(AutoMinorLocator(8))
@@ -2988,30 +3425,47 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
             ax.grid(which="major", alpha=0.5)
             ax.grid(which="minor", alpha=0.2)
             ax.set_title(
-                f"Trophies {'Loss' if 'by' in reason else 'Gain'} ({reason})", color="#FFFFFF", weight="bold")
-            ax.set_xlabel('Your Trophies', c="#FFFFFF", weight="bold")
+                f"Trophies {'Loss' if 'by' in reason else 'Gain'} ({reason})",
+                color="#FFFFFF",
+                weight="bold",
+            )
+            ax.set_xlabel("Your Trophies", c="#FFFFFF", weight="bold")
             ax.set_ylabel("Opponent's Trophies", c="#FFFFFF", weight="bold")
             ax.tick_params(axis="both", which="both", colors="w")
 
             # Colorbar graph
             cb = fig.colorbar(cf)
             cb.set_label(
-                f"Trophies {'Loss' if 'by' in reason else 'Gain'}", color="w", weight="bold")
+                f"Trophies {'Loss' if 'by' in reason else 'Gain'}",
+                color="w",
+                weight="bold",
+            )
             cb.set_ticks(levels)
             cb.ax.tick_params(axis="both", which="both", colors="w")
 
             # Boost Target vertical dotted line
-            if 'by' in reason and your_trophies <= 2800:
-                plt.axvline(x=400, color='k', ls='--')
-                plt.text(200, 2600, 'Boost Target\n(400)', color='k', ha='center')
+            if "by" in reason and your_trophies <= 2800:
+                plt.axvline(x=400, color="k", ls="--")
+                plt.text(200, 2600, "Boost Target\n(400)", color="k", ha="center")
 
             # Plot dot and annotate
             x_adjust = 550 if your_trophies > 2200 else 0
             y_adjust = 200 if opponents_trophies > 2600 else 0
-            plt.text(your_trophies+25-x_adjust, opponents_trophies+75-y_adjust,
-                     f'f({your_trophies},{opponents_trophies})={f(your_trophies, opponents_trophies):.2f}', color='white', bbox=dict(facecolor='black', edgecolor='white', boxstyle='round'), size="10")
-            plt.scatter(your_trophies, opponents_trophies,
-                        facecolor='black', edgecolor='white', zorder=3)
+            plt.text(
+                your_trophies + 25 - x_adjust,
+                opponents_trophies + 75 - y_adjust,
+                f"f({your_trophies},{opponents_trophies})={f(your_trophies, opponents_trophies):.2f}",
+                color="white",
+                bbox=dict(facecolor="black", edgecolor="white", boxstyle="round"),
+                size="10",
+            )
+            plt.scatter(
+                your_trophies,
+                opponents_trophies,
+                facecolor="black",
+                edgecolor="white",
+                zorder=3,
+            )
 
             plt.tight_layout()
 
@@ -3034,10 +3488,9 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
             title = "Opponent's Trophies: "
             embed.add_field(
                 name="🧮 ***Trophies Calculator***",
-                value=f"```ansi\n{'Reason: ':>21}{reason}\n{'Your Trophies: ':>21}{'🏆 '+str(your_trophies)}\n{title:>21}{'🏆 '+str(opponents_trophies)}\n{'Trophies Change: ':>21}\u001b[2;{'31' if 'by' in reason else '32'}m{f(your_trophies, opponents_trophies):.2f}\u001b[0m```"
+                value=f"```ansi\n{'Reason: ':>21}{reason}\n{'Your Trophies: ':>21}{'🏆 '+str(your_trophies)}\n{title:>21}{'🏆 '+str(opponents_trophies)}\n{'Trophies Change: ':>21}\u001b[2;{'31' if 'by' in reason else '32'}m{f(your_trophies, opponents_trophies):.2f}\u001b[0m```",
             )
             await interaction.followup.send(embed=embed)
-
 
     @tree.command()
     @app_commands.describe(
@@ -3078,10 +3531,9 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
             output.set_thumbnail(
                 url="https://static.wikia.nocookie.net/rocketbotroyale/images/e/e6/Site-logo.png"
             )
-            output.set_footer(
-                text="All information is gathered through fandom.com")
+            output.set_footer(text="All information is gathered through fandom.com")
             await sent_embed.edit(embed=output)
-        except:
+        except Exception:
             await interaction.followup.send(
                 embed=discord.Embed(
                     color=0xFF0000,
@@ -3089,7 +3541,6 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
                     timestamp=datetime.datetime.utcnow(),
                 )
             )
-
 
     @tree.command()
     async def random_tank(self, interaction: discord.Interaction):
@@ -3099,19 +3550,21 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
 
         await interaction.response.defer(ephemeral=False, thinking=True)
 
-        chosen_tank = get_a_random_tank(False)
+        chosen_tank = get_a_random_tank()
 
         # Get emoji's source url stored on Discord
         # Png for static emojis and Gif for animated emojis
         if "a:" in chosen_tank:
             emoji_code_split = chosen_tank[3:-1].split(":")
-            img_link = "https://cdn.discordapp.com/emojis/" + \
-                emoji_code_split[1] + ".gif"
+            img_link = (
+                "https://cdn.discordapp.com/emojis/" + emoji_code_split[1] + ".gif"
+            )
             tank_name = emoji_code_split[0].replace("_", " ")[:-7].title()
         else:
             emoji_code_split = chosen_tank[2:-1].split(":")
-            img_link = "https://cdn.discordapp.com/emojis/" + \
-                emoji_code_split[1] + ".png"
+            img_link = (
+                "https://cdn.discordapp.com/emojis/" + emoji_code_split[1] + ".png"
+            )
             tank_name = emoji_code_split[0].replace("_", " ")[:-5].title()
 
         # Manual rename to avoid error
@@ -3166,7 +3619,7 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
                         description = value["description"]
                         # color = 0xFFFFFF
                         break
-            except:
+            except Exception:
                 pass
 
         # Send
@@ -3175,7 +3628,6 @@ class RocketBotRoyale(app_commands.Group): # RBR_NRC
         )
         embed.set_image(url=img_link)
         await interaction.followup.send(embed=embed)
-
 
     @tree.command()
     async def get_config(self, interaction: discord.Interaction):
