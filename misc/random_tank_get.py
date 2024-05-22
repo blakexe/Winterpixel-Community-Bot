@@ -1,7 +1,8 @@
 import random
 
-def get_a_random_tank(list):
-    # List contains all tank emojis for random_tank and memory command
+
+def get_a_random_tank():
+    # List contains all tank emojis for random_tank command
     tanks = [
         "<:pumpkin_tank:1022568065034104936>",
         "<a:pumpkin_evolved_tank_a:1022572757860499486>",
@@ -91,7 +92,36 @@ def get_a_random_tank(list):
         "<a:champion_s16_tank_a:1080827366957400146>",
     ]
 
-    if list:
-        return tanks
-    else:
-        return random.choice(tanks)
+    return random.choice(tanks)
+
+
+def get_a_random_tank_emoji():
+    # List contains all tank emojis for memory command
+    tank_emojis = [
+        "<:beta_tank:997947350943277106>",
+        "<:blade_tank:997947874715385856>",
+        "<:bot_tank:1091892797835067402>",
+        "<:brain_bot_tank:1006531910224322630>",
+        "<:champion_s13_tank:1051208428263067728>",
+        "<:champion_s14_tank:1063549554798120960>",
+        "<:champion_s15_tank:1073329544410443897>",
+        "<:champion_s16_tank:1081439198688591883>",
+        "<:champion_s17_tank:1091892801693827082>",
+        "<:crawler_tank:997952124279324753>",
+        "<:cyclops_tank:997952308333793322>",
+        "<:default_tank:996465659812774040>",
+        "<:diamond_tank:997952379595010048>",
+        "<:dozer_evolved_tank:997952441486155906>",
+        "<:dozer_tank:997952516501278760>",
+        "<:moai_tank:1006528445355917394>",
+        "<:modtank:1149834694259658962>",
+        "<:reactor_tank:997953557263302666>",
+        "<:spider_tank:997953676406702161>",
+        "<:spike_tank:997953736041308280>",
+        "<:square_tank:997953791217377381>",
+        "<:trap_tank:997953904610381834>",
+        "<:tread_tank:997953970213494905>",
+        "<:tub_tank:997954029902626886>",
+    ]
+
+    return tank_emojis
