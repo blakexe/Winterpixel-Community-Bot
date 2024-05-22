@@ -16,9 +16,8 @@ class RocketBotRoyaleClient(object):
         self.token = None
         self.session = None
 
-
     async def post(self, url: str, data={}, headers={}):
-        if self.session == None:
+        if self.session is None:
             self.session = aiohttp.ClientSession(raise_for_status=True)
 
         async with self.session.post(
@@ -26,18 +25,16 @@ class RocketBotRoyaleClient(object):
         ) as response:
             return await response.text()
 
-
     async def get(self, url, headers={}):
-        if self.session == None:
+        if self.session is None:
             self.session = aiohttp.ClientSession(raise_for_status=True)
 
         async with self.session.get(url, headers=headers) as response:
             return await response.text()
 
-
     async def refresh_token(self):
         # Only refresh token if 9 minutes have passed
-        if self.token != None:
+        if self.token is not None:
             time = datetime.datetime.now() - self.last_refresh
 
             if time.seconds < 540:
@@ -67,9 +64,8 @@ class RocketBotRoyaleClient(object):
             )
             self.token = response["token"]
             self.last_refresh = datetime.datetime.now()
-        except:
+        except Exception:
             raise AuthError("Invalid details!")
-
 
     async def get_config(self):
         await self.refresh_token()
@@ -83,7 +79,6 @@ class RocketBotRoyaleClient(object):
                 data="{}",
             )
         )
-
 
     async def query_leaderboard(
         self,
@@ -113,7 +108,6 @@ class RocketBotRoyaleClient(object):
             )
         )
 
-
     async def friend_code_to_id(self, friend_code: str):
         await self.refresh_token()
 
@@ -128,7 +122,6 @@ class RocketBotRoyaleClient(object):
                 headers=headers,
             )
         )
-
 
     async def user_info(self, user_id: str):
         await self.refresh_token()
@@ -145,12 +138,11 @@ class RocketBotRoyaleClient(object):
             )
         )
 
-
     def non_async_user_info(self, user_id: str):
         headers = {"authorization": f"Bearer {self.token}"}
         response = requests.post(
             "https://dev-nakama.winterpixel.io/v2/rpc/rpc_get_users_with_profile",
-            data=json.dumps('{\"ids\": [\"'+user_id+'\"]}'),
+            data=json.dumps('{"ids": ["' + user_id + '"]}'),
             headers=headers,
         )
         return json.loads(response.content)
