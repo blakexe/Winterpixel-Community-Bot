@@ -497,11 +497,11 @@ class GooberDash(app_commands.Group):  # GD_NRC
         status = (
             "Certified" if map_data["published"] == "Curated" else map_data["published"]
         )
-        if status == "Certified":
+        if status == "Certified": # Green
             color_code = "32"
-        elif status == "Publisehd":
+        elif status == "Public": # Yellow
             color_code = "33"
-        elif status == "Private":
+        elif status == "Private": # Red
             color_code = "31"
         embed.add_field(
             name="Status", value=f"```ansi\n\u001b[0;{color_code}m{status}\u001b[0m```"
