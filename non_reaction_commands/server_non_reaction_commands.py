@@ -11,13 +11,13 @@ from clients.rocketbotroyale_client import RocketBotRoyaleClient
 
 
 try:
-  discord_token = os.environ["discord_token"]
-  rbr_mm_email_password = os.environ["rbr_mm_email_password"]
+    discord_token = os.environ["discord_token"]
+    rbr_mm_email_password = os.environ["rbr_mm_email_password"]
 except KeyError:
-  print(
-      "ERROR: An environment value was not found. Please make sure your environment.json has all the right info or that you have correctly preloaded values into your environment."
-  )
-  os._exit(1)
+    print(
+        "ERROR: An environment value was not found. Please make sure your environment.json has all the right info or that you have correctly preloaded values into your environment."
+    )
+    os._exit(1)
 
 
 # Set up discord bot
@@ -28,37 +28,39 @@ tree = app_commands.CommandTree(client)
 
 
 # Initialize rocket bot royale client
-rocket_bot_royale_client = RocketBotRoyaleClient(rbr_mm_email_password, rbr_mm_email_password)
+rocket_bot_royale_client = RocketBotRoyaleClient(
+    rbr_mm_email_password, rbr_mm_email_password
+)
+
 
 async def refresh_config():
-  """🟡 Refresh Rocket Bot Royale game configuration"""
+    """🟡 Refresh Rocket Bot Royale game configuration"""
 
-  global rocket_bot_royale_server_config
+    global rocket_bot_royale_server_config
 
-  response = await rocket_bot_royale_client.get_config()
-  rocket_bot_royale_server_config = json.loads(response["payload"])
+    response = await rocket_bot_royale_client.get_config()
+    rocket_bot_royale_server_config = json.loads(response["payload"])
 
-  global rocket_bot_royale_current_season, league_range_orig, league_range, league_names, league_colors_orig, league_colors
-  rocket_bot_royale_current_season = rocket_bot_royale_server_config["season"]
-  league_range_orig = [
-    rocket_bot_royale_server_config["trophy_tiers"][league]["maximum_rank"]
-      for league in range(len(rocket_bot_royale_server_config["trophy_tiers"]) - 1)
-  ]
-  league_range = [
-      league_range_orig[i] if j == 0 else league_range_orig[i] + 1
-      for i in range(len(league_range_orig))
-      for j in range(min(len(league_range_orig) - i + 1, 2))
-  ]
-  league_names = [
-    rocket_bot_royale_server_config["trophy_tiers"][league]["name"]
-      for league in range(len(rocket_bot_royale_server_config["trophy_tiers"]))
-  ]
-  league_colors_orig = [
-      f"#{rocket_bot_royale_server_config['trophy_tiers'][league]['color']}"
-      for league in range(len(rocket_bot_royale_server_config["trophy_tiers"]))
-  ]
-  league_colors = [
-      color for color in league_colors_orig for _ in (0, 1)][1:-1]
+    global rocket_bot_royale_current_season, league_range_orig, league_range, league_names, league_colors_orig, league_colors
+    rocket_bot_royale_current_season = rocket_bot_royale_server_config["season"]
+    league_range_orig = [
+        rocket_bot_royale_server_config["trophy_tiers"][league]["maximum_rank"]
+        for league in range(len(rocket_bot_royale_server_config["trophy_tiers"]) - 1)
+    ]
+    league_range = [
+        league_range_orig[i] if j == 0 else league_range_orig[i] + 1
+        for i in range(len(league_range_orig))
+        for j in range(min(len(league_range_orig) - i + 1, 2))
+    ]
+    league_names = [
+        rocket_bot_royale_server_config["trophy_tiers"][league]["name"]
+        for league in range(len(rocket_bot_royale_server_config["trophy_tiers"]))
+    ]
+    league_colors_orig = [
+        f"#{rocket_bot_royale_server_config['trophy_tiers'][league]['color']}"
+        for league in range(len(rocket_bot_royale_server_config["trophy_tiers"]))
+    ]
+    league_colors = [color for color in league_colors_orig for _ in (0, 1)][1:-1]
 
 
 players = []
@@ -84,7 +86,7 @@ def generate_random_name():
         "creaky",
         "bloody",
     ]
-    
+
     noun = [
         "blaster",
         "shagster",
@@ -101,15 +103,14 @@ def generate_random_name():
         "badengine",
         "killing-machine",
     ]
-    
-    name = random.choice(adjective).capitalize() + \
-        random.choice(noun).capitalize()
-    
+
+    name = random.choice(adjective).capitalize() + random.choice(noun).capitalize()
+
     random_number = random.choice([True, False])
-    
+
     if random_number:
         name += f"{random.randint(0, 9)}{random.randint(0, 9)}00"
-    
+
     return name
 
 
@@ -125,7 +126,7 @@ def change_player_coin(id, name, coins, request=False):
         }
     db["discord_coins"][id]["coins"] += coins
     db["discord_coins"][id]["coins_change"] += coins
-    if request == True:
+    if request:
         return db["discord_coins"][id]["coins"]
 
 
@@ -136,16 +137,16 @@ def convert_mention_to_id(mention):
     return id
 
 
-class ServerMisc(app_commands.Group): # Server_NRC
+class ServerMisc(app_commands.Group):  # Server_NRC
     """Server non-reaction commands"""
-  
+
     def __init__(self, bot: discord.client):
         super().__init__()
 
     @tree.command()
     @app_commands.describe(bet="The minimum bet is 1 coin")
     async def game_slot_machine(self, interaction: discord.Interaction, bet: int):
-        """⚪ Play the slot machine game! (*outdated)"""
+        """⚪ Play the slot machine game!"""
 
         await interaction.response.defer(ephemeral=False, thinking=True)
         coin = [
@@ -159,7 +160,7 @@ class ServerMisc(app_commands.Group): # Server_NRC
         # Check how many coins the player has
         id = convert_mention_to_id(interaction.user.mention)
         user_object = await interaction.guild.query_members(user_ids=[id])
-        if user_object[0].nick == None:  # No nickname is found
+        if user_object[0].nick is None:  # No nickname is found
             name = str(user_object[0])[:-5]  # Use username
         else:
             name = user_object[0].nick  # Use nickname
@@ -183,7 +184,7 @@ class ServerMisc(app_commands.Group): # Server_NRC
             )
 
         else:
-            coins_loop = "<a:coin_loop:992273503288037408>"
+            coins_loop = "<a:coin_loop:1242884946125656196>"
             multiplier2 = [1, 2, 3, 4, 8]
             multiplier3 = [4, 8, 12, 16, 32]
             events = {
@@ -209,8 +210,9 @@ class ServerMisc(app_commands.Group): # Server_NRC
                 }
 
             slots = [
-                random.choices(population=list(events.keys()),
-                               weights=events.values())[0]
+                random.choices(population=list(events.keys()), weights=events.values())[
+                    0
+                ]
                 for i in range(3)
             ]
 
@@ -245,7 +247,7 @@ class ServerMisc(app_commands.Group): # Server_NRC
                 multiplier = 0
                 win = False
 
-            res_2 = "-- **YOU WON** --" if win == True else "-- **YOU LOST** --"
+            res_2 = "-- **YOU WON** --" if win else "-- **YOU LOST** --"
             net_change = -bet + bet * multiplier
 
             player_coin_after = change_player_coin(id, name, net_change, True)
@@ -270,8 +272,7 @@ class ServerMisc(app_commands.Group): # Server_NRC
                 inline=False,
             )
             await sent_embed.edit(embed=embed)
-    
-    
+
     @tree.command()
     async def double_or_half(self, interaction: discord.Interaction):
         """⚪ Helps you get out of a rut if your balance is negative"""
@@ -280,7 +281,7 @@ class ServerMisc(app_commands.Group): # Server_NRC
 
         id = convert_mention_to_id(interaction.user.mention)
         user_object = await interaction.guild.query_members(user_ids=[id])
-        if user_object[0].nick == None:  # No nickname is found
+        if user_object[0].nick is None:  # No nickname is found
             name = str(user_object[0])[:-5]  # Use username
         else:
             name = user_object[0].nick  # Use nickname
@@ -316,13 +317,12 @@ class ServerMisc(app_commands.Group): # Server_NRC
                     )
                 )
 
-    
     @tree.command()
     async def battle(self, interaction: discord.Interaction):
         """⚪ Have a battle with a random bot!"""
 
         await refresh_config()
-        
+
         await interaction.response.defer(ephemeral=False, thinking=True)
 
         events = {
@@ -346,9 +346,9 @@ class ServerMisc(app_commands.Group): # Server_NRC
         }
         event = (
             "You fire a missile at a bot. <:rocketmint:910253491019202661>\n"
-            + random.choices(population=list(events.keys()), weights=events.values(), k=1)[
-                0
-            ]
+            + random.choices(
+                population=list(events.keys()), weights=events.values(), k=1
+            )[0]
         )
 
         if "<R>" in event:
@@ -367,7 +367,6 @@ class ServerMisc(app_commands.Group): # Server_NRC
 
         await interaction.followup.send(event)
 
-
     @tree.command()
     async def build_a_bot(self, interaction: discord.Interaction):
         """⚪ Bear the responsibility of creating new life... I mean bot"""
@@ -375,13 +374,14 @@ class ServerMisc(app_commands.Group): # Server_NRC
         bot_name = generate_random_name()
         response = f"***Meet your lovely new bot!***\n\n`{bot_name}`"
         if len(bots) >= 5:
-            response += f"\n\n`{bot_name}` can't join because 5 bots have already joined"
+            response += (
+                f"\n\n`{bot_name}` can't join because 5 bots have already joined"
+            )
         else:
             response += f"\n\n`{bot_name}` is joining the next game"
             players.append(bot_name)
             bots.append(bot_name)
         await interaction.response.send_message(response)
-
 
     @tree.command()
     async def join_game(self, interaction: discord.Interaction):
@@ -400,7 +400,6 @@ class ServerMisc(app_commands.Group): # Server_NRC
             response += "{} you cant join twice".format(interaction.user.mention)
 
         await interaction.response.send_message(response)
-
 
     @tree.command()
     async def start_game(self, interaction: discord.Interaction):
@@ -427,12 +426,12 @@ class ServerMisc(app_commands.Group): # Server_NRC
             embed = discord.Embed(color=0xFFFFFF)
             if len(players) <= 1:
                 embed.add_field(name="Players: ", value=players[0], inline=False)
-                embed.add_field(
-                    name="Game:", value=players[0] + " wins!", inline=False)
+                embed.add_field(name="Game:", value=players[0] + " wins!", inline=False)
                 money_txt = ""
                 for i in moneys.keys():
-                    money_txt += i + " " + \
-                        str(moneys[i]) + "<:coin:910247623787700264>\n"
+                    money_txt += (
+                        i + " " + str(moneys[i]) + "<:coin:910247623787700264>\n"
+                    )
                 if money_txt != "":
                     embed.add_field(name="Money:", value=money_txt, inline=False)
                 await msg.edit(embed=embed)
@@ -493,7 +492,9 @@ class ServerMisc(app_commands.Group): # Server_NRC
                     event = event.replace(
                         "<U>",
                         random.choices(
-                            population=list(weapons.keys()), weights=weapons.values(), k=1
+                            population=list(weapons.keys()),
+                            weights=weapons.values(),
+                            k=1,
                         )[0],
                     )
                 # B-E die for kills, if we need a non dying player use F
@@ -516,9 +517,8 @@ class ServerMisc(app_commands.Group): # Server_NRC
                     player_a_object = await interaction.guild.query_members(
                         user_ids=[player_a_id]
                     )
-                    if player_a_object[0].nick == None:  # No nickname is found
-                        player_a_name = str(player_a_object[0])[
-                            :-5]  # Use username
+                    if player_a_object[0].nick is None:  # No nickname is found
+                        player_a_name = str(player_a_object[0])[:-5]  # Use username
                     else:
                         player_a_name = player_a_object[0].nick  # Use nickname
                     change_player_coin(player_a_id, player_a_name, coin_num)
@@ -527,17 +527,16 @@ class ServerMisc(app_commands.Group): # Server_NRC
                     player_b_object = await interaction.guild.query_members(
                         user_ids=[player_b_id]
                     )
-                    if player_b_object[0].nick == None:  # No nickname is found
-                        player_b_name = str(player_b_object[0])[
-                            :-5]  # Use username
+                    if player_b_object[0].nick is None:  # No nickname is found
+                        player_b_name = str(player_b_object[0])[:-5]  # Use username
                     else:
                         player_b_name = player_b_object[0].nick  # Use nickname
                     change_player_coin(player_b_id, player_b_name, -coin_num)
-                if moneys.get(player_a) == None:
+                if moneys.get(player_a) is None:
                     moneys[player_a] = coin_num
                 else:
                     moneys[player_a] = moneys[player_a] + coin_num
-                if moneys.get(player_b) == None:
+                if moneys.get(player_b) is None:
                     moneys[player_b] = -coin_num
                 else:
                     moneys[player_b] = moneys[player_b] - coin_num
@@ -583,7 +582,7 @@ class ServerMisc(app_commands.Group): # Server_NRC
                 player_a = random.choice(players)
                 players.remove(player_a)
                 event = event.replace("<A>", player_a)
-                if moneys.get(player_a) == None:
+                if moneys.get(player_a) is None:
                     moneys[player_a] = 0
                 action = event
             #             case "Special":
@@ -591,13 +590,11 @@ class ServerMisc(app_commands.Group): # Server_NRC
             embed.add_field(name="Game:", value=action, inline=False)
             money_txt = ""
             for i in moneys.keys():
-                money_txt += i + " " + \
-                    str(moneys[i]) + "<:coin:910247623787700264>\n"
+                money_txt += i + " " + str(moneys[i]) + "<:coin:910247623787700264>\n"
             if money_txt != "":
                 embed.add_field(name="Money:", value=money_txt, inline=False)
             await msg.edit(embed=embed)
             await asyncio.sleep(5)
-
 
     @tree.command()
     async def my_balance(self, interaction: discord.Interaction):
@@ -607,19 +604,21 @@ class ServerMisc(app_commands.Group): # Server_NRC
 
         id = convert_mention_to_id(interaction.user.mention)
         user_object = await interaction.guild.query_members(user_ids=[id])
-        if user_object[0].nick == None:  # No nickname is found
+        if user_object[0].nick is None:  # No nickname is found
             name = str(user_object[0])[:-5]  # Use username
         else:
             name = user_object[0].nick  # Use nickname
         msg = f"{str(interaction.user.mention)} has {str(change_player_coin(id, name, 0, True))} <:coin:910247623787700264>"
         await interaction.followup.send(msg)
 
-
     @tree.command()
     @app_commands.describe(
-        amount="Amount of coins to be transfered", recipient="User who receive the coins"
+        amount="Amount of coins to be transfered",
+        recipient="User who receive the coins",
     )
-    async def transfer_coins(self, interaction: discord.Interaction, amount: int, recipient: str):
+    async def transfer_coins(
+        self, interaction: discord.Interaction, amount: int, recipient: str
+    ):
         """⚪ Transfer some coins to another user on Discord"""
 
         await interaction.response.defer(ephemeral=False, thinking=True)
@@ -627,7 +626,7 @@ class ServerMisc(app_commands.Group): # Server_NRC
         # Check how many coins the sender has
         id_sender = convert_mention_to_id(interaction.user.mention)
         user_object = await interaction.guild.query_members(user_ids=[id_sender])
-        if user_object[0].nick == None:  # No nickname is found
+        if user_object[0].nick is None:  # No nickname is found
             name = str(user_object[0])[:-5]  # Use username
         else:
             name = user_object[0].nick  # Use nickname
@@ -648,8 +647,10 @@ class ServerMisc(app_commands.Group): # Server_NRC
         else:
             change_player_coin(id_sender, name, -amount, request=False)
             try:
-                user_object = await interaction.guild.query_members(user_ids=[id_recipient])
-                if user_object[0].nick == None:  # No nickname is found
+                user_object = await interaction.guild.query_members(
+                    user_ids=[id_recipient]
+                )
+                if user_object[0].nick is None:  # No nickname is found
                     name = str(user_object[0])[:-5]  # Use username
                 else:
                     name = user_object[0].nick  # Use nickname
@@ -657,11 +658,9 @@ class ServerMisc(app_commands.Group): # Server_NRC
                 await interaction.followup.send(
                     f"You've transfered {amount} <:coin1:910247623787700264> to {recipient}"
                 )
-            except:
+            except Exception:
                 change_player_coin(id_sender, name, amount, request=False)
                 await interaction.followup.send("Recipient not found")
-
-
 
     @tree.command()
     async def random_bot_name(self, interaction: discord.Interaction):
@@ -669,12 +668,13 @@ class ServerMisc(app_commands.Group): # Server_NRC
 
         await interaction.response.send_message(get_a_random_bot_name())
 
-    
     @tree.command()
     @app_commands.describe(
         length="Length of the tank", barrel="Number of barrels to be equipped"
     )
-    async def long_tank(self, interaction: discord.Interaction, length: int, barrel: int = 1):
+    async def long_tank(
+        self, interaction: discord.Interaction, length: int, barrel: int = 1
+    ):
         """⚪ Build your supercalifragilisticexpialidocious long tank equipped with as many barrels as you want!"""
 
         await interaction.response.defer(ephemeral=False, thinking=True)
@@ -740,8 +740,7 @@ class ServerMisc(app_commands.Group): # Server_NRC
             else even_space_encode
         )
 
-        even_space_encode_palindrome_decode = [
-            i for i in even_space_encode_palindrome]
+        even_space_encode_palindrome_decode = [i for i in even_space_encode_palindrome]
         for i in range(len(even_space_encode_palindrome_decode)):
             even_space_encode_palindrome_decode[i] = (
                 x if even_space_encode_palindrome_decode[i] == "x" else y
@@ -750,8 +749,7 @@ class ServerMisc(app_commands.Group): # Server_NRC
         output_middle = ""
         for i in range(len(even_space_encode_palindrome_decode) - 1):
             output_middle += (
-                long_emoji[1] *
-                even_space_encode_palindrome_decode[i] + long_emoji[2]
+                long_emoji[1] * even_space_encode_palindrome_decode[i] + long_emoji[2]
             )
         output_middle += long_emoji[1] * even_space_encode_palindrome_decode[-1]
         msg = f"{long_emoji[0]}{output_middle}{long_emoji[3]}"
@@ -763,10 +761,9 @@ class ServerMisc(app_commands.Group): # Server_NRC
             await quote.edit(
                 content=f"```ansi\nThis is your \u001b[2;32ml\u001b[1;32m{'o'*length}\u001b[0m\u001b[2;32mng\u001b[0m tank!```"
             )
-        except:
+        except Exception:
             await quote.edit(content="```\nThe tank is too long to build!```")
-    
-    
+
     @tree.command()
     async def bot_info(self, interaction: discord.Interaction):
         """⚪ Get info about this Discord bot"""
