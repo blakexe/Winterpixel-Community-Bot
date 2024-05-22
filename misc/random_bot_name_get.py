@@ -1,5 +1,6 @@
 import random
 
+
 def get_a_random_bot_name():
     # List contains all adjectives and nouns to generate a bot name
     adjective = [
@@ -528,7 +529,7 @@ def get_a_random_bot_name():
         "glow",
         "zenith",
     ]
-    
+
     noun = [
         "head",
         "crest",
@@ -890,7 +891,7 @@ def get_a_random_bot_name():
         "carpet",
         "curtain",
     ]
-    
+
     generated_random_bot_name = random.choice(noun).capitalize() + random.choice(
         adjective
     )
