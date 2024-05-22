@@ -124,7 +124,7 @@ def goober_dash_season_info(season, mode):
     return goober_dash_all_season_info
 
 
-class GooberDash(app_commands.Group):  # RBR_NRC
+class GooberDash(app_commands.Group):  # GD_NRC
     """GooberDash non-reaction commands"""
 
     def __init__(self, bot: discord.client):
@@ -474,27 +474,55 @@ class GooberDash(app_commands.Group):  # RBR_NRC
         # Format the level info
         # Send
         embed = discord.Embed(
-            title=f"{map_data['level_name']}",
+            title=f"{map_data['name']}",
             color=0x55D3FD,
             url=f"https://gooberdash.winterpixel.io/?play={level_id}",
         )
-        embed.add_field(name="Game Mode", value=f"{map_data['game_mode']}")
-        embed.add_field(name="Player Count", value=f"{map_data['player_count']}")
-        embed.add_field(name="Level Theme", value=f"{map_data['level_theme'].title()}")
-        embed.add_field(name="Rating", value=f"{map_data['rating']:.2f}/5")
+        # embed.add_field(name="Mode (Player)", value=f"{map_data['game_mode']} ({map_data['player_count']})")
+        embed.add_field(name="Mode", value=f"{map_data['game_mode']}")
+        embed.add_field(name="Player", value=f"{map_data['player_count']}")
+        embed.add_field(
+            name="Nodes", value=f"{len(json.loads(map_data['data'])['nodes'])}"
+        )
+        embed.add_field(name="Theme", value=f"{map_data['theme'].title()}")
+        try:
+            rating = int((map_data["rating"] - 1) * 25)
+            color_code = "32" if rating >= 76 else "33"
+            embed.add_field(
+                name="Rating",
+                value=f"```ansi\n👍 \u001b[0;{color_code}m{rating}%\u001b[0m ({map_data['rating_count']})```",
+            )
+        except KeyError:
+            embed.add_field(name="Rating", value="```\n👍 - (-)```")
+        status = (
+            "Certified" if map_data["published"] == "Curated" else map_data["published"]
+        )
+        if status == "Certified":
+            color_code = "32"
+        elif status == "Publisehd":
+            color_code = "33"
+        elif status == "Private":
+            color_code = "31"
+        embed.add_field(
+            name="Status", value=f"```ansi\n\u001b[0;{color_code}m{status}\u001b[0m```"
+        )
         embed.add_field(name="Author Name", value=f"{map_data['author_name']}")
         embed.add_field(name="Author ID", value=f"{map_data['author_id']}")
-        dt_create_time = f"{datetime.datetime.fromtimestamp(map_data['create_time']):%Y-%m-%d %H:%M:%S}"
+        embed.add_field(name="Level ID", value=f"{level_id}")
+        dt_create_time = datetime.datetime.fromisoformat(
+            map_data["create_time"].replace("Z", "+00:00").split(".")[0]
+        ).strftime("%Y-%m-%d %H:%M:%S")
         embed.add_field(
             name="Create Time",
             value=f"{dt_create_time} UTC ({timeago.format(dt_create_time, datetime.datetime.now())})",
         )
-        dt_update_time = f"{datetime.datetime.fromtimestamp(map_data['update_time']):%Y-%m-%d %H:%M:%S}"
+        dt_update_time = datetime.datetime.fromisoformat(
+            map_data["update_time"].replace("Z", "+00:00").split(".")[0]
+        ).strftime("%Y-%m-%d %H:%M:%S")
         embed.add_field(
             name="Update Time",
             value=f"{dt_update_time} UTC ({timeago.format(dt_update_time, datetime.datetime.now())})",
         )
-        embed.add_field(name="Level ID", value=f"{level_id}")
         embed.set_author(
             name="Detailed Level Info", icon_url="https://i.imgur.com/ygqFGL6.png"
         )
