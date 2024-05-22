@@ -2922,9 +2922,9 @@ async def on_ready():
     """Called when the Discord client is ready"""
 
     # Start up the 10 minute config refresher
-    asyncio.create_task(goober_dash.refresh_config())
-    asyncio.create_task(moonrock_miners.refresh_config())
-    asyncio.create_task(rocket_bot_royale.refresh_config())
+    asyncio.create_task(goober_dash.refresh_config(self))
+    asyncio.create_task(moonrock_miners.refresh_config(self))
+    asyncio.create_task(rocket_bot_royale.refresh_config(self))
 
     # Goober Dash public levels ratings daily update
     asyncio.create_task(goober_dash.public_levels_ratings_update())
