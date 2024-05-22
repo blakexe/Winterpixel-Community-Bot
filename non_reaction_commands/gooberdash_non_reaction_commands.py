@@ -514,19 +514,19 @@ class GooberDash(app_commands.Group):  # GD_NRC
         ).strftime("%Y-%m-%d %H:%M:%S")
         embed.add_field(
             name="Create Time",
-            value=f"{dt_create_time} UTC ({timeago.format(dt_create_time, datetime.datetime.now())})",
+            value=f"{dt_create_time} UTC\n({timeago.format(dt_create_time, datetime.datetime.now())})",
         )
         dt_update_time = datetime.datetime.fromisoformat(
             map_data["update_time"].replace("Z", "+00:00").split(".")[0]
         ).strftime("%Y-%m-%d %H:%M:%S")
         embed.add_field(
             name="Update Time",
-            value=f"{dt_update_time} UTC ({timeago.format(dt_update_time, datetime.datetime.now())})",
+            value=f"{dt_update_time} UTC\n({timeago.format(dt_update_time, datetime.datetime.now())})",
         )
         embed.set_author(
             name="Detailed Level Info", icon_url="https://i.imgur.com/ygqFGL6.png"
         )
-        embed.set_thumbnail(url="https://i.imgur.com/IVL3Jwg.png")
+        embed.set_thumbnail(url="https://i.imgur.com/ClPGAfP.png")
         await interaction.followup.send(embed=embed)
 
     @tree.command()
