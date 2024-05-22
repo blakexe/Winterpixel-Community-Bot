@@ -134,7 +134,7 @@ class goober_dash(app_commands.Group):  # GD_RC
     def __init__(self, bot: discord.client):
         super().__init__()
 
-    async def refresh_config(self):
+    async def refresh_config():
         """Refresh Goober Dash game configuration every 10 minutes"""
 
         global goober_dash_server_config
@@ -1082,7 +1082,7 @@ class moonrock_miners(app_commands.Group):  # MM_RC
     def __init__(self, bot: discord.client):
         super().__init__()
 
-    async def refresh_config(self):
+    async def refresh_config():
         """Refresh Moonrock Miners game configuration every 10 minutes"""
 
         global moonrock_miners_server_config
@@ -1604,7 +1604,7 @@ class rocket_bot_royale(app_commands.Group):  # RBR_RC
     def __init__(self, bot: discord.client):
         super().__init__()
 
-    async def refresh_config(self):
+    async def refresh_config():
         """Refresh Rocket Bot Royale game configuration every 10 minutes"""
 
         global rocket_bot_royale_server_config
@@ -2922,9 +2922,9 @@ async def on_ready():
     """Called when the Discord client is ready"""
 
     # Start up the 10 minute config refresher
-    asyncio.create_task(goober_dash.refresh_config(self))
-    asyncio.create_task(moonrock_miners.refresh_config(self))
-    asyncio.create_task(rocket_bot_royale.refresh_config(self))
+    asyncio.create_task(goober_dash.refresh_config())
+    asyncio.create_task(moonrock_miners.refresh_config())
+    asyncio.create_task(rocket_bot_royale.refresh_config())
 
     # Goober Dash public levels ratings daily update
     asyncio.create_task(goober_dash.public_levels_ratings_update())
