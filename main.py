@@ -175,7 +175,7 @@ class goober_dash(app_commands.Group):  # GD_RC
 
             await asyncio.sleep(600)
 
-    async def public_levels_ratings_update(self):
+    async def public_levels_ratings_update():
         """Refresh Goober Dash public levels ratings every day"""
 
         global goober_dash_server_config
