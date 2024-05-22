@@ -25,31 +25,32 @@ moonrock_miners_server_config = {}
 
 
 # Initialize moonrock miners client
-moonrock_miners_client = MoonrockMinersClient(rbr_mm_email_password, rbr_mm_email_password)
+moonrock_miners_client = MoonrockMinersClient(
+    rbr_mm_email_password, rbr_mm_email_password
+)
 
 
 async def refresh_config():
-  """Refresh Moonrock Miners game configuration"""
+    """Refresh Moonrock Miners game configuration"""
 
-  global moonrock_miners_server_config
+    global moonrock_miners_server_config
 
-  response = await moonrock_miners_client.get_config()
-  moonrock_miners_server_config = json.loads(response["payload"])
+    response = await moonrock_miners_client.get_config()
+    moonrock_miners_server_config = json.loads(response["payload"])
 
 
-class MoonrockMiners(app_commands.Group): # MM_NRC
+class MoonrockMiners(app_commands.Group):  # MM_NRC
     """Moonrock Miners non-reaction commands"""
-    
+
     def __init__(self, bot: discord.client):
         super().__init__()
 
-    
     @tree.command()
     async def get_config(self, interaction: discord.Interaction):
         """🟢 Get the most updated Moonrock Miners server config"""
 
         await refresh_config()
-        
+
         file = io.StringIO(json.dumps(moonrock_miners_server_config))
         await interaction.response.send_message(
             file=discord.File(fp=file, filename="moonrock_miners_server_config.json")
