@@ -196,7 +196,7 @@ class goober_dash(app_commands.Group):  # GD_RC
                 db["goober_dash_public_levels_ratings_3"][level_id] = int(
                     (map_data["rating"] - 1) * 25
                 )
-                time.sleep(1)
+                time.sleep(2)
 
             await asyncio.sleep(86400)
 
