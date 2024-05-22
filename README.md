@@ -49,9 +49,9 @@
   | Command | Example | Usage | Status |
   | -------- | -------- | -------- | -------- |
   | **goober_dash leaderboard** \<type\> \<changes\> \<country_code\> | `/goober_dash leaderboard type: 🏳️ Local changes: Shown country_code: CA` | Return the specified season leaderboard of Goober Dash of current season | $${\color{Green}\text{Up to date}}$$ |
-  | **goober_dash official_levels** \<levels\> \<sorted_by\> \<order\> | `/goober_dash official_levels levels: Knockout Levels only sorted_by: Update Time (Update) order: 🔻 Descending` | Return a list of official levels of Goober Dash, sorted by various values | $${\color{Yellow}\text{Obsolete}}$$ |
+  | **goober_dash official_levels** \<levels\> \<sorted_by\> \<order\> | `/goober_dash official_levels levels: Knockout Levels only sorted_by: Update Time (Update) order: 🔻 Descending` | Return a list of official levels of Goober Dash, sorted by various values | $${\color{Green}\text{Up to date}}$$ |
   | **goober-dash get_config** | `/goober-dash get_config` | Get the most updated Goober Dash server config | $${\color{Green}\text{Up to date}}$$ |
-  | **goober-dash level_info** \<level_id\> | `/goober-dash level_info level_id: ef17d73e-cb9b-4bb7-a3a9-4dcc32d9d65f` | Return info about a specified Goober Dash level | $${\color{Red}\text{Not Working}}$$ |
+  | **goober-dash level_info** \<level_id\> | `/goober-dash level_info level_id: ef17d73e-cb9b-4bb7-a3a9-4dcc32d9d65f` | Return info about a specified Goober Dash level | $${\color{Green}\text{Up to date}}$$ |
   | **goober-dash user_info** \<user_type\> \<id_or_username\> | `/goober-dash user_info user_type: Username id_or_username: GoodGoob` | Return info about a specified Goober Dash user | $${\color{Green}\text{Up to date}}$$ |
 </details>
 
@@ -89,12 +89,12 @@
   | Command | Example | Usage | Status |
   | -------- | -------- | -------- | -------- |
   | **server_misc discord_coins_leaderboard** \<changes\> | `/server_misc discord_coins_leaderboard changes: Hidden` | Return the Discord coins leaderboard | $${\color{Green}\text{Up to date}}$$ |
-  | **server_misc game_memory** | `/server_misc game_memory` | Test your memory by matching 2 tanks! | $${\color{Yellow}\text{Limited Functionality}}$$ |
+  | **server_misc game_memory** | `/server_misc game_memory` | Test your memory by matching 2 tanks! | $${\color{Green}\text{Up to date}}$$ |
   | **server-misc battle** | `/server-misc battle` | Have a battle with a random bot! | $${\color{Green}\text{Up to date}}$$ |
   | **server-misc bot_info** | `/server-misc bot_info` | Get info about this Discord bot | $${\color{Green}\text{Up to date}}$$ |
   | **server-misc build_a_bot** | `/server-misc build_a_bot` | Bear the responsibility of creating new life... I mean bot | $${\color{Green}\text{Up to date}}$$ |
   | **server-misc double_or_half** | `/server-misc double_or_half` | Helps you get out of a rut if your balance is negative | $${\color{Green}\text{Up to date}}$$ |
-  | **server-misc game_slot_machine** \<bet\> | `/server-misc game_slot_machine bet: 1` | Play the slot machine game! | $${\color{Yellow}\text{Limited Functionality}}$$ |
+  | **server-misc game_slot_machine** \<bet\> | `/server-misc game_slot_machine bet: 1` | Play the slot machine game! | $${\color{Green}\text{Up to date}}$$ |
   | **server-misc join_game**  | `/server-misc join_game` | Join the current game | $${\color{Green}\text{Up to date}}$$ |
   | **server-misc long_tank** \<length\> \<barrel\> | `/server-misc long_tank length: 5 barrel: 3` | Build your supercalifragilisticexpialidocious long tank equipped with as many barrels as you want! | $${\color{Green}\text{Up to date}}$$ |
   | **server-misc my_balance** | `/server-misc my_balance` | Find out how much coins you have on Discord | $${\color{Green}\text{Up to date}}$$ |
