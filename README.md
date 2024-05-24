@@ -13,6 +13,10 @@
   <a href="#-showcase">Showcase</a>
   <span> • </span>
   <a href="#-contributing">Contributing</a>
+  <span> • </span>
+  <a href="#-disclaimer">Disclaimer</a>
+  <span> • </span>
+  <a href="#-license">License</a>
   <p></p>
 </div>
 
@@ -26,12 +30,11 @@
 
 >[!Note]
 >The bot is in the process of migrating to a web-based application.<br>Thus, the commands may be outdated or with limited functionality.
-
 <br>
 
 ## 📝 Requirements
 - Run `pip install -r requirements.txt` to install the dependencies.
-<br><br>
+<br>
 
 ## 🚀 Usage
 - Join the [Winterpixel Games Discord server](https://discord.gg/kdGuBhXz2r) and try it out in `#bot-commands`!
@@ -111,7 +114,6 @@
   | -------- | -------- | -------- | -------- |
   | **sync_commands** | `/sync_commands` | Synchronizes the slash commands for the bot test | $${\color{Green}\text{Up to date}}$$ |
 </details>
-
 <br>
 
 ## 🌟 Showcase
@@ -136,6 +138,21 @@ And many more!
 [![Pull Requests Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat)](http://makeapullrequest.com)
 
 ![Alt](https://repobeats.axiom.co/api/embed/8c95b5e144a687c022819adab793b72de979a37d.svg "Repobeats analytics image")
+<br><br>
+
+## 📜 Disclaimer
+
+```
+© WinterpixelGames Inc. All rights reserved.
+Winterpixel, Rocket Bot Royale, Goober Dash, and Moonrock Miners are trademarks, services marks, or registered trademarks of WinterpixelGames.
+```
+- This bot includes official media copyrighted (©) by [Winterpixel Games](https://www.winterpixel.com/).
+- Though these media is subject to copyright, it is believed that its use qualifies as fair use under U.S. fair use laws when used on this tool, hosted on servers in the United States by [Replit, Inc](https://replit.com).
+<br>
+
+## 📝 License
+The source code is licensed under [MIT license](https://github.com/blakexe/Winterpixel-Community-Bot/blob/main/LICENSE).
+<br>
 
 ---
 
