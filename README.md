@@ -2,6 +2,12 @@
 <img src="https://github.com/blakexe/Winterpixel-Community-Bot/blob/main/media/banner.png" alt="banner">
 
 <div align="center">
+
+[![Website](https://img.shields.io/website?url=https%3A%2F%2Fwinterpixel-community-bot-20-ktank8k.replit.app&up_message=Up&up_color=brightgreen&down_message=Down&down_color=FF0000&style=flat-square&label=Bot&nbsp;Status)](https://winterpixel-community-bot-20-ktank8k.replit.app/)
+
+</div>
+
+<div align="center">
   <a href="#ℹ️-about">About</a>
   <span> • </span>
   <a href="#-requirements">Requirements</a>
@@ -135,7 +141,7 @@ And many more!
 - Open up an [issue](https://github.com/blakexe/Winterpixel-Community-Bot/issues) with the `enhancement` label.
 - You may also feel free to make a [pull request](https://github.com/blakexe/Winterpixel-Community-Bot/pulls) if you want to implement it on your own.
 
-[![Pull Requests Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat)](http://makeapullrequest.com)
+[![Pull Requests Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
 ![Alt](https://repobeats.axiom.co/api/embed/8c95b5e144a687c022819adab793b72de979a37d.svg "Repobeats analytics image")
 <br><br>
