@@ -4,6 +4,8 @@
 <div align="center">
 
 [![Website](https://img.shields.io/website?url=https%3A%2F%2Fwinterpixel-community-bot-20-ktank8k.replit.app&up_message=Up&up_color=brightgreen&down_message=Down&down_color=FF0000&style=flat-square&label=Bot&nbsp;Status)](https://winterpixel-community-bot-20-ktank8k.replit.app/)
+[![Static Badge](https://img.shields.io/badge/Hosted%20On%20Replit-_?style=flat&logo=replit&labelColor=grey&color=orange)](https://replit.com/@kTaNk8k/WinterPixelGamescom-streamlit-part/)
+[![Static Badge](https://img.shields.io/badge/Winterpixel%20Games-_?style=flat&logo=discord&labelColor=grey&color=7289da)](https://discord.gg/kdGuBhXz2r/)
 
 </div>
 
@@ -27,7 +29,6 @@
 </div>
 
 ## ℹ️ About
-<a href="https://replit.com/@kTaNk8k/Winterpixel-Community-Bot-20"><img width="125" src="https://github.com/blakexe/Winterpixel-Community-Bot/blob/main/media/hosted_on_replit_button.png" alt="Hosted On Replit"></a>
 - **A Discord Bot for [Winterpixel Games Discord server](https://discord.gg/kdGuBhXz2r) made by the community.**
 - Made with the newest version of [Rapptz discord.py](https://github.com/Rapptz/discord.py), using [slash commands](https://support.discord.com/hc/en-us/articles/1500000368501-Slash-Commands-FAQ).
 
