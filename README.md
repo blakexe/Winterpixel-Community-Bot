@@ -3,9 +3,9 @@
 
 <div align="center">
 
-[![Website](https://img.shields.io/website?url=https%3A%2F%2Fwinterpixel-community-bot-20-ktank8k.replit.app&up_message=Up&up_color=brightgreen&down_message=Down&down_color=FF0000&style=flat-square&label=Bot&nbsp;Status)](https://winterpixel-community-bot-20-ktank8k.replit.app/)
-[![Static Badge](https://img.shields.io/badge/Hosted%20On%20Replit-_?style=flat&logo=replit&labelColor=grey&color=orange)](https://replit.com/@kTaNk8k/WinterPixelGamescom-streamlit-part/)
-[![Static Badge](https://img.shields.io/badge/Winterpixel%20Games-_?style=flat&logo=discord&labelColor=grey&color=7289da)](https://discord.gg/kdGuBhXz2r/)
+[![Website](https://img.shields.io/website?url=https%3A%2F%2Fwinterpixel-community-bot-20-ktank8k.replit.app&up_message=Up&up_color=brightgreen&down_message=Down&down_color=FF0000&style=flat-square&label=Bot&nbsp;Status)](https://winterpixel-community-bot-20-ktank8k.replit.app)
+[![Static Badge](https://img.shields.io/badge/Hosted%20On%20Replit-_?style=flat&logo=replit&labelColor=grey&color=orange)](https://replit.com/@kTaNk8k/Winterpixel-Community-Bot-20)
+[![Static Badge](https://img.shields.io/badge/Winterpixel%20Games-_?style=flat&logo=discord&labelColor=grey&color=7289da)](https://discord.gg/kdGuBhXz2r)
 
 </div>
 
