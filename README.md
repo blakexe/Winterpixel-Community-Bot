@@ -154,7 +154,7 @@ And many more!
 Winterpixel, Rocket Bot Royale, Goober Dash, and Moonrock Miners are trademarks, services marks, or registered trademarks of WinterpixelGames.
 ```
 - This bot includes official media copyrighted (©) by [Winterpixel Games](https://www.winterpixel.com/).
-- Though these media is subject to copyright, it is believed that its use qualifies as fair use under U.S. fair use laws when used on this tool, hosted on servers in the United States by [Replit, Inc](https://replit.com).
+- Though shown media is subject to copyright, it is believed that its use qualifies as fair use under U.S. fair use laws when used on this tool, hosted on servers in the United States by [Replit, Inc](https://replit.com).
 <br>
 
 ## 📝 License
